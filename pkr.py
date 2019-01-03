@@ -55,41 +55,42 @@ def player1():
     if playround==1:
         hole1= r.randrange(1,53)
         hole2 =r.randrange(1,53)
-        
-        if hole1>1 and hole1<=13:
+
+        print(hole2)
+        if hole1>=1 and hole1<=13:
             for k,v in spade_cards.items():
                 if k == hole1:
                     print('Player1 your first card is :',v)
-        if hole1>13 and hole1<=126:
+        elif hole1>13 and hole1<=26:
             for k,v in diamond_cards.items():
                 if k == hole1:
                     print('Player1 your first card is :',v)
-        if hole1>27 and hole1<=39:
+        elif hole1>=27 and hole1<=39:
             for k,v in heart_cards.items():
                 if k == hole1:
                     print('Player1 your first card is :',v)
                                             
-        if hole1>40 and hole1<=52:
+        elif hole1>=40 and hole1<=52:
             for k,v in clubs_cards.items():
                 if k == hole1:
                     print('Player1 your first card is :',v)
  
         
 
-        if hole2>1 and hole2<=13:
+        if hole2>=1 and hole2<=13:
             for k,v in spade_cards.items():
                 if k == hole2:
                     print('Player1 Your second card is :',v)
-        if hole2>13 and hole2<=126:
+        elif hole2>13 and hole2<=26:
             for k,v in diamond_cards.items():
                 if k == hole2:
                     print('Player1 Your second card is :',v)
-        if hole2>27 and hole2<=39:
+        elif hole2>=27 and hole2<=39:
             for k,v in heart_cards.items():
                 if k == hole2:
                     print('Player1 Your second card is :',v)
     
-        if hole2>40 and hole2<=52:
+        elif hole2>=40 and hole2<=52:
             for k,v in clubs_cards.items():
                 if k == hole2:
                     print('Player1 your second card is :',v)
@@ -116,11 +117,11 @@ def player1():
                     return
 
 
-            if bet1=='f':
+            elif bet1=='f':
                 print('We are sorry to see you go ')
                 return
 
-            if bet1=='c':
+            elif bet1=='c':
                 print('Player1 has decided to check')
                 if pot==0:
                     bet1_amt=0
@@ -186,40 +187,40 @@ def player2():
         hole1= r.randrange(1,53)
         hole2 =r.randrange(1,53)
         
-        if hole1>1 and hole1<=13:
+        if hole1>=1 and hole1<=13:
             for k,v in spade_cards.items():
                 if k == hole1:
                     print('Player2 your first card is :',v)
-        if hole1>13 and hole1<=126:
+        elif hole1>13 and hole1<=26:
             for k,v in diamond_cards.items():
                 if k == hole1:
                     print('Player2 your first card is :',v)
-        if hole1>27 and hole1<=39:
+        elif hole1>=27 and hole1<=39:
             for k,v in heart_cards.items():
                 if k == hole1:
                     print('Player2 your first card is :',v)
                                             
-        if hole1>40 and hole1<=52:
+        elif hole1>=40 and hole1<=52:
             for k,v in clubs_cards.items():
                 if k == hole1:
                     print('Player2 your first card is :',v)
  
         
 
-        if hole2>1 and hole2<=13:
+        if hole2>=1 and hole2<=13:
             for k,v in spade_cards.items():
                 if k == hole2:
                     print('Player2 Your second card is :',v)
-        if hole2>13 and hole2<=126:
+        elif hole2>13 and hole2<=26:
             for k,v in diamond_cards.items():
                 if k == hole2:
                     print('Player2 Your second card is :',v)
-        if hole2>27 and hole2<=39:
+        elif hole2>=27 and hole2<=39:
             for k,v in heart_cards.items():
                 if k == hole2:
                     print('Player2 Your second card is :',v)
     
-        if hole2>40 and hole2<=52:
+        elif hole2>=40 and hole2<=52:
             for k,v in clubs_cards.items():
                 if k == hole2:
                     print('Player2 your second card is :',v)
@@ -312,20 +313,20 @@ def card1():
 
     global com_count
     if com_count==1:
-        if com_card1 > 1 and com_card1 <= 13:
+        if com_card1 >= 1 and com_card1 <= 13:
             for k, v in spade_cards.items():
                 if k == com_card1:
                     print('The first community card is: :', v)
-        if com_card1 > 13 and com_card1 <= 126:
+        if com_card1 > 13 and com_card1 <= 26:
             for k, v in diamond_cards.items():
                 if k == com_card1:
                     print('The first community card is: :', v)
-        if com_card1 > 27 and com_card1 <= 39:
+        if com_card1 >= 27 and com_card1 <= 39:
             for k, v in heart_cards.items():
                 if k == com_card1:
                     print('The first community card is: :', v)
 
-        if com_card1 > 40 and com_card1 <= 52:
+        if com_card1 >= 40 and com_card1 <= 52:
             for k, v in clubs_cards.items():
                 if k == com_card1:
                     print('The first community card is: :', v)
@@ -336,20 +337,20 @@ def card2():
     com_card2 = r.randrange(1, 53)
     global com_count
     if com_count == 2:
-        if com_card2 > 1 and com_card2 <= 13:
+        if com_card2 >= 1 and com_card2 <= 13:
             for k, v in spade_cards.items():
                 if k == com_card2:
                     print('The second community card is: :', v)
-        if com_card2 > 13 and com_card2 <= 126:
+        if com_card2 > 13 and com_card2 <= 26:
             for k, v in diamond_cards.items():
                 if k == com_card2:
                     print('The second community card is: :', v)
-        if com_card2 > 27 and com_card2 <= 39:
+        if com_card2 >= 27 and com_card2 <= 39:
             for k, v in heart_cards.items():
                 if k == com_card2:
                     print('The second community card is: :', v)
 
-        if com_card2 > 40 and com_card2 <= 52:
+        if com_card2 >= 40 and com_card2 <= 52:
             for k, v in clubs_cards.items():
                 if k == com_card2:
                     print('The second community card is: :', v)
@@ -364,16 +365,16 @@ def card3():
             for k, v in spade_cards.items():
                 if k == com_card3:
                     print('The third community card is: :', v)
-        if com_card3 > 13 and com_card3 <= 126:
+        if com_card3 > 13 and com_card3 <= 26:
             for k, v in diamond_cards.items():
                 if k == com_card3:
                     print('The third community card is: :', v)
-        if com_card3 > 27 and com_card3<= 39:
+        if com_card3 >= 27 and com_card3<= 39:
             for k, v in heart_cards.items():
                 if k == com_card3:
                     print('The third community card is: :', v)
 
-        if com_card3 > 40 and com_card3<= 52:
+        if com_card3 >= 40 and com_card3<= 52:
             for k, v in clubs_cards.items():
                 if k == com_card3:
                     print('The third community card is: :', v)
