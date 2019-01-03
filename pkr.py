@@ -48,8 +48,9 @@ def player1():
         
 
     
-    global  playround,bet1_amt
+    global  playround,bet1_amt,bet1,money1
     playround+=1
+    print('value of playground is',playround)
     
     if playround==1:
         hole1= r.randrange(1,53)
@@ -130,13 +131,42 @@ def player1():
                     print('The value of the pot currently is:', pot) #not important because this is only for round 1
                     return
 
-    if playround==3 and bet1!='f':
-        bet1= input('Would you like to check/fold/raise?')
+    if playround==3:
+        bet1= input('Player1 Would you like to check/fold/raise?')
         if bet1=='r':
             print('money left:',money1)
             bet1_amt=int(input('How much would you like to raise:?'))
-            if bet1_amt>bet #it has to be greater than check and also minus from money and put in else if bet>money aghrrh
+            #if bet1_amt>bet #it has to be greater than check and also minus from money and put in else if bet>money aghrrh
+            pot+=bet1_amt
+            money1-=bet1_amt
+            print('money left for player1',money1)
+            print('The value of the pot currently is:', pot)
+        if bet1=='c':
+            print('player 1 has decided to check')
+            pot+=bet2_amt
+            print('The value of the pot currently is:', pot)
+            money1-=bet2_amt
+            bet1_amt=bet2_amt
+            print('money left for player1',money1)
+            
 
+    if playround==5:
+        bet1= input('Player1 Would you like to check/fold/raise?')
+        if bet1=='r':
+            print('money left:',money1)
+            bet1_amt=int(input('How much would you like to raise:?'))
+            #if bet1_amt>bet #it has to be greater than check and also minus from money and put in else if bet>money aghrrh
+            pot+=bet1_amt
+            print('The value of the pot currently is:', pot)
+        if bet1=='c':
+            print('player 1 has decided to check')
+            pot+=bet2_amt
+            print('The value of the pot currently is:', pot)
+            money1-=bet2_amt
+            bet1_amt=bet2_amt
+            print('money left for player1',money1)
+        
+            
 
             
 
@@ -148,9 +178,9 @@ def player2():
     else:
         return'''
         
-    global playround,bet2
+    global playround,bet2,bet2_amt,money2
     playround+=1
-    
+    print('value of playground is',playround)
     print('hello')
     if playround==2:
         hole1= r.randrange(1,53)
@@ -203,7 +233,7 @@ def player2():
 
             bet2=input('Player2 Would you like to place the initial bet or fold or check(b/f/c)?')
             if bet2=='b':
-                print('How much is your bet Player2 (1-',money1,')')
+                print('How much is your bet Player2 (1-',money2,')')
                 bet2_amt=int(input())
                 if bet2_amt>money1:
                     print('You can"t bet what you don''t have ')
@@ -232,7 +262,48 @@ def player2():
                     bet2_amt=bet1_amt
                     pot+=bet2_amt
                     print('The value of the pot currently is:', pot)
+                    money2 -= bet2_amt
+                    print('Money left by player 2 is:',money2)
                     return
+    if playround==4:
+        bet1= input('Player2 Would you like to check/fold/raise?')
+        if bet2=='r':
+            print('money left:',money2)
+            bet2_amt=int(input('How much would you like to raise:?'))
+            #if bet1_amt>bet #it has to be greater than check and also minus from money and put in else if bet>money aghrrh
+            pot+=bet2_amt
+            print('The value of the pot currently is:', pot)
+            money2 -= bet2_amt
+            print('Money left by player 2 is:',money2)
+        if bet1=='c':
+            print('player 2 has decided to check')
+            pot+=bet1_amt
+            print('The value of the pot currently is:', pot)
+            bet1_amt=bet2_amt
+            money2 -= bet1_amt
+            print('Money left by player 2 is:',money2)
+    
+    
+    
+    
+    if playround==6:
+        bet1= input('Player2 Would you like to check/fold/raise?')
+        if bet2=='r':
+            print('money left:',money2)
+            bet2_amt=int(input('How much would you like to raise:?'))
+            #if bet1_amt>bet #it has to be greater than check and also minus from money and put in else if bet>money aghrrh
+            pot+=bet2_amt
+            print('The value of the pot currently is:', pot)
+            money2 -= bet2_amt
+            print('Money left by player 2 is:',money2)
+        if bet1=='c':
+            print('player 1 has decided to check')
+            pot+=bet1_amt
+            print('The value of the pot currently is:', pot)
+            bet1_amt=bet2_amt
+            money2 -= bet1_amt
+            print('Money left by player 2 is:',money2)
+    
 
 
 
@@ -263,6 +334,7 @@ def card1():
 
 def card2():
     com_card2 = r.randrange(1, 53)
+    global com_count
     if com_count == 2:
         if com_card2 > 1 and com_card2 <= 13:
             for k, v in spade_cards.items():
@@ -281,12 +353,46 @@ def card2():
             for k, v in clubs_cards.items():
                 if k == com_card2:
                     print('The second community card is: :', v)
+        com_count+=1
         return
 
+def card3():
+    com_card3 = r.randrange(1, 53)
+    global com_count
+    if com_count == 3:
+        if com_card3 > 1 and com_card3 <= 13:
+            for k, v in spade_cards.items():
+                if k == com_card3:
+                    print('The third community card is: :', v)
+        if com_card3 > 13 and com_card3 <= 126:
+            for k, v in diamond_cards.items():
+                if k == com_card3:
+                    print('The third community card is: :', v)
+        if com_card3 > 27 and com_card3<= 39:
+            for k, v in heart_cards.items():
+                if k == com_card3:
+                    print('The third community card is: :', v)
+
+        if com_card3 > 40 and com_card3<= 52:
+            for k, v in clubs_cards.items():
+                if k == com_card3:
+                    print('The third community card is: :', v)
+        return
+
+    
 
 player1()
 player2()
 card1()
 player1()
+player2()
 card2()
+player1()
+player2()
+card3()
+player1()
+player2()
+#TODO add the final comparing of cards and also minus the money1 and 2 vars which is currently not being done
+#TODO Work on fold but do it in the end basic card comparing comes first
 #TODO make it such that if everyone checks on the first round then the community cards are directly unveiled
+#add playround 7 and 6
