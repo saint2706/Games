@@ -114,6 +114,7 @@ def player1():
                     pot+=bet1_amt
                     money1-=bet1_amt
                     print('The value of the pot currently is:',pot)
+                    print('money left:',money1)
                     return
 
 
@@ -130,6 +131,7 @@ def player1():
                 else:
                     pot+=bet1_amt
                     print('The value of the pot currently is:', pot) #not important because this is only for round 1
+                    print('money left:',money1)
                     return
 
     if playround==3:
@@ -143,12 +145,15 @@ def player1():
             print('money left for player1',money1)
             print('The value of the pot currently is:', pot)
         if bet1=='c':
-            print('player 1 has decided to check')
-            pot+=bet2_amt
-            print('The value of the pot currently is:', pot)
-            money1-=bet2_amt
-            bet1_amt=bet2_amt
-            print('money left for player1',money1)
+            if bet2_amt>money1:
+                print('You can"t bet what you don''t have ')
+            else:
+                print('player 1 has decided to check')
+                pot+=bet2_amt
+                print('The value of the pot currently is:', pot)
+                money1-=bet2_amt
+                bet1_amt=bet2_amt
+                print('money left for player1',money1)
             
 
     if playround==5:
@@ -156,17 +161,20 @@ def player1():
         if bet1=='r':
             print('money left:',money1)
             bet1_amt=int(input('How much would you like to raise:?'))
+            if bet1_amt>money1:
+                print('You cant bet with what you dont have')
             #if bet1_amt>bet #it has to be greater than check and also minus from money and put in else if bet>money aghrrh
             pot+=bet1_amt
             print('The value of the pot currently is:', pot)
-        if bet1=='c':
+        if bet2_amt>money1:
+            print('You can"t bet what you don''t have ')
+        else:
             print('player 1 has decided to check')
             pot+=bet2_amt
             print('The value of the pot currently is:', pot)
             money1-=bet2_amt
             bet1_amt=bet2_amt
             print('money left for player1',money1)
-        
             
 
             
@@ -244,6 +252,7 @@ def player2():
                     pot+=bet2_amt
                     money2 -= bet2_amt
                     print('The value of the pot currently is:',pot)
+                    print('money left:',money2)
                     return
 
 
@@ -397,3 +406,4 @@ player2()
 #TODO Work on fold but do it in the end basic card comparing comes first
 #TODO make it such that if everyone checks on the first round then the community cards are directly unveiled
 #add playround 7 and 6
+#add all if statements in while loop so that continue can be used for going back when bet_amt is greater than money
