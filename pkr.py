@@ -5,9 +5,12 @@ Created on Wed Dec 19 09:28:23 2018
 @author: student
 """
 
+
 #%%
 #poker
 import random as r
+from collections import Counter
+
 pot=0
 money1=10
 money2=10
@@ -56,9 +59,9 @@ def player1():
         
 
     
-    global  playround,bet1_amt,money1,pl1_card1,pl1_card2
+    global  playround,bet1_amt,money1,pl1_card1,pl1_card2,pl1_v1,pl1_v2
     playround+=1
-    print('value of playground is',playround)
+
     
     if playround==1:
         hole1= r.randrange(1,53)
@@ -70,22 +73,26 @@ def player1():
                 if k == hole1:
                     print('Player1 your first card is :',v)
                     pl1_card1=k
+                    pl1_v1=v
         elif hole1>13 and hole1<=26:
             for k,v in diamond_cards.items():
                 if k == hole1:
                     print('Player1 your first card is :',v)
                     pl1_card1 = k
+                    pl1_v1 = v
         elif hole1>=27 and hole1<=39:
             for k,v in heart_cards.items():
                 if k == hole1:
                     print('Player1 your first card is :',v)
                     pl1_card1 = k
+                    pl1_v1 = v
                                             
         elif hole1>=40 and hole1<=52:
             for k,v in clubs_cards.items():
                 if k == hole1:
                     print('Player1 your first card is :',v)
                     pl1_card1 = k
+                    pl1_v1 = v
  
         
 
@@ -94,22 +101,26 @@ def player1():
                 if k == hole2:
                     print('Player1 Your second card is :',v)
                     pl1_card2=k
+                    pl1_v2 = v
         elif hole2>13 and hole2<=26:
             for k,v in diamond_cards.items():
                 if k == hole2:
                     print('Player1 Your second card is :',v)
                     pl1_card2 = k
+                    pl1_v2 = v
         elif hole2>=27 and hole2<=39:
             for k,v in heart_cards.items():
                 if k == hole2:
                     print('Player1 Your second card is :',v)
                     pl1_card2 = k
+                    pl1_v2 = v
     
         elif hole2>=40 and hole2<=52:
             for k,v in clubs_cards.items():
                 if k == hole2:
                     print('Player1 your second card is :',v)
                     pl1_card2 = k
+                    pl1_v2 = v
                     
         
         
@@ -215,9 +226,9 @@ def player2():
     else:
         return'''
         
-    global playround,bet2_amt,money2,pl2_card1,pl2_card2
+    global playround,bet2_amt,money2,pl2_card1,pl2_card2,pl2_v1,pl2_v2
     playround+=1
-    print('value of playground is',playround)
+
     #print('hello')
     if playround==2:
         hole1= r.randrange(1,53)
@@ -228,22 +239,26 @@ def player2():
                 if k == hole1:
                     print('Player2 your first card is :',v)
                     pl2_card1=k
+                    pl2_v1=v
         elif hole1>13 and hole1<=26:
             for k,v in diamond_cards.items():
                 if k == hole1:
                     print('Player2 your first card is :',v)
                     pl2_card1 = k
+                    pl2_v1 = v
         elif hole1>=27 and hole1<=39:
             for k,v in heart_cards.items():
                 if k == hole1:
                     print('Player2 your first card is :',v)
                     pl2_card1 = k
+                    pl2_v1 = v
                                             
         elif hole1>=40 and hole1<=52:
             for k,v in clubs_cards.items():
                 if k == hole1:
                     print('Player2 your first card is :',v)
                     pl2_card1 = k
+                    pl2_v1 = v
  
         
 
@@ -252,22 +267,26 @@ def player2():
                 if k == hole2:
                     print('Player2 Your second card is :',v)
                     pl2_card2=k
+                    pl2_v2 = v
         elif hole2>13 and hole2<=26:
             for k,v in diamond_cards.items():
                 if k == hole2:
                     print('Player2 Your second card is :',v)
                     pl2_card2 = k
+                    pl2_v2 = v
         elif hole2>=27 and hole2<=39:
             for k,v in heart_cards.items():
                 if k == hole2:
                     print('Player2 Your second card is :',v)
                     pl2_card2 = k
+                    pl2_v2 = v
     
         elif hole2>=40 and hole2<=52:
             for k,v in clubs_cards.items():
                 if k == hole2:
                     print('Player2 your second card is :',v)
                     pl2_card2 = k
+                    pl2_v2 = v
                     
         
         
@@ -377,105 +396,446 @@ def player2():
 def card1():
     com_card1= r.randrange(1,53)
 
-    global com_count,com1
+    global com_count,com1,com_v1
     if com_count==1:
         if com_card1 >= 1 and com_card1 <= 13:
             for k, v in spade_cards.items():
                 if k == com_card1:
                     print('The first community card is: :', v)
                     com1=k
+                    com_v1=v
         if com_card1 > 13 and com_card1 <= 26:
             for k, v in diamond_cards.items():
                 if k == com_card1:
                     print('The first community card is: :', v)
                     com1 = k
+                    com_v1 = v
         if com_card1 >= 27 and com_card1 <= 39:
             for k, v in heart_cards.items():
                 if k == com_card1:
                     print('The first community card is: :', v)
                     com1 = k
+                    com_v1 = v
 
         if com_card1 >= 40 and com_card1 <= 52:
             for k, v in clubs_cards.items():
                 if k == com_card1:
                     print('The first community card is: :', v)
                     com1 = k
+                    com_v1 = v
         com_count+=1
         return
 
 def card2():
     com_card2 = r.randrange(1, 53)
-    global com_count,com2
+    global com_count,com2,com_v2
     if com_count == 2:
         if com_card2 >= 1 and com_card2 <= 13:
             for k, v in spade_cards.items():
                 if k == com_card2:
                     print('The second community card is: :', v)
                     com2 = k
+                    com_v2 = v
         if com_card2 > 13 and com_card2 <= 26:
             for k, v in diamond_cards.items():
                 if k == com_card2:
                     print('The second community card is: :', v)
                     com2 = k
+                    com_v2 = v
         if com_card2 >= 27 and com_card2 <= 39:
             for k, v in heart_cards.items():
                 if k == com_card2:
                     print('The second community card is: :', v)
                     com2 = k
+                    com_v2 = v
 
         if com_card2 >= 40 and com_card2 <= 52:
             for k, v in clubs_cards.items():
                 if k == com_card2:
                     print('The second community card is: :', v)
                     com2 = k
+                    com_v2 = v
         com_count+=1
         return
 
 def card3():
     com_card3 = r.randrange(1, 53)
-    global com_count,com3
+    global com_count,com3,com_v3
     if com_count == 3:
         if com_card3 > 1 and com_card3 <= 13:
             for k, v in spade_cards.items():
                 if k == com_card3:
                     print('The third community card is: :', v)
                     com3=k
+                    com_v3 = v
         if com_card3 > 13 and com_card3 <= 26:
             for k, v in diamond_cards.items():
                 if k == com_card3:
                     print('The third community card is: :', v)
                     com3 = k
+                    com_v3 = v
         if com_card3 >= 27 and com_card3<= 39:
             for k, v in heart_cards.items():
                 if k == com_card3:
                     print('The third community card is: :', v)
                     com3 = k
+                    com_v3 = v
 
         if com_card3 >= 40 and com_card3<= 52:
             for k, v in clubs_cards.items():
                 if k == com_card3:
                     print('The third community card is: :', v)
                     com3 = k
+                    com_v3 = v
         return
 
 
 
+play= input('Would you lie to play against another player or would you like to play against the computer(p/c)')
 
-player1()
-player2()
+if play=='p':
 
-card1()
-player1()
-player2()
-card2()
-player1()
-player2()
-card3()
-player1()
-player2()
+    player1()
+    player2()
+
+    card1()
+    player1()
+    player2()
+    card2()
+    player1()
+    player2()
+    card3()
+    player1()
+    player2()
+elif play=='c':
+    print('its coming')
 
 print('player1 cards are:',pl1_card1,pl1_card2,com1,com2,com3)
 print('player2 cards are:',pl2_card1,pl2_card2,com1,com2,com3)
+
+print('player1 cards are:',pl1_v1,pl1_v2,com_v1,com_v2,com_v3)
+print('player2 cards are:',pl2_v1,pl2_v2,com_v1,com_v2,com_v3)
+
+
+
+
+f=0
+
+global l1,l2
+un_l1=l1=[pl1_card1,pl1_card2,com1,com2,com3]
+l2=[pl2_card1,pl2_card2,com1,com2,com3]
+royal=0
+evaluator=0
+#unl1 is unmodified version of l1 which is modified by four of a kind
+def royal_flush():
+    global l1, evaluator
+    s=sum(l1)
+
+    royal=0
+    l1=sorted(l1)
+    if s<=65:
+        if 1 and 10 in l1:
+            for i in range(1,len(l1)-1):
+                if l1[i]-l1[i+1]==-1:
+                    royal+=1
+            if royal==3:
+                print('It is a royal flush')
+                evaluator=1
+
+            else:
+                return
+
+    elif s>65 and s<=130:
+        if 14 and 23 in l1:
+            for i in range(1,len(l1)-1):
+                if l1[i]-l1[i+1]==-1:
+                    royal+=1
+            if royal==3:
+                print('It is a royal flush')
+                evaluator=1
+
+            else:
+                return
+
+    elif s>130 and s<=195:
+        if 27 and 36 in l1:
+            for i in range(1,len(l1)-1):
+                if l1[i]-l1[i+1]==-1:
+                    royal+=1
+            if royal==3:
+                print('It is a royal flush')
+                evaluator=1
+
+            else:
+                return
+
+    elif s>195 and s<=260:
+        if 40 and 49 in l1:
+            for i in range(1,len(l1)-1):
+                if l1[i]-l1[i+1]==-1:
+                    royal+=1
+            if royal==3:
+                print('It is a royal flush')
+                evaluator=1
+
+            else:
+                return
+    else:
+        return
+
+def straight_flush():
+    global l1,evaluator
+    s=sum(l1)
+    l1=sorted(l1)
+    straight=0
+    if s <= 65:
+        for i in range(len(l1)-1):
+            if l1[i]-l1[i+1]==-1:
+                straight+=1
+                #print('h')
+        if straight==4:
+            print('it is a straight flush')
+            evaluator=2
+        else:
+            return
+
+    elif s > 65 and s <= 130:
+        for i in range(len(l1)-1):
+            if l1[i]-l1[i+1]==-1:
+                straight+=1
+        if straight==4:
+            print('it is a straight flush')
+            evaluator=2
+        else:
+            return
+
+
+    elif s > 130 and s <= 195:
+        for i in range(len(l1)-1):
+            if l1[i]-l1[i+1]==-1:
+                straight+=1
+        if straight==4:
+            print('it is a straight flush')
+            evaluator=2
+        else:
+            return
+
+    elif s > 195 and s <= 260:
+        for i in range(len(l1)-1):
+            if l1[i]-l1[i+1]==-1:
+                straight+=1
+        if straight==4:
+            print('it is a straight flush')
+            evaluator=2
+        else:
+            return
+
+def four_of_a_kind():
+    #print('four')
+    global l1,evaluator
+    l1=sorted(l1)
+    four=0
+    i=0
+    while i!=5:
+        if l1[i]>13 and l1[i]<27:
+            l1[i]=l1[i]-13
+
+
+        elif l1[i]>=27 and l1[i]<40:
+            l1[i]=l1[i]-26
+
+        elif l1[i]>=40 and l1[i]<53:
+            l1[i]=l1[i]-39
+
+        print(l1)
+        i+=1
+
+    '''for i in range(len(l1)-1):
+        if l1[i]==l1[i+1]:
+            four+=1
+        else:
+            pass
+    else:
+        if four==3:
+            evaluator=3
+            print('it is four of kind')
+        else:
+            return'''
+    count= Counter(l1)
+    for k,v in count.items():
+        if v==4:
+            print('it is four of a kind')
+            evaluator=3
+            return
+
+def full_house():
+    global l1, evaluator
+    l1 = sorted(l1)
+    full = 0
+    full1=0
+    i = 0
+    '''while i != 4:
+        if l1[i] > 13 and l1[i] < 27:
+            l1[i] = l1[i] - 13
+
+        elif l1[i] >= 27 and l1[i] < 40:
+            l1[i] = l1[i] - 26
+
+        elif l1[i] >= 40 and l1[i] < 53:
+            l1[i] = l1[i] - 39
+        print(l1)
+        i += 1'''
+    count= Counter(l1)
+    for k,v in count.items():
+        if v==2:
+            full+=5
+        elif v==3:
+            full+=5
+        else:
+            break
+    else:
+        if full==10:
+            print('it is a full house')
+            evaluator=4
+        else:
+            return
+#problem is l1 is being modified by four so we use diffrent version of list
+def flush():
+    global un_l1,evaluator
+    s= sum(un_l1)
+    suit1=0
+    suit2=0
+    suit3=0
+    suit4=0
+    for i in range(len(un_l1)):
+        if un_l1[i]<=13:
+            suit1+=1
+        elif un_l1[i]>13 and un_l1[i]<=26:
+            suit2+=1
+        elif un_l1[i]>26 and un_l1[i]<=29:
+            suit3+=1
+        elif un_l1[i]>39 and un_l1[i]<=52:
+            suit4+=1
+    else:
+        if suit1==5 or suit2==5 or suit3==5 or suit4==5:
+            print('It is a flush')
+            evaluator=5
+        else:
+            return
+
+def straight():
+    global l1,evaluator
+    l1=sorted(l1)
+    straight=0
+    for i in range(len(l1)-1):
+        if l1[i]-l1[i+1]==-1:
+            straight+=1
+    else:
+        if straight==4:
+            print('it is a straight')
+            evaluator=6
+
+def three_of_a_kind():
+    global l1,evaluator
+    three=0
+    count= Counter(l1)
+    for k,v in count.items():
+        if v==3:
+            three+=3
+    else:
+        if three==3:
+            print('it is three of a kind')
+            evaluator=7
+
+def two_pair():
+    global l1,evaluator
+    two_pair=0
+    count=Counter(l1)
+
+    for k,v in count.items():
+        if v==2:
+            two_pair+=2
+
+    else:
+        if two_pair==4:
+            print('it is a two pair')
+            evaluator=8
+
+def single_pair():
+    global l1,evaluator
+    two_pair=0
+    count=Counter(l1)
+
+    for k,v in count.items():
+        if v==2:
+            two_pair+=2
+
+    else:
+        if two_pair==2:
+            print('it is a single pair')
+            evaluator=9
+
+def high_card():
+    global evaluator,un_l1,l1
+    if evaluator==0:
+        un_l1=sorted(un_l1)
+        for k,v in spade_cards.items():
+            if k== un_l1[0]:
+                print('The high card is',v)
+        for k,v in diamond_cards.items():
+            if k== un_l1[0]:
+                print('The high card is',v)
+        for k,v in heart_cards.items():
+            if k== un_l1[0]:
+                print('The high card is',v)
+        for k,v in clubs_cards.items():
+            if k== un_l1[0]:
+                print('The high card is',v)
+        evaluator=10
+        l1=sorted(l1)
+        high=l1[0]
+        print('high value',high)
+i=0
+while True:
+    royal_flush()
+    straight_flush()
+    four_of_a_kind()
+    full_house()
+    flush()
+    straight()
+    three_of_a_kind()
+    two_pair()
+    single_pair()
+    high_card()
+
+    if i==0:
+        evaluator
+        Player1_val=evaluator
+        i+=1
+        l1=l2
+        evaluator=0
+    elif i==1:
+        player2_val=evaluator
+        i+=1
+        break
+
+print(Player1_val,player2_val)
+
+if Player1_val>player2_val:
+    print('Player 2 wins')
+    money2+=pot
+    print('you now have',money2)
+elif player2_val>Player1_val:
+    print('Player 1 wins')
+    money1+=pot
+    print('Player1 you now have',money1)
+else:
+    print('its a draw')
+    money1+=pot/2
+    money2+=pot/2
+    print('the pot is divided')
+    print('Money with player1',money1)
+    print('money with player2',money2)
 
 
 #TODO add the final comparing of cards and also minus the money1 and 2 vars which is currently not being done
