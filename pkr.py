@@ -1177,6 +1177,7 @@ while play_again!='q':
             continue
 
         elif play_again=='q':
+            print('Thank You for playing!')
             break
 
         else:
