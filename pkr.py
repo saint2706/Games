@@ -10,7 +10,7 @@ Created on Wed Dec 19 09:28:23 2018
 import random as r
 from collections import Counter
 import time
-
+import sys
 pot = 0
 money1 = 1000
 money2 = 1000
@@ -48,7 +48,7 @@ clubs_cards = {40: 'Ace of clubs', 41: 'Two of clubs', 42: 'three of clubs', 43:
 
 
 
-print(r'''         |-----------   |-----------|   |     /      |----------    |------------
+pok=r'''         |-----------   |-----------|   |     /      |----------    |------------
          |          |   |           |   |   /        |              |           |
          |          |   |           |   |  /         |              |           |
          |----------|   |           |   |/           |              |-----------|
@@ -56,15 +56,49 @@ print(r'''         |-----------   |-----------|   |     /      |----------    |-
          |              |           |   |  \         |              |    \
          |              |           |   |   \        |              |     \
          |              |-----------|   |    \       |----------    |      \
-''')
+'''
 
-print('rules')
-print('rules')
-print('rules')
-print('rules')
-print('rules')
-print('rules')
-print('rules')
+
+for l in pok:
+    sys.stdout.write(l)
+    sys.stdout.flush()
+    time.sleep(0.001)
+
+print('Rules for poker------>')
+print('In poker a total of 5 cards are dealt to each player over a period of 4 rounds. The player who has the better hand or better combination of cards wins')
+a='''\nBelow are the card combinations that are possible and the probability of getting that combination in order of best-worst\n
+
+Royal Flush: 10,Jack,Queen,King,Ace of the same suit (0.0001% probability)
+
+Straight Flush : All cards in sequence and of the same suit (0.001% probability)
+
+Four of a kind: Four cards of the same rank and one misc card (0.02% probability)
+
+Full House: Three cards of the same rank and Two cards of another rank (0.14% probability)
+
+Flush: All 5 cards of the same suit ,not required to be in sequence (0.2% probability)
+
+Straight: All 5 cards in sequence , not required to be of the same suit (0.4% probability)
+
+Three of kind: Three cards of the same rank (2.1% probability)
+
+Two pair: Two cards of the same rank and another 2 cards of the same rank (4.7% probability)
+
+Single pair: Two cards of the same rank (42.2% probability)
+
+High card: When all of the above combinations do not apply then the value of the greatest card in the deck is considered (50% probability)
+ '''
+
+print(a)
+
+
+print('1.Each player is dealt 2 cards at the beggining of the game.These are know as hole cards')
+print('2.After the hole cards are dealt round one begins and each player has the oppurtunity to place a bet,fold or check')
+print('Check: It means the player does not wish to place a bet now and play goes on' )
+print('Fold: If you think that your cards are not good enough ,you may fold giving the opponent the win.\n You also lose all the money that has been bet till that point')
+print('Call: this appears in the later rounds. It means to bet  the same amount as the player before you')
+print('Raise:Same as bet')
+print('\nPress enter to start!')
 start=input()
 if start=='':
     print('Welcome! as a starting gift each player is given 1000$')
@@ -161,17 +195,24 @@ def player1():
             if pot == 0:
                 bet1_amt = 0
                 time.sleep(2)
+                print()
                 print('The value of the pot currently is:', pot)
+                print()
                 break
             else:
                 pot += bet1_amt
+                print()
                 print('The value of the pot currently is:', pot)  # not important because this is only for round 1
+                print()
                 print('Money left(Player1):', money1)
+                print()
                 break
 
     while playround == 3 or playround == 5:
-        bet1 = input('Player1 Would you like to check/fold/raise?')
+        print()
+        bet1 = input('Player1 Would you like to call/fold/raise?')
         if bet1 == 'r':
+            print()
             bet1_amt = int(input('How much would you like to raise (1-', money1, ')?'))
             # if bet1_amt>bet #it has to be greater than check and also minus from money and put in else if bet>money aghrrh
             if bet1_amt > money1:
@@ -180,7 +221,9 @@ def player1():
             else:
                 pot += bet1_amt
                 money1 -= bet1_amt
+                print()
                 print('Money left(player1)', money1)
+                print()
                 print('The value of the pot currently is:', pot)
                 break
         elif bet1 == 'c':
@@ -188,7 +231,7 @@ def player1():
                 print('You can"t bet what you don''t have ')
                 continue
             else:
-                print('player 1 has decided to check')
+                print('player 1 has decided to call')
                 pot += bet2_amt
                 print()
                 print('The value of the pot currently is:', pot)
@@ -269,8 +312,10 @@ def player2():
         # bets
 
     while playround == 2:
-
+        print()
+        print()
         bet2 = input('Player2 Would you like to place the initial bet or fold or check(b/f/c)?')
+
         if bet2 == 'b':
             print('How much is your bet Player2 (1-', money2, ')')
             bet2_amt = int(input())
@@ -281,7 +326,9 @@ def player2():
                 global pot
                 pot += bet2_amt
                 money2 -= bet2_amt
+                print()
                 print('The value of the pot currently is:', pot)
+                print()
                 print('money left:', money2)
                 break
 
@@ -293,19 +340,25 @@ def player2():
             print('Player2 has decided to check')
             if pot == 0:
                 bet2_amt = 0
+                print()
                 print('The value of the pot currently is:', pot)
+                print()
                 return
             else:
 
                 global bet1_amt
                 bet2_amt = bet1_amt
                 pot += bet2_amt
+                print()
                 print('The value of the pot currently is:', pot)
+                print()
                 money2 -= bet2_amt
                 print('Money left by player 2 is:', money2)
+                print()
                 break
     while playround == 4 or playround == 6:
-        bet2 = input('Player2 Would you like to check/fold/raise?')
+        print()
+        bet2 = input('Player2 Would you like to call/fold/raise?')
         if bet2 == 'r':
             print('money left:', money2)
             bet2_amt = int(input('How much would you like to raise:?'))
@@ -315,20 +368,27 @@ def player2():
                 continue
             else:
                 pot += bet2_amt
+                print()
                 print('The value of the pot currently is:', pot)
+                print()
                 money2 -= bet2_amt
+                print()
                 print('Money left by player 2 is:', money2)
+                print()
                 break
         elif bet2 == 'c':
             if bet1_amt > money2:
                 print('you cant bet what you dont have')
                 continue
             else:
-                print('player 2 has decided to check')
+                print()
+                print('player 2 has decided to call')
+                print()
                 pot += bet1_amt
                 print('The value of the pot currently is:', pot)
                 bet1_amt = bet2_amt
                 money2 -= bet1_amt
+                print()
                 print('Money left by player 2 is:', money2)
                 break
         elif bet2 =='f':
@@ -403,7 +463,7 @@ def computer1():
         # bets
 
     while playround == 2:
-
+        print()
         print('Player2 is thinking.....')
         time.sleep(3)
         if money2 > 500:
@@ -414,16 +474,20 @@ def computer1():
         if bet2 == 'b':
             if money2 < 400:
                 bet2_amt = bet1_amt / 2
+                print()
                 print('Player2 has decided to bet', bet2_amt)
             else:
                 if bet1_amt > 1 and bet1_amt < 100:
                     bet2_amt = bet1_amt + 10
+                    print()
                     print('Player2 has decided to bet', bet2_amt)
                 elif bet1_amt == 0:
                     bet2_amt = 50
+                    print()
                     print('Player2 has decided to bet', bet2_amt)
                 else:
                     bet2_amt = money2 // 10
+                    print()
                     print('Player2 has decided to bet', bet2_amt)
                 if bet2_amt > money2:
                     print('You can"t bet what you don''t have ')
@@ -432,6 +496,7 @@ def computer1():
                     global pot
                     pot += bet2_amt
                     money2 -= bet2_amt
+                    print()
                     print('The value of the pot currently is:', pot)
 
                     # print('money left:', money2)
@@ -442,15 +507,19 @@ def computer1():
             return
 
         if bet2 == 'c':
+            print()
             print('Player2 has decided to check')
+            print()
             if pot == 0:
                 bet2_amt = 0
+                print()
                 print('The value of the pot currently is:', pot)
                 return
             else:
 
                 bet2_amt = bet1_amt
                 pot += bet2_amt
+                print()
                 print('The value of the pot currently is:', pot)
                 money2 -= bet2_amt
                 # print('Money left by player 2 is:', money2)
@@ -464,26 +533,32 @@ def computer1():
             random_choice = 0
         bet2 = lis[random_choice]
         if bet2 == 'r':
-            print('Player2 has decided to raise')
+
+            #print('Player2 has decided to raise')
             if money2 < 400:
                 bet2_amt = bet1_amt // 4
-                print('Player2 has decided to bet', bet2_amt)
+                print()
+                print('Player2 has decided to raise', bet2_amt)
             else:
                 if bet1_amt > 1 and bet1_amt < 100:
                     bet2_amt = bet1_amt + 10
-                    print('Player2 has decided to bet', bet2_amt)
+                    print()
+                    print('Player2 has decided to raise', bet2_amt)
                 elif bet1_amt == 0:
                     bet2_amt = 50
-                    print('Player2 has decided to bet', bet2_amt)
+                    print()
+                    print('Player2 has decided to raise', bet2_amt)
                 else:
                     bet2_amt = money2 // 10
-                    print('Player2 has decided to bet', bet2_amt)
+                    print()
+                    print('Player2 has decided to raise', bet2_amt)
 
             if bet2_amt > money2:
                 print('you cant bet what you dont have')
                 continue
             else:
                 pot += bet2_amt
+                print()
                 print('The value of the pot currently is:', pot)
                 money2 -= bet2_amt
                 # print('Money left by player 2 is:', money2)
@@ -493,7 +568,8 @@ def computer1():
                 print('you cant bet what you dont have')
                 continue
             else:
-                print('player 2 has decided to check')
+                print()
+                print('player 2 has decided to call')
                 pot += bet1_amt
                 print('The value of the pot currently is:', pot)
                 bet1_amt = bet2_amt
@@ -563,26 +639,42 @@ def card2():
         if com_card2 >= 1 and com_card2 <= 13:
             for k, v in spade_cards.items():
                 if k == com_card2:
+                    print()
+                    print()
                     print('The second community card is: :', v)
+                    print()
+                    print()
                     com2 = k
                     com_v2 = v
         if com_card2 > 13 and com_card2 <= 26:
             for k, v in diamond_cards.items():
                 if k == com_card2:
+                    print()
+                    print()
                     print('The second community card is: :', v)
+                    print()
+                    print()
                     com2 = k
                     com_v2 = v
         if com_card2 >= 27 and com_card2 <= 39:
             for k, v in heart_cards.items():
                 if k == com_card2:
+                    print()
+                    print()
                     print('The second community card is: :', v)
+                    print()
+                    print()
                     com2 = k
                     com_v2 = v
 
         if com_card2 >= 40 and com_card2 <= 52:
             for k, v in clubs_cards.items():
                 if k == com_card2:
+                    print()
+                    print()
                     print('The second community card is: :', v)
+                    print()
+                    print()
                     com2 = k
                     com_v2 = v
         com_count += 1
@@ -598,26 +690,42 @@ def card3():
         if com_card3 > 1 and com_card3 <= 13:
             for k, v in spade_cards.items():
                 if k == com_card3:
+                    print()
+                    print()
                     print('The third community card is: :', v)
+                    print()
+                    print()
                     com3 = k
                     com_v3 = v
         if com_card3 > 13 and com_card3 <= 26:
             for k, v in diamond_cards.items():
                 if k == com_card3:
+                    print()
+                    print()
                     print('The third community card is: :', v)
+                    print()
+                    print()
                     com3 = k
                     com_v3 = v
         if com_card3 >= 27 and com_card3 <= 39:
             for k, v in heart_cards.items():
                 if k == com_card3:
+                    print()
+                    print()
                     print('The third community card is: :', v)
+                    print()
+                    print()
                     com3 = k
                     com_v3 = v
 
         if com_card3 >= 40 and com_card3 <= 52:
             for k, v in clubs_cards.items():
                 if k == com_card3:
+                    print()
+                    print()
                     print('The third community card is: :', v)
+                    print()
+                    print()
                     com3 = k
                     com_v3 = v
         return
@@ -859,7 +967,7 @@ def single_pair():
 
 
 def high_card():
-    global evaluator, un_l1, l1
+    global evaluator, un_l1, l1,high
     if evaluator == 0:
         un_l1 = sorted(un_l1)
         for k, v in spade_cards.items():
@@ -879,9 +987,10 @@ def high_card():
                 # print('The high card is',v)
                 print('High card')
         evaluator = 10
-        l1 = sorted(l1)
+        l1 = sorted(l1,reverse=True)
+        #print(l1)
         high = l1[0]
-        # print('high value',high)
+        #print('high value',high)
 
 def fold_check_pl1():
     global fold,bet1,money1,money2,pot
@@ -909,7 +1018,10 @@ def fold_check_pl2():
         bet2=0
 
 
-play = input('Would you lie to play against another player or would you like to play against the computer(p/c)')
+play = input('Would you like to play against another player or would you like to play against the computer(p/c)')
+while play!='p' and play!='c':
+    play = input('Would you like to play against another player or would you like to play against the computer(p/c)')
+
 print()
 print()
 play_again=0
@@ -957,8 +1069,12 @@ while play_again!='q':
     else:
         print('shit')
     if fold==0:
+        print()
+        print()
         print('player1 cards are:', pl1_v1, ',', pl1_v2, ',', com_v1, ',', com_v2, ',', com_v3)
         print('player2 cards are:', pl2_v1, ',', pl2_v2, ',', com_v1, ',', com_v2, ',', com_v3)
+        print()
+        print()
         global l1, l2
         un_l1 = l1 = [pl1_card1, pl1_card2, com1, com2, com3]
         l2 = [pl2_card1, pl2_card2, com1, com2, com3]
@@ -968,7 +1084,9 @@ while play_again!='q':
 
     if fold ==0:
         while True:
-            print('Player', i + 1, 'has the combination:')
+            print()
+            print('Player', i + 1, 'has the combination:',end='')
+            print()
             royal_flush()
             straight_flush()
             four_of_a_kind()
@@ -979,6 +1097,13 @@ while play_again!='q':
             two_pair()
             single_pair()
             high_card()
+            if i==0 and evaluator==10:
+                high1=high
+                #print('high1 is',high1)
+
+            elif i==1 and evaluator==10:
+                high2=high
+                #print('high2 is',high2)
 
             if i == 0:
                 evaluator
@@ -991,27 +1116,48 @@ while play_again!='q':
                 i += 1
                 break
         if Player1_val > player2_val:
-            print('Player 2 wins')
+            print()
+            print('Player 2 wins s')
             money2 += pot
             pot=0
             print('Player 2 you now have', money2)
             print('Player 1 you now have', money1)
 
         elif player2_val > Player1_val:
-            print('Player 1 wins')
+            print('Player 1 wins ')
             money1 += pot
             pot=0
             print('Player1 you now have', money1)
             print('Player2 you now have', money2)
         else:
-            print('its a draw')
-            money1 += pot / 2
-            money2 += pot / 2
-            pot=0
-            print('the pot is divided')
-            print('Money with player1', money1)
-            print('money with player2', money2)
+            if evaluator==10:
+                if high1>high2:
+                    print()
+                    print('Player 1 wins since Player1 has higher high card value')
+                    money1 += pot
+                    pot = 0
+                    print('Player1 you now have', money1)
+                    print('Player2 you now have', money2)
+                elif high2>high1:
+                    print()
+                    print('Player 2 wins since Player2 has higher high card value')
+                    money2 += pot
+                    pot = 0
+                    print('Player1 you now have', money1)
+                    print('Player2 you now have', money2)
+
+                else:
+                    print()
+                    print('its a draw')
+                    money1 += pot / 2
+                    money2 += pot / 2
+                    pot=0
+                    print('the pot is divided')
+                    print('Money with player1', money1)
+                    print('money with player2', money2)
         play_again = input('Would you like to play another round or quit(p/q)?')
+        print()
+        print()
         if play_again=='p':
             playround=0
             f += 1
@@ -1022,15 +1168,19 @@ while play_again!='q':
             break
     else:
         play_again = input('Would you like to play another round or quit(p/q)?')
+        print()
+        print()
         if play_again=='p':
             playround=0
             f += 1
             fold = 0
             continue
 
-        else:
+        elif play_again=='q':
             break
 
+        else:
+            continue
 
 # print('player1 cards are:',pl1_card1,',',pl1_card2,',',com1,',',com2,',',com3)
 # print('player2 cards are:',pl2_card1,pl2_card2,com1,com2,com3)
@@ -1040,14 +1190,3 @@ while play_again!='q':
 
 
 
-# TODO add the final comparing of cards and also minus the money1 and 2 vars which is currently not being done
-# TODO Work on fold but do it in the end basic card comparing comes first
-# TODO make it such that if everyone checks on the first round then the community cards are directly unveiled
-# add playround 7 and 6
-# add all if statements in while loop so that continue can be used for going back when bet_amt is greater than money
-# lower redundancy in code by merging diffrent rounds in player1 and player2
-# add computer to play against(2 if possible)
-# remove useless prints and tidy up
-# put fold mechanic
-# add option to play again
-# add time delay after moves for realism
