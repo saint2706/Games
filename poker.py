@@ -1,16 +1,11 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Dec 19 09:28:23 2018
-
-@author: student
-"""
-
-# %%
-# poker
 import random as r
 from collections import Counter
 import time
 import sys
+
+#Problems:
+#Sometimes(very rarely) same card may be dealt twice
+#last statement open to malicious input
 pot = 0
 money1 = 1000
 money2 = 1000
@@ -1117,7 +1112,7 @@ while play_again!='q':
                 break
         if Player1_val > player2_val:
             print()
-            print('Player 2 wins s')
+            print('Player 2 wins ')
             money2 += pot
             pot=0
             print('Player 2 you now have', money2)
