@@ -208,7 +208,8 @@ def player1():
         bet1 = input('Player1 Would you like to call/fold/raise?')
         if bet1 == 'r':
             print()
-            bet1_amt = int(input('How much would you like to raise (1-', money1, ')?'))
+            print('How much would you like to raise?(1-',money1,')')
+            bet1_amt = int(input())
             # if bet1_amt>bet #it has to be greater than check and also minus from money and put in else if bet>money aghrrh
             if bet1_amt > money1:
                 print('You can"t bet what you don''t have ')
