@@ -10,6 +10,7 @@ from paper_games.tic_tac_toe.stats import GameStats
 from paper_games.tic_tac_toe.themes import THEMES, get_theme, list_themes, validate_symbols
 from paper_games.tic_tac_toe.tic_tac_toe import TicTacToeGame
 from paper_games.tic_tac_toe.ultimate import UltimateTicTacToeGame
+from paper_games.tic_tac_toe.network import NetworkConfig, NetworkTicTacToeServer, NetworkTicTacToeClient
 
 
 def test_standard_3x3_board():
@@ -455,6 +456,53 @@ def test_ultimate_full_game_sequence():
     assert game.small_boards[0].winner() is not None or len(game.small_boards[0].available_moves()) > 0
 
 
+# Network tests
+def test_network_config():
+    """Test network configuration."""
+    config = NetworkConfig()
+    assert config.host == "localhost"
+    assert config.port == 5555
+    assert config.board_size == 3
+
+
+def test_network_server_init():
+    """Test server initialization."""
+    config = NetworkConfig(port=5556)  # Use different port to avoid conflicts
+    server = NetworkTicTacToeServer(config)
+    assert server.config.port == 5556
+    assert server.game is None
+
+
+def test_network_client_init():
+    """Test client initialization."""
+    client = NetworkTicTacToeClient("localhost", 5557)
+    assert client.host == "localhost"
+    assert client.port == 5557
+    assert client.game is None
+
+
+def test_network_message_format():
+    """Test that network messages can be created properly."""
+    # Test move message
+    move_msg = {
+        "type": "move",
+        "position": 4,
+        "symbol": "X",
+    }
+    assert move_msg["type"] == "move"
+    assert move_msg["position"] == 4
+    
+    # Test config message
+    config_msg = {
+        "type": "config",
+        "board_size": 3,
+        "win_length": 3,
+        "your_symbol": "O",
+        "opponent_symbol": "X",
+    }
+    assert config_msg["board_size"] == 3
+
+
 if __name__ == "__main__":
     # Run all tests
     test_functions = [
@@ -498,6 +546,10 @@ if __name__ == "__main__":
         test_ultimate_render,
         test_ultimate_computer_move,
         test_ultimate_full_game_sequence,
+        test_network_config,
+        test_network_server_init,
+        test_network_client_init,
+        test_network_message_format,
     ]
     
     for test_func in test_functions:
