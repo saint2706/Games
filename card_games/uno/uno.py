@@ -21,8 +21,8 @@ from __future__ import annotations
 
 import argparse
 import random
-from dataclasses import dataclass
-from typing import Iterable, List, Optional, Protocol, Sequence
+from dataclasses import dataclass, field
+from typing import Dict, Iterable, List, Optional, Protocol, Sequence
 
 from colorama import Fore, Style
 from colorama import init as colorama_init
@@ -165,16 +165,18 @@ class UnoPlayer:
         personality (str): A string defining the bot's play style.
         hand (List[UnoCard]): The cards currently held by the player.
         pending_uno (bool): True if the player has one card but has not yet declared "Uno!".
+        team (Optional[int]): Team number for team play mode (None for no teams).
     """
 
     def __init__(
-        self, name: str, *, is_human: bool = False, personality: str = "balanced"
+        self, name: str, *, is_human: bool = False, personality: str = "balanced", team: Optional[int] = None
     ) -> None:
         self.name = name
         self.is_human = is_human
         self.personality = personality
         self.hand: List[UnoCard] = []
         self.pending_uno = False
+        self.team = team
 
     def draw_cards(self, deck: UnoDeck, count: int) -> List[UnoCard]:
         """Draw a specified number of cards from the deck."""
@@ -255,6 +257,20 @@ class UnoPlayer:
 
 
 @dataclass
+class HouseRules:
+    """Configuration for house rules variants.
+    
+    Attributes:
+        stacking: Allow stacking +2 and +4 cards to increase penalty.
+        jump_in: Allow players to play identical cards out of turn.
+        seven_zero_swap: Playing 7 swaps hands with another player, playing 0 rotates all hands.
+    """
+    stacking: bool = False
+    jump_in: bool = False
+    seven_zero_swap: bool = False
+
+
+@dataclass
 class PlayerDecision:
     """Represents a decision made by a player during their turn."""
 
@@ -262,6 +278,7 @@ class PlayerDecision:
     card_index: Optional[int] = None
     declare_uno: bool = False
     chosen_color: Optional[str] = None
+    swap_target: Optional[int] = None  # For 7-0 swapping rule
 
 
 class UnoInterface(Protocol):
@@ -287,6 +304,9 @@ class UnoInterface(Protocol):
         self, game: "UnoGame", player: UnoPlayer, card: UnoCard
     ) -> PlayerDecision: ...
     def choose_color(self, player: UnoPlayer) -> str: ...
+    def choose_swap_target(
+        self, player: UnoPlayer, players: Sequence[UnoPlayer]
+    ) -> int: ...
     def prompt_challenge(
         self, challenger: UnoPlayer, target: UnoPlayer, *, bluff_possible: bool
     ) -> bool: ...
@@ -345,8 +365,15 @@ class ConsoleUnoInterface(UnoInterface):
             if action in {"draw", "d"}:
                 return PlayerDecision(action="draw")
             if action.isdigit():
+                card_idx = int(action) - 1
+                swap_target = None
+                # Check if playing a 7 with seven_zero_swap rule
+                if (game.house_rules.seven_zero_swap and 
+                    0 <= card_idx < len(player.hand) and 
+                    player.hand[card_idx].value == "7"):
+                    swap_target = self.choose_swap_target(player, game.players)
                 return PlayerDecision(
-                    action="play", card_index=int(action) - 1, declare_uno=declare_uno
+                    action="play", card_index=card_idx, declare_uno=declare_uno, swap_target=swap_target
                 )
 
             self.show_message("Invalid selection. Try again.", color=Fore.RED)
@@ -384,6 +411,23 @@ class ConsoleUnoInterface(UnoInterface):
             self.show_message(
                 "Invalid color. Please choose one of the four.", color=Fore.RED
             )
+
+    def choose_swap_target(
+        self, player: UnoPlayer, players: Sequence[UnoPlayer]
+    ) -> int:
+        """Prompt the player to choose another player to swap hands with."""
+        print(format_section_heading("Choose a player to swap hands with:"))
+        valid_targets = [i for i, p in enumerate(players) if p != player]
+        for i in valid_targets:
+            print(f"  {i + 1}) {players[i].name} ({len(players[i].hand)} cards)")
+        
+        while True:
+            choice = input("Enter player number: ").strip()
+            if choice.isdigit():
+                idx = int(choice) - 1
+                if idx in valid_targets:
+                    return idx
+            self.show_message("Invalid selection. Try again.", color=Fore.RED)
 
     def prompt_challenge(
         self, challenger: UnoPlayer, target: UnoPlayer, *, bluff_possible: bool
@@ -433,6 +477,8 @@ class UnoGame:
         players: Sequence[UnoPlayer],
         rng: Optional[random.Random] = None,
         interface: Optional[UnoInterface] = None,
+        house_rules: Optional[HouseRules] = None,
+        team_mode: bool = False,
     ) -> None:
         if len(players) < 2:
             raise ValueError("Uno requires at least two players")
@@ -449,6 +495,13 @@ class UnoGame:
         self.plus4_challenge: Optional[dict] = None
         self.interface = interface or ConsoleUnoInterface()
         self.event_log: List[tuple[str, str, str]] = []
+        self.house_rules = house_rules or HouseRules()
+        self.team_mode = team_mode
+        # Validate team assignments if in team mode
+        if self.team_mode:
+            teams = set(p.team for p in self.players if p.team is not None)
+            if len(teams) < 2:
+                raise ValueError("Team mode requires at least 2 teams")
 
     def setup(self, *, starting_hand: int = 7) -> None:
         """Initializes the game state for a new round."""
@@ -511,9 +564,12 @@ class UnoGame:
     ) -> bool:
         """Applies the effect of an action card (skip, reverse, +2, +4)."""
         skip_next = False
-        self.penalty_value = None
-        self.penalty_amount = 0
-        self.plus4_challenge = None
+        
+        # Only reset penalties if stacking is disabled or this isn't a stackable card
+        if not self.house_rules.stacking or card.value not in ("+2", "+4"):
+            self.penalty_value = None
+            self.penalty_amount = 0
+            self.plus4_challenge = None
 
         if card.value == "skip" and not initializing:
             self._log(
@@ -530,11 +586,21 @@ class UnoGame:
             if len(self.players) == 2 and not initializing:
                 skip_next = True
         elif card.value == "+2":
-            self.penalty_value = "+2"
-            self.penalty_amount = 2
+            if self.house_rules.stacking and self.penalty_value in ("+2", "+4"):
+                # Stack on existing penalty
+                self.penalty_amount += 2
+                self._log(f"Penalty stacked! Now at +{self.penalty_amount}!", Fore.RED, style=Style.BRIGHT)
+            else:
+                self.penalty_value = "+2"
+                self.penalty_amount = 2
         elif card.value == "+4":
-            self.penalty_value = "+4"
-            self.penalty_amount = 4
+            if self.house_rules.stacking and self.penalty_value in ("+2", "+4"):
+                # Stack on existing penalty
+                self.penalty_amount += 4
+                self._log(f"Penalty stacked! Now at +{self.penalty_amount}!", Fore.RED, style=Style.BRIGHT)
+            else:
+                self.penalty_value = "+4"
+                self.penalty_amount = 4
             self.plus4_challenge = {"player": player, "illegal": illegal_plus4}
 
         return skip_next
@@ -635,6 +701,37 @@ class UnoGame:
         self.plus4_challenge = None
         self._advance_turn()
 
+    def _swap_hands(self, player1: UnoPlayer, player2: UnoPlayer) -> None:
+        """Swap hands between two players (for 7 card rule)."""
+        player1.hand, player2.hand = player2.hand, player1.hand
+        player1.pending_uno = len(player1.hand) == 1
+        player2.pending_uno = len(player2.hand) == 1
+        self._log(
+            f"{player1.name} swaps hands with {player2.name}!",
+            Fore.MAGENTA,
+            style=Style.BRIGHT,
+        )
+
+    def _rotate_hands(self) -> None:
+        """Rotate all hands in the direction of play (for 0 card rule)."""
+        if len(self.players) < 2:
+            return
+        
+        if self.direction == 1:
+            # Clockwise: each player gets the hand from the player before them
+            hands = [p.hand for p in self.players]
+            for i, player in enumerate(self.players):
+                player.hand = hands[i - 1]
+                player.pending_uno = len(player.hand) == 1
+            self._log("All hands rotate clockwise!", Fore.MAGENTA, style=Style.BRIGHT)
+        else:
+            # Counter-clockwise: each player gets the hand from the player after them
+            hands = [p.hand for p in self.players]
+            for i, player in enumerate(self.players):
+                player.hand = hands[(i + 1) % len(self.players)]
+                player.pending_uno = len(player.hand) == 1
+            self._log("All hands rotate counter-clockwise!", Fore.MAGENTA, style=Style.BRIGHT)
+
     def _execute_play(
         self,
         player: UnoPlayer,
@@ -642,6 +739,7 @@ class UnoGame:
         *,
         declare_uno: bool = False,
         chosen_color: Optional[str] = None,
+        swap_target: Optional[int] = None,
     ) -> Optional[UnoPlayer]:
         """Executes a card play, updating the game state and checking for a winner."""
         card = player.hand[card_index]
@@ -683,9 +781,34 @@ class UnoGame:
             f"{player.name} plays {self.interface.render_card(card)}.", Fore.GREEN
         )
 
+        # Handle 7-0 swapping house rule
+        if self.house_rules.seven_zero_swap and card.value in ("7", "0"):
+            if card.value == "7":
+                # Swap hands with another player
+                if swap_target is not None and 0 <= swap_target < len(self.players):
+                    target_player = self.players[swap_target]
+                    if target_player != player:
+                        self._swap_hands(player, target_player)
+                elif not player.is_human:
+                    # Bot chooses a random opponent
+                    opponents = [i for i, p in enumerate(self.players) if p != player]
+                    if opponents:
+                        target_idx = self.rng.choice(opponents)
+                        self._swap_hands(player, self.players[target_idx])
+            elif card.value == "0":
+                # Rotate all hands
+                self._rotate_hands()
+
         if not player.has_cards():
-            self.interface.announce_winner(player)
-            return player
+            # Check for team victory if in team mode
+            if self.team_mode and player.team is not None:
+                team_name = f"Team {player.team}"
+                self._log(f"{team_name} wins the game!", Fore.CYAN, style=Style.BRIGHT)
+                self.interface.announce_winner(player)
+                return player
+            else:
+                self.interface.announce_winner(player)
+                return player
 
         if len(player.hand) == 1 and (declare_uno or not player.is_human):
             # Bots auto-announce UNO, while humans must opt in via the prompt.
@@ -795,6 +918,7 @@ class UnoGame:
                             follow_up.card_index,
                             declare_uno=follow_up.declare_uno,
                             chosen_color=follow_up.chosen_color,
+                            swap_target=follow_up.swap_target,
                         )
                     ):
                         return winner
@@ -808,7 +932,7 @@ class UnoGame:
                         self._log("Invalid card choice.", Fore.RED)
                         continue
                     if winner := self._execute_play(
-                        player, decision.card_index, declare_uno=decision.declare_uno
+                        player, decision.card_index, declare_uno=decision.declare_uno, swap_target=decision.swap_target
                     ):
                         return winner
             else:  # Bot's turn
@@ -823,6 +947,7 @@ def build_players(
     *,
     bots: int,
     bot_skill: str = "balanced",
+    team_mode: bool = False,
 ) -> List[UnoPlayer]:
     """Create a roster of Uno players for a new game session.
 
@@ -830,6 +955,7 @@ def build_players(
         total_players: Total number of seats at the virtual table.
         bots: Number of AI-controlled opponents to include.
         bot_skill: Personality label that tunes the bot heuristics.
+        team_mode: If True, assign players to teams (2v2 for 4 players).
 
     Returns:
         An ordered list of :class:`UnoPlayer` objects ready to hand to
@@ -847,6 +973,8 @@ def build_players(
         raise ValueError(
             "Bot skill must be one of: " + ", ".join(sorted(BOT_PERSONALITIES))
         )
+    if team_mode and total_players != 4:
+        raise ValueError("Team mode currently requires exactly 4 players.")
 
     human_count = total_players - bots
     if human_count <= 0:
@@ -855,13 +983,16 @@ def build_players(
     players: List[UnoPlayer] = []
     for index in range(human_count):
         name = "You" if index == 0 else f"Player {index + 1}"
-        players.append(UnoPlayer(name, is_human=True))
+        team = (index % 2) if team_mode else None
+        players.append(UnoPlayer(name, is_human=True, team=team))
 
     for bot_index in range(bots):
+        team = ((human_count + bot_index) % 2) if team_mode else None
         players.append(
             UnoPlayer(
                 f"{bot_skill.capitalize()} Bot {bot_index + 1}",
                 personality=bot_skill,
+                team=team,
             )
         )
 
@@ -903,14 +1034,40 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         action="store_true",
         help="Launch the Tkinter interface instead of the console version.",
     )
+    parser.add_argument(
+        "--stacking",
+        action="store_true",
+        help="Enable stacking of +2 and +4 cards.",
+    )
+    parser.add_argument(
+        "--jump-in",
+        action="store_true",
+        help="Enable jump-in rule (play identical cards out of turn).",
+    )
+    parser.add_argument(
+        "--seven-zero",
+        action="store_true",
+        help="Enable 7-0 swapping rule (7 swaps hands, 0 rotates all hands).",
+    )
+    parser.add_argument(
+        "--team-mode",
+        action="store_true",
+        help="Enable 2v2 team play mode (requires 4 players).",
+    )
 
     args = parser.parse_args(argv)
     total_players = args.players
     bot_count = args.bots if args.bots is not None else max(total_players - 1, 1)
 
+    house_rules = HouseRules(
+        stacking=args.stacking,
+        jump_in=args.jump_in,
+        seven_zero_swap=args.seven_zero,
+    )
+
     try:
         players = build_players(
-            total_players, bots=bot_count, bot_skill=args.bot_skill
+            total_players, bots=bot_count, bot_skill=args.bot_skill, team_mode=args.team_mode
         )
     except ValueError as exc:  # pragma: no cover - defensive input validation
         parser.error(str(exc))
@@ -925,10 +1082,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             bots=bot_count,
             bot_skill=args.bot_skill,
             seed=args.seed,
+            house_rules=house_rules,
+            team_mode=args.team_mode,
         )
         return 0
 
-    game = UnoGame(players=players, rng=rng, interface=ConsoleUnoInterface())
+    game = UnoGame(players=players, rng=rng, interface=ConsoleUnoInterface(), house_rules=house_rules, team_mode=args.team_mode)
     game.setup()
     game.play()
     return 0
@@ -938,8 +1097,10 @@ __all__ = [
     "UnoCard",
     "UnoDeck",
     "UnoGame",
+    "UnoPlayer",
     "ConsoleUnoInterface",
     "PlayerDecision",
+    "HouseRules",
     "build_players",
     "main",
 ]
