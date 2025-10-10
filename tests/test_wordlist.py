@@ -3,8 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 
 def test_wordlist_structure():
     """Test that the wordlist has the correct structure."""
