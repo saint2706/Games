@@ -43,13 +43,15 @@ class PokerGUI:
         self.awaiting_user = False
         self.completed_hands = 0
 
-        self.root.title("Card Games - Texas Hold'em")
+        variant_name = "Omaha Hold'em" if match.game_variant.value == "omaha" else "Texas Hold'em"
+        self.root.title(f"Card Games - {variant_name}")
         self.root.geometry("980x680")
 
         # UI state variables
         self.status_var = tk.StringVar(value="Welcome to the poker table!")
         self.pot_var = tk.StringVar(value="Pot: 0")
         self.stage_var = tk.StringVar(value="Stage: pre-flop")
+        self.blinds_var = tk.StringVar(value="")
 
         # Build the layout and start the first hand
         self._build_layout()
@@ -72,7 +74,12 @@ class PokerGUI:
         ttk.Label(
             header, textvariable=self.status_var, font=("Segoe UI", 14, "bold")
         ).grid(row=0, column=0, sticky="w")
-        ttk.Label(header, textvariable=self.stage_var).grid(row=0, column=1, sticky="n")
+        
+        info_frame = ttk.Frame(header)
+        info_frame.grid(row=0, column=1, sticky="n")
+        ttk.Label(info_frame, textvariable=self.stage_var).pack()
+        ttk.Label(info_frame, textvariable=self.blinds_var, font=("Segoe UI", 9)).pack()
+        
         ttk.Label(header, textvariable=self.pot_var, anchor="e").grid(
             row=0, column=2, sticky="e"
         )
@@ -164,10 +171,19 @@ class PokerGUI:
         if self._match_complete():
             self.status_var.set("Match complete! Thanks for playing.")
             self._set_action_buttons_state("disabled")
+            self._display_final_statistics()
             return
 
         table = self.match.table
         self.completed_hands += 1
+        
+        # Update blinds if tournament mode is enabled.
+        if self.match.tournament_mode.enabled:
+            sb, bb = self.match.tournament_mode.get_blinds(self.completed_hands - 1)
+            table.small_blind = sb
+            table.big_blind = bb
+            self.blinds_var.set(f"Blinds: {sb}/{bb}")
+        
         self.status_var.set(f"Hand {self.completed_hands} of {self.match.rounds}")
         table.start_hand()
         table.last_actions.clear()
@@ -328,6 +344,13 @@ class PokerGUI:
         table = self.match.table
         self._flush_action_log()
 
+        # Update player statistics for hands played and folded.
+        for player in self.match.players:
+            player.statistics.hands_played += 1
+            if player.folded:
+                player.statistics.hands_folded += 1
+            player.statistics.total_wagered += player.total_invested
+
         if table._active_player_count() == 1:
             payouts = table.distribute_pot()
             winner_name = next(name for name, amount in payouts.items() if amount > 0)
@@ -336,7 +359,10 @@ class PokerGUI:
             )
         else:
             rankings = table.showdown()
+            # Animate showdown with hand ranking explanations.
+            self._animate_showdown(rankings)
             for player, rank in rankings:
+                player.statistics.showdowns_reached += 1
                 self._log(
                     f"{player.name}: {format_cards(player.hole_cards)} -> {rank.describe()}"
                 )
@@ -345,6 +371,14 @@ class PokerGUI:
                 if amount > 0:
                     self._log(f"{name} collects {amount} chips.")
             self._update_player_cards(show_all=True)
+
+        # Update statistics for winners.
+        for player in self.match.players:
+            if payouts.get(player.name, 0) > 0:
+                player.statistics.hands_won += 1
+                player.statistics.total_winnings += payouts[player.name]
+                if table._active_player_count() > 1:
+                    player.statistics.showdowns_won += 1
 
         self._update_stacks()
         self._update_board()
@@ -411,6 +445,30 @@ class PokerGUI:
         """Sets the state of all user action buttons."""
         for button in (self.btn_fold, self.btn_call, self.btn_raise, self.btn_all_in):
             button.configure(state=state)
+
+    def _animate_showdown(self, rankings: list[tuple[object, object]]) -> None:
+        """Animates the showdown sequence with hand ranking explanations."""
+        # Reveal all player cards with a brief animation.
+        for i, (player, rank) in enumerate(rankings):
+            self.root.after(i * 300, lambda p=player: self._update_player_cards(show_all=True))
+            self.root.after(i * 300 + 150, lambda r=rank: self.status_var.set(f"Evaluating hands... {r.category.name.replace('_', ' ').title()}"))
+        
+        # Highlight the winner(s) after a delay.
+        if rankings:
+            best_rank = rankings[0][1]
+            winners = [p for p, r in rankings if r == best_rank]
+            self.root.after(len(rankings) * 300 + 500, lambda: self.status_var.set(f"Winner(s): {', '.join(w.name for w in winners)}"))
+
+    def _display_final_statistics(self) -> None:
+        """Displays final player statistics in the log."""
+        self._log("\n=== Final Statistics ===")
+        for player in self.match.players:
+            stats = player.statistics
+            self._log(f"\n{player.name}:")
+            self._log(f"  Hands: {stats.hands_won}/{stats.hands_played} won ({stats.win_rate:.1f}%)")
+            self._log(f"  Folds: {stats.hands_folded} ({stats.fold_frequency:.1f}%)")
+            self._log(f"  Showdowns: {stats.showdowns_won}/{stats.showdowns_reached}")
+            self._log(f"  Net: {stats.net_profit:+d} chips")
 
     @staticmethod
     def _parse_amount(raw: str, *, default: int) -> int:

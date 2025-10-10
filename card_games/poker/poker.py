@@ -30,13 +30,31 @@ from __future__ import annotations
 
 import argparse
 import itertools
+import json
 import random
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from typing import Iterable, Sequence
 
 from ..common.cards import Card, Deck, format_cards
 from .poker_core import HandRank, best_hand
+
+
+class GameVariant(str, Enum):
+    """Enumeration of poker game variants."""
+
+    TEXAS_HOLDEM = "texas-holdem"
+    OMAHA = "omaha"
+
+
+class BettingLimit(str, Enum):
+    """Enumeration of betting limit structures."""
+
+    NO_LIMIT = "no-limit"
+    POT_LIMIT = "pot-limit"
+    FIXED_LIMIT = "fixed-limit"
 
 
 class ActionType(str, Enum):
@@ -64,6 +82,59 @@ class Action:
 
 
 @dataclass
+class PlayerStatistics:
+    """Tracks performance statistics for a player across multiple hands.
+
+    Attributes:
+        hands_played (int): Total number of hands the player participated in.
+        hands_won (int): Number of hands won.
+        hands_folded (int): Number of times the player folded.
+        total_wagered (int): Total chips wagered across all hands.
+        total_winnings (int): Total chips won across all hands.
+        showdowns_reached (int): Number of times player reached showdown.
+        showdowns_won (int): Number of showdowns won.
+    """
+
+    hands_played: int = 0
+    hands_won: int = 0
+    hands_folded: int = 0
+    total_wagered: int = 0
+    total_winnings: int = 0
+    showdowns_reached: int = 0
+    showdowns_won: int = 0
+
+    @property
+    def fold_frequency(self) -> float:
+        """Returns the percentage of hands folded."""
+        return self.hands_folded / max(self.hands_played, 1) * 100
+
+    @property
+    def win_rate(self) -> float:
+        """Returns the percentage of hands won."""
+        return self.hands_won / max(self.hands_played, 1) * 100
+
+    @property
+    def net_profit(self) -> int:
+        """Returns the net profit/loss."""
+        return self.total_winnings - self.total_wagered
+
+    def to_dict(self) -> dict:
+        """Converts statistics to a dictionary."""
+        return {
+            "hands_played": self.hands_played,
+            "hands_won": self.hands_won,
+            "hands_folded": self.hands_folded,
+            "total_wagered": self.total_wagered,
+            "total_winnings": self.total_winnings,
+            "showdowns_reached": self.showdowns_reached,
+            "showdowns_won": self.showdowns_won,
+            "fold_frequency": round(self.fold_frequency, 2),
+            "win_rate": round(self.win_rate, 2),
+            "net_profit": self.net_profit,
+        }
+
+
+@dataclass
 class Player:
     """Represents a single player at the poker table.
 
@@ -81,6 +152,7 @@ class Player:
     total_invested: int = 0
     last_action: str = "waiting"
     last_wager: int = 0
+    statistics: PlayerStatistics = field(default_factory=PlayerStatistics)
 
     def reset_for_hand(self) -> None:
         """Resets the player's state for the start of a new hand."""
@@ -117,6 +189,79 @@ class BotSkill:
     simulations: (
         int  # The number of Monte Carlo simulations to run for equity estimation.
     )
+
+
+@dataclass
+class TournamentMode:
+    """Defines the blind structure for tournament play.
+
+    Attributes:
+        enabled (bool): Whether tournament mode is active.
+        blind_schedule (list[tuple[int, int]]): List of (small_blind, big_blind) pairs.
+        hands_per_level (int): Number of hands before blinds increase.
+    """
+
+    enabled: bool = False
+    blind_schedule: list[tuple[int, int]] = field(
+        default_factory=lambda: [(10, 20), (15, 30), (25, 50), (50, 100), (100, 200)]
+    )
+    hands_per_level: int = 5
+    current_level: int = 0
+
+    def get_blinds(self, hand_number: int) -> tuple[int, int]:
+        """Returns the current blind values based on hand number."""
+        if not self.enabled:
+            return self.blind_schedule[0]
+        level = min(hand_number // self.hands_per_level, len(self.blind_schedule) - 1)
+        self.current_level = level
+        return self.blind_schedule[level]
+
+
+@dataclass
+class HandHistory:
+    """Records the complete history of a single hand for later review.
+
+    Attributes:
+        hand_number (int): The sequential hand number.
+        timestamp (str): When the hand was played.
+        game_variant (str): The poker variant played.
+        small_blind (int): Small blind amount.
+        big_blind (int): Big blind amount.
+        players (dict): Player names and starting chip counts.
+        hole_cards (dict): Hole cards dealt to each player.
+        community_cards (list[Card]): The community cards.
+        actions (list[str]): All actions taken during the hand.
+        showdown (list[tuple[str, str]]): Player names and hand descriptions at showdown.
+        payouts (dict[str, int]): Chips won by each player.
+    """
+
+    hand_number: int
+    timestamp: str
+    game_variant: str
+    small_blind: int
+    big_blind: int
+    players: dict[str, int]
+    hole_cards: dict[str, list[str]]
+    community_cards: list[str]
+    actions: list[str]
+    showdown: list[tuple[str, str]]
+    payouts: dict[str, int]
+
+    def to_dict(self) -> dict:
+        """Converts the hand history to a dictionary for JSON serialization."""
+        return {
+            "hand_number": self.hand_number,
+            "timestamp": self.timestamp,
+            "game_variant": self.game_variant,
+            "small_blind": self.small_blind,
+            "big_blind": self.big_blind,
+            "players": self.players,
+            "hole_cards": self.hole_cards,
+            "community_cards": self.community_cards,
+            "actions": self.actions,
+            "showdown": self.showdown,
+            "payouts": self.payouts,
+        }
 
 
 # A pre-shuffled, full deck of cards for use in simulations.
@@ -335,6 +480,8 @@ class PokerTable:
         small_blind: int = 10,
         big_blind: int = 20,
         rng: random.Random | None = None,
+        game_variant: GameVariant = GameVariant.TEXAS_HOLDEM,
+        betting_limit: BettingLimit = BettingLimit.NO_LIMIT,
     ) -> None:
         if len(players) < 2:
             raise ValueError("At least two players are required")
@@ -342,6 +489,8 @@ class PokerTable:
         self.small_blind = small_blind
         self.big_blind = big_blind
         self.rng = rng or random.Random()
+        self.game_variant = game_variant
+        self.betting_limit = betting_limit
         self.deck: Deck = fresh_deck(self.rng)
         self.community_cards: list[Card] = []
         self.pot: int = 0
@@ -372,9 +521,10 @@ class PokerTable:
         self.last_actions.clear()
         # With a clean slate we can redeal, so wipe every transient accumulator.
 
-        # Deal hole cards to each player.
+        # Deal hole cards to each player (2 for Texas Hold'em, 4 for Omaha).
+        cards_to_deal = 4 if self.game_variant == GameVariant.OMAHA else 2
         for player in self.players:
-            player.receive_cards(self.deck.deal(2))
+            player.receive_cards(self.deck.deal(cards_to_deal))
 
         # Players with no chips are marked as folded.
         for player in self.players:
@@ -481,6 +631,10 @@ class PokerTable:
                 )
                 # Enforce a minimum opening bet so the pot grows at a realistic pace.
                 target = max(target, min_total)
+                # Enforce pot-limit betting if applicable.
+                if self.betting_limit == BettingLimit.POT_LIMIT:
+                    max_bet = player.current_bet + self.pot
+                    target = min(target, max_bet)
             elif action.kind is ActionType.RAISE:
                 if to_call <= 0:
                     raise ValueError("Cannot raise without a bet to match")
@@ -488,6 +642,11 @@ class PokerTable:
                 # Raises must meet or exceed the previous increment unless the
                 # player is moving all-in.
                 target = max(target, min_total)
+                # Enforce pot-limit betting if applicable.
+                if self.betting_limit == BettingLimit.POT_LIMIT:
+                    # In pot-limit, max raise is pot + amount to call + amount already bet.
+                    max_raise = self.pot + to_call + player.current_bet
+                    target = min(target, max_raise)
             elif action.kind is ActionType.ALL_IN:
                 target = player.current_bet + player.chips
 
@@ -574,13 +733,29 @@ class PokerTable:
 
         self.current_player_index = self._next_index(self.dealer_index)
 
+    def _evaluate_hand(self, player: Player) -> HandRank:
+        """Evaluates a player's best hand based on the game variant.
+
+        For Texas Hold'em: Use any 5 cards from hole + community.
+        For Omaha: Must use exactly 2 hole cards and 3 community cards.
+        """
+        if self.game_variant == GameVariant.OMAHA:
+            # In Omaha, must use exactly 2 hole cards and 3 community cards.
+            best_rank = None
+            for hole_combo in itertools.combinations(player.hole_cards, 2):
+                for board_combo in itertools.combinations(self.community_cards, 3):
+                    rank = best_hand(list(hole_combo) + list(board_combo))
+                    if best_rank is None or rank > best_rank:
+                        best_rank = rank
+            return best_rank if best_rank is not None else best_hand(player.hole_cards + self.community_cards)
+        else:
+            # Texas Hold'em: Use any 5 cards.
+            return best_hand(player.hole_cards + self.community_cards)
+
     def showdown(self) -> list[tuple[Player, HandRank]]:
         """Determines the winner(s) at the end of a hand by comparing hand ranks."""
         contenders = [player for player in self.players if not player.folded]
-        rankings = [
-            (player, best_hand(player.hole_cards + self.community_cards))
-            for player in contenders
-        ]
+        rankings = [(player, self._evaluate_hand(player)) for player in contenders]
         rankings.sort(key=lambda item: item[1], reverse=True)
         return rankings
 
@@ -611,10 +786,7 @@ class PokerTable:
 
             contenders = [p for p in eligible if not p.folded]
             if contenders:
-                ranked_contenders = [
-                    (p, best_hand(p.hole_cards + self.community_cards))
-                    for p in contenders
-                ]
+                ranked_contenders = [(p, self._evaluate_hand(p)) for p in contenders]
                 best_rank = max(rank for _, rank in ranked_contenders)
                 winners = [p for p, rank in ranked_contenders if rank == best_rank]
             else:
@@ -743,23 +915,38 @@ class PokerMatch:
         rounds: int = 3,
         starting_chips: int = 1_000,
         rng: random.Random | None = None,
+        game_variant: GameVariant = GameVariant.TEXAS_HOLDEM,
+        betting_limit: BettingLimit = BettingLimit.NO_LIMIT,
+        tournament_mode: TournamentMode | None = None,
     ) -> None:
         if rounds <= 0:
             raise ValueError("rounds must be a positive integer")
         self.difficulty = difficulty
         self.rounds = rounds
         self.rng = rng or random.Random()
+        self.game_variant = game_variant
+        self.betting_limit = betting_limit
+        self.tournament_mode = tournament_mode or TournamentMode()
         self.user = Player(name="You", is_user=True, chips=starting_chips)
         self.bots = [
             Player(name=f"{difficulty.name} Bot {i+1}", chips=starting_chips)
             for i in range(3)
         ]
         self.players = [self.user, *self.bots]
-        self.table = PokerTable(self.players, rng=self.rng)
+        sb, bb = self.tournament_mode.get_blinds(0)
+        self.table = PokerTable(
+            self.players,
+            small_blind=sb,
+            big_blind=bb,
+            rng=self.rng,
+            game_variant=game_variant,
+            betting_limit=betting_limit,
+        )
         self.bot_controllers = [
             PokerBot(bot, difficulty, self.rng) for bot in self.bots
         ]
         self.hand_number = 0
+        self.hand_histories: list[HandHistory] = []
 
     def reset(self) -> None:
         """Resets the match to its initial state."""
@@ -770,8 +957,11 @@ class PokerMatch:
 
     def play_cli(self) -> None:
         """Runs the poker match using the command-line interface."""
+        variant_name = "Omaha Hold'em" if self.game_variant == GameVariant.OMAHA else "Texas Hold'em"
+        limit_name = self.betting_limit.value.replace("-", " ").title()
+        mode_info = " (Tournament Mode)" if self.tournament_mode.enabled else ""
         print(
-            f"Welcome to Texas Hold'em! Playing {self.rounds} hands against {len(self.bots)} {self.difficulty.name} bots."
+            f"Welcome to {variant_name} ({limit_name})! Playing {self.rounds} hands against {len(self.bots)} {self.difficulty.name} bots.{mode_info}"
         )
         print()
 
@@ -783,8 +973,19 @@ class PokerMatch:
                 print("All opponents are out of chips. You win!")
                 break
 
+            # Update blinds if tournament mode is enabled.
+            if self.tournament_mode.enabled:
+                sb, bb = self.tournament_mode.get_blinds(round_num - 1)
+                self.table.small_blind = sb
+                self.table.big_blind = bb
+                if round_num > 1 and (round_num - 1) % self.tournament_mode.hands_per_level == 0:
+                    print(f"*** Blinds increased to {sb}/{bb} ***")
+
             print(f"=== Hand {round_num} ===")
+            if self.tournament_mode.enabled:
+                print(f"Blinds: {self.table.small_blind}/{self.table.big_blind}")
             result = self.play_hand_cli()
+            self._record_hand_history(round_num, result)
             self._display_hand_result(result)
             print(self._stack_summary())
             print()
@@ -792,6 +993,8 @@ class PokerMatch:
 
         print("Match complete! Final chip counts:")
         print(self._stack_summary())
+        self._display_player_statistics()
+        self._save_hand_histories()
 
     def play_hand_cli(self) -> MatchResult:
         """Plays a single hand of poker in the CLI."""
@@ -839,6 +1042,13 @@ class PokerMatch:
                 if table.stage != "pre-flop":
                     print(f"Board: {format_cards(table.community_cards)}")
 
+        # Update player statistics for hands played and folded.
+        for player in self.players:
+            player.statistics.hands_played += 1
+            if player.folded:
+                player.statistics.hands_folded += 1
+            player.statistics.total_wagered += player.total_invested
+
         # Determine winner and distribute pot.
         showdown = []
         if table._active_player_count() == 1:
@@ -847,8 +1057,17 @@ class PokerMatch:
             rankings = table.showdown()
             for p, rank in rankings:
                 print(f"{p.name}: {format_cards(p.hole_cards)} -> {rank.describe()}")
+                p.statistics.showdowns_reached += 1
             payouts = table.distribute_pot()
             showdown = [(p.name, rank) for p, rank in rankings]
+
+        # Update statistics for winners.
+        for player in self.players:
+            if payouts.get(player.name, 0) > 0:
+                player.statistics.hands_won += 1
+                player.statistics.total_winnings += payouts[player.name]
+                if showdown:
+                    player.statistics.showdowns_won += 1
 
         return MatchResult(
             table.stage, list(table.community_cards), showdown, payouts, log
@@ -919,6 +1138,57 @@ class PokerMatch:
             f"  {p.name}: {p.chips}" for p in self.players
         )
 
+    def _record_hand_history(self, hand_number: int, result: MatchResult) -> None:
+        """Records the history of a completed hand."""
+        history = HandHistory(
+            hand_number=hand_number,
+            timestamp=datetime.now().isoformat(),
+            game_variant=self.game_variant.value,
+            small_blind=self.table.small_blind,
+            big_blind=self.table.big_blind,
+            players={p.name: p.chips + p.total_invested for p in self.players},
+            hole_cards={p.name: [str(c) for c in p.hole_cards] for p in self.players},
+            community_cards=[str(c) for c in result.community_cards],
+            actions=result.log,
+            showdown=[(name, rank.describe()) for name, rank in result.showdown],
+            payouts=result.payouts,
+        )
+        self.hand_histories.append(history)
+
+    def _display_player_statistics(self) -> None:
+        """Displays player statistics at the end of the match."""
+        print("\n=== Player Statistics ===")
+        for player in self.players:
+            stats = player.statistics
+            print(f"\n{player.name}:")
+            print(f"  Hands played: {stats.hands_played}")
+            print(f"  Hands won: {stats.hands_won} ({stats.win_rate:.1f}%)")
+            print(f"  Hands folded: {stats.hands_folded} ({stats.fold_frequency:.1f}%)")
+            print(f"  Showdowns: {stats.showdowns_won}/{stats.showdowns_reached}")
+            print(f"  Net profit: {stats.net_profit:+d} chips")
+
+    def _save_hand_histories(self) -> None:
+        """Saves hand histories to a JSON file."""
+        if not self.hand_histories:
+            return
+
+        filename = f"poker_history_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        filepath = Path.cwd() / filename
+
+        try:
+            data = {
+                "game_variant": self.game_variant.value,
+                "betting_limit": self.betting_limit.value,
+                "tournament_mode": self.tournament_mode.enabled,
+                "hands": [h.to_dict() for h in self.hand_histories],
+                "final_statistics": {p.name: p.statistics.to_dict() for p in self.players},
+            }
+            with open(filepath, "w") as f:
+                json.dump(data, f, indent=2)
+            print(f"\nHand history saved to: {filename}")
+        except Exception as e:
+            print(f"\nFailed to save hand history: {e}")
+
 
 def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """Parses command-line arguments for the poker application."""
@@ -938,6 +1208,23 @@ def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--gui", action="store_true", help="Launch the graphical interface."
     )
+    parser.add_argument(
+        "--variant",
+        choices=["texas-holdem", "omaha"],
+        default="texas-holdem",
+        help="Poker variant to play.",
+    )
+    parser.add_argument(
+        "--limit",
+        choices=["no-limit", "pot-limit", "fixed-limit"],
+        default="no-limit",
+        help="Betting limit structure.",
+    )
+    parser.add_argument(
+        "--tournament",
+        action="store_true",
+        help="Enable tournament mode with increasing blinds.",
+    )
     return parser.parse_args(argv)
 
 
@@ -946,7 +1233,22 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
     args = parse_arguments(argv)
     rng = random.Random(args.seed) if args.seed is not None else random.Random()
     difficulty = DIFFICULTIES[args.difficulty]
-    match = PokerMatch(difficulty, rounds=args.rounds, rng=rng)
+    
+    # Parse game variant and betting limit.
+    game_variant = GameVariant(args.variant)
+    betting_limit = BettingLimit(args.limit)
+    
+    # Set up tournament mode if requested.
+    tournament_mode = TournamentMode(enabled=args.tournament) if args.tournament else None
+    
+    match = PokerMatch(
+        difficulty,
+        rounds=args.rounds,
+        rng=rng,
+        game_variant=game_variant,
+        betting_limit=betting_limit,
+        tournament_mode=tournament_mode,
+    )
 
     if getattr(args, "gui", False):
         from .gui import launch_gui
