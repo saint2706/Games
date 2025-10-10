@@ -8,12 +8,33 @@ from __future__ import annotations
 
 import random
 
-from .tic_tac_toe import INDEX_TO_COORD, TicTacToeGame
+from .tic_tac_toe import TicTacToeGame
 
 
 def play() -> None:
     """Run the game loop in the terminal."""
     print("Welcome to Tic-Tac-Toe! Coordinates are letter-row + number-column (e.g. B2).")
+    
+    # Get board size
+    board_size_input = input("Choose board size (3, 4, or 5) [3]: ").strip()
+    board_size = 3
+    if board_size_input in {"3", "4", "5"}:
+        board_size = int(board_size_input)
+    elif board_size_input:
+        print("Invalid board size. Defaulting to 3x3.")
+    
+    # Get win length
+    win_length_input = input(f"Choose win length (3 to {board_size}) [{board_size}]: ").strip()
+    win_length = board_size
+    if win_length_input:
+        try:
+            win_length = int(win_length_input)
+            if win_length < 3 or win_length > board_size:
+                print(f"Invalid win length. Defaulting to {board_size}.")
+                win_length = board_size
+        except ValueError:
+            print(f"Invalid win length. Defaulting to {board_size}.")
+    
     # Get player's choice of symbol.
     human_symbol = input("Choose your symbol (X or O) [X]: ").strip().upper() or "X"
     if human_symbol not in {"X", "O"}:
@@ -35,6 +56,8 @@ def play() -> None:
         human_symbol=human_symbol,
         computer_symbol=computer_symbol,
         starting_symbol=starting_symbol,
+        board_size=board_size,
+        win_length=win_length,
     )
 
     print("\nThe empty board looks like this:")
@@ -60,7 +83,8 @@ def play() -> None:
         else:
             print("Computer is thinking…")
             comp_position = game.computer_move()
-            print(f"Computer chooses {INDEX_TO_COORD[comp_position]}.")
+            coords_map = game._generate_coordinates()
+            print(f"Computer chooses {coords_map[comp_position]}.")
 
         if game.winner() or game.is_draw():
             break
