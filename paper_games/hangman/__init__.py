@@ -9,14 +9,17 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, List, Sequence, Set
 
-
+# The path to the JSON file containing the wordlist.
 WORDLIST_PATH = Path(__file__).with_name("wordlist.json")
+# A cache for the default wordlist to avoid reading from disk multiple times.
 _DEFAULT_WORD_CACHE: List[str] | None = None
 
 
 def _load_words_from_disk() -> List[str]:
+    """Loads the wordlist from the JSON file."""
     data = json.loads(WORDLIST_PATH.read_text(encoding="utf-8"))
     collected: Set[str] = set()
+    # Collect words from all difficulty levels.
     for difficulty in ("easy", "medium", "hard"):
         collected.update(word.lower() for word in data.get(difficulty, ()))
     if not collected:
@@ -25,14 +28,14 @@ def _load_words_from_disk() -> List[str]:
 
 
 def load_default_words() -> List[str]:
-    """Return a copy of the bundled hangman words."""
-
+    """Return a copy of the bundled hangman words, using a cache to avoid re-reading the file."""
     global _DEFAULT_WORD_CACHE
     if _DEFAULT_WORD_CACHE is None:
         _DEFAULT_WORD_CACHE = _load_words_from_disk()
     return list(_DEFAULT_WORD_CACHE)
 
 
+# The ASCII art stages of the hangman drawing.
 HANGMAN_STAGES: Sequence[str] = (
     r"""
       _______
@@ -108,6 +111,7 @@ class HangmanGame:
     max_attempts: int = 6
 
     def __post_init__(self) -> None:
+        """Validates the initial game state after the dataclass is created."""
         self.words = [word.lower() for word in self.words]
         if not self.words:
             raise ValueError("At least one word must be supplied.")
@@ -116,20 +120,23 @@ class HangmanGame:
         self.reset()
 
     def reset(self) -> None:
-        """Select a new word and reset guesses."""
-
+        """Select a new word and reset guesses for a new game."""
         self.secret_word: str = random.choice(list(self.words))
         self.guessed_letters: Set[str] = set()
         self.guessed_words: Set[str] = set()
         self.wrong_guesses: Set[str] = set()
 
     def guess(self, entry: str) -> bool:
-        """Process a player's guessed letter or full word."""
+        """Process a player's guessed letter or full word.
 
+        Returns:
+            bool: True if the guess was correct, False otherwise.
+        """
         entry = entry.lower().strip()
         if not entry or any(ch not in string.ascii_lowercase for ch in entry):
             raise ValueError("Guesses must contain only letters.")
 
+        # Handle single-letter guesses.
         if len(entry) == 1:
             if entry in self.guessed_letters or entry in self.wrong_guesses:
                 raise ValueError(f"Letter '{entry}' has already been guessed.")
@@ -139,6 +146,7 @@ class HangmanGame:
             self.wrong_guesses.add(entry)
             return False
 
+        # Handle full-word guesses.
         if entry == self.secret_word:
             self.guessed_letters.update(set(self.secret_word))
             self.guessed_words.add(entry)
@@ -154,36 +162,28 @@ class HangmanGame:
     @property
     def attempts_left(self) -> int:
         """Return how many incorrect guesses remain."""
-
         return self.max_attempts - len(self.wrong_guesses)
 
     @property
     def obscured_word(self) -> str:
-        """Return the secret word with unguessed letters hidden."""
-
-        return " ".join(
-            letter if letter in self.guessed_letters else "_"
-            for letter in self.secret_word
-        )
+        """Return the secret word with unguessed letters hidden by underscores."""
+        return " ".join(letter if letter in self.guessed_letters else "_" for letter in self.secret_word)
 
     @property
     def stage(self) -> str:
         """Return the ASCII gallows that reflects the current danger level."""
-
         wrong = self.max_attempts - self.attempts_left
         if self.max_attempts <= 0:
             return HANGMAN_STAGES[-1]
+        # Scale the number of wrong guesses to the number of hangman stages.
         scale = (len(HANGMAN_STAGES) - 1) / self.max_attempts
         index = min(len(HANGMAN_STAGES) - 1, int(round(wrong * scale)))
         return HANGMAN_STAGES[index]
 
     def status_lines(self) -> List[str]:
         """Human-friendly summary of the current round."""
-
         wrong_letters = sorted(guess for guess in self.wrong_guesses if len(guess) == 1)
-        wrong_words = sorted(
-            guess for guess in self.wrong_guesses if len(guess) > 1
-        )
+        wrong_words = sorted(guess for guess in self.wrong_guesses if len(guess) > 1)
         lines = [self.stage, f"Word: {self.obscured_word}"]
         if wrong_letters:
             lines.append(f"Wrong letters: {' '.join(wrong_letters)}")
@@ -193,21 +193,19 @@ class HangmanGame:
         return lines
 
     def is_won(self) -> bool:
-        """Return True if all letters have been guessed."""
-
+        """Return True if all letters in the secret word have been guessed."""
         return all(letter in self.guessed_letters for letter in set(self.secret_word))
 
     def is_lost(self) -> bool:
         """Return True if the player has exhausted the allowed attempts."""
-
         return self.attempts_left <= 0
 
 
 def play(words: Iterable[str] | None = None, max_attempts: int = 6) -> None:
     """Run an interactive hangman session in the terminal."""
-
     game = HangmanGame(words or load_default_words(), max_attempts=max_attempts)
     print("Welcome to Hangman! Guess letters or attempt the entire word.")
+    # Main game loop continues until the game is won or lost.
     while not (game.is_won() or game.is_lost()):
         print()
         for line in game.status_lines():
@@ -218,6 +216,7 @@ def play(words: Iterable[str] | None = None, max_attempts: int = 6) -> None:
         except ValueError as exc:
             print(exc)
             continue
+        # Provide feedback to the player based on their guess.
         if correct:
             if len(guess) == 1:
                 print("Good guess!")
@@ -228,6 +227,7 @@ def play(words: Iterable[str] | None = None, max_attempts: int = 6) -> None:
                 print("Nope, that letter isn't in the word.")
             else:
                 print("That's not the word. The gallows creak ominously...")
+    # Announce the final result of the game.
     if game.is_won():
         print(f"Congratulations! You guessed '{game.secret_word}'.")
     else:
