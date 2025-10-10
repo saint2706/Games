@@ -1,0 +1,205 @@
+"""Game engine and logic for Hangman with tactile feedback.
+
+This module provides the core game logic for Hangman, including word selection,
+guess validation, state tracking, and ASCII art rendering of the gallows.
+"""
+
+from __future__ import annotations
+
+import json
+import random
+import string
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Iterable, List, Sequence, Set
+
+# The path to the JSON file containing the wordlist.
+WORDLIST_PATH = Path(__file__).with_name("wordlist.json")
+# A cache for the default wordlist to avoid reading from disk multiple times.
+_DEFAULT_WORD_CACHE: List[str] | None = None
+
+
+def _load_words_from_disk() -> List[str]:
+    """Loads the wordlist from the JSON file."""
+    data = json.loads(WORDLIST_PATH.read_text(encoding="utf-8"))
+    collected: Set[str] = set()
+    # Collect words from all difficulty levels.
+    for difficulty in ("easy", "medium", "hard"):
+        collected.update(word.lower() for word in data.get(difficulty, ()))
+    if not collected:
+        raise ValueError("No words found in bundled wordlist.json")
+    return sorted(collected)
+
+
+def load_default_words() -> List[str]:
+    """Return a copy of the bundled hangman words, using a cache to avoid re-reading the file."""
+    global _DEFAULT_WORD_CACHE
+    if _DEFAULT_WORD_CACHE is None:
+        _DEFAULT_WORD_CACHE = _load_words_from_disk()
+    return list(_DEFAULT_WORD_CACHE)
+
+
+# The ASCII art stages of the hangman drawing.
+HANGMAN_STAGES: Sequence[str] = (
+    r"""
+      _______
+     |/      |
+     |
+     |
+     |
+     |
+    _|___
+    """.rstrip(),
+    r"""
+      _______
+     |/      |
+     |      (_)
+     |
+     |
+     |
+    _|___
+    """.rstrip(),
+    r"""
+      _______
+     |/      |
+     |      (_)
+     |       |
+     |       |
+     |
+    _|___
+    """.rstrip(),
+    r"""
+      _______
+     |/      |
+     |      (_)
+     |      \|
+     |       |
+     |
+    _|___
+    """.rstrip(),
+    r"""
+      _______
+     |/      |
+     |      (_)
+     |      \|/
+     |       |
+     |
+    _|___
+    """.rstrip(),
+    r"""
+      _______
+     |/      |
+     |      (_)
+     |      \|/
+     |       |
+     |      /
+    _|___
+    """.rstrip(),
+    r"""
+      _______
+     |/      |
+     |      (_)
+     |      \|/
+     |       |
+     |      / \
+    _|___
+    """.rstrip(),
+)
+
+
+@dataclass
+class HangmanGame:
+    """Encapsulates the state and logic of a hangman round."""
+
+    words: Iterable[str] = field(default_factory=load_default_words)
+    max_attempts: int = 6
+
+    def __post_init__(self) -> None:
+        """Validates the initial game state after the dataclass is created."""
+        self.words = [word.lower() for word in self.words]
+        if not self.words:
+            raise ValueError("At least one word must be supplied.")
+        if self.max_attempts < 1:
+            raise ValueError("max_attempts must be at least one.")
+        self.reset()
+
+    def reset(self) -> None:
+        """Select a new word and reset guesses for a new game."""
+        self.secret_word: str = random.choice(list(self.words))
+        self.guessed_letters: Set[str] = set()
+        self.guessed_words: Set[str] = set()
+        self.wrong_guesses: Set[str] = set()
+
+    def guess(self, entry: str) -> bool:
+        """Process a player's guessed letter or full word.
+
+        Returns:
+            bool: True if the guess was correct, False otherwise.
+        """
+        entry = entry.lower().strip()
+        if not entry or any(ch not in string.ascii_lowercase for ch in entry):
+            raise ValueError("Guesses must contain only letters.")
+
+        # Handle single-letter guesses.
+        if len(entry) == 1:
+            if entry in self.guessed_letters or entry in self.wrong_guesses:
+                raise ValueError(f"Letter '{entry}' has already been guessed.")
+            if entry in self.secret_word:
+                self.guessed_letters.add(entry)
+                return True
+            self.wrong_guesses.add(entry)
+            return False
+
+        # Handle full-word guesses.
+        if entry == self.secret_word:
+            self.guessed_letters.update(set(self.secret_word))
+            self.guessed_words.add(entry)
+            return True
+
+        if entry in self.guessed_words:
+            raise ValueError(f"Word '{entry}' has already been attempted.")
+
+        self.guessed_words.add(entry)
+        self.wrong_guesses.add(entry)
+        return False
+
+    @property
+    def attempts_left(self) -> int:
+        """Return how many incorrect guesses remain."""
+        return self.max_attempts - len(self.wrong_guesses)
+
+    @property
+    def obscured_word(self) -> str:
+        """Return the secret word with unguessed letters hidden by underscores."""
+        return " ".join(letter if letter in self.guessed_letters else "_" for letter in self.secret_word)
+
+    @property
+    def stage(self) -> str:
+        """Return the ASCII gallows that reflects the current danger level."""
+        wrong = self.max_attempts - self.attempts_left
+        if self.max_attempts <= 0:
+            return HANGMAN_STAGES[-1]
+        # Scale the number of wrong guesses to the number of hangman stages.
+        scale = (len(HANGMAN_STAGES) - 1) / self.max_attempts
+        index = min(len(HANGMAN_STAGES) - 1, int(round(wrong * scale)))
+        return HANGMAN_STAGES[index]
+
+    def status_lines(self) -> List[str]:
+        """Human-friendly summary of the current round."""
+        wrong_letters = sorted(guess for guess in self.wrong_guesses if len(guess) == 1)
+        wrong_words = sorted(guess for guess in self.wrong_guesses if len(guess) > 1)
+        lines = [self.stage, f"Word: {self.obscured_word}"]
+        if wrong_letters:
+            lines.append(f"Wrong letters: {' '.join(wrong_letters)}")
+        if wrong_words:
+            lines.append("Wrong words: " + ", ".join(wrong_words))
+        lines.append(f"Attempts left: {self.attempts_left}")
+        return lines
+
+    def is_won(self) -> bool:
+        """Return True if all letters in the secret word have been guessed."""
+        return all(letter in self.guessed_letters for letter in set(self.secret_word))
+
+    def is_lost(self) -> bool:
+        """Return True if the player has exhausted the allowed attempts."""
+        return self.attempts_left <= 0
