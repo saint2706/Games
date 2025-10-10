@@ -94,9 +94,11 @@ python -m card_games.bluff --gui --difficulty Medium
 
 Enjoy a fast-paced game of Uno that recreates the classic 108-card deck,
 supports stacking draw cards, and lets you battle an assortment of AI
-personalities. The terminal interface highlights the active color, tracks draw
-penalties, and prompts for wild-card color selections while bots automatically
-choose colours based on the makeup of their hands.
+personalities. The rebuilt engine adds authentic Wild +4 challenges, automatic
+penalties when someone forgets to shout UNO, and smarter bots that weigh risks
+before bluffing with a draw card. The terminal interface highlights the active
+colour, tracks draw penalties, and prompts for wild-card colour selections
+while bots automatically choose colours based on the makeup of their hands.
 
 ```bash
 python -m card_games.uno --players 4 --bots 3 --bot-skill balanced --seed 2024
@@ -105,8 +107,12 @@ python -m card_games.uno --players 4 --bots 3 --bot-skill balanced --seed 2024
 Highlights:
 
 * Authentic card distribution with skips, reverses, draw-twos, and wild draw
-  fours that can stack until someone gives in and draws the full penalty.
+  fours that support stacking and optional challenges when a rival might be
+  bluffing.
 * Adjustable bot aggression so you can face easy-going opponents or relentless
-  action-card junkies.
-* Support for 2–6 total players with sensible defaults for drawing, accepting
-  penalties, and automatically calling UNO when only one card remains.
+  action-card junkies that decide when to risk a Wild +4 challenge.
+* Automatic UNO call enforcement: fail to declare in time and the table hands
+  you a two-card penalty.
+* Launch `python -m card_games.uno --gui` to enjoy a Tkinter interface with
+  colour-coded cards, UNO toggles, penalty prompts, and a scrolling event log
+  that mirrors each turn.
