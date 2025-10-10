@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Iterable, Optional
 
-from card_games.common.cards import Card, Deck, format_cards
+from card_games.common.cards import Card, Deck, format_cards, Suit
 
 
 class Outcome(str, Enum):
@@ -76,6 +76,61 @@ class PerfectPairsOutcome(str, Enum):
     COLORED_PAIR = "colored_pair"  # Same rank and color - 12:1
     MIXED_PAIR = "mixed_pair"  # Same rank different color - 6:1
     LOSE = "lose"
+
+
+@dataclass
+class TableRules:
+    """Configuration for blackjack table rules.
+    
+    Attributes:
+        blackjack_payout (float): Payout ratio for blackjack (1.5 = 3:2, 1.2 = 6:5).
+        dealer_hits_soft_17 (bool): Whether dealer hits on soft 17.
+        double_after_split (bool): Whether doubling is allowed after splitting.
+        resplit_aces (bool): Whether aces can be resplit.
+        max_splits (int): Maximum number of times a hand can be split.
+        surrender_allowed (bool): Whether surrender is allowed.
+        insurance_allowed (bool): Whether insurance is offered.
+    """
+
+    blackjack_payout: float = 1.5  # 3:2
+    dealer_hits_soft_17: bool = False
+    double_after_split: bool = True
+    resplit_aces: bool = False
+    max_splits: int = 3
+    surrender_allowed: bool = True
+    insurance_allowed: bool = True
+
+
+# Predefined table rule configurations
+TABLE_CONFIGS = {
+    "Standard": TableRules(
+        blackjack_payout=1.5,
+        dealer_hits_soft_17=False,
+        double_after_split=True,
+        resplit_aces=False,
+        max_splits=3,
+        surrender_allowed=True,
+        insurance_allowed=True,
+    ),
+    "Liberal": TableRules(
+        blackjack_payout=1.5,
+        dealer_hits_soft_17=False,
+        double_after_split=True,
+        resplit_aces=True,
+        max_splits=4,
+        surrender_allowed=True,
+        insurance_allowed=True,
+    ),
+    "Conservative": TableRules(
+        blackjack_payout=1.2,  # 6:5
+        dealer_hits_soft_17=True,
+        double_after_split=False,
+        resplit_aces=False,
+        max_splits=2,
+        surrender_allowed=False,
+        insurance_allowed=True,
+    ),
+}
 
 
 @dataclass
@@ -452,7 +507,7 @@ def evaluate_perfect_pairs(player_cards: list[Card]) -> tuple[PerfectPairsOutcom
     return PerfectPairsOutcome.MIXED_PAIR, 6
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class Player:
     """A blackjack player with a bankroll and a set of hands.
 
@@ -463,8 +518,8 @@ class Player:
     """
 
     name: str
-    bankroll: int
-    hands: list[BlackjackHand] = field(default_factory=list)
+    bankroll: int = field(compare=False)
+    hands: list[BlackjackHand] = field(default_factory=list, compare=False, hash=False)
 
     def active_hands(self) -> Iterable[BlackjackHand]:
         """Return an iterator over the player's hands that are still in play."""
@@ -472,7 +527,7 @@ class Player:
 
 
 class BlackjackGame:
-    """Manages a game of blackjack for a single player against the dealer.
+    """Manages a game of blackjack for multiple players against the dealer.
 
     This class orchestrates the entire game flow, from starting a round and
     placing bets to handling player actions (hit, stand, double, split) and
@@ -480,11 +535,13 @@ class BlackjackGame:
 
     Attributes:
         min_bet (int): The minimum allowed bet.
-        player (Player): The human player.
+        max_bet (int): The maximum allowed bet.
+        players (list[Player]): The list of players at the table.
         dealer (Player): The dealer.
         shoe (Shoe): The shoe of cards for the game.
         history (list): A log of outcomes from previous hands.
         educational_mode (bool): When enabled, shows card counting hints.
+        table_rules (TableRules): The rules for this table.
     """
 
     def __init__(
@@ -492,23 +549,47 @@ class BlackjackGame:
         *,
         bankroll: int = 500,
         min_bet: int = 10,
+        max_bet: int = 1000,
         decks: int = 6,
         rng=None,
         educational_mode: bool = False,
+        table_rules: Optional[TableRules] = None,
+        num_players: int = 1,
     ) -> None:
         if bankroll <= 0:
             raise ValueError("bankroll must be positive")
         if min_bet <= 0:
             raise ValueError("min_bet must be positive")
+        if max_bet < min_bet:
+            raise ValueError("max_bet must be >= min_bet")
         if min_bet > bankroll:
             raise ValueError("bankroll must cover at least one min bet")
+        if num_players < 1 or num_players > 7:
+            raise ValueError("num_players must be between 1 and 7")
 
         self.min_bet = min_bet
-        self.player = Player("You", bankroll)
+        self.max_bet = max_bet
+        self.table_rules = table_rules or TableRules()
+        
+        # Create players
+        self.players = []
+        if num_players == 1:
+            self.players.append(Player("You", bankroll))
+        else:
+            for i in range(num_players):
+                name = f"Player {i + 1}" if i > 0 else "You"
+                self.players.append(Player(name, bankroll))
+        
         self.dealer = Player("Dealer", bankroll=0)  # Dealer has infinite bankroll
         self.shoe = Shoe(decks, rng=rng)
         self.history: list[tuple[Outcome, BlackjackHand, BlackjackHand]] = []
         self.educational_mode = educational_mode
+
+    # Backward compatibility property
+    @property
+    def player(self) -> Player:
+        """Return the first player for backward compatibility."""
+        return self.players[0]
 
     def can_continue(self) -> bool:
         """Check if the player has enough money to continue playing."""
@@ -519,63 +600,106 @@ class BlackjackGame:
         bet: int,
         side_bets: Optional[dict[SideBetType, int]] = None,
     ) -> None:
-        """Start a new round of blackjack.
-
-        This involves taking the player's bet, dealing two cards to both the
-        player and the dealer, and setting up their initial hands.
+        """Start a new round of blackjack for single player (backward compatible).
 
         Args:
             bet (int): The amount the player wishes to bet.
             side_bets (Optional[dict[SideBetType, int]]): Dictionary of side bet types to amounts.
         """
-        if bet < self.min_bet:
-            raise ValueError(f"Bet must be at least {self.min_bet}")
-        if bet > self.player.bankroll:
-            raise ValueError("Insufficient bankroll for bet")
+        bets = {self.player: bet}
+        player_side_bets = {self.player: side_bets} if side_bets else {}
+        self.start_multiplayer_round(bets, player_side_bets)
 
-        # Validate and deduct side bets
-        total_side_bet = 0
-        side_bet_objects = []
-        if side_bets:
-            for bet_type, amount in side_bets.items():
-                if amount < 0:
-                    raise ValueError("Side bet amount must be non-negative")
-                if amount > 0:
-                    total_side_bet += amount
-                    side_bet_objects.append(SideBet(bet_type=bet_type, amount=amount))
+    def start_multiplayer_round(
+        self,
+        bets: dict[Player, int],
+        side_bets: Optional[dict[Player, dict[SideBetType, int]]] = None,
+    ) -> None:
+        """Start a new round of blackjack for multiple players.
+
+        Args:
+            bets (dict[Player, int]): Dictionary mapping each player to their bet amount.
+            side_bets (Optional[dict[Player, dict[SideBetType, int]]]): 
+                Dictionary mapping players to their side bets.
+        """
+        side_bets = side_bets or {}
         
-        if bet + total_side_bet > self.player.bankroll:
-            raise ValueError("Insufficient bankroll for bet and side bets")
-
-        self.player.bankroll -= bet + total_side_bet
-        player_hand = BlackjackHand(bet=bet, side_bets=side_bet_objects)
+        # Clear all hands
+        for player in self.players:
+            player.hands.clear()
+        self.dealer.hands.clear()
+        
         dealer_hand = BlackjackHand()
-
-        self.player.hands = [player_hand]
         self.dealer.hands = [dealer_hand]
-
-        # Deal two cards to both player and dealer
+        
+        # Validate bets and create hands for each player
+        for player in self.players:
+            if player not in bets:
+                continue  # Player sitting out this round
+            
+            bet = bets[player]
+            if bet < self.min_bet:
+                raise ValueError(f"Bet for {player.name} must be at least {self.min_bet}")
+            if bet > self.max_bet:
+                raise ValueError(f"Bet for {player.name} cannot exceed {self.max_bet}")
+            if bet > player.bankroll:
+                raise ValueError(f"Insufficient bankroll for {player.name}")
+            
+            # Validate and create side bets
+            player_side_bets = side_bets.get(player, {})
+            total_side_bet = 0
+            side_bet_objects = []
+            
+            if player_side_bets:
+                for bet_type, amount in player_side_bets.items():
+                    if amount < 0:
+                        raise ValueError("Side bet amount must be non-negative")
+                    if amount > 0:
+                        total_side_bet += amount
+                        side_bet_objects.append(SideBet(bet_type=bet_type, amount=amount))
+            
+            if bet + total_side_bet > player.bankroll:
+                raise ValueError(f"Insufficient bankroll for {player.name} bet and side bets")
+            
+            # Deduct bet and create hand
+            player.bankroll -= bet + total_side_bet
+            player_hand = BlackjackHand(bet=bet, side_bets=side_bet_objects)
+            player.hands = [player_hand]
+        
+        # Deal cards in casino order: one card to each player, one to dealer,
+        # then a second card to each player and dealer
         for _ in range(2):
-            # Cards alternate player/dealer to mimic casino dealing order.
-            player_hand.add_card(self.shoe.draw())
+            for player in self.players:
+                if player.hands:  # Only deal to players in this round
+                    player.hands[0].add_card(self.shoe.draw())
             dealer_hand.add_card(self.shoe.draw())
         
-        # Evaluate side bets immediately after dealing
-        self._resolve_side_bets(player_hand)
+        # Evaluate side bets for all players
+        for player in self.players:
+            if player.hands:
+                self._resolve_side_bets(player.hands[0])
 
     @property
     def dealer_hand(self) -> BlackjackHand:
         """A convenience property to access the dealer's single hand."""
         return self.dealer.hands[0]
 
-    def player_actions(self, hand: BlackjackHand) -> list[str]:
-        """Return a list of valid actions for the player's current hand."""
+    def player_actions(self, hand: BlackjackHand, player: Optional[Player] = None) -> list[str]:
+        """Return a list of valid actions for the player's current hand.
+        
+        Args:
+            hand (BlackjackHand): The hand to check actions for.
+            player (Optional[Player]): The player who owns the hand. If None, uses first player.
+        """
+        if player is None:
+            player = self.player
+        
         actions = ["hit", "stand"]
-        if hand.can_double(self.player.bankroll):
+        if hand.can_double(player.bankroll):
             actions.append("double")
-        if hand.can_split(self.player.bankroll):
+        if hand.can_split(player.bankroll):
             actions.append("split")
-        if hand.can_surrender():
+        if hand.can_surrender() and self.table_rules.surrender_allowed:
             actions.append("surrender")
         return actions
 
@@ -589,12 +713,20 @@ class BlackjackGame:
         """Mark the player's hand as "stood" (no more cards)."""
         hand.stood = True
 
-    def double_down(self, hand: BlackjackHand) -> Card:
-        """Double the player's bet, deal one more card, and stand."""
-        if not hand.can_double(self.player.bankroll):
+    def double_down(self, hand: BlackjackHand, player: Optional[Player] = None) -> Card:
+        """Double a player's bet, deal one more card, and stand.
+        
+        Args:
+            hand (BlackjackHand): The hand to double down.
+            player (Optional[Player]): The player who owns the hand. If None, uses first player.
+        """
+        if player is None:
+            player = self.player
+        
+        if not hand.can_double(player.bankroll):
             raise ValueError("Cannot double this hand")
 
-        self.player.bankroll -= hand.bet
+        player.bankroll -= hand.bet
         hand.bet *= 2
         hand.doubled = True
 
@@ -603,17 +735,25 @@ class BlackjackGame:
         hand.stood = True
         return card
 
-    def split(self, hand: BlackjackHand) -> BlackjackHand:
-        """Split the player's hand into two separate hands."""
-        if not hand.can_split(self.player.bankroll):
+    def split(self, hand: BlackjackHand, player: Optional[Player] = None) -> BlackjackHand:
+        """Split a player's hand into two separate hands.
+        
+        Args:
+            hand (BlackjackHand): The hand to split.
+            player (Optional[Player]): The player who owns the hand. If None, uses first player.
+        """
+        if player is None:
+            player = self.player
+        
+        if not hand.can_split(player.bankroll):
             raise ValueError("Cannot split this hand")
 
-        self.player.bankroll -= hand.bet
+        player.bankroll -= hand.bet
         new_hand = hand.split()
 
         # Insert the new hand immediately after the original
-        index = self.player.hands.index(hand)
-        self.player.hands.insert(index + 1, new_hand)
+        index = player.hands.index(hand)
+        player.hands.insert(index + 1, new_hand)
 
         # Add one card to each of the newly split hands
         for split_hand in (hand, new_hand):
@@ -622,40 +762,69 @@ class BlackjackGame:
 
         return new_hand
 
-    def surrender(self, hand: BlackjackHand) -> None:
+    def surrender(self, hand: BlackjackHand, player: Optional[Player] = None) -> None:
         """Surrender the hand and get half the bet back.
         
         Args:
             hand (BlackjackHand): The hand to surrender.
+            player (Optional[Player]): The player who owns the hand. If None, uses first player.
         """
+        if not self.table_rules.surrender_allowed:
+            raise ValueError("Surrender is not allowed at this table")
+        
         if not hand.can_surrender():
             raise ValueError("Cannot surrender this hand")
+        
+        if player is None:
+            player = self.player
         
         hand.surrendered = True
         hand.stood = True
         # Return half the bet to the player
-        self.player.bankroll += hand.bet // 2
+        player.bankroll += hand.bet // 2
 
     def dealer_play(self) -> None:
-        """Perform the dealer's turn according to standard casino rules.
+        """Perform the dealer's turn according to table rules.
 
-        The dealer must hit on 16 or less and on a soft 17. They stand on a
-        hard 17 or greater.
+        The dealer must hit on 16 or less. Behavior on soft 17 depends on
+        table rules.
         """
         hand = self.dealer_hand
         hand.stood = False
-        while hand.best_total() < 17 or (hand.best_total() == 17 and hand.is_soft()):
+        while hand.best_total() < 17:
             self.hit(hand)
+        
+        # Check if dealer should hit soft 17 based on table rules
+        if (
+            self.table_rules.dealer_hits_soft_17
+            and hand.best_total() == 17
+            and hand.is_soft()
+        ):
+            while hand.best_total() < 17 or (
+                hand.best_total() == 17 and hand.is_soft()
+            ):
+                self.hit(hand)
+        
         hand.stood = True
 
-    def _resolve_side_bets(self, hand: BlackjackHand) -> None:
+    def _resolve_side_bets(self, hand: BlackjackHand, player: Optional[Player] = None) -> None:
         """Resolve side bets for a hand.
         
         Args:
             hand (BlackjackHand): The hand with side bets to resolve.
+            player (Optional[Player]): The player who owns the hand. If None, finds owner.
         """
         if not hand.side_bets:
             return
+        
+        # Find player if not provided
+        if player is None:
+            for p in self.players:
+                if hand in p.hands:
+                    player = p
+                    break
+            if player is None:
+                return
         
         dealer_up_card = self.dealer_hand.cards[0] if self.dealer_hand.cards else None
         
@@ -669,14 +838,14 @@ class BlackjackGame:
                     side_bet.payout = side_bet.amount * multiplier
                     if multiplier > 0:
                         # Pay out: return bet plus winnings
-                        self.player.bankroll += side_bet.amount + side_bet.payout
+                        player.bankroll += side_bet.amount + side_bet.payout
             elif side_bet.bet_type == SideBetType.PERFECT_PAIRS:
                 outcome, multiplier = evaluate_perfect_pairs(hand.cards)
                 side_bet.outcome = outcome.value
                 side_bet.payout = side_bet.amount * multiplier
                 if multiplier > 0:
                     # Pay out: return bet plus winnings
-                    self.player.bankroll += side_bet.amount + side_bet.payout
+                    player.bankroll += side_bet.amount + side_bet.payout
 
     def resolve(self, hand: BlackjackHand) -> Outcome:
         """Resolve a single player hand against the dealer's hand.
@@ -700,23 +869,38 @@ class BlackjackGame:
         player_total = hand.best_total()
 
         if hand.is_blackjack() and not self.dealer_hand.is_blackjack():
-            # Blackjack pays 3:2
-            payout = int(hand.bet * 1.5)
-            self.player.bankroll += hand.bet + payout
+            # Blackjack pays according to table rules
+            payout = int(hand.bet * self.table_rules.blackjack_payout)
+            # Find the player who owns this hand
+            for player in self.players:
+                if hand in player.hands:
+                    player.bankroll += hand.bet + payout
+                    break
             outcome = Outcome.PLAYER_BLACKJACK
         elif hand.is_bust():
             outcome = Outcome.PLAYER_BUST
         elif self.dealer_hand.is_bust():
-            self.player.bankroll += hand.bet * 2
+            # Find the player who owns this hand
+            for player in self.players:
+                if hand in player.hands:
+                    player.bankroll += hand.bet * 2
+                    break
             outcome = Outcome.DEALER_BUST
         elif self.dealer_hand.is_blackjack() and not hand.is_blackjack():
             outcome = Outcome.PLAYER_LOSS
         elif player_total > dealer_total:
-            self.player.bankroll += hand.bet * 2
+            # Find the player who owns this hand
+            for player in self.players:
+                if hand in player.hands:
+                    player.bankroll += hand.bet * 2
+                    break
             outcome = Outcome.PLAYER_WIN
         elif player_total == dealer_total:
             # Push: return the bet to the player
-            self.player.bankroll += hand.bet
+            for player in self.players:
+                if hand in player.hands:
+                    player.bankroll += hand.bet
+                    break
             outcome = Outcome.PUSH
         else:  # player_total < dealer_total
             outcome = Outcome.PLAYER_LOSS
@@ -724,17 +908,55 @@ class BlackjackGame:
         self.history.append((outcome, hand, self.dealer_hand))
         return outcome
 
-    def settle_round(self) -> list[Outcome]:
-        """Settle all of the player's hands at the end of a round."""
-        outcomes: list[Outcome] = []
-        for hand in self.player.hands:
-            outcomes.append(self.resolve(hand))
-        return outcomes
+    def settle_round(self) -> dict[Player, list[Outcome]]:
+        """Settle all hands for all players at the end of a round.
+        
+        Returns:
+            dict[Player, list[Outcome]]: Map of players to their hand outcomes.
+        """
+        results = {}
+        for player in self.players:
+            outcomes = []
+            for hand in player.hands:
+                outcomes.append(self.resolve(hand))
+            if outcomes:
+                results[player] = outcomes
+        return results
 
     def reset(self) -> None:
-        """Clear the player's and dealer's hands for the next round."""
-        self.player.hands.clear()
+        """Clear all players' and dealer's hands for the next round."""
+        for player in self.players:
+            player.hands.clear()
         self.dealer.hands.clear()
+    
+    def add_player(self, name: str, bankroll: int) -> Player:
+        """Add a new player to the table.
+        
+        Args:
+            name (str): The player's name.
+            bankroll (int): The player's starting bankroll.
+            
+        Returns:
+            Player: The newly added player.
+            
+        Raises:
+            ValueError: If the table is full (7 players max).
+        """
+        if len(self.players) >= 7:
+            raise ValueError("Table is full (maximum 7 players)")
+        
+        player = Player(name, bankroll)
+        self.players.append(player)
+        return player
+    
+    def remove_player(self, player: Player) -> None:
+        """Remove a player from the table.
+        
+        Args:
+            player (Player): The player to remove.
+        """
+        if player in self.players:
+            self.players.remove(player)
 
     def format_hand(self, hand: BlackjackHand) -> str:
         """Return a formatted string representation of a hand."""
@@ -799,4 +1021,7 @@ __all__ = [
     "SideBetType",
     "TwentyOnePlusThreeOutcome",
     "PerfectPairsOutcome",
+    "TableRules",
+    "TABLE_CONFIGS",
+    "Player",
 ]
