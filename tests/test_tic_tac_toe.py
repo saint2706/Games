@@ -7,6 +7,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from paper_games.tic_tac_toe.stats import GameStats
+from paper_games.tic_tac_toe.themes import THEMES, get_theme, list_themes, validate_symbols
 from paper_games.tic_tac_toe.tic_tac_toe import TicTacToeGame
 
 
@@ -256,6 +257,78 @@ def test_stats_summary():
     assert "4x4" in summary
 
 
+# Theme tests
+def test_get_theme():
+    """Test getting theme symbols."""
+    sym1, sym2 = get_theme("classic")
+    assert sym1 == "X"
+    assert sym2 == "O"
+    
+    sym1, sym2 = get_theme("hearts")
+    assert sym1 == "♥"
+    assert sym2 == "♡"
+
+
+def test_get_invalid_theme():
+    """Test that invalid themes raise errors."""
+    try:
+        get_theme("nonexistent")
+        assert False, "Should have raised ValueError"
+    except ValueError:
+        pass
+
+
+def test_list_themes():
+    """Test listing available themes."""
+    themes_list = list_themes()
+    assert "classic" in themes_list
+    assert "hearts" in themes_list
+    assert "emoji" in themes_list
+
+
+def test_validate_symbols():
+    """Test symbol validation."""
+    assert validate_symbols("X", "O") is True
+    assert validate_symbols("♥", "♡") is True
+    
+    # Test identical symbols
+    try:
+        validate_symbols("X", "X")
+        assert False, "Should have raised ValueError"
+    except ValueError:
+        pass
+    
+    # Test empty symbols
+    try:
+        validate_symbols("", "O")
+        assert False, "Should have raised ValueError"
+    except ValueError:
+        pass
+
+
+def test_themed_game():
+    """Test playing a game with themed symbols."""
+    game = TicTacToeGame(human_symbol="♥", computer_symbol="♡")
+    assert game.human_symbol == "♥"
+    assert game.computer_symbol == "♡"
+    
+    game.make_move(0, "♥")
+    game.make_move(1, "♡")
+    
+    rendered = game.render()
+    assert "♥" in rendered
+    assert "♡" in rendered
+
+
+def test_all_themes_in_game():
+    """Test that all themes can be used in a game."""
+    for theme_name in THEMES.keys():
+        sym1, sym2 = get_theme(theme_name)
+        game = TicTacToeGame(human_symbol=sym1, computer_symbol=sym2, board_size=3)
+        assert game.human_symbol == sym1
+        assert game.computer_symbol == sym2
+
+
 if __name__ == "__main__":
     # Run all tests
     test_functions = [
@@ -283,6 +356,12 @@ if __name__ == "__main__":
         test_stats_by_board_size,
         test_stats_save_and_load,
         test_stats_summary,
+        test_get_theme,
+        test_get_invalid_theme,
+        test_list_themes,
+        test_validate_symbols,
+        test_themed_game,
+        test_all_themes_in_game,
     ]
     
     for test_func in test_functions:

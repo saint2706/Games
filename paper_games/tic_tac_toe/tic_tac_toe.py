@@ -40,6 +40,8 @@ class TicTacToeGame:
         """Validates the initial game state after the dataclass is created."""
         if self.human_symbol == self.computer_symbol:
             raise ValueError("Players must use distinct symbols.")
+        if not self.human_symbol or not self.computer_symbol:
+            raise ValueError("Symbols cannot be empty.")
         if self.board_size < 3:
             raise ValueError("Board size must be at least 3.")
         if self.win_length is None:

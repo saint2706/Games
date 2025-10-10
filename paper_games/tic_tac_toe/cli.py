@@ -10,6 +10,7 @@ import pathlib
 import random
 
 from .stats import GameStats
+from .themes import get_theme, list_themes, validate_symbols
 from .tic_tac_toe import TicTacToeGame
 
 # Default location for stats file
@@ -49,12 +50,24 @@ def play() -> None:
         except ValueError:
             print(f"Invalid win length. Defaulting to {board_size}.")
     
-    # Get player's choice of symbol.
-    human_symbol = input("Choose your symbol (X or O) [X]: ").strip().upper() or "X"
-    if human_symbol not in {"X", "O"}:
-        print("Invalid symbol chosen. Defaulting to X.")
-        human_symbol = "X"
-    computer_symbol = "O" if human_symbol == "X" else "X"
+    # Get player's choice of symbols/theme
+    use_theme = input("Use a themed board? [y/N]: ").strip().lower()
+    if use_theme in {"y", "yes"}:
+        print("\n" + list_themes())
+        theme_name = input("\nChoose a theme [classic]: ").strip().lower() or "classic"
+        try:
+            human_symbol, computer_symbol = get_theme(theme_name)
+            print(f"Using theme: {theme_name} ({human_symbol} vs {computer_symbol})")
+        except ValueError as e:
+            print(f"Error: {e}. Using classic theme.")
+            human_symbol, computer_symbol = "X", "O"
+    else:
+        # Get player's choice of symbol.
+        human_symbol = input("Choose your symbol (X or O) [X]: ").strip().upper() or "X"
+        if human_symbol not in {"X", "O"}:
+            print("Invalid symbol chosen. Defaulting to X.")
+            human_symbol = "X"
+        computer_symbol = "O" if human_symbol == "X" else "X"
 
     # Get player's choice of who goes first.
     wants_first = input("Do you want to go first? [Y/n]: ").strip().lower()
