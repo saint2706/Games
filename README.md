@@ -15,6 +15,13 @@ card_games/
 ├── bluff/            # Interactive bluff game
 ├── blackjack/        # Casino-style blackjack with splits, doubles, and a GUI table
 └── uno/              # Classic Uno with bots and a CLI interface
+paper_games/
+├── battleship/      # Hunt hidden ships on a compact grid
+├── dots_and_boxes/  # Claim edges to capture boxes against a computer foe
+├── hangman/         # Guess the word before the gallows fills up (ASCII art + curated list)
+├── nim/             # Take on an optimal opponent in the game of Nim
+├── tic_tac_toe/     # Minimax-powered noughts and crosses with coordinate input
+└── unscramble/      # Race to rebuild scrambled vocabulary words
 ```
 
 ## Documentation roadmap
@@ -33,6 +40,32 @@ an executable design document. To dive in:
 
 Each module's docstrings provide inline references to supporting utilities so
 you can jump between files without losing context.
+
+## Paper and pencil classics
+
+Looking for lighter fare? The `paper_games` package recreates a handful of
+classroom staples:
+
+- `python -m paper_games.hangman` drops you into a word-guessing showdown with
+  configurable mistake limits, gallows art that fills in piece by piece, and a
+  curated vocabulary sourced from the
+  [The Hangman Wordlist](https://github.com/TheBiemGamer/The-Hangman-Wordlist)
+  project. Go letter by letter or gamble on a full-word reveal.
+- `python -m paper_games.tic_tac_toe` pits you against a perfect minimax AI that
+  respects coin tosses for the opening move, supports X-or-O selection, and uses
+  coordinate input (A1 through C3) so the board feels like the pencil-and-paper
+  classic.
+- `python -m paper_games.dots_and_boxes` lets you outline squares on a
+  2×2 board, while the computer now reads chains, takes bonus turns, and prints
+  coordinate guides so you can follow along with precision.
+- `python -m paper_games.battleship` challenges you to sink a trio of hidden
+  ships spread across a 6×6 ocean.
+- `python -m paper_games.unscramble` serves up scrambled words over multiple
+  rounds and keeps score of your successes, drawing from the same curated word
+  list as hangman for consistency.
+- `python -m paper_games.nim` offers a quick dose of combinatorial game theory
+  with configurable heaps, optional misère rules, and an opponent that always
+  looks for the optimal removal.
 
 ## Blackjack
 
