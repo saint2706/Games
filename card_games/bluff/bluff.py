@@ -127,6 +127,80 @@ class PlayerProfile:
 
 
 @dataclass
+class PlayerPattern:
+    """Tracks learned patterns about a player's behavior.
+    
+    Attributes:
+        bluff_rate_by_pile_size (Dict[int, float]): Bluff rate based on pile size.
+        bluff_rate_by_card_count (Dict[int, float]): Bluff rate based on hand size.
+        preferred_bluff_ranks (Counter[str]): Ranks this player tends to bluff about.
+        challenge_aggression (float): How likely they are to challenge.
+        recent_behavior (list[bool]): Recent truthfulness (True=truth, False=bluff).
+    """
+    bluff_rate_by_pile_size: Dict[int, float] = field(default_factory=dict)
+    bluff_rate_by_card_count: Dict[int, float] = field(default_factory=dict)
+    preferred_bluff_ranks: Counter[str] = field(default_factory=Counter)
+    challenge_aggression: float = 0.3
+    recent_behavior: list[bool] = field(default_factory=list)
+    
+    def update_bluff_pattern(self, was_truthful: bool, pile_size: int, card_count: int, rank: str) -> None:
+        """Update pattern tracking after a claim."""
+        # Track recent behavior (keep last 10)
+        self.recent_behavior.append(was_truthful)
+        if len(self.recent_behavior) > 10:
+            self.recent_behavior.pop(0)
+        
+        # Update pile size pattern
+        pile_bucket = (pile_size // 5) * 5  # Bucket by 5s
+        if pile_bucket not in self.bluff_rate_by_pile_size:
+            self.bluff_rate_by_pile_size[pile_bucket] = 0.5
+        current_rate = self.bluff_rate_by_pile_size[pile_bucket]
+        # Moving average
+        self.bluff_rate_by_pile_size[pile_bucket] = current_rate * 0.8 + (0 if was_truthful else 1) * 0.2
+        
+        # Update card count pattern
+        card_bucket = (card_count // 3) * 3  # Bucket by 3s
+        if card_bucket not in self.bluff_rate_by_card_count:
+            self.bluff_rate_by_card_count[card_bucket] = 0.5
+        current_rate = self.bluff_rate_by_card_count[card_bucket]
+        self.bluff_rate_by_card_count[card_bucket] = current_rate * 0.8 + (0 if was_truthful else 1) * 0.2
+        
+        # Track preferred bluff ranks
+        if not was_truthful:
+            self.preferred_bluff_ranks[rank] += 1
+    
+    def get_suspected_bluff_probability(self, pile_size: int, card_count: int, rank: str) -> float:
+        """Estimate probability that current claim is a bluff."""
+        factors = []
+        
+        # Check pile size pattern
+        pile_bucket = (pile_size // 5) * 5
+        if pile_bucket in self.bluff_rate_by_pile_size:
+            factors.append(self.bluff_rate_by_pile_size[pile_bucket])
+        
+        # Check card count pattern
+        card_bucket = (card_count // 3) * 3
+        if card_bucket in self.bluff_rate_by_card_count:
+            factors.append(self.bluff_rate_by_card_count[card_bucket])
+        
+        # Check if this rank is a preferred bluff rank
+        if rank in self.preferred_bluff_ranks:
+            total_bluffs = sum(self.preferred_bluff_ranks.values())
+            rank_preference = self.preferred_bluff_ranks[rank] / total_bluffs
+            factors.append(rank_preference)
+        
+        # Check recent behavior
+        if len(self.recent_behavior) >= 3:
+            recent_bluff_rate = sum(0 if truthful else 1 for truthful in self.recent_behavior[-3:]) / 3
+            factors.append(recent_bluff_rate)
+        
+        # Average the factors
+        if factors:
+            return sum(factors) / len(factors)
+        return 0.5  # Default neutral probability
+
+
+@dataclass
 class PlayerState:
     """Runtime information about a seated player, including their hand and stats.
 
@@ -142,6 +216,7 @@ class PlayerState:
         challenge_attempts (int): The number of challenges made.
         challenge_successes (int): The number of successful challenges.
         last_caught_turn (Optional[int]): The turn index when the player was last caught.
+        pattern (PlayerPattern): Learned behavioral patterns for this player.
     """
 
     name: str
@@ -155,6 +230,7 @@ class PlayerState:
     challenge_attempts: int = 0
     challenge_successes: int = 0
     last_caught_turn: Optional[int] = None
+    pattern: PlayerPattern = field(default_factory=PlayerPattern)
 
     def record_claim(self, truthful: bool) -> None:
         """Update statistics based on a claim being truthful or a bluff."""
@@ -221,6 +297,60 @@ class GameAction:
     action_type: str
     player: str
     data: Dict[str, Any]
+
+
+@dataclass
+class Team:
+    """Represents a team in team play mode.
+    
+    Attributes:
+        name (str): Team name.
+        members (list[PlayerState]): Team members.
+        shared_info (Dict[str, Any]): Information shared among team members.
+    """
+    name: str
+    members: list[PlayerState] = field(default_factory=list)
+    shared_info: Dict[str, Any] = field(default_factory=dict)
+    
+    def total_cards(self) -> int:
+        """Return total cards held by the team."""
+        return sum(len(member.hand) for member in self.members)
+    
+    def is_victorious(self) -> bool:
+        """Check if team has won (all members have no cards)."""
+        return all(len(member.hand) == 0 for member in self.members)
+
+
+@dataclass
+class TournamentPlayer:
+    """Represents a player in a tournament.
+    
+    Attributes:
+        name (str): Player's name.
+        is_user (bool): True if this is the human player.
+        profile (PlayerProfile): AI profile for bots.
+        wins (int): Number of games won.
+        eliminated (bool): Whether the player is eliminated.
+    """
+    name: str
+    is_user: bool
+    profile: PlayerProfile
+    wins: int = 0
+    eliminated: bool = False
+
+
+@dataclass
+class TournamentRound:
+    """Represents a single round in a tournament.
+    
+    Attributes:
+        round_number (int): The round number (1-based).
+        matches (list[tuple[TournamentPlayer, ...]]): List of player matchups.
+        winners (list[TournamentPlayer]): Players who won their matches.
+    """
+    round_number: int
+    matches: list[tuple[TournamentPlayer, ...]]
+    winners: list[TournamentPlayer] = field(default_factory=list)
 
 
 @dataclass
@@ -351,6 +481,204 @@ DECK_TYPES: Dict[str, DeckType] = {
 }
 
 
+class BluffTournament:
+    """Manages a multi-round elimination tournament.
+    
+    Players compete in matches, and winners advance to the next round
+    until a champion is determined.
+    """
+    
+    def __init__(
+        self,
+        difficulty: DifficultyLevel,
+        *,
+        rounds_per_match: int = 3,
+        rng: random.Random | None = None,
+        deck_type: DeckType | None = None,
+    ) -> None:
+        """Initialize a tournament.
+        
+        Args:
+            difficulty: Difficulty level for bot opponents.
+            rounds_per_match: Number of rounds per game.
+            rng: Random number generator.
+            deck_type: Type of deck to use.
+        """
+        self.difficulty = difficulty
+        self.rounds_per_match = rounds_per_match
+        self._rng = rng or random.Random()
+        self.deck_type = deck_type or DECK_TYPES["Standard"]
+        
+        # Initialize tournament players
+        self.players: list[TournamentPlayer] = []
+        self.rounds: list[TournamentRound] = []
+        self.current_round = 0
+        self.champion: TournamentPlayer | None = None
+        
+        self._setup_tournament_players()
+    
+    def _setup_tournament_players(self) -> None:
+        """Create tournament players including the user and bots."""
+        # Add user
+        user_profile = PlayerProfile(
+            honesty=0.62, boldness=0.28, challenge=0.3, memory=0.6
+        )
+        self.players.append(
+            TournamentPlayer(name="You", is_user=True, profile=user_profile)
+        )
+        
+        # Add bots - need enough for a power of 2 for bracket
+        # For 8-player tournament (3 rounds to finals)
+        base = self.difficulty
+        for i in range(7):
+            variance = self._rng.uniform(-0.05, 0.05)
+            profile = PlayerProfile(
+                honesty=max(0.2, min(0.95, base.honesty + variance)),
+                boldness=max(0.05, min(0.9, base.boldness + variance * 1.5)),
+                challenge=max(0.05, min(0.9, base.challenge + variance)),
+                memory=max(0.2, min(0.95, 0.55 + variance * 2)),
+            )
+            self.players.append(
+                TournamentPlayer(
+                    name=f"Bot {i + 1}",
+                    is_user=False,
+                    profile=profile,
+                )
+            )
+        
+        # Shuffle players for random brackets
+        self._rng.shuffle(self.players)
+    
+    def create_round(self) -> TournamentRound:
+        """Create the next tournament round with matchups."""
+        active_players = [p for p in self.players if not p.eliminated]
+        
+        if len(active_players) <= 1:
+            return None
+        
+        # Pair up players for matches
+        matches = []
+        for i in range(0, len(active_players), 2):
+            if i + 1 < len(active_players):
+                # Standard 1v1 match
+                matches.append((active_players[i], active_players[i + 1]))
+            else:
+                # Odd player gets a bye (automatically advances)
+                pass
+        
+        self.current_round += 1
+        round_obj = TournamentRound(round_number=self.current_round, matches=matches)
+        self.rounds.append(round_obj)
+        return round_obj
+    
+    def play_match(
+        self, player1: TournamentPlayer, player2: TournamentPlayer
+    ) -> TournamentPlayer:
+        """Play a single match between two players and return the winner.
+        
+        Args:
+            player1: First player.
+            player2: Second player.
+            
+        Returns:
+            The winning player.
+        """
+        # Create a mini game with just these two players
+        # We'll simulate by creating profiles and running a game
+        difficulty_for_match = DifficultyLevel(
+            name="Tournament",
+            bot_count=1,
+            deck_count=1,
+            honesty=self.difficulty.honesty,
+            boldness=self.difficulty.boldness,
+            challenge=self.difficulty.challenge,
+        )
+        
+        game = BluffGame(
+            difficulty_for_match,
+            rounds=self.rounds_per_match,
+            rng=self._rng,
+            deck_type=self.deck_type,
+        )
+        
+        # Replace game players with tournament players
+        game.players.clear()
+        game.players.append(
+            PlayerState(
+                name=player1.name,
+                is_user=player1.is_user,
+                profile=player1.profile,
+                rng=self._rng,
+            )
+        )
+        game.players.append(
+            PlayerState(
+                name=player2.name,
+                is_user=player2.is_user,
+                profile=player2.profile,
+                rng=self._rng,
+            )
+        )
+        game._current_player_index = 0
+        game._deal_initial_hands()
+        
+        # Simulate the game
+        while not game.finished:
+            player = game.current_player
+            if player.is_user:
+                # For tournament simulation, bots play for the user
+                # In a real interactive tournament, this would prompt the user
+                pass
+            
+            # Bot plays
+            claim, _ = game.play_bot_turn()
+            
+            # Process challenges
+            while game.phase == Phase.CHALLENGE and not game.finished:
+                challenger = game.current_challenger
+                if not challenger:
+                    break
+                decision = game.bot_should_challenge(challenger)
+                game.evaluate_challenge(decision)
+        
+        # Determine winner
+        winner = game.winner
+        if winner:
+            winner_tournament_player = player1 if winner.name == player1.name else player2
+        else:
+            # In case of tie, winner is the one with fewer cards
+            p1_state = game.players[0]
+            p2_state = game.players[1]
+            winner_tournament_player = (
+                player1 if len(p1_state.hand) < len(p2_state.hand) else player2
+            )
+        
+        winner_tournament_player.wins += 1
+        return winner_tournament_player
+    
+    def advance_round(self, round_obj: TournamentRound) -> None:
+        """Process a round and eliminate losers.
+        
+        Args:
+            round_obj: The round that was just completed.
+        """
+        # Mark losers as eliminated
+        for match in round_obj.matches:
+            for player in match:
+                if player not in round_obj.winners:
+                    player.eliminated = True
+    
+    def is_complete(self) -> bool:
+        """Check if the tournament is complete."""
+        active_players = [p for p in self.players if not p.eliminated]
+        return len(active_players) == 1
+    
+    def get_champion(self) -> TournamentPlayer | None:
+        """Return the tournament champion, if any."""
+        active_players = [p for p in self.players if not p.eliminated]
+        return active_players[0] if len(active_players) == 1 else None
+
+
 class BluffGame:
     """Rules engine for a realistic multi-player game of Cheat/Bluff.
 
@@ -367,6 +695,7 @@ class BluffGame:
         record_replay: bool = False,
         seed: Optional[int] = None,
         deck_type: DeckType | None = None,
+        team_play: bool = False,
     ) -> None:
         if rounds <= 0:
             raise ValueError("rounds must be a positive integer")
@@ -376,9 +705,11 @@ class BluffGame:
         self._rng = rng or random.Random()
         self._seed = seed
         self.deck_type = deck_type or DECK_TYPES["Standard"]
+        self.team_play = team_play
 
         # Game state attributes
         self.players: list[PlayerState] = []
+        self.teams: list[Team] = []
         self._pile_cards: list[Card] = []
         self._pile_claims: list[Claim] = []
         self._challenge_queue: Deque[PlayerState] = deque()
@@ -386,12 +717,15 @@ class BluffGame:
         self._phase = Phase.TURN
         self._turns_played = 0
         self._winner: PlayerState | None = None
+        self._winning_team: Team | None = None
 
         # Replay recording
         self._record_replay = record_replay
         self._replay_actions: list[GameAction] = []
 
         self._setup_players()
+        if self.team_play:
+            self._setup_teams()
         self._deal_initial_hands()
 
         # Record initial state for replay
@@ -428,6 +762,35 @@ class BluffGame:
                 rng=self._rng,
             )
             self.players.append(bot)
+    
+    def _setup_teams(self) -> None:
+        """Organize players into teams for team play mode."""
+        # Create two teams by splitting players
+        mid = len(self.players) // 2
+        
+        team_a = Team(name="Team Alpha")
+        team_b = Team(name="Team Bravo")
+        
+        for i, player in enumerate(self.players):
+            if i < mid:
+                team_a.members.append(player)
+            else:
+                team_b.members.append(player)
+        
+        self.teams = [team_a, team_b]
+        
+        # Update player names to show team affiliation
+        for team in self.teams:
+            for player in team.members:
+                if not player.is_user:
+                    player.name = f"{player.name} ({team.name})"
+    
+    def get_player_team(self, player: PlayerState) -> Team | None:
+        """Get the team a player belongs to."""
+        for team in self.teams:
+            if player in team.members:
+                return team
+        return None
 
     def _build_multi_deck(self, deck_count: int) -> Deck:
         """Create a deck based on the selected deck type and count."""
@@ -637,6 +1000,11 @@ class BluffGame:
                 "pile_size": len(self._pile_cards),
             },
         )
+        
+        # Update pattern learning for this player
+        player.pattern.update_bluff_pattern(
+            truthful, len(self._pile_cards) - 1, len(player.hand) + 1, claimed_rank
+        )
 
         # Transition to the challenge phase by lining up every other player so
         # they can decide whether to call the claim.
@@ -785,7 +1153,19 @@ class BluffGame:
         if not claimant.hand:
             self._winner = claimant
             self._phase = Phase.COMPLETE
-            messages.append(f"{claimant.name} has shed every card and wins the table!")
+            
+            # Check for team victory
+            if self.team_play:
+                team = self.get_player_team(claimant)
+                if team and team.is_victorious():
+                    self._winning_team = team
+                    messages.append(f"{claimant.name} has shed every card!")
+                    messages.append(f"{team.name} wins the table!")
+                else:
+                    messages.append(f"{claimant.name} has shed every card! Their team still has cards.")
+            else:
+                messages.append(f"{claimant.name} has shed every card and wins the table!")
+            
             return ChallengeResult(resolved=True, messages=messages)
 
         # Check if the game should end due to reaching the max turn limit
@@ -841,7 +1221,7 @@ class BluffGame:
     # Bot challenge logic
     # ------------------------------------------------------------------
     def bot_should_challenge(self, challenger: PlayerState) -> bool:
-        """Determine if a bot should challenge a claim, based on its profile and game state."""
+        """Determine if a bot should challenge a claim, using learned patterns and profile."""
         if not self._claim_in_progress:
             return False
 
@@ -857,6 +1237,17 @@ class BluffGame:
             history_total + 2
         )  # +1/+2 to avoid division by zero
         tendency += lie_rate * challenger.profile.memory
+
+        # USE LEARNED PATTERNS - This is the advanced AI feature
+        if challenger.profile.memory > 0.5:  # High-memory bots use pattern learning
+            suspected_bluff_prob = claimant.pattern.get_suspected_bluff_probability(
+                len(self._pile_cards),
+                len(claimant.hand),
+                claim.claimed_rank
+            )
+            # Weight the learned pattern based on memory
+            pattern_influence = (suspected_bluff_prob - 0.5) * challenger.profile.memory
+            tendency += pattern_influence
 
         # Adjust based on how recently the claimant was caught
         if claimant.last_caught_turn is not None:
@@ -896,13 +1287,27 @@ class BluffGame:
     def scoreboard(self) -> str:
         """Generate a string with the current game scores and stats."""
         rows = ["Current card counts:"]
-        for player in self.players:
-            rows.append(
-                f"- {player.name}: {len(player.hand)} cards | "
-                f"Truths: {player.truths} | Lies: {player.lies} | "
-                f"Calls: {player.challenge_successes}/{player.challenge_attempts}"
-            )
-        rows.append(f"Pile size: {len(self._pile_cards)}")
+        
+        if self.team_play:
+            # Show team-based scoreboard
+            for team in self.teams:
+                rows.append(f"\n{team.name} (Total: {team.total_cards()} cards):")
+                for player in team.members:
+                    rows.append(
+                        f"  - {player.name}: {len(player.hand)} cards | "
+                        f"Truths: {player.truths} | Lies: {player.lies} | "
+                        f"Calls: {player.challenge_successes}/{player.challenge_attempts}"
+                    )
+        else:
+            # Show individual scoreboard
+            for player in self.players:
+                rows.append(
+                    f"- {player.name}: {len(player.hand)} cards | "
+                    f"Truths: {player.truths} | Lies: {player.lies} | "
+                    f"Calls: {player.challenge_successes}/{player.challenge_attempts}"
+                )
+        
+        rows.append(f"\nPile size: {len(self._pile_cards)}")
         rows.append(f"Turn {self._turns_played + 1} of {self.max_turns}")
         return "\n".join(rows)
 
@@ -1028,6 +1433,16 @@ def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
         type=str,
         help="Path to a replay file to watch.",
     )
+    parser.add_argument(
+        "--tournament",
+        action="store_true",
+        help="Play in tournament mode with elimination rounds.",
+    )
+    parser.add_argument(
+        "--team-play",
+        action="store_true",
+        help="Enable team play mode where players are divided into teams.",
+    )
     return parser.parse_args(argv)
 
 
@@ -1055,6 +1470,11 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
     rng = random.Random(args.seed) if args.seed is not None else random.Random()
     difficulty = DIFFICULTIES[args.difficulty]
     deck_type = DECK_TYPES[args.deck_type]
+    
+    # Handle tournament mode
+    if args.tournament:
+        _run_tournament_cli(difficulty, args.rounds, rng, deck_type)
+        return
 
     if args.gui:
         from .gui import run_gui
@@ -1075,6 +1495,7 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
         record_replay=args.record_replay,
         seed=args.seed,
         deck_type=deck_type,
+        team_play=args.team_play,
     )
 
     print(
@@ -1084,7 +1505,10 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
         " hand wins."
     )
     print(f"Difficulty: {difficulty.name} | Opponents: {difficulty.bot_count}")
-    print(f"Deck Type: {deck_type.name} - {deck_type.description}\n")
+    print(f"Deck Type: {deck_type.name} - {deck_type.description}")
+    if args.team_play:
+        print("Team Play: ENABLED - Players are divided into teams!")
+    print()
 
     while not game.finished:
         player = game.current_player
@@ -1200,6 +1624,81 @@ def _prompt_claim_rank(card: Card, valid_ranks: list[str]) -> str:
         if rank in valid_ranks:
             return rank
         print("Unknown rank. Valid options are: " + ", ".join(valid_ranks))
+
+
+def _run_tournament_cli(
+    difficulty: DifficultyLevel,
+    rounds_per_match: int,
+    rng: random.Random,
+    deck_type: DeckType,
+) -> None:
+    """Run a tournament in the CLI.
+    
+    Args:
+        difficulty: Difficulty level for bots.
+        rounds_per_match: Number of rounds per match.
+        rng: Random number generator.
+        deck_type: Type of deck to use.
+    """
+    print("=" * 60)
+    print("BLUFF TOURNAMENT MODE")
+    print("=" * 60)
+    print(f"Difficulty: {difficulty.name}")
+    print(f"Deck Type: {deck_type.name}")
+    print(f"Rounds per match: {rounds_per_match}")
+    print("\nThis is an 8-player single-elimination tournament.")
+    print("Win your matches to advance to the next round!\n")
+    
+    tournament = BluffTournament(
+        difficulty, rounds_per_match=rounds_per_match, rng=rng, deck_type=deck_type
+    )
+    
+    # Play through tournament rounds
+    while not tournament.is_complete():
+        round_obj = tournament.create_round()
+        if not round_obj:
+            break
+        
+        print("=" * 60)
+        print(f"ROUND {round_obj.round_number}")
+        print("=" * 60)
+        
+        for match_idx, match in enumerate(round_obj.matches, 1):
+            player1, player2 = match
+            print(f"\nMatch {match_idx}: {player1.name} vs {player2.name}")
+            print("Playing match...")
+            
+            winner = tournament.play_match(player1, player2)
+            round_obj.winners.append(winner)
+            
+            print(f"Winner: {winner.name}")
+        
+        tournament.advance_round(round_obj)
+        
+        # Show remaining players
+        active = [p for p in tournament.players if not p.eliminated]
+        print(f"\nPlayers remaining: {', '.join(p.name for p in active)}\n")
+        
+        if not tournament.is_complete():
+            input("Press Enter to continue to the next round...")
+    
+    # Announce champion
+    champion = tournament.get_champion()
+    print("\n" + "=" * 60)
+    print("TOURNAMENT COMPLETE!")
+    print("=" * 60)
+    if champion:
+        if champion.is_user:
+            print("🏆 CONGRATULATIONS! You are the tournament champion! 🏆")
+        else:
+            print(f"Tournament Champion: {champion.name}")
+        print(f"Total wins: {champion.wins}")
+    
+    print("\nFinal standings:")
+    sorted_players = sorted(tournament.players, key=lambda p: p.wins, reverse=True)
+    for i, player in enumerate(sorted_players, 1):
+        status = "CHAMPION" if player == champion else "ELIMINATED"
+        print(f"{i}. {player.name}: {player.wins} wins - {status}")
 
 
 def _play_replay(replay_path: str) -> None:
