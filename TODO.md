@@ -109,11 +109,11 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] Add ASCII art variations and customization
 
 ### Tic-Tac-Toe
-- [ ] Implement larger board sizes (4x4, 5x5) with variable win conditions
-- [ ] Add ultimate tic-tac-toe variant (meta-board gameplay)
-- [ ] Implement network play for 2 players
-- [ ] Add game statistics and win/loss tracking
-- [ ] Create themed boards (holiday versions, custom symbols)
+- [x] Implement larger board sizes (4x4, 5x5) with variable win conditions
+- [x] Add ultimate tic-tac-toe variant (meta-board gameplay)
+- [x] Implement network play for 2 players
+- [x] Add game statistics and win/loss tracking
+- [x] Create themed boards (holiday versions, custom symbols)
 
 ### Battleship
 - [ ] Increase grid size options (8x8, 10x10)
