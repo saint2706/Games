@@ -1,0 +1,12 @@
+[tool.black]
+line-length = 160
+
+[tool.ruff]
+line-length = 160
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E402"]
+
+[tool.mdformat]
+wrap = 120
