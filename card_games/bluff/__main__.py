@@ -8,6 +8,8 @@ it to be run directly using the ``-m`` flag with Python. For example:
 It simply imports and calls the ``main`` function from the ``bluff`` module.
 """
 
+# Reuse the CLI orchestration defined in ``card_games.bluff.bluff`` so the
+# module can double as a Python ``-m`` entry point.
 from .bluff import main
 
 

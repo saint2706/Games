@@ -71,6 +71,8 @@ class BlackjackApp(tk.Tk):
         self.game = BlackjackGame(
             bankroll=bankroll, min_bet=min_bet, decks=decks, rng=rng
         )
+        # Track whether a hand is currently in progress so button handlers can
+        # short-circuit when the round ends asynchronously.
         self.round_active = False
         self.round_complete = False
         self.dealer_hidden = True

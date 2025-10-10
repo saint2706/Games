@@ -1,14 +1,16 @@
-"""Tkinter-based graphical user interface for the Bluff (Cheat) card game.
+"""Tkinter-powered graphical interface for the Bluff card game.
 
-This module provides the `BluffGUI` class, which creates an interactive window
-for playing the Bluff card game. It connects to the `BluffGame` engine to manage
-game state and provides a user-friendly interface for players to interact with.
+The GUI is intentionally verbose in both code and documentation so that it can
+double as a tutorial for how the engine communicates with a presentation layer.
+Key features include:
 
-The UI includes:
-- A log to display game events and messages.
-- A summary panel showing player stats (card counts, truths, lies, etc.).
-- An interactive area for the user to select cards from their hand.
-- Controls for making claims and challenging other players.
+* A scrolling log that mirrors the CLI output, keeping human players informed
+  about every decision made at the table.
+* A scoreboard summarising player statistics such as cards remaining, number of
+  successful bluffs, and challenge history.
+* Interactive controls for selecting cards, declaring claims, and issuing
+  challenges. These widgets are coordinated through well-documented helper
+  methods whose docstrings explain the reasoning behind each state change.
 """
 
 from __future__ import annotations
@@ -37,6 +39,9 @@ class BluffGUI:
         """
         self.root = root
         self.game = game
+
+        # Mirror the CLI welcome text so both interfaces narrate the same story
+        # and players can switch between them without confusion.
 
         self.root.title("Card Games - Bluff")
         self.root.geometry("960x640")

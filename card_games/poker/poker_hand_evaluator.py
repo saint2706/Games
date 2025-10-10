@@ -28,6 +28,7 @@ def evaluate_hand(card_codes: Sequence[str]) -> HandRank:
     Returns:
         The `HandRank` of the best possible 5-card hand.
     """
+    # Translate the compact CLI codes into ``Card`` objects before evaluation.
     cards = [parse_card(code) for code in card_codes]
     return best_hand(cards)
 

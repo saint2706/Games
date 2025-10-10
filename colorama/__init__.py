@@ -7,6 +7,8 @@ BRIGHT = "\033[1m"
 
 
 class _Fore:
+    """Namespace object matching the real Colorama ``Fore`` constants."""
+
     BLACK = "\033[30m"
     RED = "\033[31m"
     GREEN = "\033[32m"
@@ -18,6 +20,8 @@ class _Fore:
 
 
 class _Style:
+    """Namespace object matching the real Colorama ``Style`` constants."""
+
     RESET_ALL = RESET_ALL
     BRIGHT = BRIGHT
 

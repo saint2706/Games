@@ -8,7 +8,7 @@ interface, and a colourful take on Uno complete with bots.
 
 ## Repository layout
 
-```
+```text
 card_games/
 ├── common/           # Shared card representations
 ├── poker/            # Texas hold'em simulator and utilities
@@ -16,6 +16,23 @@ card_games/
 ├── blackjack/        # Casino-style blackjack with splits, doubles, and a GUI table
 └── uno/              # Classic Uno with bots and a CLI interface
 ```
+
+## Documentation roadmap
+
+Every game module now opens with an extensive module-level docstring that
+introduces the contained classes and explains how they collaborate. Class and
+function docstrings are deliberately verbose so that you can treat the source as
+an executable design document. To dive in:
+
+- Start with `card_games/bluff/bluff.py` for a guided tour of the Cheat/Bluff
+  engine, including commentary on turn structure and challenge resolution.
+- Explore `card_games/poker/poker.py` and `card_games/poker/gui.py` to see
+  how the Texas hold'em mechanics feed into both a CLI and Tkinter front-end.
+- Browse `card_games/bluff/gui.py` to learn how the GUI keeps its widgets in
+  sync with the engine state using richly annotated helper methods.
+
+Each module's docstrings provide inline references to supporting utilities so
+you can jump between files without losing context.
 
 ## Blackjack
 
@@ -36,9 +53,9 @@ python -m card_games.blackjack --cli --bankroll 300 --min-bet 15 --decks 4
 
 Highlights:
 
-* Shoe management with automatic shuffling as the cards run low.
-* Animated dealer reveals, natural blackjack detection, and soft-17 behaviour.
-* Support for doubling down, splitting pairs, and per-hand outcome summaries
+- Shoe management with automatic shuffling as the cards run low.
+- Animated dealer reveals, natural blackjack detection, and soft-17 behaviour.
+- Support for doubling down, splitting pairs, and per-hand outcome summaries
   that update your bankroll instantly in both the GUI and CLI.
 
 ## Poker
@@ -54,11 +71,11 @@ python -m card_games.poker --difficulty Medium --rounds 5 --seed 123
 
 Gameplay features:
 
-* Rotating dealer button with blinds, betting rounds (pre-flop through river),
+- Rotating dealer button with blinds, betting rounds (pre-flop through river),
   and side-pot aware chip accounting.
-* Skill profiles that estimate equity against unknown hands to guide calls,
+- Skill profiles that estimate equity against unknown hands to guide calls,
   bluffs, and value raises.
-* Detailed action narration in the CLI plus a live-updating graphical table for
+- Detailed action narration in the CLI plus a live-updating graphical table for
   players who prefer a visual experience.
 
 Launch the GUI to play the same match with card visuals, action buttons, and a
@@ -88,11 +105,11 @@ personalities:
 
 | Difficulty | Bots | Decks | Personality |
 | ---------- | ---- | ----- | ----------- |
-| Noob       | 1    | 1     | Cautious, rarely bluffs |
-| Easy       | 2    | 1     | Even tempered with light deception |
-| Medium     | 2    | 2     | Balanced mix of bluffing and scrutiny |
-| Hard       | 3    | 2     | Bolder bluffs and sharper challenges |
-| Insane     | 4    | 3     | Aggressive liars who constantly police rivals |
+| Noob | 1 | 1 | Cautious, rarely bluffs |
+| Easy | 2 | 1 | Even tempered with light deception |
+| Medium | 2 | 2 | Balanced mix of bluffing and scrutiny |
+| Hard | 3 | 2 | Bolder bluffs and sharper challenges |
+| Insane | 4 | 3 | Aggressive liars who constantly police rivals |
 
 Fire up a five-rotation match on the default "Noob" setting from the terminal:
 
@@ -109,11 +126,11 @@ python -m card_games.bluff --gui --difficulty Medium
 
 ### Gameplay highlights
 
-* Bots manage full hands, weigh whether to lie based on the pot size, and keep
+- Bots manage full hands, weigh whether to lie based on the pot size, and keep
   memory of who was recently caught stretching the truth.
-* Suspicion travels around the table. Other bots (and you) can challenge any
+- Suspicion travels around the table. Other bots (and you) can challenge any
   claim, so expect lively AI-versus-AI skirmishes when a rival seems shady.
-* The Tkinter interface offers card buttons, challenge controls, and a running
+- The Tkinter interface offers card buttons, challenge controls, and a running
   event log alongside live card counts for every player.
 
 ## Uno
@@ -132,13 +149,13 @@ python -m card_games.uno --players 4 --bots 3 --bot-skill balanced --seed 2024
 
 Highlights:
 
-* Authentic card distribution with skips, reverses, draw-twos, and wild draw
+- Authentic card distribution with skips, reverses, draw-twos, and wild draw
   fours that support stacking and optional challenges when a rival might be
   bluffing.
-* Adjustable bot aggression so you can face easy-going opponents or relentless
+- Adjustable bot aggression so you can face easy-going opponents or relentless
   action-card junkies that decide when to risk a Wild +4 challenge.
-* Automatic UNO call enforcement: fail to declare in time and the table hands
+- Automatic UNO call enforcement: fail to declare in time and the table hands
   you a two-card penalty.
-* Launch `python -m card_games.uno --gui` to enjoy a Tkinter interface with
+- Launch `python -m card_games.uno --gui` to enjoy a Tkinter interface with
   colour-coded cards, UNO toggles, penalty prompts, and a scrolling event log
   that mirrors each turn.
