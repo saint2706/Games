@@ -7,8 +7,8 @@ both the game engine and the CLI.
 
 from .battleship import (
     DEFAULT_FLEET,
-    Board,
     BattleshipGame,
+    Board,
     Coordinate,
     Ship,
 )

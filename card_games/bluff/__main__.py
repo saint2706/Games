@@ -12,6 +12,5 @@ It simply imports and calls the ``main`` function from the ``bluff`` module.
 # module can double as a Python ``-m`` entry point.
 from .bluff import main
 
-
 if __name__ == "__main__":  # pragma: no cover - script entry point
     main()

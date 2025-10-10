@@ -6,12 +6,12 @@ Each game is contained in its own submodule.
 """
 
 # Import the main game classes from their respective submodules.
-from .hangman import HangmanGame
-from .tic_tac_toe import TicTacToeGame
-from .dots_and_boxes import DotsAndBoxes
 from .battleship import BattleshipGame
-from .unscramble import UnscrambleGame
+from .dots_and_boxes import DotsAndBoxes
+from .hangman import HangmanGame
 from .nim import NimGame
+from .tic_tac_toe import TicTacToeGame
+from .unscramble import UnscrambleGame
 
 # The __all__ variable defines the public API of the package.
 # When a user writes `from paper_games import *`, only these names will be imported.

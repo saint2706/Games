@@ -12,6 +12,5 @@ It simply imports and calls the ``main`` function from the ``poker`` module.
 # while still reusing the richer CLI defined in ``poker.main``.
 from .poker import main
 
-
 if __name__ == "__main__":  # pragma: no cover - script entry point
     main()

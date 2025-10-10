@@ -24,7 +24,8 @@ import random
 from dataclasses import dataclass
 from typing import Iterable, List, Optional, Protocol, Sequence
 
-from colorama import Fore, Style, init as colorama_init
+from colorama import Fore, Style
+from colorama import init as colorama_init
 
 # Initialize colorama for cross-platform colored terminal text.
 colorama_init(autoreset=True)

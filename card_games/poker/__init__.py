@@ -3,10 +3,10 @@
 # Expose the primary gameplay types so callers can simply import from the
 # package root instead of drilling into submodules.
 from .poker import (
+    DIFFICULTIES,
     Action,
     ActionType,
     BotSkill,
-    DIFFICULTIES,
     MatchResult,
     Player,
     PokerMatch,
