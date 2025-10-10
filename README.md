@@ -2,8 +2,9 @@
 
 A collection of card games implemented in Python. The project currently
 includes a casino-inspired Texas hold'em experience (playable from the terminal
-or a Tkinter-powered GUI) and a lighthearted bluff-calling challenge with
-adjustable AI difficulty.
+or a Tkinter-powered GUI), a lighthearted bluff-calling challenge with
+adjustable AI difficulty, a richly themed blackjack table with a full graphical
+interface, and a colourful take on Uno complete with bots.
 
 ## Repository layout
 
@@ -12,8 +13,33 @@ card_games/
 ├── common/           # Shared card representations
 ├── poker/            # Texas hold'em simulator and utilities
 ├── bluff/            # Interactive bluff game
+├── blackjack/        # Casino-style blackjack with splits, doubles, and a GUI table
 └── uno/              # Classic Uno with bots and a CLI interface
 ```
+
+## Blackjack
+
+Take a seat at a richly detailed blackjack table that recreates the flow of a
+casino shoe. The Tkinter interface renders premium card art, highlights the
+active hand, animates the dealer's draw, and keeps your bankroll front and
+centre while you decide when to hit, stand, double, or split.
+
+```bash
+python -m card_games.blackjack
+```
+
+Prefer the original text-mode experience? Launch it with:
+
+```bash
+python -m card_games.blackjack --cli --bankroll 300 --min-bet 15 --decks 4
+```
+
+Highlights:
+
+* Shoe management with automatic shuffling as the cards run low.
+* Animated dealer reveals, natural blackjack detection, and soft-17 behaviour.
+* Support for doubling down, splitting pairs, and per-hand outcome summaries
+  that update your bankroll instantly in both the GUI and CLI.
 
 ## Poker
 
