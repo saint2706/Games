@@ -63,9 +63,12 @@ classroom staples:
 - `python -m paper_games.unscramble` serves up scrambled words over multiple
   rounds and keeps score of your successes, drawing from the same curated word
   list as hangman for consistency.
-- `python -m paper_games.nim` offers a quick dose of combinatorial game theory
-  with configurable heaps, optional misère rules, and an opponent that always
-  looks for the optimal removal.
+- `python -m paper_games.nim` offers a comprehensive exploration of
+  combinatorial game theory with classic Nim plus variants (Northcott's Game
+  and Wythoff's Game). Features include graphical heap visualization,
+  educational mode with strategy explanations, multiplayer support (3+ players),
+  and custom rule variations. The optimal AI opponent teaches winning strategies
+  while you play.
 
 ## Blackjack
 
