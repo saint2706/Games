@@ -1,4 +1,21 @@
-"""Realistic bluff (Cheat) card game logic with both CLI and GUI hooks."""
+"""Realistic bluff (Cheat) card game logic with both CLI and GUI hooks.
+
+This module provides a comprehensive implementation of the card game "Bluff"
+(also known as "Cheat" or "I Doubt It"). It includes the game engine, bot AI,
+and hooks for user interfaces.
+
+The game is structured around these key components:
+- **Phases**: The game progresses through distinct phases: ``TURN``, ``CHALLENGE``,
+  and ``COMPLETE``.
+- **Player Representation**: ``PlayerState`` tracks a player's hand, stats, and
+  AI profile (``PlayerProfile``).
+- **Game State**: The ``BluffGame`` class manages the overall game state, including
+  the deck, pile, players, and turn progression.
+- **Bot AI**: Bots make decisions based on configurable ``DifficultyLevel``
+  settings, which influence their honesty, boldness, and willingness to challenge.
+- **User Interaction**: The module supports both a command-line interface (CLI)
+  and a graphical user interface (GUI) via ``argparse`` hooks.
+"""
 
 from __future__ import annotations
 
@@ -13,7 +30,12 @@ from ..common.cards import RANKS, Card, Deck, Suit
 
 
 class Phase(Enum):
-    """High-level phases of the bluff game lifecycle."""
+    """High-level phases of the bluff game lifecycle.
+
+    - ``TURN``: The current player is expected to make a claim.
+    - ``CHALLENGE``: Other players have the opportunity to challenge the claim.
+    - ``COMPLETE``: The game has ended, and a winner may be declared.
+    """
 
     TURN = auto()
     CHALLENGE = auto()
@@ -22,7 +44,19 @@ class Phase(Enum):
 
 @dataclass(frozen=True)
 class DifficultyLevel:
-    """Configuration bucket for bluff bot personalities."""
+    """Configuration bucket for bluff bot personalities and game rules.
+
+    This dataclass defines the parameters for a game's difficulty, including
+    the number of bots, decks, and the baseline AI characteristics.
+
+    Attributes:
+        name (str): The name of the difficulty level (e.g., "Easy", "Hard").
+        bot_count (int): The number of bot opponents.
+        deck_count (int): The number of standard 52-card decks to use.
+        honesty (float): Baseline probability that a bot will play truthfully.
+        boldness (float): Multiplier for how much the pile size encourages bluffing.
+        challenge (float): Baseline probability that a bot will challenge a claim.
+    """
 
     name: str
     bot_count: int
@@ -34,7 +68,17 @@ class DifficultyLevel:
 
 @dataclass(frozen=True)
 class PlayerProfile:
-    """Traits that drive a bot's bluffing and challenge behaviour."""
+    """Traits that drive a bot's bluffing and challenge behaviour.
+
+    Each bot player has a profile that fine-tunes its AI, adding variability
+    and personality beyond the base difficulty level.
+
+    Attributes:
+        honesty (float): The bot's individual tendency to be truthful.
+        boldness (float): How much the bot is influenced by the size of the pile.
+        challenge (float): The bot's willingness to call out others.
+        memory (float): How much the bot considers other players' history.
+    """
 
     honesty: float
     boldness: float
@@ -44,7 +88,21 @@ class PlayerProfile:
 
 @dataclass
 class PlayerState:
-    """Runtime information about a seated player."""
+    """Runtime information about a seated player, including their hand and stats.
+
+    Attributes:
+        name (str): The player's display name.
+        is_user (bool): True if this player is controlled by a human.
+        profile (PlayerProfile): The AI profile for this player.
+        rng (random.Random): The random number generator for this player.
+        hand (list[Card]): The cards currently held by the player.
+        truths (int): The number of truthful claims made.
+        lies (int): The number of bluffs made.
+        caught (int): The number of times this player was caught bluffing.
+        challenge_attempts (int): The number of challenges made.
+        challenge_successes (int): The number of successful challenges.
+        last_caught_turn (Optional[int]): The turn index when the player was last caught.
+    """
 
     name: str
     is_user: bool
@@ -59,27 +117,35 @@ class PlayerState:
     last_caught_turn: Optional[int] = None
 
     def record_claim(self, truthful: bool) -> None:
+        """Update statistics based on a claim being truthful or a bluff."""
         if truthful:
             self.truths += 1
         else:
             self.lies += 1
 
     def record_caught(self, turn_index: int) -> None:
+        """Record that the player was caught in a bluff."""
         self.caught += 1
         self.last_caught_turn = turn_index
 
     def record_challenge(self, success: bool) -> None:
+        """Update statistics after making a challenge."""
         self.challenge_attempts += 1
         if success:
             self.challenge_successes += 1
 
     def card_counts(self) -> Counter[str]:
+        """Return a count of cards for each rank in the player's hand."""
         return Counter(card.rank for card in self.hand)
 
 
 @dataclass
 class Claim:
-    """Representation of a single facedown card entering the pile."""
+    """Representation of a single facedown card played into the pile.
+
+    A claim captures who played the card, the card itself, what rank they
+    claimed it was, and whether that claim was truthful.
+    """
 
     claimant: PlayerState
     card: Card
@@ -89,12 +155,18 @@ class Claim:
 
 @dataclass
 class ChallengeResult:
-    """Outcome information from evaluating a pending challenge."""
+    """Outcome information from evaluating a pending challenge.
+
+    Attributes:
+        resolved (bool): True if the challenge phase is over.
+        messages (list[str]): A list of messages describing the outcome.
+    """
 
     resolved: bool
     messages: list[str]
 
 
+# Pre-defined difficulty levels for the game.
 DIFFICULTIES: Dict[str, DifficultyLevel] = {
     "Noob": DifficultyLevel(
         "Noob", bot_count=1, deck_count=1, honesty=0.65, boldness=0.25, challenge=0.2
@@ -115,7 +187,11 @@ DIFFICULTIES: Dict[str, DifficultyLevel] = {
 
 
 class BluffGame:
-    """Rules engine for a realistic multi-player game of Cheat/Bluff."""
+    """Rules engine for a realistic multi-player game of Cheat/Bluff.
+
+    This class manages the entire game lifecycle, from setup and dealing to
+    turn processing, challenge resolution, and determining the winner.
+    """
 
     def __init__(
         self,
@@ -131,6 +207,7 @@ class BluffGame:
         self.max_turns = rounds * (difficulty.bot_count + 1)
         self._rng = rng or random.Random()
 
+        # Game state attributes
         self.players: list[PlayerState] = []
         self._pile_cards: list[Card] = []
         self._pile_claims: list[Claim] = []
@@ -147,7 +224,10 @@ class BluffGame:
     # Initialisation helpers
     # ------------------------------------------------------------------
     def _setup_players(self) -> None:
-        user_profile = PlayerProfile(honesty=0.62, boldness=0.28, challenge=0.3, memory=0.6)
+        """Create the user and bot players based on the difficulty settings."""
+        user_profile = PlayerProfile(
+            honesty=0.62, boldness=0.28, challenge=0.3, memory=0.6
+        )
         self.players.append(
             PlayerState(name="You", is_user=True, profile=user_profile, rng=self._rng)
         )
@@ -170,19 +250,24 @@ class BluffGame:
             self.players.append(bot)
 
     def _build_multi_deck(self, deck_count: int) -> Deck:
+        """Create a deck composed of multiple standard 52-card decks."""
         cards: list[Card] = []
         for _ in range(deck_count):
             cards.extend(Card(rank, suit) for suit in Suit for rank in RANKS)
         return Deck(cards=cards)
 
     def _deal_initial_hands(self) -> None:
+        """Shuffle the deck and deal cards to all players."""
         deck = self._build_multi_deck(self.difficulty.deck_count)
         deck.shuffle(rng=self._rng)
+
+        # Deal cards one by one to each player
         player_index = 0
         while deck.cards:
             self.players[player_index].hand.append(deck.deal(1)[0])
             player_index = (player_index + 1) % len(self.players)
 
+        # Reset game state for a new round
         self._current_player_index = 0
         self._phase = Phase.TURN
         self._turns_played = 0
@@ -197,35 +282,41 @@ class BluffGame:
     # ------------------------------------------------------------------
     @property
     def phase(self) -> Phase:
+        """The current phase of the game."""
         return self._phase
 
     @property
     def winner(self) -> PlayerState | None:
+        """The winning player, if the game is complete."""
         return self._winner
 
     @property
     def finished(self) -> bool:
+        """True if the game has finished."""
         return self._phase == Phase.COMPLETE
 
     @property
     def current_player(self) -> PlayerState:
+        """The player whose turn it is."""
         return self.players[self._current_player_index]
 
     @property
     def pile_size(self) -> int:
+        """The number of cards in the central pile."""
         return len(self._pile_cards)
 
     @property
     def claim_in_progress(self) -> Claim | None:
+        """The claim that is currently being challenged."""
         return self._claim_in_progress
 
     @property
     def current_challenger(self) -> PlayerState | None:
+        """The player who is next in line to challenge."""
         return self._challenge_queue[0] if self._challenge_queue else None
 
     def public_state(self) -> Dict[str, object]:
-        """Expose a serialisable snapshot for UIs."""
-
+        """Expose a serialisable snapshot of the game state for UIs."""
         return {
             "phase": self._phase.name,
             "pile_size": len(self._pile_cards),
@@ -243,25 +334,29 @@ class BluffGame:
                 }
                 for player in self.players
             ],
-            "claim": None
-            if not self._claim_in_progress
-            else {
-                "claimant": self._claim_in_progress.claimant.name,
-                "claimed_rank": self._claim_in_progress.claimed_rank,
-                "truthful": self._claim_in_progress.truthful,
-            },
+            "claim": (
+                None
+                if not self._claim_in_progress
+                else {
+                    "claimant": self._claim_in_progress.claimant.name,
+                    "claimed_rank": self._claim_in_progress.claimed_rank,
+                    "truthful": self._claim_in_progress.truthful,
+                }
+            ),
         }
 
     # ------------------------------------------------------------------
     # Turn handling
     # ------------------------------------------------------------------
     def play_user_turn(self, card_index: int, claimed_rank: str) -> Claim:
+        """Process a turn for the human user."""
         player = self.current_player
         if not player.is_user:
             raise RuntimeError("It is not the user's turn.")
         return self._play_turn(player, card_index, claimed_rank)
 
     def play_bot_turn(self) -> tuple[Claim, list[str]]:
+        """Determine and execute a bot's turn based on its AI profile."""
         player = self.current_player
         if player.is_user:
             raise RuntimeError("It is not a bot's turn.")
@@ -269,32 +364,48 @@ class BluffGame:
         hand_counts = player.card_counts()
         truthful_bias = player.profile.honesty
 
-        if player.last_caught_turn is not None and self._turns_played - player.last_caught_turn < 3:
+        # If recently caught, a bot becomes more honest
+        if (
+            player.last_caught_turn is not None
+            and self._turns_played - player.last_caught_turn < 3
+        ):
             truthful_bias += 0.12
 
-        # Larger piles encourage daring plays
-        truthful_bias -= min(0.2, len(self._pile_cards) * 0.02 * player.profile.boldness)
+        # Larger piles encourage more daring (less honest) plays
+        truthful_bias -= min(
+            0.2, len(self._pile_cards) * 0.02 * player.profile.boldness
+        )
 
         truthful = self._rng.random() < max(0.1, min(0.95, truthful_bias))
         claimed_rank: str
         chosen_card: Card
 
         if truthful and hand_counts:
+            # Play truthfully: choose a rank the bot holds
             ranked = hand_counts.most_common()
             weights = [count for _, count in ranked]
-            chosen_rank = self._rng.choices([rank for rank, _ in ranked], weights=weights)[0]
+            chosen_rank = self._rng.choices(
+                [rank for rank, _ in ranked], weights=weights
+            )[0]
             chosen_card = next(card for card in player.hand if card.rank == chosen_rank)
             claimed_rank = chosen_rank
         else:
+            # Bluff: choose a card and claim it's a different rank
             chosen_card = self._rng.choice(player.hand)
             owned_ranks = set(card.rank for card in player.hand)
-            bluff_options = [rank for rank in RANKS if rank not in owned_ranks and rank != chosen_card.rank]
+            bluff_options = [
+                rank
+                for rank in RANKS
+                if rank not in owned_ranks and rank != chosen_card.rank
+            ]
             if not bluff_options:
                 bluff_options = [rank for rank in RANKS if rank != chosen_card.rank]
+
             claimed_rank = self._rng.choice(bluff_options)
             truthful = chosen_card.rank == claimed_rank
             if truthful:
-                # Ensure this remains a bluff by nudging to a different rank
+                # This was supposed to be a bluff, but we accidentally chose a truthful rank.
+                # Nudge it to a different rank to ensure it remains a bluff.
                 alternatives = [rank for rank in RANKS if rank != chosen_card.rank]
                 claimed_rank = self._rng.choice(alternatives)
                 truthful = False
@@ -302,14 +413,15 @@ class BluffGame:
         claim = self._play_turn(player, player.hand.index(chosen_card), claimed_rank)
 
         if truthful:
-            message = f"{player.name} calmly slides a card forward claiming it is a {claimed_rank}."
+            message = f"{player.name} calmly slides a card forward, claiming it is a {claimed_rank}."
         else:
-            message = (
-                f"{player.name} hesitates ever so slightly before declaring their card to be a {claimed_rank}."
-            )
+            message = f"{player.name} hesitates before declaring their card to be a {claimed_rank}."
         return claim, [message]
 
-    def _play_turn(self, player: PlayerState, card_index: int, claimed_rank: str) -> Claim:
+    def _play_turn(
+        self, player: PlayerState, card_index: int, claimed_rank: str
+    ) -> Claim:
+        """Core logic for playing a card and making a claim."""
         if self._phase != Phase.TURN:
             raise RuntimeError("Cannot play a turn while a challenge is unresolved.")
         if not 0 <= card_index < len(player.hand):
@@ -317,21 +429,26 @@ class BluffGame:
         if claimed_rank not in RANKS:
             raise ValueError("claimed_rank must be a valid rank symbol")
 
+        # Create and record the claim
         card = player.hand.pop(card_index)
         truthful = card.rank == claimed_rank
         player.record_claim(truthful)
 
-        claim = Claim(claimant=player, card=card, claimed_rank=claimed_rank, truthful=truthful)
+        claim = Claim(
+            claimant=player, card=card, claimed_rank=claimed_rank, truthful=truthful
+        )
         self._claim_in_progress = claim
         self._pile_cards.append(card)
         self._pile_claims.append(claim)
 
+        # Transition to the challenge phase
         self._challenge_queue = deque(self._iter_other_players_from(player))
         self._phase = Phase.CHALLENGE
 
         return claim
 
     def _iter_other_players_from(self, player: PlayerState) -> List[PlayerState]:
+        """Return a list of other players in turn order, starting from the given player."""
         start = self.players.index(player)
         ordering: list[PlayerState] = []
         for offset in range(1, len(self.players)):
@@ -342,6 +459,7 @@ class BluffGame:
     # Challenge resolution
     # ------------------------------------------------------------------
     def evaluate_challenge(self, decision: bool) -> ChallengeResult:
+        """Evaluate the current player's decision to challenge or not."""
         if self._phase != Phase.CHALLENGE:
             raise RuntimeError("There is no claim waiting to be challenged.")
         if not self._claim_in_progress:
@@ -349,60 +467,71 @@ class BluffGame:
 
         messages: list[str] = []
         if not self._challenge_queue:
-            # No one left to challenge; finalise quietly.
+            # No one left to challenge; finalize the turn.
             return self._finalise_uncontested()
 
-        challenger = self._challenge_queue[0]
+        challenger = self._challenge_queue.popleft()
         if not decision:
-            self._challenge_queue.popleft()
+            # Player chooses not to challenge
             if challenger.is_user:
                 messages.append("You decide to let the claim stand.")
             else:
                 messages.append(f"{challenger.name} chooses not to make a scene.")
+
             if not self._challenge_queue:
+                # No one else can challenge, so finalize the turn
                 follow_up = self._finalise_uncontested()
                 messages.extend(follow_up.messages)
-                return ChallengeResult(resolved=follow_up.resolved, messages=messages)
+                return ChallengeResult(resolved=True, messages=messages)
+
             return ChallengeResult(resolved=False, messages=messages)
 
-        # Challenge is happening
-        self._challenge_queue.popleft()
+        # A challenge has been made
         claim = self._claim_in_progress
         challenger.record_challenge(success=not claim.truthful)
         messages.append(f"{challenger.name} slams a hand down and calls the bluff!")
 
         if claim.truthful:
+            # The claim was true; challenger picks up the pile
             collector = challenger
             collector.hand.extend(self._pile_cards)
             collector.rng.shuffle(collector.hand)
             self._pile_cards.clear()
             self._pile_claims.clear()
             messages.append(
-                f"The card really was {claim.card}. {collector.name} must scoop up the entire pile."
+                f"The card really was a {claim.card.rank}. {collector.name} must scoop up the entire pile."
             )
-            result = self._complete_turn(challenge_made=True, liar_caught=False, collector=collector)
+            result = self._complete_turn(
+                challenge_made=True, liar_caught=False, collector=collector
+            )
+            messages.extend(result.messages)
+            return ChallengeResult(resolved=True, messages=messages)
+        else:
+            # The claim was a bluff; claimant picks up the pile
+            collector = claim.claimant
+            collector.record_caught(self._turns_played)
+            collector.hand.extend(self._pile_cards)
+            collector.rng.shuffle(collector.hand)
+            self._pile_cards.clear()
+            self._pile_claims.clear()
+            messages.append(
+                f"{claim.claimant.name} was caught! Their card was actually a {claim.card.rank}."
+            )
+            result = self._complete_turn(
+                challenge_made=True, liar_caught=True, collector=collector
+            )
             messages.extend(result.messages)
             return ChallengeResult(resolved=True, messages=messages)
 
-        # Challenger was correct – claimant collects the pile
-        collector = claim.claimant
-        collector.record_caught(self._turns_played)
-        collector.hand.extend(self._pile_cards)
-        collector.rng.shuffle(collector.hand)
-        self._pile_cards.clear()
-        self._pile_claims.clear()
-        messages.append(f"{claim.claimant.name} was caught! Their card was actually {claim.card}.")
-        result = self._complete_turn(challenge_made=True, liar_caught=True, collector=collector)
-        messages.extend(result.messages)
-        return ChallengeResult(resolved=True, messages=messages)
-
     def _finalise_uncontested(self) -> ChallengeResult:
-        claim = self._claim_in_progress
-        if not claim:
+        """Finalize a turn where no one challenged the claim."""
+        if not self._claim_in_progress:
             raise RuntimeError("There is no claim to finalise.")
 
         messages = ["No one dares to challenge. The table tension rises."]
-        result = self._complete_turn(challenge_made=False, liar_caught=False, collector=None)
+        result = self._complete_turn(
+            challenge_made=False, liar_caught=False, collector=None
+        )
         messages.extend(result.messages)
         return ChallengeResult(resolved=True, messages=messages)
 
@@ -413,50 +542,64 @@ class BluffGame:
         liar_caught: bool,
         collector: PlayerState | None,
     ) -> ChallengeResult:
+        """Finalize the turn, check for a winner, and advance to the next player."""
         assert self._claim_in_progress is not None
         claimant = self._claim_in_progress.claimant
         messages: list[str] = []
 
-        if liar_caught:
-            messages.append(f"{claimant.name} drags the pile back and their hand grows to {len(claimant.hand)} cards.")
-        elif challenge_made and collector is not None:
+        if liar_caught and collector:
+            messages.append(
+                f"{collector.name} drags the pile back, their hand growing to {len(collector.hand)} cards."
+            )
+        elif challenge_made and collector:
             messages.append(
                 f"{collector.name} adds the pile to their hand, now holding {len(collector.hand)} cards."
             )
 
+        # Reset for the next turn
         self._claim_in_progress = None
         self._challenge_queue.clear()
         self._phase = Phase.TURN
         self._turns_played += 1
 
+        # Check for a winner
         if not claimant.hand:
             self._winner = claimant
             self._phase = Phase.COMPLETE
             messages.append(f"{claimant.name} has shed every card and wins the table!")
             return ChallengeResult(resolved=True, messages=messages)
 
+        # Check if the game should end due to reaching the max turn limit
         if self._turns_played >= self.max_turns:
             messages.extend(self._close_by_card_count())
             return ChallengeResult(resolved=True, messages=messages)
 
-        self._current_player_index = (self.players.index(claimant) + 1) % len(self.players)
+        # Advance to the next player
+        self._current_player_index = (self.players.index(claimant) + 1) % len(
+            self.players
+        )
         self._advance_to_next_player_with_cards()
         return ChallengeResult(resolved=True, messages=messages)
 
     def _advance_to_next_player_with_cards(self) -> None:
+        """Find the next player in turn order who still has cards to play."""
         start = self._current_player_index
         for offset in range(len(self.players)):
-            candidate = self.players[(start + offset) % len(self.players)]
-            if candidate.hand:
-                self._current_player_index = self.players.index(candidate)
+            candidate_index = (start + offset) % len(self.players)
+            if self.players[candidate_index].hand:
+                self._current_player_index = candidate_index
                 return
-        # Everyone is out of cards (should not happen without winner). End the game defensively.
+
+        # If no players have cards, the game is over.
         self._phase = Phase.COMPLETE
 
     def _close_by_card_count(self) -> list[str]:
-        standings = sorted(self.players, key=lambda player: (len(player.hand), player.is_user))
+        """End the game and determine the winner by the lowest card count."""
+        # Sort players by card count (ascending), with user as tie-breaker
+        standings = sorted(self.players, key=lambda p: (len(p.hand), p.is_user))
         best_count = len(standings[0].hand)
-        winners = [player for player in standings if len(player.hand) == best_count]
+        winners = [p for p in standings if len(p.hand) == best_count]
+
         if len(winners) == 1:
             self._winner = winners[0]
             self._phase = Phase.COMPLETE
@@ -465,9 +608,10 @@ class BluffGame:
                 f"{winners[0].name} holds the fewest cards ({best_count}) and is declared the winner.",
             ]
 
+        # Handle a tie
         self._winner = None
         self._phase = Phase.COMPLETE
-        tied_names = ", ".join(player.name for player in winners)
+        tied_names = ", ".join(p.name for p in winners)
         return [
             "Maximum rounds reached with a tie.",
             f"Players with the fewest cards ({best_count}): {tied_names}.",
@@ -477,35 +621,48 @@ class BluffGame:
     # Bot challenge logic
     # ------------------------------------------------------------------
     def bot_should_challenge(self, challenger: PlayerState) -> bool:
+        """Determine if a bot should challenge a claim, based on its profile and game state."""
         if not self._claim_in_progress:
             return False
 
         claim = self._claim_in_progress
         claimant = claim.claimant
+
+        # Base tendency to challenge from profile
+        tendency = challenger.profile.challenge
+
+        # Factor in the claimant's history of lying
         history_total = claimant.truths + claimant.lies
-        lie_rate = (claimant.lies + 1) / (history_total + 2)
-        call_rate = challenger.profile.challenge
+        lie_rate = (claimant.lies + 1) / (
+            history_total + 2
+        )  # +1/+2 to avoid division by zero
+        tendency += lie_rate * challenger.profile.memory
+
+        # Adjust based on how recently the claimant was caught
         if claimant.last_caught_turn is not None:
             distance = self._turns_played - claimant.last_caught_turn
             if distance <= 1:
-                lie_rate += 0.25
+                tendency += 0.25
             elif distance <= 3:
-                lie_rate += 0.1
+                tendency += 0.1
 
+        # Check if the challenger holds cards of the claimed rank
         owned = challenger.card_counts()[claim.claimed_rank]
         ownership_pressure = 0.0
         if owned >= 3:
-            ownership_pressure += 0.25
+            ownership_pressure += 0.25  # High suspicion
         elif owned == 2:
             ownership_pressure += 0.15
         elif owned == 0:
-            ownership_pressure -= 0.08
+            ownership_pressure -= 0.08  # Lower suspicion
 
+        # The size of the pile can make challenging more tempting
         pile_pressure = min(0.35, len(self._pile_cards) * 0.025)
-        tendency = call_rate + lie_rate * challenger.profile.memory + ownership_pressure + pile_pressure
-        tendency = max(0.05, min(0.9, tendency))
 
-        # Bots with few cards become more cautious
+        tendency += ownership_pressure + pile_pressure
+        tendency = max(0.05, min(0.9, tendency))  # Clamp probability
+
+        # Bots with few cards become more cautious to avoid picking up the pile
         if len(challenger.hand) <= 2:
             tendency -= 0.2
         elif len(challenger.hand) >= 10:
@@ -517,10 +674,13 @@ class BluffGame:
     # CLI helpers
     # ------------------------------------------------------------------
     def scoreboard(self) -> str:
+        """Generate a string with the current game scores and stats."""
         rows = ["Current card counts:"]
         for player in self.players:
             rows.append(
-                f"- {player.name}: {len(player.hand)} cards | Truths: {player.truths} | Lies: {player.lies} | Calls: {player.challenge_successes}/{player.challenge_attempts}"
+                f"- {player.name}: {len(player.hand)} cards | "
+                f"Truths: {player.truths} | Lies: {player.lies} | "
+                f"Calls: {player.challenge_successes}/{player.challenge_attempts}"
             )
         rows.append(f"Pile size: {len(self._pile_cards)}")
         rows.append(f"Turn {self._turns_played + 1} of {self.max_turns}")
@@ -593,7 +753,9 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
             chosen_index = _prompt_card_index(len(player.hand))
             claimed_rank = _prompt_claim_rank(player.hand[chosen_index])
             claim = game.play_user_turn(chosen_index, claimed_rank)
-            print(f"You slide forward {claim.card} and claim it is a {claim.claimed_rank}.")
+            print(
+                f"You slide forward {claim.card} and claim it is a {claim.claimed_rank}."
+            )
         else:
             claim, messages = game.play_bot_turn()
             for message in messages:
@@ -608,7 +770,9 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
             else:
                 decision = game.bot_should_challenge(challenger)
                 if decision:
-                    print(f"{challenger.name} eyes the pile and prepares to challenge...")
+                    print(
+                        f"{challenger.name} eyes the pile and prepares to challenge..."
+                    )
                 else:
                     print(f"{challenger.name} stays quiet.")
             result = game.evaluate_challenge(decision)
@@ -639,9 +803,13 @@ def _prompt_card_index(hand_size: int) -> int:
 
 def _prompt_claim_rank(card: Card) -> str:
     while True:
-        rank = input(
-            "Declare your card's rank (e.g. 'A', 'K', '7'). You may bluff by stating a different rank: "
-        ).strip().upper()
+        rank = (
+            input(
+                "Declare your card's rank (e.g. 'A', 'K', '7'). You may bluff by stating a different rank: "
+            )
+            .strip()
+            .upper()
+        )
         if rank in RANKS:
             return rank
         print("Unknown rank. Valid options are: " + ", ".join(RANKS))
@@ -649,9 +817,13 @@ def _prompt_claim_rank(card: Card) -> str:
 
 def _prompt_user_challenge(claimant_name: str, pile_size: int) -> bool:
     while True:
-        choice = input(
-            f"Do you want to challenge {claimant_name}'s claim? (call/trust) [pile has {pile_size} cards]: "
-        ).strip().lower()
+        choice = (
+            input(
+                f"Do you want to challenge {claimant_name}'s claim? (call/trust) [pile has {pile_size} cards]: "
+            )
+            .strip()
+            .lower()
+        )
         if choice in {"call", "c"}:
             return True
         if choice in {"trust", "t", "pass", "p"}:
