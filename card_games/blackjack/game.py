@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Iterable, Optional
 
-from card_games.common.cards import Card, Deck, format_cards, Suit
+from card_games.common.cards import Card, Deck, Suit, format_cards
 
 
 class Outcome(str, Enum):
@@ -382,7 +382,6 @@ class Shoe:
         Returns:
             float: The true count, or 0 if no cards have been dealt.
         """
-        total_cards = self.decks * 52
         if self.cards_dealt_since_shuffle == 0:
             return 0.0
         decks_remaining = len(self.cards) / 52
