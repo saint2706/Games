@@ -93,29 +93,51 @@ Highlights:
 
 ## Poker
 
-Sit at a four-player Texas hold'em table and battle three computer-controlled
+Sit at a four-player poker table and battle three computer-controlled
 opponents across full betting rounds. Each difficulty level tunes the bots'
 Monte Carlo-backed decision making—higher settings reduce mistakes, tighten the
 hands they play, and increase their aggression when they sense strength.
 
+The poker module now supports multiple game variants, betting structures, and
+tournament play with comprehensive statistics tracking.
+
 ```bash
+# Classic Texas Hold'em
 python -m card_games.poker --difficulty Medium --rounds 5 --seed 123
+
+# Omaha Hold'em with 4 hole cards
+python -m card_games.poker --variant omaha --rounds 5
+
+# Tournament mode with increasing blinds
+python -m card_games.poker --tournament --rounds 10
+
+# Pot-limit betting
+python -m card_games.poker --limit pot-limit --rounds 5
 ```
 
 Gameplay features:
 
+- **Game Variants**: Texas Hold'em (2 hole cards) and Omaha (4 hole cards with
+  exact 2+3 hand evaluation)
+- **Betting Limits**: No-limit, pot-limit, and fixed-limit structures
+- **Tournament Mode**: Blinds increase automatically based on configurable schedule
+- **Statistics Tracking**: Hands won, fold frequency, showdown performance, and
+  net profit tracked for all players
+- **Hand History**: Complete game logs saved to JSON files for post-session review
+- **Showdown Animations**: Visual card reveals and hand ranking explanations in GUI
 - Rotating dealer button with blinds, betting rounds (pre-flop through river),
-  and side-pot aware chip accounting.
+  and side-pot aware chip accounting
 - Skill profiles that estimate equity against unknown hands to guide calls,
-  bluffs, and value raises.
+  bluffs, and value raises
 - Detailed action narration in the CLI plus a live-updating graphical table for
-  players who prefer a visual experience.
+  players who prefer a visual experience
 
 Launch the GUI to play the same match with card visuals, action buttons, and a
 running log of the hand:
 
 ```bash
 python -m card_games.poker --gui --difficulty Hard --rounds 3
+python -m card_games.poker --gui --variant omaha --tournament
 ```
 
 Evaluate an arbitrary set of cards via the helper utility:

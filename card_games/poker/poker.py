@@ -186,9 +186,7 @@ class BotSkill:
     aggression: float  # How often the bot bets or raises with strong hands.
     bluff: float  # How often the bot bluffs.
     mistake_rate: float  # The probability of making a random, unoptimal move.
-    simulations: (
-        int  # The number of Monte Carlo simulations to run for equity estimation.
-    )
+    simulations: int  # The number of Monte Carlo simulations to run for equity estimation.
 
 
 @dataclass
@@ -202,9 +200,7 @@ class TournamentMode:
     """
 
     enabled: bool = False
-    blind_schedule: list[tuple[int, int]] = field(
-        default_factory=lambda: [(10, 20), (15, 30), (25, 50), (50, 100), (100, 200)]
-    )
+    blind_schedule: list[tuple[int, int]] = field(default_factory=lambda: [(10, 20), (15, 30), (25, 50), (50, 100), (100, 200)])
     hands_per_level: int = 5
     current_level: int = 0
 
@@ -370,11 +366,7 @@ class PokerBot:
 
         # If there is no bet to call (the bot can check).
         if to_call == 0:
-            if (
-                win_rate >= strong_threshold
-                and player.chips > 0
-                and self.rng.random() < self.skill.aggression
-            ):
+            if win_rate >= strong_threshold and player.chips > 0 and self.rng.random() < self.skill.aggression:
                 target = self._bet_target(table, pot_factor=0.65)
                 return Action(ActionType.BET, target_bet=target)
             if win_rate >= call_threshold or self.rng.random() < self.skill.bluff:
@@ -390,26 +382,16 @@ class PokerBot:
         pot_odds = call_amount / max(table.pot + call_amount, 1)
 
         # Fold if hand is weak and pot odds are not favorable.
-        if (
-            win_rate < call_threshold
-            and win_rate < pot_odds
-            and self.rng.random() > self.skill.bluff
-        ):
+        if win_rate < call_threshold and win_rate < pot_odds and self.rng.random() > self.skill.bluff:
             return Action(ActionType.FOLD)
 
         # Raise if hand is very strong.
-        if (
-            win_rate >= strong_threshold
-            and player.chips > call_amount
-            and self.rng.random() < self.skill.aggression
-        ):
+        if win_rate >= strong_threshold and player.chips > call_amount and self.rng.random() < self.skill.aggression:
             target = self._raise_target(table, pot_factor=0.8)
             return Action(ActionType.RAISE, target_bet=target)
 
         if call_amount >= player.chips:
-            return Action(
-                ActionType.ALL_IN, target_bet=player.current_bet + player.chips
-            )
+            return Action(ActionType.ALL_IN, target_bet=player.current_bet + player.chips)
 
         return Action(ActionType.CALL, target_bet=table.current_bet)
 
@@ -421,18 +403,10 @@ class PokerBot:
 
     def _raise_target(self, table: "PokerTable", *, pot_factor: float) -> int:
         """Calculate a target raise size."""
-        increment = max(
-            table.min_raise_amount, int((table.pot or table.big_blind) * pot_factor)
-        )
-        target = max(
-            table.current_bet + increment, table.current_bet + table.min_raise_amount
-        )
+        increment = max(table.min_raise_amount, int((table.pot or table.big_blind) * pot_factor))
+        target = max(table.current_bet + increment, table.current_bet + table.min_raise_amount)
         target = min(self.player.current_bet + self.player.chips, target)
-        return (
-            target
-            if target > self.player.current_bet
-            else self.player.current_bet + self.player.chips
-        )
+        return target if target > self.player.current_bet else self.player.current_bet + self.player.chips
 
     def _random_legal_action(self, table: "PokerTable", to_call: int) -> Action:
         """Return a randomly chosen legal action, used to simulate mistakes."""
@@ -442,27 +416,18 @@ class PokerBot:
             options.append(Action(ActionType.CHECK))
             if player.chips > 0:
                 # Use a minimal raise size so "mistakes" stay plausible.
-                target = player.current_bet + min(
-                    player.chips, max(table.big_blind, table.min_raise_amount)
-                )
+                target = player.current_bet + min(player.chips, max(table.big_blind, table.min_raise_amount))
                 options.append(Action(ActionType.BET, target))
         else:
             options.append(Action(ActionType.CALL, table.current_bet))
             options.append(Action(ActionType.FOLD))
-            if (
-                player.chips + player.current_bet
-                > table.current_bet + table.min_raise_amount
-            ):
+            if player.chips + player.current_bet > table.current_bet + table.min_raise_amount:
                 # Choose a random raise between 20% and 80% of the pot to mimic
                 # a hasty, imperfect decision.
-                target = self._raise_target(
-                    table, pot_factor=self.rng.uniform(0.2, 0.8)
-                )
+                target = self._raise_target(table, pot_factor=self.rng.uniform(0.2, 0.8))
                 options.append(Action(ActionType.RAISE, target))
             else:
-                options.append(
-                    Action(ActionType.ALL_IN, player.current_bet + player.chips)
-                )
+                options.append(Action(ActionType.ALL_IN, player.current_bet + player.chips))
         return self.rng.choice(options)
 
 
@@ -542,12 +507,8 @@ class PokerTable:
         sb_player = self.players[sb_index]
         bb_player = self.players[bb_index]
         # The blinds are treated as forced bets, so move chips before the first action.
-        self._commit(
-            sb_player, sb_player.current_bet + min(self.small_blind, sb_player.chips)
-        )
-        self._commit(
-            bb_player, bb_player.current_bet + min(self.big_blind, bb_player.chips)
-        )
+        self._commit(sb_player, sb_player.current_bet + min(self.small_blind, sb_player.chips))
+        self._commit(bb_player, bb_player.current_bet + min(self.big_blind, bb_player.chips))
         self.current_bet = bb_player.current_bet
         self.min_raise_amount = self.big_blind
         self._players_who_acted = set()
@@ -623,12 +584,8 @@ class PokerTable:
                 target = self.current_bet
             elif action.kind is ActionType.BET:
                 if to_call > 0:
-                    raise ValueError(
-                        "Cannot bet when facing a wager; must call or raise"
-                    )
-                min_total = player.current_bet + max(
-                    self.min_raise_amount, self.big_blind
-                )
+                    raise ValueError("Cannot bet when facing a wager; must call or raise")
+                min_total = player.current_bet + max(self.min_raise_amount, self.big_blind)
                 # Enforce a minimum opening bet so the pot grows at a realistic pace.
                 target = max(target, min_total)
                 # Enforce pot-limit betting if applicable.
@@ -669,9 +626,7 @@ class PokerTable:
                 self._players_who_acted = {id(player)}
 
         self._players_who_acted.add(id(player))
-        self.last_actions.append(
-            f"{player.name} {action.kind.value}{self._action_suffix(player)}"
-        )
+        self.last_actions.append(f"{player.name} {action.kind.value}{self._action_suffix(player)}")
 
         # Advance to the next player if the round is not over.
         if self._active_player_count() > 1 and self.players_can_act():
@@ -679,11 +634,7 @@ class PokerTable:
 
     def _action_suffix(self, player: Player) -> str:
         """Generates a descriptive suffix for an action, e.g., ' (100 chips)'."""
-        if (
-            player.folded
-            or player.last_action == "check"
-            or player.last_action == "fold"
-        ):
+        if player.folded or player.last_action == "check" or player.last_action == "fold":
             return ""
         if player.last_action == ActionType.CALL.value:
             return f" ({player.last_wager} chips)"
@@ -772,9 +723,7 @@ class PokerTable:
             return payouts
 
         # Handle side pots by processing contributions at different levels.
-        contributions = sorted(
-            {p.total_invested for p in self.players if p.total_invested > 0}
-        )
+        contributions = sorted({p.total_invested for p in self.players if p.total_invested > 0})
         previous_level = 0
         remaining_pot = self.pot
 
@@ -871,12 +820,8 @@ def estimate_win_rate(
     for _ in range(max(simulations, 1)):
         rng.shuffle(deck_pool)
         iterator = iter(deck_pool)
-        opponent_holes = [
-            list(itertools.islice(iterator, 2)) for _ in range(opponent_count)
-        ]
-        board_completion = list(community_cards) + list(
-            itertools.islice(iterator, needed_board)
-        )
+        opponent_holes = [list(itertools.islice(iterator, 2)) for _ in range(opponent_count)]
+        board_completion = list(community_cards) + list(itertools.islice(iterator, needed_board))
 
         hero_rank = best_hand(hero.hole_cards + board_completion)
         opponent_ranks = [best_hand(hole + board_completion) for hole in opponent_holes]
@@ -928,10 +873,7 @@ class PokerMatch:
         self.betting_limit = betting_limit
         self.tournament_mode = tournament_mode or TournamentMode()
         self.user = Player(name="You", is_user=True, chips=starting_chips)
-        self.bots = [
-            Player(name=f"{difficulty.name} Bot {i+1}", chips=starting_chips)
-            for i in range(3)
-        ]
+        self.bots = [Player(name=f"{difficulty.name} Bot {i+1}", chips=starting_chips) for i in range(3)]
         self.players = [self.user, *self.bots]
         sb, bb = self.tournament_mode.get_blinds(0)
         self.table = PokerTable(
@@ -942,9 +884,7 @@ class PokerMatch:
             game_variant=game_variant,
             betting_limit=betting_limit,
         )
-        self.bot_controllers = [
-            PokerBot(bot, difficulty, self.rng) for bot in self.bots
-        ]
+        self.bot_controllers = [PokerBot(bot, difficulty, self.rng) for bot in self.bots]
         self.hand_number = 0
         self.hand_histories: list[HandHistory] = []
 
@@ -960,9 +900,7 @@ class PokerMatch:
         variant_name = "Omaha Hold'em" if self.game_variant == GameVariant.OMAHA else "Texas Hold'em"
         limit_name = self.betting_limit.value.replace("-", " ").title()
         mode_info = " (Tournament Mode)" if self.tournament_mode.enabled else ""
-        print(
-            f"Welcome to {variant_name} ({limit_name})! Playing {self.rounds} hands against {len(self.bots)} {self.difficulty.name} bots.{mode_info}"
-        )
+        print(f"Welcome to {variant_name} ({limit_name})! Playing {self.rounds} hands against {len(self.bots)} {self.difficulty.name} bots.{mode_info}")
         print()
 
         for round_num in range(1, self.rounds + 1):
@@ -1021,9 +959,7 @@ class PokerMatch:
             if player.is_user and not player.folded and not player.all_in:
                 action = self._prompt_user_action(table, player)
             elif player.folded or player.all_in:
-                table.current_player_index = table._next_index(
-                    table.current_player_index
-                )
+                table.current_player_index = table._next_index(table.current_player_index)
                 continue
             else:
                 controller = next(c for c in self.bot_controllers if c.player is player)
@@ -1069,9 +1005,7 @@ class PokerMatch:
                 if showdown:
                     player.statistics.showdowns_won += 1
 
-        return MatchResult(
-            table.stage, list(table.community_cards), showdown, payouts, log
-        )
+        return MatchResult(table.stage, list(table.community_cards), showdown, payouts, log)
 
     def _prompt_user_action(self, table: PokerTable, player: Player) -> Action:
         """Prompts the user for an action and returns the chosen action."""
@@ -1081,18 +1015,12 @@ class PokerMatch:
             print(f"Board: {format_cards(table.community_cards)}")
 
         options = table.valid_actions(player)
-        prompt_parts = [
-            opt.value
-            for opt in options
-            if opt not in {ActionType.BET, ActionType.RAISE}
-        ]
+        prompt_parts = [opt.value for opt in options if opt not in {ActionType.BET, ActionType.RAISE}]
         if ActionType.BET in options or ActionType.RAISE in options:
             prompt_parts.append("bet/raise <amount>")
 
         while True:
-            choice = (
-                input(f"Choose action [{', '.join(prompt_parts)}]: ").strip().lower()
-            )
+            choice = input(f"Choose action [{', '.join(prompt_parts)}]: ").strip().lower()
             parts = choice.split()
             command = parts[0]
 
@@ -1106,14 +1034,10 @@ class PokerMatch:
                 return Action(ActionType.ALL_IN)
 
             if command == "bet" and ActionType.BET in options:
-                amount = self._parse_amount(
-                    parts[1] if len(parts) > 1 else "", default=table.big_blind
-                )
+                amount = self._parse_amount(parts[1] if len(parts) > 1 else "", default=table.big_blind)
                 return Action(ActionType.BET, target_bet=player.current_bet + amount)
             if command == "raise" and ActionType.RAISE in options:
-                amount = self._parse_amount(
-                    parts[1] if len(parts) > 1 else "", default=table.min_raise_amount
-                )
+                amount = self._parse_amount(parts[1] if len(parts) > 1 else "", default=table.min_raise_amount)
                 return Action(ActionType.RAISE, target_bet=table.current_bet + amount)
 
             print("Invalid action. Please choose from the available options.")
@@ -1134,9 +1058,7 @@ class PokerMatch:
 
     def _stack_summary(self) -> str:
         """Returns a string summarizing the current chip stacks of all players."""
-        return "Chip stacks:\n" + "\n".join(
-            f"  {p.name}: {p.chips}" for p in self.players
-        )
+        return "Chip stacks:\n" + "\n".join(f"  {p.name}: {p.chips}" for p in self.players)
 
     def _record_hand_history(self, hand_number: int, result: MatchResult) -> None:
         """Records the history of a completed hand."""
@@ -1199,15 +1121,9 @@ def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
         default="Noob",
         help="Bot skill level.",
     )
-    parser.add_argument(
-        "--rounds", type=int, default=3, help="Number of hands to play."
-    )
-    parser.add_argument(
-        "--seed", type=int, help="Optional random seed for deterministic play."
-    )
-    parser.add_argument(
-        "--gui", action="store_true", help="Launch the graphical interface."
-    )
+    parser.add_argument("--rounds", type=int, default=3, help="Number of hands to play.")
+    parser.add_argument("--seed", type=int, help="Optional random seed for deterministic play.")
+    parser.add_argument("--gui", action="store_true", help="Launch the graphical interface.")
     parser.add_argument(
         "--variant",
         choices=["texas-holdem", "omaha"],
@@ -1233,14 +1149,14 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
     args = parse_arguments(argv)
     rng = random.Random(args.seed) if args.seed is not None else random.Random()
     difficulty = DIFFICULTIES[args.difficulty]
-    
+
     # Parse game variant and betting limit.
     game_variant = GameVariant(args.variant)
     betting_limit = BettingLimit(args.limit)
-    
+
     # Set up tournament mode if requested.
     tournament_mode = TournamentMode(enabled=args.tournament) if args.tournament else None
-    
+
     match = PokerMatch(
         difficulty,
         rounds=args.rounds,

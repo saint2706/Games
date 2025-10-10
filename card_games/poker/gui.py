@@ -25,9 +25,7 @@ class PokerGUI:
     advancing through bot turns and pausing to await user input.
     """
 
-    def __init__(
-        self, root: tk.Tk, match: PokerMatch, rng: random.Random | None = None
-    ) -> None:
+    def __init__(self, root: tk.Tk, match: PokerMatch, rng: random.Random | None = None) -> None:
         """Initialize the Poker GUI.
 
         Args:
@@ -71,18 +69,14 @@ class PokerGUI:
         header.columnconfigure(0, weight=1)
         header.columnconfigure(1, weight=1)
         header.columnconfigure(2, weight=1)
-        ttk.Label(
-            header, textvariable=self.status_var, font=("Segoe UI", 14, "bold")
-        ).grid(row=0, column=0, sticky="w")
-        
+        ttk.Label(header, textvariable=self.status_var, font=("Segoe UI", 14, "bold")).grid(row=0, column=0, sticky="w")
+
         info_frame = ttk.Frame(header)
         info_frame.grid(row=0, column=1, sticky="n")
         ttk.Label(info_frame, textvariable=self.stage_var).pack()
         ttk.Label(info_frame, textvariable=self.blinds_var, font=("Segoe UI", 9)).pack()
-        
-        ttk.Label(header, textvariable=self.pot_var, anchor="e").grid(
-            row=0, column=2, sticky="e"
-        )
+
+        ttk.Label(header, textvariable=self.pot_var, anchor="e").grid(row=0, column=2, sticky="e")
 
         # Community card board
         self.board_frame = ttk.Frame(root, padding=10)
@@ -94,9 +88,7 @@ class PokerGUI:
         self.player_vars: dict[str, dict[str, tk.StringVar]] = {}
         players_container = ttk.Frame(root, padding=10)
         players_container.grid(row=2, column=0, sticky="ew")
-        players_container.columnconfigure(
-            tuple(range(len(self.match.players))), weight=1
-        )
+        players_container.columnconfigure(tuple(range(len(self.match.players))), weight=1)
 
         for i, player in enumerate(self.match.players):
             frame = ttk.LabelFrame(players_container, text=player.name, padding=10)
@@ -105,13 +97,9 @@ class PokerGUI:
             cards_var = tk.StringVar(value="??")
             chips_var = tk.StringVar(value=f"Chips: {player.chips}")
             action_var = tk.StringVar(value="Waiting")
-            ttk.Label(frame, textvariable=cards_var, font=("Consolas", 16)).grid(
-                row=0, column=0, sticky="n"
-            )
+            ttk.Label(frame, textvariable=cards_var, font=("Consolas", 16)).grid(row=0, column=0, sticky="n")
             ttk.Label(frame, textvariable=chips_var).grid(row=1, column=0, sticky="n")
-            ttk.Label(frame, textvariable=action_var, foreground="#555").grid(
-                row=2, column=0, sticky="n"
-            )
+            ttk.Label(frame, textvariable=action_var, foreground="#555").grid(row=2, column=0, sticky="n")
             self.player_frames[player.name] = frame
             self.player_vars[player.name] = {
                 "cards": cards_var,
@@ -136,18 +124,14 @@ class PokerGUI:
 
         ttk.Label(actions_frame, text="Wager amount:").grid(row=1, column=0, sticky="w")
         self.amount_var = tk.StringVar()
-        ttk.Entry(actions_frame, textvariable=self.amount_var).grid(
-            row=1, column=1, sticky="ew", padx=5
-        )
+        ttk.Entry(actions_frame, textvariable=self.amount_var).grid(row=1, column=1, sticky="ew", padx=5)
 
         self.btn_fold = ttk.Button(
             actions_frame,
             text="Fold",
             command=lambda: self.handle_user_action(ActionType.FOLD),
         )
-        self.btn_call = ttk.Button(
-            actions_frame, text="Call/Check", command=self._handle_call_or_check
-        )
+        self.btn_call = ttk.Button(actions_frame, text="Call/Check", command=self._handle_call_or_check)
         self.btn_raise = ttk.Button(
             actions_frame,
             text="Bet/Raise",
@@ -176,21 +160,19 @@ class PokerGUI:
 
         table = self.match.table
         self.completed_hands += 1
-        
+
         # Update blinds if tournament mode is enabled.
         if self.match.tournament_mode.enabled:
             sb, bb = self.match.tournament_mode.get_blinds(self.completed_hands - 1)
             table.small_blind = sb
             table.big_blind = bb
             self.blinds_var.set(f"Blinds: {sb}/{bb}")
-        
+
         self.status_var.set(f"Hand {self.completed_hands} of {self.match.rounds}")
         table.start_hand()
         table.last_actions.clear()
         self.amount_var.set(str(max(table.min_raise_amount, table.big_blind)))
-        self._log(
-            f"New hand begins. Your cards: {format_cards(self.match.user.hole_cards)}"
-        )
+        self._log(f"New hand begins. Your cards: {format_cards(self.match.user.hole_cards)}")
         self._update_board()
         self._update_stacks()
         self._update_player_cards(show_all=False)
@@ -211,11 +193,7 @@ class PokerGUI:
         """Automatically plays bot turns until it is the user's turn or the hand ends."""
         table = self.match.table
         while True:
-            if (
-                table._active_player_count() <= 1
-                or not table.players_can_act()
-                or (table.stage == "river" and table.betting_round_complete())
-            ):
+            if table._active_player_count() <= 1 or not table.players_can_act() or (table.stage == "river" and table.betting_round_complete()):
                 self._finish_hand()
                 return
 
@@ -226,14 +204,10 @@ class PokerGUI:
                 return
 
             if player.folded or player.all_in:
-                table.current_player_index = table._next_index(
-                    table.current_player_index
-                )
+                table.current_player_index = table._next_index(table.current_player_index)
                 continue
 
-            controller = next(
-                c for c in self.match.bot_controllers if c.player is player
-            )
+            controller = next(c for c in self.match.bot_controllers if c.player is player)
             action = controller.decide(table)
             table.apply_action(player, action)
             self._flush_action_log()
@@ -246,9 +220,7 @@ class PokerGUI:
                     self._finish_hand()
                     return
                 table.proceed_to_next_stage()
-                self._log(
-                    f"Stage advances to {table.stage}. Board: {format_cards(table.community_cards)}"
-                )
+                self._log(f"Stage advances to {table.stage}. Board: {format_cards(table.community_cards)}")
                 self._update_board()
                 self._update_player_cards(show_all=False)
 
@@ -263,22 +235,10 @@ class PokerGUI:
         self._update_player_cards(show_all=False)
 
         options = table.valid_actions(player)
-        self.btn_fold.configure(
-            state="normal" if ActionType.FOLD in options else "disabled"
-        )
-        self.btn_call.configure(
-            text="Check" if to_call <= 0 else f"Call ({min(to_call, player.chips)})"
-        )
-        self.btn_raise.configure(
-            state=(
-                "normal"
-                if ActionType.RAISE in options or ActionType.BET in options
-                else "disabled"
-            )
-        )
-        self.btn_all_in.configure(
-            state="normal" if ActionType.ALL_IN in options else "disabled"
-        )
+        self.btn_fold.configure(state="normal" if ActionType.FOLD in options else "disabled")
+        self.btn_call.configure(text="Check" if to_call <= 0 else f"Call ({min(to_call, player.chips)})")
+        self.btn_raise.configure(state=("normal" if ActionType.RAISE in options or ActionType.BET in options else "disabled"))
+        self.btn_all_in.configure(state="normal" if ActionType.ALL_IN in options else "disabled")
 
     def _handle_call_or_check(self) -> None:
         """Handles a click on the 'Call/Check' button, dispatching the correct action."""
@@ -300,18 +260,10 @@ class PokerGUI:
             elif action_type is ActionType.CALL:
                 action = Action(ActionType.CALL, target_bet=table.current_bet)
             elif action_type is ActionType.ALL_IN:
-                action = Action(
-                    ActionType.ALL_IN, target_bet=player.current_bet + player.chips
-                )
+                action = Action(ActionType.ALL_IN, target_bet=player.current_bet + player.chips)
             elif action_type in {ActionType.BET, ActionType.RAISE}:
-                amount = self._parse_amount(
-                    self.amount_var.get(), default=table.min_raise_amount
-                )
-                target = (
-                    player.current_bet
-                    if action_type is ActionType.BET
-                    else table.current_bet
-                ) + amount
+                amount = self._parse_amount(self.amount_var.get(), default=table.min_raise_amount)
+                target = (player.current_bet if action_type is ActionType.BET else table.current_bet) + amount
                 action = Action(action_type, target_bet=target)
             else:
                 return
@@ -332,9 +284,7 @@ class PokerGUI:
                 self._finish_hand()
                 return
             table.proceed_to_next_stage()
-            self._log(
-                f"Stage advances to {table.stage}. Board: {format_cards(table.community_cards)}"
-            )
+            self._log(f"Stage advances to {table.stage}. Board: {format_cards(table.community_cards)}")
             self._update_board()
 
         self.root.after(200, self._advance_until_user)
@@ -354,18 +304,14 @@ class PokerGUI:
         if table._active_player_count() == 1:
             payouts = table.distribute_pot()
             winner_name = next(name for name, amount in payouts.items() if amount > 0)
-            self._log(
-                f"{winner_name} wins the pot uncontested ({payouts[winner_name]} chips)."
-            )
+            self._log(f"{winner_name} wins the pot uncontested ({payouts[winner_name]} chips).")
         else:
             rankings = table.showdown()
             # Animate showdown with hand ranking explanations.
             self._animate_showdown(rankings)
             for player, rank in rankings:
                 player.statistics.showdowns_reached += 1
-                self._log(
-                    f"{player.name}: {format_cards(player.hole_cards)} -> {rank.describe()}"
-                )
+                self._log(f"{player.name}: {format_cards(player.hole_cards)} -> {rank.describe()}")
             payouts = table.distribute_pot()
             for name, amount in payouts.items():
                 if amount > 0:
@@ -410,21 +356,15 @@ class PokerGUI:
         for widget in self.board_frame.winfo_children():
             widget.destroy()
         for i in range(5):
-            card_text = (
-                str(table.community_cards[i]) if i < len(table.community_cards) else "🂠"
-            )
-            ttk.Label(
-                self.board_frame, text=card_text, font=("Consolas", 24), padding=10
-            ).grid(row=0, column=i, padx=6)
+            card_text = str(table.community_cards[i]) if i < len(table.community_cards) else "🂠"
+            ttk.Label(self.board_frame, text=card_text, font=("Consolas", 24), padding=10).grid(row=0, column=i, padx=6)
 
     def _update_player_cards(self, *, show_all: bool) -> None:
         """Updates the display of each player's hole cards and last action."""
         for player in self.match.players:
             vars = self.player_vars[player.name]
             if player.is_user or show_all or player.folded:
-                vars["cards"].set(
-                    format_cards(player.hole_cards) if player.hole_cards else "--"
-                )
+                vars["cards"].set(format_cards(player.hole_cards) if player.hole_cards else "--")
             else:
                 vars["cards"].set("??")
             vars["action"].set(player.last_action.capitalize())
@@ -452,7 +392,7 @@ class PokerGUI:
         for i, (player, rank) in enumerate(rankings):
             self.root.after(i * 300, lambda p=player: self._update_player_cards(show_all=True))
             self.root.after(i * 300 + 150, lambda r=rank: self.status_var.set(f"Evaluating hands... {r.category.name.replace('_', ' ').title()}"))
-        
+
         # Highlight the winner(s) after a delay.
         if rankings:
             best_rank = rankings[0][1]
