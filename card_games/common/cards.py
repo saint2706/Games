@@ -130,6 +130,7 @@ class Deck:
 
             rng = random
 
+        # ``random.shuffle`` implements Fisher-Yates, giving an unbiased shuffle.
         rng.shuffle(self.cards)
 
     def deal(self, count: int = 1) -> list[Card]:

@@ -104,6 +104,7 @@ def rank_five_card_hand(cards: Sequence[Card]) -> HandRank:
     if len(cards) != 5:
         raise ValueError("Exactly five cards must be supplied")
 
+    # Sort once so subsequent evaluations can assume descending value order.
     sorted_cards = tuple(sorted(cards, key=lambda card: card.value, reverse=True))
     values = tuple(card.value for card in sorted_cards)
     is_flush = len({card.suit for card in cards}) == 1

@@ -1,5 +1,7 @@
 """Poker implementation within the Card Games collection."""
 
+# Expose the primary gameplay types so callers can simply import from the
+# package root instead of drilling into submodules.
 from .poker import (
     Action,
     ActionType,

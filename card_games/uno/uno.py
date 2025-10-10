@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 import random
-import textwrap
 from dataclasses import dataclass
 from typing import Iterable, List, Optional, Protocol, Sequence
 
@@ -35,6 +34,7 @@ COLORS = ("red", "yellow", "green", "blue")
 NUMBER_VALUES = tuple(str(n) for n in range(10))
 ACTION_VALUES = ("skip", "reverse", "+2")
 WILD_VALUES = ("wild", "+4")
+BOT_PERSONALITIES = ("easy", "balanced", "aggressive")
 
 # Map colors to their colorama styles for terminal output.
 COLOR_STYLE_MAP = {
@@ -126,10 +126,13 @@ class UnoDeck:
         """Fill the deck with a standard set of 108 Uno cards."""
         self.cards.clear()
         for color in COLORS:
+            # Every colour has a single zero card and two of every other
+            # number/action card, mirroring the physical Uno deck.
             self.cards.append(UnoCard(color, "0"))
             for value in NUMBER_VALUES[1:] + ACTION_VALUES:
                 self.cards.extend([UnoCard(color, value), UnoCard(color, value)])
         for _ in range(4):
+            # Wilds do not have a colour and appear four times each.
             self.cards.extend([UnoCard(None, "wild"), UnoCard(None, "+4")])
 
     def shuffle(self) -> None:
@@ -140,6 +143,7 @@ class UnoDeck:
         """Draw a single card from the top of the deck."""
         if not self.cards:
             raise RuntimeError("The deck is empty")
+        # ``pop`` models drawing the top-most card from the pile.
         return self.cards.pop()
 
     def extend(self, cards: Iterable[UnoCard]) -> None:
@@ -242,6 +246,7 @@ class UnoPlayer:
         top_colors = [
             color for color, count in color_counts.items() if count == max_count
         ]
+        # Break ties randomly so the bots do not behave identically.
         return random.choice(top_colors) if top_colors else random.choice(COLORS)
 
     def __str__(self) -> str:
@@ -447,6 +452,7 @@ class UnoGame:
     def setup(self, *, starting_hand: int = 7) -> None:
         """Initializes the game state for a new round."""
         for player in self.players:
+            # Deal a fresh starting hand to everyone and reset UNO state flags.
             player.hand.clear()
             player.pending_uno = False
             player.draw_cards(self.deck, starting_hand)
@@ -456,6 +462,7 @@ class UnoGame:
         self.active_color = first_card.color or self.rng.choice(COLORS)
         self.active_value = first_card.value
 
+        # Some action cards (e.g., Skip) immediately affect turn order.
         skip_next = self._apply_action_card(first_card, initializing=True)
         if skip_next:
             self.current_index = self._next_index(1)
@@ -467,7 +474,9 @@ class UnoGame:
             card = self.deck.draw()
             if card.value not in WILD_VALUES:
                 return card
-            self.deck.cards.insert(0, card)  # Put it back and reshuffle.
+            # Wilds are unsuitable as a starting card; cycle them back in and
+            # reshuffle to preserve randomness.
+            self.deck.cards.insert(0, card)
             self.deck.shuffle()
 
     def _reshuffle_if_needed(self) -> None:
@@ -478,6 +487,8 @@ class UnoGame:
             raise RuntimeError("No cards left to reshuffle")
 
         top_card = self.discard_pile.pop()
+        # Everything except the top card of the discard pile is shuffled back
+        # into the deck so the active card remains visible on the table.
         self.deck.extend(self.discard_pile)
         self.discard_pile = [top_card]
 
@@ -641,6 +652,8 @@ class UnoGame:
             )
         )
 
+        # Remove the card from the player's hand and push it to the discard pile
+        # before mutating active colour/value so the UI reflects the new top card.
         player.pop_card(card_index)
         self.discard_pile.append(card)
         self.active_value = card.value
@@ -660,6 +673,8 @@ class UnoGame:
                 Fore.CYAN,
             )
 
+        # Apply action-card effects (penalties, reverse, skip, etc.) prior to
+        # checking for victory so follow-up turns use the updated state.
         skip_next = self._apply_action_card(
             card, player=player, illegal_plus4=illegal_plus4
         )
@@ -672,6 +687,7 @@ class UnoGame:
             return player
 
         if len(player.hand) == 1 and (declare_uno or not player.is_human):
+            # Bots auto-announce UNO, while humans must opt in via the prompt.
             self.interface.notify_uno_called(player)
         elif len(player.hand) == 1:
             player.pending_uno = True
@@ -691,9 +707,13 @@ class UnoGame:
         ):
             return None
         if penalty_active and not playable:
+            # Bots must accept the penalty when they cannot stack an additional
+            # penalty card on top of the existing chain.
             self._accept_penalty(player)
             return None
         if playable:
+            # Choose a card via the player's heuristic and immediately attempt
+            # to play it; the helper returns the winner if the game ends.
             return self._execute_play(
                 player,
                 player.choose_card(playable, self.active_color),
@@ -704,7 +724,9 @@ class UnoGame:
         self._log(f"{player.name} draws a card.", Fore.YELLOW)
         if drawn_card.matches(self.active_color, self.active_value):
             if drawn_card.is_action() and player.personality == "easy":
-                pass  # Easy bots are more conservative
+                # Easy bots intentionally hold back action cards to feel more
+                # human-like and prevent relentless stacking.
+                pass
             else:
                 return self._execute_play(
                     player, len(player.hand) - 1, declare_uno=len(player.hand) == 1
@@ -793,6 +815,122 @@ class UnoGame:
                     return winner
 
             self.interface.update_status(self)
+
+
+def build_players(
+    total_players: int,
+    *,
+    bots: int,
+    bot_skill: str = "balanced",
+) -> List[UnoPlayer]:
+    """Create a roster of Uno players for a new game session.
+
+    Args:
+        total_players: Total number of seats at the virtual table.
+        bots: Number of AI-controlled opponents to include.
+        bot_skill: Personality label that tunes the bot heuristics.
+
+    Returns:
+        An ordered list of :class:`UnoPlayer` objects ready to hand to
+        :class:`UnoGame`.
+
+    Raises:
+        ValueError: If the requested table configuration is invalid.
+    """
+
+    if total_players < 2:
+        raise ValueError("Uno requires at least two total players.")
+    if bots < 0:
+        raise ValueError("Number of bot players cannot be negative.")
+    if bot_skill not in BOT_PERSONALITIES:
+        raise ValueError(
+            "Bot skill must be one of: " + ", ".join(sorted(BOT_PERSONALITIES))
+        )
+
+    human_count = total_players - bots
+    if human_count <= 0:
+        raise ValueError("At least one human player is required to start Uno.")
+
+    players: List[UnoPlayer] = []
+    for index in range(human_count):
+        name = "You" if index == 0 else f"Player {index + 1}"
+        players.append(UnoPlayer(name, is_human=True))
+
+    for bot_index in range(bots):
+        players.append(
+            UnoPlayer(
+                f"{bot_skill.capitalize()} Bot {bot_index + 1}",
+                personality=bot_skill,
+            )
+        )
+
+    return players
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    """Parse command-line arguments and launch either the CLI or GUI front-end."""
+
+    parser = argparse.ArgumentParser(
+        description="Play a game of Uno against configurable bot opponents."
+    )
+    parser.add_argument(
+        "--players",
+        type=int,
+        default=4,
+        help="Total number of seats at the table (minimum 2).",
+    )
+    parser.add_argument(
+        "--bots",
+        type=int,
+        default=None,
+        help="How many AI opponents to include (defaults to players - 1).",
+    )
+    parser.add_argument(
+        "--bot-skill",
+        choices=sorted(BOT_PERSONALITIES),
+        default="balanced",
+        help="Choose the personality for all bot opponents.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Optional random seed for reproducible shuffles.",
+    )
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        help="Launch the Tkinter interface instead of the console version.",
+    )
+
+    args = parser.parse_args(argv)
+    total_players = args.players
+    bot_count = args.bots if args.bots is not None else max(total_players - 1, 1)
+
+    try:
+        players = build_players(
+            total_players, bots=bot_count, bot_skill=args.bot_skill
+        )
+    except ValueError as exc:  # pragma: no cover - defensive input validation
+        parser.error(str(exc))
+
+    rng = random.Random(args.seed)
+
+    if args.gui:
+        from .gui import launch_uno_gui
+
+        launch_uno_gui(
+            total_players,
+            bots=bot_count,
+            bot_skill=args.bot_skill,
+            seed=args.seed,
+        )
+        return 0
+
+    game = UnoGame(players=players, rng=rng, interface=ConsoleUnoInterface())
+    game.setup()
+    game.play()
+    return 0
 
 
 __all__ = [

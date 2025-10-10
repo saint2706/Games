@@ -50,6 +50,7 @@ def render_hand(title: str, hand: BlackjackHand, *, hide_hole: bool = False) -> 
     Returns:
         str: A string representation of the hand.
     """
+    # Copy the cards so we can safely slice without mutating the hand.
     cards = hand.cards[:]
     if hide_hole and len(cards) >= 2:
         # Show only the dealer's up-card
@@ -128,6 +129,7 @@ def prompt_action(game: BlackjackGame, hand: BlackjackHand) -> str:
     Returns:
         str: The chosen action, validated against the available options.
     """
+    # Map short keyboard responses to the canonical action verbs.
     action_map = {"h": "hit", "s": "stand", "d": "double", "p": "split"}
     while True:
         actions = game.player_actions(hand)
@@ -263,6 +265,8 @@ def main(argv: Iterable[str] | None = None) -> None:
     if args.seed is not None:
         import random
 
+        # Use a dedicated ``Random`` instance so deterministic runs do not
+        # affect global module state.
         rng = random.Random(args.seed)
 
     game = BlackjackGame(

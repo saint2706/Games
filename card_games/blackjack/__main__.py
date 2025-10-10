@@ -75,6 +75,8 @@ def main(argv: Iterable[str] | None = None) -> None:
     if args.seed is not None:
         import random
 
+        # As in the CLI, use a dedicated RNG so deterministic sessions do not
+        # interfere with global randomness in other modules.
         rng = random.Random(args.seed)
 
     # Launch either the CLI or GUI based on the --cli flag

@@ -8,6 +8,8 @@ it to be run directly using the ``-m`` flag with Python. For example:
 It simply imports and calls the ``main`` function from the ``poker`` module.
 """
 
+# Importing inside the module keeps the command-line entry point lightweight
+# while still reusing the richer CLI defined in ``poker.main``.
 from .poker import main
 
 

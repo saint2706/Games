@@ -45,6 +45,8 @@ COLOR_TAGS = {
 
 def strip_ansi(text: str) -> str:
     """Remove ANSI escape codes from a string."""
+    # The console engine logs use ANSI colouring; the GUI strips them to
+    # avoid showing raw escape sequences in Tkinter widgets.
     return ANSI_RE.sub("", text)
 
 

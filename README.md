@@ -17,6 +17,23 @@ card_games/
 └── uno/              # Classic Uno with bots and a CLI interface
 ```
 
+## Documentation roadmap
+
+Every game module now opens with an extensive module-level docstring that
+introduces the contained classes and explains how they collaborate. Class and
+function docstrings are deliberately verbose so that you can treat the source as
+an executable design document. To dive in:
+
+* Start with ``card_games/bluff/bluff.py`` for a guided tour of the Cheat/Bluff
+  engine, including commentary on turn structure and challenge resolution.
+* Explore ``card_games/poker/poker.py`` and ``card_games/poker/gui.py`` to see
+  how the Texas hold'em mechanics feed into both a CLI and Tkinter front-end.
+* Browse ``card_games/bluff/gui.py`` to learn how the GUI keeps its widgets in
+  sync with the engine state using richly annotated helper methods.
+
+Each module's docstrings provide inline references to supporting utilities so
+you can jump between files without losing context.
+
 ## Blackjack
 
 Take a seat at a richly detailed blackjack table that recreates the flow of a

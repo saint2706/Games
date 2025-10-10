@@ -1,20 +1,29 @@
-"""Realistic bluff (Cheat) card game logic with both CLI and GUI hooks.
+"""Card game engine, AI, and CLI helpers for the game of Bluff (a.k.a. Cheat).
 
 This module provides a comprehensive implementation of the card game "Bluff"
 (also known as "Cheat" or "I Doubt It"). It includes the game engine, bot AI,
-and hooks for user interfaces.
+and hooks for both command-line and graphical user interfaces.
 
 The game is structured around these key components:
-- **Phases**: The game progresses through distinct phases: ``TURN``, ``CHALLENGE``,
-  and ``COMPLETE``.
-- **Player Representation**: ``PlayerState`` tracks a player's hand, stats, and
-  AI profile (``PlayerProfile``).
-- **Game State**: The ``BluffGame`` class manages the overall game state, including
-  the deck, pile, players, and turn progression.
-- **Bot AI**: Bots make decisions based on configurable ``DifficultyLevel``
-  settings, which influence their honesty, boldness, and willingness to challenge.
-- **User Interaction**: The module supports both a command-line interface (CLI)
-  and a graphical user interface (GUI) via ``argparse`` hooks.
+
+* **Phases** – The :class:`Phase` enum models the three states of play
+  (``TURN``, ``CHALLENGE``, and ``COMPLETE``) so the engine can react
+  appropriately to user and AI choices.
+* **Player representation** – :class:`PlayerState` tracks a player's hand, bot
+  personality, and historical statistics that inform the AI's decision making.
+* **Game state** – The :class:`BluffGame` class manages the deck, discard pile,
+  pending challenges, and the overall flow of the match.
+* **Bot AI** – Bot behaviour is parameterised by :class:`DifficultyLevel`
+  objects, giving each difficulty setting a distinct "personality".
+* **User interaction** – Helper functions at the bottom of the module wire the
+  engine into an interactive CLI, while :mod:`card_games.bluff.gui` provides a
+  Tkinter interface.
+
+In addition to the public API, the module contains numerous helper functions
+with richly documented behaviour intended to act as executable documentation for
+the game's rules. These docstrings deliberately repeat concepts established in
+other parts of the file so that each class or function can be understood in
+isolation.
 """
 
 from __future__ import annotations
@@ -235,6 +244,8 @@ class BluffGame:
         for index in range(self.difficulty.bot_count):
             base = self.difficulty
             variance = self._rng.uniform(-0.05, 0.05)
+            # Each bot inherits the base difficulty personality but receives a
+            # small random variance so the table feels less predictable.
             profile = PlayerProfile(
                 honesty=max(0.2, min(0.95, base.honesty + variance)),
                 boldness=max(0.05, min(0.9, base.boldness + variance * 1.5)),
@@ -376,6 +387,8 @@ class BluffGame:
             0.2, len(self._pile_cards) * 0.02 * player.profile.boldness
         )
 
+        # Clamp the bias into a sensible range so pathological bot settings
+        # still result in believable behaviour.
         truthful = self._rng.random() < max(0.1, min(0.95, truthful_bias))
         claimed_rank: str
         chosen_card: Card
@@ -384,6 +397,8 @@ class BluffGame:
             # Play truthfully: choose a rank the bot holds
             ranked = hand_counts.most_common()
             weights = [count for _, count in ranked]
+            # Weighted sampling means the bot mirrors human tendencies—more
+            # plentiful ranks are more likely to be played when honest.
             chosen_rank = self._rng.choices(
                 [rank for rank, _ in ranked], weights=weights
             )[0]
@@ -441,7 +456,8 @@ class BluffGame:
         self._pile_cards.append(card)
         self._pile_claims.append(claim)
 
-        # Transition to the challenge phase
+        # Transition to the challenge phase by lining up every other player so
+        # they can decide whether to call the claim.
         self._challenge_queue = deque(self._iter_other_players_from(player))
         self._phase = Phase.CHALLENGE
 
@@ -470,6 +486,7 @@ class BluffGame:
             # No one left to challenge; finalize the turn.
             return self._finalise_uncontested()
 
+        # Evaluate challengers in the order they queued up during the turn.
         challenger = self._challenge_queue.popleft()
         if not decision:
             # Player chooses not to challenge
@@ -488,12 +505,14 @@ class BluffGame:
 
         # A challenge has been made
         claim = self._claim_in_progress
+        # Record the attempt so bot AI can adapt to success/failure later.
         challenger.record_challenge(success=not claim.truthful)
         messages.append(f"{challenger.name} slams a hand down and calls the bluff!")
 
         if claim.truthful:
             # The claim was true; challenger picks up the pile
             collector = challenger
+            # Shuffle the enlarged hand so future draws do not reveal pile order.
             collector.hand.extend(self._pile_cards)
             collector.rng.shuffle(collector.hand)
             self._pile_cards.clear()
@@ -510,6 +529,8 @@ class BluffGame:
             # The claim was a bluff; claimant picks up the pile
             collector = claim.claimant
             collector.record_caught(self._turns_played)
+            # The claimant inherits every facedown card to keep them honest in
+            # future rounds.
             collector.hand.extend(self._pile_cards)
             collector.rng.shuffle(collector.hand)
             self._pile_cards.clear()
@@ -574,7 +595,7 @@ class BluffGame:
             messages.extend(self._close_by_card_count())
             return ChallengeResult(resolved=True, messages=messages)
 
-        # Advance to the next player
+        # Advance to the next player, skipping anyone who just emptied their hand.
         self._current_player_index = (self.players.index(claimant) + 1) % len(
             self.players
         )
@@ -611,6 +632,7 @@ class BluffGame:
         # Handle a tie
         self._winner = None
         self._phase = Phase.COMPLETE
+        # Multiple players share the title, so enumerate them for the match log.
         tied_names = ", ".join(p.name for p in winners)
         return [
             "Maximum rounds reached with a tie.",
@@ -693,6 +715,23 @@ class BluffGame:
 
 
 def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    """Return parsed command-line arguments for a Bluff session.
+
+    The CLI supports both human-vs-bot matches and a Tkinter-powered GUI.  This
+    helper centralises argument parsing so that :func:`run_cli` and the module's
+    ``__main__`` entry point share the exact same behaviour.
+
+    Args:
+        argv: Optional sequence of command-line arguments. Passing ``None``
+            allows :func:`argparse.ArgumentParser.parse_args` to consume
+            arguments directly from :data:`sys.argv`.
+
+    Returns:
+        argparse.Namespace: A namespace containing the chosen difficulty,
+        number of rounds, optional random seed, and whether the GUI was
+        requested.
+    """
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--difficulty",
@@ -721,6 +760,19 @@ def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 
 def run_cli(argv: Sequence[str] | None = None) -> None:
+    """Run an interactive Bluff match in the terminal.
+
+    This function wires together :func:`parse_arguments`, the
+    :class:`~card_games.bluff.BluffGame` engine, and the text prompts defined
+    below.  The implementation doubles as living documentation for the game
+    flow—reading the code explains precisely when the player is prompted, how
+    challenges are resolved, and under which conditions the match concludes.
+
+    Args:
+        argv: Optional command-line arguments to parse. ``None`` means the
+            function should read directly from :data:`sys.argv`.
+    """
+
     args = parse_arguments(argv)
     rng = random.Random(args.seed) if args.seed is not None else random.Random()
     difficulty = DIFFICULTIES[args.difficulty]
@@ -792,6 +844,19 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
 
 
 def _prompt_card_index(hand_size: int) -> int:
+    """Prompt the user to select a card index from their hand.
+
+    The helper loops until a valid integer within the bounds of the player's
+    hand is supplied. It intentionally avoids raising exceptions so that the
+    user receives human-friendly feedback for invalid input.
+
+    Args:
+        hand_size: The number of cards currently held by the user.
+
+    Returns:
+        int: The zero-based index corresponding to the chosen card.
+    """
+
     while True:
         choice = input("Select the index of the card you want to play: ").strip()
         if choice.isdigit():
@@ -802,6 +867,21 @@ def _prompt_card_index(hand_size: int) -> int:
 
 
 def _prompt_claim_rank(card: Card) -> str:
+    """Prompt the user to declare the rank of the card being played.
+
+    For honesty they may repeat the actual rank, but bluffing is as simple as
+    naming a different value from :data:`card_games.common.cards.RANKS`.  The
+    prompting loop doubles as in-game documentation by reminding the user which
+    ranks are legal.
+
+    Args:
+        card: The actual card about to be placed on the pile. The card is not
+            modified—only its rank is used for the optional prompt text.
+
+    Returns:
+        str: A single-character rank chosen from ``RANKS``.
+    """
+
     while True:
         rank = (
             input(
@@ -816,6 +896,23 @@ def _prompt_claim_rank(card: Card) -> str:
 
 
 def _prompt_user_challenge(claimant_name: str, pile_size: int) -> bool:
+    """Ask the human player whether they wish to challenge the current claim.
+
+    The decision matters: calling a bluff risks collecting the entire pile if
+    the claimant was truthful, but refusing allows the next player in the
+    challenge queue to decide.  The function keeps prompting until a recognised
+    response is entered, providing in-line documentation for the accepted
+    commands (``call``/``trust`` and their short aliases).
+
+    Args:
+        claimant_name: The name of the player who made the claim.
+        pile_size: The number of facedown cards currently in the pile. This is
+            shown to help the user gauge the risk/reward of challenging.
+
+    Returns:
+        bool: ``True`` if the user wants to challenge, ``False`` otherwise.
+    """
+
     while True:
         choice = (
             input(

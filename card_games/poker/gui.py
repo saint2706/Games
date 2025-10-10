@@ -1,9 +1,10 @@
-"""Tkinter-powered graphical user interface for the Texas Hold'em poker game.
+"""Tkinter front-end for visualising and playing a :class:`PokerMatch`.
 
-This module provides the `PokerGUI` class, which creates an interactive window
-for playing a `PokerMatch`. It visualizes the game state, including player
-stacks, community cards, and actions, and provides controls for the user to
-interact with the game.
+Whereas :mod:`card_games.poker.poker` focuses on the rules engine, this module
+documents how those mechanics are exposed to users in a desktop application.
+Comments and docstrings emphasise the mapping between UI widgets and poker
+concepts (boards, pots, betting actions) so that developers can adapt the
+implementation to other toolkits with minimal guesswork.
 """
 
 from __future__ import annotations
@@ -36,6 +37,8 @@ class PokerGUI:
         """
         self.root = root
         self.match = match
+        # A dedicated RNG powers cosmetic shuffles (e.g., log animations) so the
+        # deterministic behaviour of the core engine is unaffected.
         self.rng = rng or random.Random()
         self.awaiting_user = False
         self.completed_hands = 0

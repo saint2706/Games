@@ -320,6 +320,7 @@ class BlackjackGame:
 
         # Deal two cards to both player and dealer
         for _ in range(2):
+            # Cards alternate player/dealer to mimic casino dealing order.
             player_hand.add_card(self.shoe.draw())
             dealer_hand.add_card(self.shoe.draw())
 
@@ -356,6 +357,7 @@ class BlackjackGame:
         hand.bet *= 2
         hand.doubled = True
 
+        # Doubling ends the turn after a single forced hit.
         card = self.hit(hand)
         hand.stood = True
         return card
@@ -374,6 +376,7 @@ class BlackjackGame:
 
         # Add one card to each of the newly split hands
         for split_hand in (hand, new_hand):
+            # Each split hand receives exactly one additional card to start play.
             split_hand.add_card(self.shoe.draw())
 
         return new_hand

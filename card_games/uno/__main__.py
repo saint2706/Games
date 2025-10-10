@@ -8,6 +8,8 @@ to be run directly using the ``-m`` flag with Python. For example:
 It simply imports and calls the ``main`` function from the ``uno`` module.
 """
 
+# Keep imports minimal so ``python -m card_games.uno`` starts quickly while
+# delegating all heavy lifting to :func:`card_games.uno.main`.
 from .uno import main
 
 

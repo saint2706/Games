@@ -1,17 +1,29 @@
-"""Core engine for a Texas Hold'em poker game.
+"""Engine, bot AI, and CLI utilities for a Texas Hold'em poker experience.
 
-This module provides the main classes and logic for running a game of Texas Hold'em,
-including the game state management, player actions, bot AI, and hand evaluation.
-It is designed to be used by different front-ends, such as a CLI or a GUI.
+The module mirrors the structure of a real-world poker room and documents the
+reasoning for each rule directly beside the implementation. By reading the
+docstrings and comments, newcomers can follow the flow from high-level match
+management down to the evaluation of individual five-card hands.
 
 Key components:
-- ``ActionType``, ``Action``: Represent player decisions (fold, check, bet, etc.).
-- ``Player``: Stores the state of a single player (chips, cards, status).
-- ``BotSkill``, ``PokerBot``: Define the AI for computer-controlled players.
-- ``PokerTable``: Manages the state of a single hand, including betting rounds,
-  community cards, and pot management.
-- ``PokerMatch``: Orchestrates a series of hands between a user and bot opponents.
-- ``estimate_win_rate``: A Monte Carlo simulation to estimate a hand's equity.
+
+* :class:`ActionType` and :class:`Action` encode the discrete decisions players
+  can make during a betting round.
+* :class:`Player` stores the mutable state of a participant, including their
+  chip stack, hole cards, and recent betting history.
+* :class:`BotSkill` and :class:`PokerBot` parameterise the behaviour of computer
+  opponents, explaining how aggression, bluff frequency, and mistake rate
+  influence their choices.
+* :class:`PokerTable` models a single hand, coordinating blinds, betting rounds,
+  and pot distribution with extensive inline commentary for each stage.
+* :class:`PokerMatch` strings multiple hands together to form a short match that
+  pits the user against three bot opponents.
+* :func:`estimate_win_rate` demonstrates how Monte Carlo simulation can be used
+  to approximate pre-flop equity.
+
+Together with :mod:`card_games.poker.gui`, these components provide both a
+playable experience and richly annotated sample code for anyone studying the
+mechanics of poker software.
 """
 
 from __future__ import annotations
@@ -193,6 +205,7 @@ class PokerBot:
             simulations=self.skill.simulations,
             rng=self.rng,
         )
+        # The Monte Carlo estimator serves as the bot's "sense" of hand strength.
 
         # Occasionally make a random mistake to simulate human-like imperfection.
         if self.rng.random() < self.skill.mistake_rate:
@@ -207,6 +220,8 @@ class PokerBot:
         }[stage]
         call_threshold = max(0.08, self.skill.tightness + stage_adjustment)
         strong_threshold = min(0.95, call_threshold + 0.25)
+        # `call_threshold` defines when the bot is content to continue; a higher
+        # `strong_threshold` gates aggressive raises and bets.
 
         # If there is no bet to call (the bot can check).
         if to_call == 0:
@@ -226,6 +241,7 @@ class PokerBot:
 
         # If facing a bet.
         call_amount = min(to_call, player.chips)
+        # Pot odds give the bot a baseline for whether calling is profitable.
         pot_odds = call_amount / max(table.pot + call_amount, 1)
 
         # Fold if hand is weak and pot odds are not favorable.
@@ -280,6 +296,7 @@ class PokerBot:
         if to_call == 0:
             options.append(Action(ActionType.CHECK))
             if player.chips > 0:
+                # Use a minimal raise size so "mistakes" stay plausible.
                 target = player.current_bet + min(
                     player.chips, max(table.big_blind, table.min_raise_amount)
                 )
@@ -291,6 +308,8 @@ class PokerBot:
                 player.chips + player.current_bet
                 > table.current_bet + table.min_raise_amount
             ):
+                # Choose a random raise between 20% and 80% of the pot to mimic
+                # a hasty, imperfect decision.
                 target = self._raise_target(
                     table, pot_factor=self.rng.uniform(0.2, 0.8)
                 )
@@ -351,6 +370,7 @@ class PokerTable:
         self.min_raise_amount = self.big_blind
         self._players_who_acted.clear()
         self.last_actions.clear()
+        # With a clean slate we can redeal, so wipe every transient accumulator.
 
         # Deal hole cards to each player.
         for player in self.players:
@@ -371,6 +391,7 @@ class PokerTable:
         bb_index = (self.dealer_index + 2) % len(self.players)
         sb_player = self.players[sb_index]
         bb_player = self.players[bb_index]
+        # The blinds are treated as forced bets, so move chips before the first action.
         self._commit(
             sb_player, sb_player.current_bet + min(self.small_blind, sb_player.chips)
         )
@@ -384,6 +405,7 @@ class PokerTable:
     def _first_to_act_index(self) -> int:
         """Determines the index of the player who acts first in a betting round."""
         index = (self.dealer_index + 3) % len(self.players)  # UTG position
+        # `_next_index` skips folded/all-in players while preserving order.
         return self._next_index(index - 1)
 
     def _next_index(self, start: int) -> int:
@@ -403,6 +425,7 @@ class PokerTable:
             return
 
         contribution = min(amount_to_add, player.chips)
+        # Keep all bookkeeping in sync so UI layers can display chip counts accurately.
         player.chips -= contribution
         player.current_bet += contribution
         player.total_invested += contribution
@@ -456,11 +479,14 @@ class PokerTable:
                 min_total = player.current_bet + max(
                     self.min_raise_amount, self.big_blind
                 )
+                # Enforce a minimum opening bet so the pot grows at a realistic pace.
                 target = max(target, min_total)
             elif action.kind is ActionType.RAISE:
                 if to_call <= 0:
                     raise ValueError("Cannot raise without a bet to match")
                 min_total = self.current_bet + self.min_raise_amount
+                # Raises must meet or exceed the previous increment unless the
+                # player is moving all-in.
                 target = max(target, min_total)
             elif action.kind is ActionType.ALL_IN:
                 target = player.current_bet + player.chips
@@ -480,6 +506,7 @@ class PokerTable:
                 else:
                     raise ValueError("Raise did not meet minimum size")
                 self.current_bet = player.current_bet
+                # Reset the tracker so everyone has a chance to respond to the new price.
                 self._players_who_acted = {id(player)}
 
         self._players_who_acted.add(id(player))
@@ -628,6 +655,7 @@ class PokerTable:
 
     def players_can_act(self) -> bool:
         """Checks if there are any players who can still make a move."""
+        # Once every remaining player is all-in, betting rounds should skip straight to showdowns.
         return any(not player.folded and not player.all_in for player in self.players)
 
 
@@ -659,6 +687,8 @@ def estimate_win_rate(
         return 1.0
 
     known_cards = set(hero.hole_cards) | set(community_cards)
+    # Build a deck minus the cards we already know about so that each simulation
+    # draws fresh, non-conflicting combinations of hole cards and board cards.
     deck_pool = [card for card in FULL_DECK if card not in known_cards]
     wins = 0
     ties = 0
