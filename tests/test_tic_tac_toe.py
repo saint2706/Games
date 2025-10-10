@@ -1,10 +1,12 @@
 import pathlib
 import sys
+import tempfile
 
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from paper_games.tic_tac_toe.stats import GameStats
 from paper_games.tic_tac_toe.tic_tac_toe import TicTacToeGame
 
 
@@ -155,6 +157,105 @@ def test_minimax_makes_move():
     assert move in game.available_moves()
 
 
+# Statistics tests
+def test_stats_initial_state():
+    """Test that initial stats are all zeros."""
+    stats = GameStats()
+    assert stats.human_wins == 0
+    assert stats.computer_wins == 0
+    assert stats.draws == 0
+    assert stats.games_played == 0
+
+
+def test_stats_record_human_win():
+    """Test recording a human win."""
+    stats = GameStats()
+    stats.record_game("X", "X", "O")
+    assert stats.human_wins == 1
+    assert stats.computer_wins == 0
+    assert stats.draws == 0
+    assert stats.games_played == 1
+
+
+def test_stats_record_computer_win():
+    """Test recording a computer win."""
+    stats = GameStats()
+    stats.record_game("O", "X", "O")
+    assert stats.human_wins == 0
+    assert stats.computer_wins == 1
+    assert stats.draws == 0
+    assert stats.games_played == 1
+
+
+def test_stats_record_draw():
+    """Test recording a draw."""
+    stats = GameStats()
+    stats.record_game(None, "X", "O")
+    assert stats.human_wins == 0
+    assert stats.computer_wins == 0
+    assert stats.draws == 1
+    assert stats.games_played == 1
+
+
+def test_stats_win_rate():
+    """Test win rate calculation."""
+    stats = GameStats()
+    assert stats.win_rate() == 0.0
+    
+    stats.record_game("X", "X", "O")
+    stats.record_game("O", "X", "O")
+    stats.record_game("X", "X", "O")
+    stats.record_game(None, "X", "O")
+    
+    # 2 wins out of 4 games = 0.5
+    assert stats.win_rate() == 0.5
+
+
+def test_stats_by_board_size():
+    """Test tracking stats by board size."""
+    stats = GameStats()
+    stats.record_game("X", "X", "O", board_size=3)
+    stats.record_game("O", "X", "O", board_size=4)
+    stats.record_game("X", "X", "O", board_size=3)
+    
+    assert "3x3" in stats.stats_by_board_size
+    assert "4x4" in stats.stats_by_board_size
+    assert stats.stats_by_board_size["3x3"]["games"] == 2
+    assert stats.stats_by_board_size["4x4"]["games"] == 1
+
+
+def test_stats_save_and_load():
+    """Test saving and loading statistics."""
+    stats = GameStats()
+    stats.record_game("X", "X", "O")
+    stats.record_game("O", "X", "O")
+    stats.record_game(None, "X", "O")
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = pathlib.Path(tmpdir) / "stats.json"
+        stats.save(filepath)
+        
+        loaded_stats = GameStats.load(filepath)
+        assert loaded_stats.human_wins == stats.human_wins
+        assert loaded_stats.computer_wins == stats.computer_wins
+        assert loaded_stats.draws == stats.draws
+        assert loaded_stats.games_played == stats.games_played
+
+
+def test_stats_summary():
+    """Test generating a summary."""
+    stats = GameStats()
+    stats.record_game("X", "X", "O", board_size=3)
+    stats.record_game("O", "X", "O", board_size=4)
+    
+    summary = stats.summary()
+    assert "Total games played: 2" in summary
+    assert "Your wins: 1" in summary
+    assert "Computer wins: 1" in summary
+    assert "3x3" in summary
+    assert "4x4" in summary
+
+
 if __name__ == "__main__":
     # Run all tests
     test_functions = [
@@ -174,6 +275,14 @@ if __name__ == "__main__":
         test_available_moves_4x4,
         test_is_draw_4x4,
         test_minimax_makes_move,
+        test_stats_initial_state,
+        test_stats_record_human_win,
+        test_stats_record_computer_win,
+        test_stats_record_draw,
+        test_stats_win_rate,
+        test_stats_by_board_size,
+        test_stats_save_and_load,
+        test_stats_summary,
     ]
     
     for test_func in test_functions:

@@ -6,14 +6,28 @@ tic-tac-toe against an optimal minimax-based computer opponent.
 
 from __future__ import annotations
 
+import pathlib
 import random
 
+from .stats import GameStats
 from .tic_tac_toe import TicTacToeGame
+
+# Default location for stats file
+STATS_FILE = pathlib.Path.home() / ".games" / "tic_tac_toe_stats.json"
 
 
 def play() -> None:
     """Run the game loop in the terminal."""
     print("Welcome to Tic-Tac-Toe! Coordinates are letter-row + number-column (e.g. B2).")
+    
+    # Load statistics
+    stats = GameStats.load(STATS_FILE)
+    
+    # Show statistics if there are any games played
+    if stats.games_played > 0:
+        show_stats = input("View your statistics? [y/N]: ").strip().lower()
+        if show_stats in {"y", "yes"}:
+            print("\n" + stats.summary() + "\n")
     
     # Get board size
     board_size_input = input("Choose board size (3, 4, or 5) [3]: ").strip()
@@ -99,3 +113,10 @@ def play() -> None:
         print("Computer wins with perfect play.")
     else:
         print("It's a draw – a classic cat's game.")
+    
+    # Record the game result
+    stats.record_game(winner, game.human_symbol, game.computer_symbol, game.board_size)
+    stats.save(STATS_FILE)
+    
+    # Show updated statistics
+    print("\n" + stats.summary())
