@@ -7,6 +7,8 @@ both the game engine and the CLI.
 
 from .battleship import (
     DEFAULT_FLEET,
+    EXTENDED_FLEET,
+    SMALL_FLEET,
     BattleshipGame,
     Board,
     Coordinate,
@@ -20,5 +22,7 @@ __all__ = [
     "Ship",
     "Coordinate",
     "DEFAULT_FLEET",
+    "EXTENDED_FLEET",
+    "SMALL_FLEET",
     "play",
 ]
