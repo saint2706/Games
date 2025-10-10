@@ -1,0 +1,189 @@
+"""Game engine and logic for tic-tac-toe with a minimax-powered computer opponent.
+
+This module provides the core game logic for tic-tac-toe, including board
+management, move validation, winner detection, and an optimal minimax-based
+computer opponent that never loses.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Dict, Iterable, List, Optional, Tuple
+
+# A mapping of human-readable coordinates to board indices.
+COORDINATES: Dict[str, int] = {
+    "A1": 0,
+    "A2": 1,
+    "A3": 2,
+    "B1": 3,
+    "B2": 4,
+    "B3": 5,
+    "C1": 6,
+    "C2": 7,
+    "C3": 8,
+}
+# A reverse mapping from board indices to human-readable coordinates.
+INDEX_TO_COORD = {index: coord for coord, index in COORDINATES.items()}
+
+
+@dataclass
+class TicTacToeGame:
+    """Play a game of tic-tac-toe against an optimal computer opponent."""
+
+    human_symbol: str = "X"
+    computer_symbol: str = "O"
+    starting_symbol: Optional[str] = None
+
+    def __post_init__(self) -> None:
+        """Validates the initial game state after the dataclass is created."""
+        if self.human_symbol == self.computer_symbol:
+            raise ValueError("Players must use distinct symbols.")
+        self.board: List[str] = [" "] * 9
+        self.reset(self.starting_symbol)
+
+    def reset(self, starting_symbol: Optional[str] = None) -> None:
+        """Resets the game to its initial state."""
+        if starting_symbol is not None:
+            self.starting_symbol = starting_symbol
+        if self.starting_symbol is None:
+            self.starting_symbol = self.human_symbol
+        if self.starting_symbol not in {self.human_symbol, self.computer_symbol}:
+            raise ValueError("Starting symbol must belong to one of the players.")
+        self.board = [" "] * 9
+        self.current_turn = self.starting_symbol or self.human_symbol
+
+    def available_moves(self) -> List[int]:
+        """Returns a list of available (empty) squares on the board."""
+        return [i for i, value in enumerate(self.board) if value == " "]
+
+    def make_move(self, position: int, symbol: str) -> bool:
+        """Places a symbol on the board at a given position."""
+        if position not in range(9):
+            raise ValueError("Position must be between 0 and 8 inclusive.")
+        if self.board[position] != " ":
+            return False
+        self.board[position] = symbol
+        return True
+
+    def winner(self) -> Optional[str]:
+        """Determines if there is a winner and returns their symbol."""
+        # All possible winning lines.
+        lines = [
+            (0, 1, 2),
+            (3, 4, 5),
+            (6, 7, 8),
+            (0, 3, 6),
+            (1, 4, 7),
+            (2, 5, 8),
+            (0, 4, 8),
+            (2, 4, 6),
+        ]
+        for a, b, c in lines:
+            if self.board[a] != " " and self.board[a] == self.board[b] == self.board[c]:
+                return self.board[a]
+        return None
+
+    def is_draw(self) -> bool:
+        """Checks if the game is a draw."""
+        return " " not in self.board and self.winner() is None
+
+    def minimax(self, is_maximizing: bool, depth: int = 0) -> Tuple[int, Optional[int]]:
+        """
+        The minimax algorithm for finding the optimal move.
+
+        Args:
+            is_maximizing: True if the current player is the computer (maximizer),
+                           False if the current player is the human (minimizer).
+            depth: The current depth of the recursion.
+
+        Returns:
+            A tuple containing the best score and the best move.
+        """
+        winner = self.winner()
+        # Base cases for the recursion.
+        if winner == self.computer_symbol:
+            return 10 - depth, None
+        if winner == self.human_symbol:
+            return depth - 10, None
+        if self.is_draw():
+            return 0, None
+
+        best_score = float("-inf") if is_maximizing else float("inf")
+        best_move: Optional[int] = None
+        symbol = self.computer_symbol if is_maximizing else self.human_symbol
+
+        # Iterate through all available moves.
+        for move in self.available_moves():
+            self.board[move] = symbol
+            score, _ = self.minimax(not is_maximizing, depth + 1)
+            self.board[move] = " "  # Backtrack.
+            # Update the best score and move.
+            if is_maximizing:
+                if score > best_score:
+                    best_score = score
+                    best_move = move
+            else:
+                if score < best_score:
+                    best_score = score
+                    best_move = move
+        return int(best_score), best_move
+
+    def computer_move(self) -> int:
+        """Determines and makes the computer's move."""
+        _, move = self.minimax(True)
+        if move is None:
+            # This should not happen in a normal game, but as a fallback.
+            move = self.available_moves()[0]
+        self.make_move(move, self.computer_symbol)
+        return move
+
+    def human_move(self, position: int) -> bool:
+        """Makes a move for the human player."""
+        return self.make_move(position, self.human_symbol)
+
+    def render(self, show_reference: bool = False) -> str:
+        """Return a human-friendly board representation."""
+        header = "    1   2   3"
+        separator = "  +---+---+---"
+        rows = []
+        for row_index, row_label in enumerate("ABC"):
+            start = row_index * 3
+            cells = " | ".join(self.board[start : start + 3])
+            rows.append(f"{row_label} | {cells}")
+        board_render = "\n".join([header, separator, rows[0], separator, rows[1], separator, rows[2]])
+        if not show_reference:
+            return board_render
+        # Also show a reference board with coordinates.
+        reference_rows = []
+        for row_index, row_label in enumerate("ABC"):
+            start = row_index * 3
+            coords = " | ".join(INDEX_TO_COORD[start + offset] for offset in range(3))
+            reference_rows.append(f"{row_label} | {coords}")
+        reference = "\n".join(
+            [
+                "Reference:",
+                "    1   2   3",
+                "  +---+---+---",
+                reference_rows[0],
+                "  +---+---+---",
+                reference_rows[1],
+                "  +---+---+---",
+                reference_rows[2],
+            ]
+        )
+        return board_render + "\n\n" + reference
+
+    def legal_coordinates(self) -> Iterable[str]:
+        """Returns an iterator over the legal (available) coordinates."""
+        return (coord for coord, idx in COORDINATES.items() if self.board[idx] == " ")
+
+    def parse_coordinate(self, text: str) -> int:
+        """Parses a human-readable coordinate into a board index."""
+        text = text.strip().upper()
+        if text not in COORDINATES:
+            raise ValueError("Enter a coordinate like A1, B3, or C2.")
+        return COORDINATES[text]
+
+    def swap_turn(self) -> None:
+        """Swaps the current turn between the human and the computer."""
+        self.current_turn = self.computer_symbol if self.current_turn == self.human_symbol else self.human_symbol

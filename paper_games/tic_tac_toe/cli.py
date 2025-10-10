@@ -1,0 +1,77 @@
+"""Command-line interface for playing tic-tac-toe.
+
+This module provides the terminal-based interactive experience for playing
+tic-tac-toe against an optimal minimax-based computer opponent.
+"""
+
+from __future__ import annotations
+
+import random
+
+from .tic_tac_toe import INDEX_TO_COORD, TicTacToeGame
+
+
+def play() -> None:
+    """Run the game loop in the terminal."""
+    print("Welcome to Tic-Tac-Toe! Coordinates are letter-row + number-column (e.g. B2).")
+    # Get player's choice of symbol.
+    human_symbol = input("Choose your symbol (X or O) [X]: ").strip().upper() or "X"
+    if human_symbol not in {"X", "O"}:
+        print("Invalid symbol chosen. Defaulting to X.")
+        human_symbol = "X"
+    computer_symbol = "O" if human_symbol == "X" else "X"
+
+    # Get player's choice of who goes first.
+    wants_first = input("Do you want to go first? [Y/n]: ").strip().lower()
+    if wants_first in {"n", "no"}:
+        starting_symbol = computer_symbol
+    elif wants_first in {"y", "yes", ""}:
+        starting_symbol = human_symbol
+    else:
+        starting_symbol = random.choice([human_symbol, computer_symbol])
+        print(f"We'll toss a coin… {('You' if starting_symbol == human_symbol else 'Computer')} start(s)!")
+
+    game = TicTacToeGame(
+        human_symbol=human_symbol,
+        computer_symbol=computer_symbol,
+        starting_symbol=starting_symbol,
+    )
+
+    print("\nThe empty board looks like this:")
+    print(game.render(show_reference=True))
+
+    # Main game loop.
+    while True:
+        print("\n" + game.render())
+        if game.winner() or game.is_draw():
+            break
+
+        if game.current_turn == game.human_symbol:
+            prompt = "Choose your move: "
+            move_str = input(prompt)
+            try:
+                position = game.parse_coordinate(move_str)
+            except ValueError as exc:
+                print(exc)
+                continue
+            if not game.human_move(position):
+                print("That square is already taken. Try again.")
+                continue
+        else:
+            print("Computer is thinking…")
+            comp_position = game.computer_move()
+            print(f"Computer chooses {INDEX_TO_COORD[comp_position]}.")
+
+        if game.winner() or game.is_draw():
+            break
+        game.swap_turn()
+
+    # Announce the final result.
+    print("\n" + game.render())
+    winner = game.winner()
+    if winner == game.human_symbol:
+        print("You win! Congratulations.")
+    elif winner == game.computer_symbol:
+        print("Computer wins with perfect play.")
+    else:
+        print("It's a draw – a classic cat's game.")
