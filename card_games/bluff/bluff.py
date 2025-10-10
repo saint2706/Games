@@ -29,11 +29,13 @@ isolation.
 from __future__ import annotations
 
 import argparse
+import json
 import random
 from collections import Counter, deque
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Deque, Dict, Iterable, List, Optional, Sequence
+from pathlib import Path
+from typing import Any, Deque, Dict, Iterable, List, Optional, Sequence
 
 from ..common.cards import RANKS, Card, Deck, Suit
 
@@ -49,6 +51,35 @@ class Phase(Enum):
     TURN = auto()
     CHALLENGE = auto()
     COMPLETE = auto()
+
+
+@dataclass(frozen=True)
+class DeckType:
+    """Configuration for different types of card decks.
+
+    Attributes:
+        name (str): The name of the deck type.
+        description (str): A brief description of the deck characteristics.
+        ranks (list[str]): The card ranks available in this deck.
+        suits (list[Suit]): The suits available in this deck.
+        cards_per_rank_suit (int): Number of copies of each rank-suit combination.
+    """
+
+    name: str
+    description: str
+    ranks: list[str]
+    suits: list[Suit]
+    cards_per_rank_suit: int = 1
+
+    def generate_cards(self, deck_count: int = 1) -> list[Card]:
+        """Generate a list of cards based on this deck type."""
+        cards: list[Card] = []
+        for _ in range(deck_count):
+            for _ in range(self.cards_per_rank_suit):
+                for suit in self.suits:
+                    for rank in self.ranks:
+                        cards.append(Card(rank, suit))
+        return cards
 
 
 @dataclass(frozen=True)
@@ -175,6 +206,92 @@ class ChallengeResult:
     messages: list[str]
 
 
+@dataclass
+class GameAction:
+    """Records a single action taken during a game for replay purposes.
+
+    Attributes:
+        turn (int): The turn number when this action occurred.
+        action_type (str): Type of action (e.g., 'claim', 'challenge', 'result').
+        player (str): Name of the player who performed the action.
+        data (Dict[str, Any]): Additional data specific to the action type.
+    """
+
+    turn: int
+    action_type: str
+    player: str
+    data: Dict[str, Any]
+
+
+@dataclass
+class GameReplay:
+    """Complete recording of a game for replay purposes.
+
+    Attributes:
+        difficulty (str): Name of the difficulty level used.
+        initial_state (Dict[str, Any]): Initial game setup including players and deck.
+        actions (list[GameAction]): Sequence of all actions taken during the game.
+        final_state (Dict[str, Any]): Final game state including winner.
+        seed (Optional[int]): Random seed used for the game, if any.
+    """
+
+    difficulty: str
+    initial_state: Dict[str, Any]
+    actions: list[GameAction]
+    final_state: Dict[str, Any]
+    seed: Optional[int] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert replay to a dictionary for JSON serialization."""
+        return {
+            "difficulty": self.difficulty,
+            "seed": self.seed,
+            "initial_state": self.initial_state,
+            "actions": [
+                {
+                    "turn": action.turn,
+                    "action_type": action.action_type,
+                    "player": action.player,
+                    "data": action.data,
+                }
+                for action in self.actions
+            ],
+            "final_state": self.final_state,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> GameReplay:
+        """Create a GameReplay from a dictionary."""
+        actions = [
+            GameAction(
+                turn=a["turn"],
+                action_type=a["action_type"],
+                player=a["player"],
+                data=a["data"],
+            )
+            for a in data["actions"]
+        ]
+        return cls(
+            difficulty=data["difficulty"],
+            seed=data.get("seed"),
+            initial_state=data["initial_state"],
+            actions=actions,
+            final_state=data["final_state"],
+        )
+
+    def save_to_file(self, filepath: Path) -> None:
+        """Save replay to a JSON file."""
+        with open(filepath, "w") as f:
+            json.dump(self.to_dict(), f, indent=2)
+
+    @classmethod
+    def load_from_file(cls, filepath: Path) -> GameReplay:
+        """Load replay from a JSON file."""
+        with open(filepath, "r") as f:
+            data = json.load(f)
+        return cls.from_dict(data)
+
+
 # Pre-defined difficulty levels for the game.
 DIFFICULTIES: Dict[str, DifficultyLevel] = {
     "Noob": DifficultyLevel(
@@ -194,6 +311,45 @@ DIFFICULTIES: Dict[str, DifficultyLevel] = {
     ),
 }
 
+# Pre-defined deck types for the game.
+DECK_TYPES: Dict[str, DeckType] = {
+    "Standard": DeckType(
+        name="Standard",
+        description="Traditional 52-card deck with all ranks and suits",
+        ranks=list(RANKS),
+        suits=list(Suit),
+        cards_per_rank_suit=1,
+    ),
+    "FaceCardsOnly": DeckType(
+        name="Face Cards Only",
+        description="Only face cards (J, Q, K, A) for faster gameplay",
+        ranks=["J", "Q", "K", "A"],
+        suits=list(Suit),
+        cards_per_rank_suit=1,
+    ),
+    "NumbersOnly": DeckType(
+        name="Numbers Only",
+        description="Only numbered cards (2-10) for beginner-friendly play",
+        ranks=["2", "3", "4", "5", "6", "7", "8", "9", "T"],
+        suits=list(Suit),
+        cards_per_rank_suit=1,
+    ),
+    "DoubleDown": DeckType(
+        name="Double Down",
+        description="Standard deck with two copies of each card for more bluffing",
+        ranks=list(RANKS),
+        suits=list(Suit),
+        cards_per_rank_suit=2,
+    ),
+    "HighLow": DeckType(
+        name="High-Low",
+        description="Only high cards (9-A) and low cards (2-6) for strategic variety",
+        ranks=["2", "3", "4", "5", "6", "9", "T", "J", "Q", "K", "A"],
+        suits=list(Suit),
+        cards_per_rank_suit=1,
+    ),
+}
+
 
 class BluffGame:
     """Rules engine for a realistic multi-player game of Cheat/Bluff.
@@ -208,6 +364,9 @@ class BluffGame:
         *,
         rounds: int = 5,
         rng: random.Random | None = None,
+        record_replay: bool = False,
+        seed: Optional[int] = None,
+        deck_type: DeckType | None = None,
     ) -> None:
         if rounds <= 0:
             raise ValueError("rounds must be a positive integer")
@@ -215,6 +374,8 @@ class BluffGame:
         self.difficulty = difficulty
         self.max_turns = rounds * (difficulty.bot_count + 1)
         self._rng = rng or random.Random()
+        self._seed = seed
+        self.deck_type = deck_type or DECK_TYPES["Standard"]
 
         # Game state attributes
         self.players: list[PlayerState] = []
@@ -226,8 +387,16 @@ class BluffGame:
         self._turns_played = 0
         self._winner: PlayerState | None = None
 
+        # Replay recording
+        self._record_replay = record_replay
+        self._replay_actions: list[GameAction] = []
+
         self._setup_players()
         self._deal_initial_hands()
+
+        # Record initial state for replay
+        if self._record_replay:
+            self._record_initial_state()
 
     # ------------------------------------------------------------------
     # Initialisation helpers
@@ -261,10 +430,8 @@ class BluffGame:
             self.players.append(bot)
 
     def _build_multi_deck(self, deck_count: int) -> Deck:
-        """Create a deck composed of multiple standard 52-card decks."""
-        cards: list[Card] = []
-        for _ in range(deck_count):
-            cards.extend(Card(rank, suit) for suit in Suit for rank in RANKS)
+        """Create a deck based on the selected deck type and count."""
+        cards = self.deck_type.generate_cards(deck_count)
         return Deck(cards=cards)
 
     def _deal_initial_hands(self) -> None:
@@ -333,6 +500,8 @@ class BluffGame:
             "pile_size": len(self._pile_cards),
             "turns_played": self._turns_played,
             "max_turns": self.max_turns,
+            "deck_type": self.deck_type.name,
+            "valid_ranks": self.deck_type.ranks,
             "players": [
                 {
                     "name": player.name,
@@ -408,20 +577,21 @@ class BluffGame:
             # Bluff: choose a card and claim it's a different rank
             chosen_card = self._rng.choice(player.hand)
             owned_ranks = set(card.rank for card in player.hand)
+            valid_ranks = self.deck_type.ranks
             bluff_options = [
                 rank
-                for rank in RANKS
+                for rank in valid_ranks
                 if rank not in owned_ranks and rank != chosen_card.rank
             ]
             if not bluff_options:
-                bluff_options = [rank for rank in RANKS if rank != chosen_card.rank]
+                bluff_options = [rank for rank in valid_ranks if rank != chosen_card.rank]
 
             claimed_rank = self._rng.choice(bluff_options)
             truthful = chosen_card.rank == claimed_rank
             if truthful:
                 # This was supposed to be a bluff, but we accidentally chose a truthful rank.
                 # Nudge it to a different rank to ensure it remains a bluff.
-                alternatives = [rank for rank in RANKS if rank != chosen_card.rank]
+                alternatives = [rank for rank in valid_ranks if rank != chosen_card.rank]
                 claimed_rank = self._rng.choice(alternatives)
                 truthful = False
 
@@ -441,8 +611,8 @@ class BluffGame:
             raise RuntimeError("Cannot play a turn while a challenge is unresolved.")
         if not 0 <= card_index < len(player.hand):
             raise ValueError("card_index out of range")
-        if claimed_rank not in RANKS:
-            raise ValueError("claimed_rank must be a valid rank symbol")
+        if claimed_rank not in self.deck_type.ranks:
+            raise ValueError("claimed_rank must be a valid rank for this deck type")
 
         # Create and record the claim
         card = player.hand.pop(card_index)
@@ -455,6 +625,18 @@ class BluffGame:
         self._claim_in_progress = claim
         self._pile_cards.append(card)
         self._pile_claims.append(claim)
+
+        # Record action for replay
+        self._record_action(
+            "claim",
+            player.name,
+            {
+                "claimed_rank": claimed_rank,
+                "actual_rank": card.rank,
+                "truthful": truthful,
+                "pile_size": len(self._pile_cards),
+            },
+        )
 
         # Transition to the challenge phase by lining up every other player so
         # they can decide whether to call the claim.
@@ -495,6 +677,11 @@ class BluffGame:
             else:
                 messages.append(f"{challenger.name} chooses not to make a scene.")
 
+            # Record non-challenge action for replay
+            self._record_action(
+                "pass_challenge", challenger.name, {"challenged": False}
+            )
+
             if not self._challenge_queue:
                 # No one else can challenge, so finalize the turn
                 follow_up = self._finalise_uncontested()
@@ -508,6 +695,17 @@ class BluffGame:
         # Record the attempt so bot AI can adapt to success/failure later.
         challenger.record_challenge(success=not claim.truthful)
         messages.append(f"{challenger.name} slams a hand down and calls the bluff!")
+
+        # Record challenge action for replay
+        self._record_action(
+            "challenge",
+            challenger.name,
+            {
+                "challenged": True,
+                "claim_was_truthful": claim.truthful,
+                "claimant": claim.claimant.name,
+            },
+        )
 
         if claim.truthful:
             # The claim was true; challenger picks up the pile
@@ -708,6 +906,64 @@ class BluffGame:
         rows.append(f"Turn {self._turns_played + 1} of {self.max_turns}")
         return "\n".join(rows)
 
+    # ------------------------------------------------------------------
+    # Replay recording
+    # ------------------------------------------------------------------
+    def _record_initial_state(self) -> None:
+        """Record the initial game state for replay."""
+        self._initial_state = {
+            "players": [
+                {
+                    "name": player.name,
+                    "is_user": player.is_user,
+                    "hand_size": len(player.hand),
+                }
+                for player in self.players
+            ],
+            "max_turns": self.max_turns,
+            "difficulty": self.difficulty.name,
+        }
+
+    def _record_action(
+        self, action_type: str, player: str, data: Dict[str, Any]
+    ) -> None:
+        """Record a game action for replay."""
+        if self._record_replay:
+            action = GameAction(
+                turn=self._turns_played, action_type=action_type, player=player, data=data
+            )
+            self._replay_actions.append(action)
+
+    def get_replay(self) -> Optional[GameReplay]:
+        """Generate a GameReplay object from the recorded game."""
+        if not self._record_replay:
+            return None
+
+        final_state = {
+            "winner": self._winner.name if self._winner else None,
+            "turns_played": self._turns_played,
+            "players": [
+                {
+                    "name": player.name,
+                    "hand_size": len(player.hand),
+                    "truths": player.truths,
+                    "lies": player.lies,
+                    "caught": player.caught,
+                    "challenge_attempts": player.challenge_attempts,
+                    "challenge_successes": player.challenge_successes,
+                }
+                for player in self.players
+            ],
+        }
+
+        return GameReplay(
+            difficulty=self.difficulty.name,
+            seed=self._seed,
+            initial_state=self._initial_state,
+            actions=self._replay_actions,
+            final_state=final_state,
+        )
+
 
 # ----------------------------------------------------------------------
 # CLI orchestration
@@ -756,6 +1012,22 @@ def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Launch the Tkinter interface instead of the CLI.",
     )
+    parser.add_argument(
+        "--deck-type",
+        choices=DECK_TYPES.keys(),
+        default="Standard",
+        help="Type of deck to use (default: Standard).",
+    )
+    parser.add_argument(
+        "--record-replay",
+        action="store_true",
+        help="Record the game for replay purposes.",
+    )
+    parser.add_argument(
+        "--replay",
+        type=str,
+        help="Path to a replay file to watch.",
+    )
     return parser.parse_args(argv)
 
 
@@ -774,16 +1046,36 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
     """
 
     args = parse_arguments(argv)
+    
+    # Handle replay viewing mode
+    if args.replay:
+        _play_replay(args.replay)
+        return
+    
     rng = random.Random(args.seed) if args.seed is not None else random.Random()
     difficulty = DIFFICULTIES[args.difficulty]
+    deck_type = DECK_TYPES[args.deck_type]
 
     if args.gui:
         from .gui import run_gui
 
-        run_gui(difficulty, rounds=args.rounds, seed=args.seed)
+        run_gui(
+            difficulty,
+            rounds=args.rounds,
+            seed=args.seed,
+            deck_type=deck_type,
+            record_replay=args.record_replay,
+        )
         return
 
-    game = BluffGame(difficulty, rounds=args.rounds, rng=rng)
+    game = BluffGame(
+        difficulty,
+        rounds=args.rounds,
+        rng=rng,
+        record_replay=args.record_replay,
+        seed=args.seed,
+        deck_type=deck_type,
+    )
 
     print(
         "Welcome to Bluff! Each player discards one card facedown, claiming its rank."
@@ -791,7 +1083,8 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
         " whole pile. If it was a bluff, the liar takes the pile. First to empty their"
         " hand wins."
     )
-    print(f"Difficulty: {difficulty.name} | Opponents: {difficulty.bot_count}\n")
+    print(f"Difficulty: {difficulty.name} | Opponents: {difficulty.bot_count}")
+    print(f"Deck Type: {deck_type.name} - {deck_type.description}\n")
 
     while not game.finished:
         player = game.current_player
@@ -803,7 +1096,7 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
                 print(f"  [{idx}] {card} ({card.rank})")
 
             chosen_index = _prompt_card_index(len(player.hand))
-            claimed_rank = _prompt_claim_rank(player.hand[chosen_index])
+            claimed_rank = _prompt_claim_rank(player.hand[chosen_index], game.deck_type.ranks)
             claim = game.play_user_turn(chosen_index, claimed_rank)
             print(
                 f"You slide forward {claim.card} and claim it is a {claim.claimed_rank}."
@@ -841,6 +1134,19 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
             print(f"{game.winner.name} claims victory this time.")
     else:
         print("It's a draw—multiple players share the honours.")
+    
+    # Save replay if recording was enabled
+    if args.record_replay:
+        replay = game.get_replay()
+        if replay:
+            replay_dir = Path.home() / ".bluff_replays"
+            replay_dir.mkdir(exist_ok=True)
+            import datetime
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            replay_file = replay_dir / f"bluff_replay_{timestamp}.json"
+            replay.save_to_file(replay_file)
+            print(f"\nReplay saved to: {replay_file}")
+            print(f"Watch it again with: python -m card_games.bluff --replay {replay_file}")
 
 
 def _prompt_card_index(hand_size: int) -> int:
@@ -866,20 +1172,21 @@ def _prompt_card_index(hand_size: int) -> int:
         print("Please enter a valid index from your hand.")
 
 
-def _prompt_claim_rank(card: Card) -> str:
+def _prompt_claim_rank(card: Card, valid_ranks: list[str]) -> str:
     """Prompt the user to declare the rank of the card being played.
 
     For honesty they may repeat the actual rank, but bluffing is as simple as
-    naming a different value from :data:`card_games.common.cards.RANKS`.  The
+    naming a different value from the valid ranks for the deck type.  The
     prompting loop doubles as in-game documentation by reminding the user which
     ranks are legal.
 
     Args:
         card: The actual card about to be placed on the pile. The card is not
             modified—only its rank is used for the optional prompt text.
+        valid_ranks: List of valid ranks for the current deck type.
 
     Returns:
-        str: A single-character rank chosen from ``RANKS``.
+        str: A single-character rank chosen from valid_ranks.
     """
 
     while True:
@@ -890,9 +1197,81 @@ def _prompt_claim_rank(card: Card) -> str:
             .strip()
             .upper()
         )
-        if rank in RANKS:
+        if rank in valid_ranks:
             return rank
-        print("Unknown rank. Valid options are: " + ", ".join(RANKS))
+        print("Unknown rank. Valid options are: " + ", ".join(valid_ranks))
+
+
+def _play_replay(replay_path: str) -> None:
+    """Load and display a recorded game replay.
+
+    Args:
+        replay_path: Path to the replay JSON file.
+    """
+    try:
+        replay = GameReplay.load_from_file(Path(replay_path))
+    except FileNotFoundError:
+        print(f"Error: Replay file not found: {replay_path}")
+        return
+    except json.JSONDecodeError:
+        print(f"Error: Invalid replay file format: {replay_path}")
+        return
+
+    print("=" * 60)
+    print("BLUFF GAME REPLAY")
+    print("=" * 60)
+    print(f"Difficulty: {replay.difficulty}")
+    if replay.seed:
+        print(f"Seed: {replay.seed}")
+    print(f"\nInitial Setup:")
+    for player in replay.initial_state["players"]:
+        print(f"  - {player['name']}: {player['hand_size']} cards {'(Human)' if player['is_user'] else '(Bot)'}")
+    print(f"\nMax turns: {replay.initial_state['max_turns']}")
+    print("\n" + "=" * 60)
+    print("GAME ACTIONS")
+    print("=" * 60 + "\n")
+
+    import time
+    for action in replay.actions:
+        print(f"Turn {action.turn + 1}: {action.player}", end=" ")
+        
+        if action.action_type == "claim":
+            data = action.data
+            if data["truthful"]:
+                print(f"plays a {data['actual_rank']} and truthfully claims {data['claimed_rank']}")
+            else:
+                print(f"plays a {data['actual_rank']} but claims {data['claimed_rank']} (BLUFF!)")
+            print(f"  Pile size: {data['pile_size']}")
+        
+        elif action.action_type == "challenge":
+            data = action.data
+            print(f"challenges {data['claimant']}'s claim!")
+            if data["claim_was_truthful"]:
+                print(f"  The claim was TRUTHFUL - {action.player} takes the pile")
+            else:
+                print(f"  The claim was a BLUFF - {data['claimant']} caught and takes the pile")
+        
+        elif action.action_type == "pass_challenge":
+            print("passes on the challenge")
+        
+        print()
+        time.sleep(0.5)  # Pause for readability
+
+    print("=" * 60)
+    print("FINAL RESULTS")
+    print("=" * 60)
+    winner_name = replay.final_state.get("winner")
+    if winner_name:
+        print(f"Winner: {winner_name}")
+    else:
+        print("Game ended in a draw")
+    
+    print(f"\nTurns played: {replay.final_state['turns_played']}")
+    print("\nFinal player statistics:")
+    for player in replay.final_state["players"]:
+        print(f"  {player['name']}: {player['hand_size']} cards remaining")
+        print(f"    Truths: {player['truths']}, Lies: {player['lies']}, Caught: {player['caught']}")
+        print(f"    Challenges: {player['challenge_successes']}/{player['challenge_attempts']}")
 
 
 def _prompt_user_challenge(claimant_name: str, pile_size: int) -> bool:

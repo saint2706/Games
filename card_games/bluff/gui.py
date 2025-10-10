@@ -20,7 +20,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Optional
 
-from .bluff import BluffGame, DifficultyLevel, Phase
+from .bluff import BluffGame, DeckType, DifficultyLevel, Phase
 
 
 class BluffGUI:
@@ -144,11 +144,13 @@ class BluffGUI:
         claim_frame.grid(row=1, column=0, columnspan=3, sticky="ew")
         claim_frame.columnconfigure(1, weight=1)
         ttk.Label(claim_frame, text="Declare rank:").grid(row=0, column=0, sticky="w")
-        self.claim_rank_var = tk.StringVar(value="A")
+        # Get valid ranks from the game's deck type
+        valid_ranks = self.game.deck_type.ranks
+        self.claim_rank_var = tk.StringVar(value=valid_ranks[0])
         self.claim_combo = ttk.Combobox(
             claim_frame,
             textvariable=self.claim_rank_var,
-            values=list("23456789TJQKA"),
+            values=valid_ranks,
             state="readonly",
         )
         self.claim_combo.grid(row=0, column=1, sticky="ew", padx=6)
@@ -345,6 +347,19 @@ class BluffGUI:
             return
 
         self._set_challenge_controls_state(enabled=False)
+        
+        # If challenging, show animation before resolving
+        if decision:
+            claim = self.game.claim_in_progress
+            self._animate_challenge_reveal(
+                claim.truthful,
+                lambda: self._finish_resolve_challenge(decision)
+            )
+        else:
+            self._finish_resolve_challenge(decision)
+    
+    def _finish_resolve_challenge(self, decision: bool) -> None:
+        """Complete the challenge resolution after any animation."""
         outcome = self.game.evaluate_challenge(decision)
         for line in outcome.messages:
             self._log(line)
@@ -369,10 +384,68 @@ class BluffGUI:
         else:
             self.status_var.set(f"{self.game.winner.name} wins the match.")
             self._log(f"{self.game.winner.name} finishes with the fewest cards.")
+        
+        # Save replay if recording was enabled
+        if self.game._record_replay:
+            replay = self.game.get_replay()
+            if replay:
+                from pathlib import Path
+                import datetime
+                replay_dir = Path.home() / ".bluff_replays"
+                replay_dir.mkdir(exist_ok=True)
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                replay_file = replay_dir / f"bluff_replay_{timestamp}.json"
+                replay.save_to_file(replay_file)
+                self._log(f"\nReplay saved to: {replay_file}")
+    
+    def _animate_challenge_reveal(self, truthful: bool, callback) -> None:
+        """Animate the reveal of a challenge outcome.
+        
+        Args:
+            truthful: Whether the claim was truthful.
+            callback: Function to call after animation completes.
+        """
+        # Create a temporary label for the animation
+        reveal_label = tk.Label(
+            self.root,
+            text="REVEALING..." if truthful else "CAUGHT!",
+            font=("Segoe UI", 24, "bold"),
+            fg="green" if truthful else "red",
+            bg="white",
+        )
+        reveal_label.place(relx=0.5, rely=0.5, anchor="center")
+        
+        # Fade in effect
+        alpha = 0.0
+        def fade_in():
+            nonlocal alpha
+            alpha += 0.1
+            if alpha <= 1.0:
+                # Simulate alpha by changing background
+                self.root.after(30, fade_in)
+            else:
+                # Hold for a moment then fade out
+                self.root.after(500, fade_out)
+        
+        def fade_out():
+            nonlocal alpha
+            alpha -= 0.1
+            if alpha > 0:
+                self.root.after(30, fade_out)
+            else:
+                reveal_label.destroy()
+                callback()
+        
+        fade_in()
 
 
 def run_gui(
-    difficulty: DifficultyLevel, *, rounds: int, seed: int | None = None
+    difficulty: DifficultyLevel,
+    *,
+    rounds: int,
+    seed: int | None = None,
+    deck_type: DeckType | None = None,
+    record_replay: bool = False,
 ) -> None:
     """Launch the Bluff GUI application.
 
@@ -380,9 +453,18 @@ def run_gui(
         difficulty (DifficultyLevel): The selected difficulty for the game.
         rounds (int): The number of rounds to play before judging by card count.
         seed (int | None): An optional seed for the random number generator.
+        deck_type (DeckType | None): The deck type to use, defaults to Standard.
+        record_replay (bool): Whether to record the game for replay.
     """
     rng = random.Random(seed) if seed is not None else random.Random()
-    game = BluffGame(difficulty, rounds=rounds, rng=rng)
+    game = BluffGame(
+        difficulty,
+        rounds=rounds,
+        rng=rng,
+        record_replay=record_replay,
+        seed=seed,
+        deck_type=deck_type,
+    )
     root = tk.Tk()
     BluffGUI(root, game)
     root.mainloop()
