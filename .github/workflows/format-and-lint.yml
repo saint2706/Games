@@ -1,8 +1,11 @@
-name: Format and Lint
+# Format and Lint Auto-fix workflow
+# This workflow is for local development - it auto-formats code on workflow_dispatch
+# For CI checks, use the 'lint.yml' workflow instead
+
+name: Format and Lint (Auto-fix)
 
 on:
-  push:
-  pull_request:
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   format-and-lint:
@@ -30,4 +33,10 @@ jobs:
       - name: Fix lint warnings
         run: |
           ruff check . --fix
-          mdformat . --check
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-format code"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
