@@ -316,6 +316,7 @@ class UnoInterface(Protocol):
     def update_status(self, game: "UnoGame") -> None: ...
     def render_card(self, card: UnoCard, *, emphasize: bool = False) -> str: ...
     def render_color(self, color: str) -> str: ...
+    def play_sound(self, sound_type: str) -> None: ...  # Hook for sound effects
 
 
 class ConsoleUnoInterface(UnoInterface):
@@ -462,6 +463,10 @@ class ConsoleUnoInterface(UnoInterface):
 
     def render_color(self, color: str) -> str:
         return colorize_color(color)
+
+    def play_sound(self, sound_type: str) -> None:
+        """Play a sound effect (no-op for console interface)."""
+        pass  # Console doesn't play sounds
 
 
 class UnoGame:
@@ -780,6 +785,18 @@ class UnoGame:
         self._log(
             f"{player.name} plays {self.interface.render_card(card)}.", Fore.GREEN
         )
+        
+        # Play sound effects for card plays
+        if card.value == "skip":
+            self.interface.play_sound("skip")
+        elif card.value == "reverse":
+            self.interface.play_sound("reverse")
+        elif card.value in ("+2", "+4"):
+            self.interface.play_sound("draw_penalty")
+        elif card.is_wild():
+            self.interface.play_sound("wild")
+        else:
+            self.interface.play_sound("card_play")
 
         # Handle 7-0 swapping house rule
         if self.house_rules.seven_zero_swap and card.value in ("7", "0"):
@@ -789,29 +806,35 @@ class UnoGame:
                     target_player = self.players[swap_target]
                     if target_player != player:
                         self._swap_hands(player, target_player)
+                        self.interface.play_sound("swap")
                 elif not player.is_human:
                     # Bot chooses a random opponent
                     opponents = [i for i, p in enumerate(self.players) if p != player]
                     if opponents:
                         target_idx = self.rng.choice(opponents)
                         self._swap_hands(player, self.players[target_idx])
+                        self.interface.play_sound("swap")
             elif card.value == "0":
                 # Rotate all hands
                 self._rotate_hands()
+                self.interface.play_sound("rotate")
 
         if not player.has_cards():
             # Check for team victory if in team mode
             if self.team_mode and player.team is not None:
                 team_name = f"Team {player.team}"
                 self._log(f"{team_name} wins the game!", Fore.CYAN, style=Style.BRIGHT)
+                self.interface.play_sound("win")
                 self.interface.announce_winner(player)
                 return player
             else:
+                self.interface.play_sound("win")
                 self.interface.announce_winner(player)
                 return player
 
         if len(player.hand) == 1 and (declare_uno or not player.is_human):
             # Bots auto-announce UNO, while humans must opt in via the prompt.
+            self.interface.play_sound("uno")
             self.interface.notify_uno_called(player)
         elif len(player.hand) == 1:
             player.pending_uno = True

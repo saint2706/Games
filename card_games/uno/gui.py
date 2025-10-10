@@ -58,12 +58,21 @@ class TkUnoInterface(UnoInterface):
     representation of the game and handling user interactions.
     """
 
-    def __init__(self, root: tk.Tk, players: Sequence[UnoPlayer]) -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        players: Sequence[UnoPlayer],
+        *,
+        enable_animations: bool = True,
+        enable_sounds: bool = False,
+    ) -> None:
         """Initialize the Tkinter Uno interface.
 
         Args:
             root: The root Tkinter window.
             players: The sequence of players in the game.
+            enable_animations: Whether to enable card animations.
+            enable_sounds: Whether to enable sound effects.
         """
         self.root = root
         self.root.title("Card Games - Uno")
@@ -72,6 +81,8 @@ class TkUnoInterface(UnoInterface):
         self.decision_ready = tk.BooleanVar(value=False)
         self.pending_decision: Optional[PlayerDecision] = None
         self.uno_var = tk.BooleanVar(value=False)
+        self.enable_animations = enable_animations
+        self.enable_sounds = enable_sounds
         self._build_layout()
         self._build_scoreboard()
 
@@ -416,6 +427,8 @@ class TkUnoInterface(UnoInterface):
             if card.value == "7":
                 swap_target = self.choose_swap_target(current_player, self.game.players)
         
+        self._animate_card_play(index)
+        
         self.pending_decision = PlayerDecision(
             action="play", card_index=index, declare_uno=self.uno_var.get(), swap_target=swap_target
         )
@@ -425,6 +438,62 @@ class TkUnoInterface(UnoInterface):
         """Set the pending decision to 'draw'."""
         self.pending_decision = PlayerDecision(action="draw")
         self.decision_ready.set(True)
+
+    def _animate_card_play(self, card_index: int) -> None:
+        """Animate a card being played (placeholder for future animation).
+        
+        This method can be extended to show:
+        - Card sliding from hand to center
+        - Fade-in/fade-out effects
+        - Rotation or flip animations
+        """
+        if not self.enable_animations:
+            return
+        
+        # Placeholder: Flash the button to indicate the card being played
+        if 0 <= card_index < len(self.card_buttons):
+            btn = self.card_buttons[card_index]
+            original_bg = btn.cget("background")
+            
+            def flash(count: int = 0) -> None:
+                if count < 3:
+                    btn.configure(bg="yellow" if count % 2 == 0 else original_bg)
+                    self.root.after(100, lambda: flash(count + 1))
+            
+            flash()
+
+    def play_sound(self, sound_type: str) -> None:
+        """Play a sound effect (placeholder for future sound implementation).
+        
+        Args:
+            sound_type: Type of sound to play ('card_play', 'draw', 'uno', 'win', etc.)
+        
+        To implement sounds, you can use libraries like:
+        - pygame.mixer for cross-platform sound
+        - winsound on Windows
+        - ossaudiodev on Linux
+        - sounddevice for advanced audio
+        
+        Example sound types:
+        - 'card_play': When a card is played
+        - 'draw': When drawing cards
+        - 'uno': When UNO is called
+        - 'win': When someone wins
+        - 'reverse': When direction changes
+        - 'skip': When a player is skipped
+        - 'swap': When hands are swapped (7 card)
+        - 'rotate': When hands rotate (0 card)
+        - 'wild': When a wild card is played
+        - 'draw_penalty': When +2 or +4 is played
+        """
+        if not self.enable_sounds:
+            return
+        
+        # Placeholder for sound implementation
+        # Example implementation with pygame:
+        # if sound_type in self.sounds:
+        #     self.sounds[sound_type].play()
+        pass
 
     def _accept_penalty(self) -> None:
         """Set the pending decision to 'accept_penalty'."""
