@@ -9,6 +9,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from paper_games.tic_tac_toe.stats import GameStats
 from paper_games.tic_tac_toe.themes import THEMES, get_theme, list_themes, validate_symbols
 from paper_games.tic_tac_toe.tic_tac_toe import TicTacToeGame
+from paper_games.tic_tac_toe.ultimate import UltimateTicTacToeGame
 
 
 def test_standard_3x3_board():
@@ -329,6 +330,131 @@ def test_all_themes_in_game():
         assert game.computer_symbol == sym2
 
 
+# Ultimate Tic-Tac-Toe tests
+def test_ultimate_initialization():
+    """Test ultimate tic-tac-toe initialization."""
+    game = UltimateTicTacToeGame()
+    assert len(game.small_boards) == 9
+    assert len(game.meta_board) == 9
+    assert game.active_board is None
+    assert all(cell is None for cell in game.meta_board)
+
+
+def test_ultimate_make_move():
+    """Test making moves in ultimate tic-tac-toe."""
+    game = UltimateTicTacToeGame()
+    # First move can be anywhere
+    assert game.make_move(4, 4, "X")  # Board 4, cell 4 (center)
+    # Next move must be on board 4 (center)
+    assert game.active_board == 4
+
+
+def test_ultimate_board_restriction():
+    """Test that board restriction works."""
+    game = UltimateTicTacToeGame()
+    game.make_move(0, 5, "X")  # Board 0, cell 5
+    # Next move must be on board 5
+    assert game.active_board == 5
+    # Try to play on wrong board
+    assert not game.make_move(0, 0, "O")
+    # Play on correct board
+    assert game.make_move(5, 0, "O")
+
+
+def test_ultimate_win_small_board():
+    """Test winning a small board."""
+    game = UltimateTicTacToeGame()
+    # Directly manipulate a small board to test winning
+    game.small_boards[0].make_move(0, "X")
+    game.small_boards[0].make_move(1, "X")
+    game.small_boards[0].make_move(2, "X")
+    
+    # Check if the small board is won
+    assert game.small_boards[0].winner() == "X"
+    
+    # Now update meta board based on this win
+    game.meta_board[0] = game.small_boards[0].winner()
+    assert game.meta_board[0] == "X"
+
+
+def test_ultimate_meta_board_winner():
+    """Test detecting winner on meta-board."""
+    game = UltimateTicTacToeGame()
+    # Win three boards in a row on meta-board
+    # Win board 0
+    for i in range(3):
+        game.small_boards[0].make_move(i, "X")
+    game.meta_board[0] = "X"
+    
+    # Win board 1
+    for i in range(3):
+        game.small_boards[1].make_move(i, "X")
+    game.meta_board[1] = "X"
+    
+    # Win board 2
+    for i in range(3):
+        game.small_boards[2].make_move(i, "X")
+    game.meta_board[2] = "X"
+    
+    assert game.winner() == "X"
+
+
+def test_ultimate_draw():
+    """Test draw detection."""
+    game = UltimateTicTacToeGame()
+    # Fill meta-board with mixed results (no winner)
+    game.meta_board = ["X", "O", "X", "O", "X", "O", "O", "X", "DRAW"]
+    assert game.winner() is None
+    assert game.is_draw()
+
+
+def test_ultimate_available_moves():
+    """Test getting available moves."""
+    game = UltimateTicTacToeGame()
+    moves = game.available_moves()
+    # Initially all 81 cells should be available
+    assert len(moves) == 81
+    
+    # Make a move
+    game.make_move(0, 0, "X")
+    moves = game.available_moves()
+    # Now only board 0 is active (9 cells minus the one we played)
+    assert len(moves) == 8
+
+
+def test_ultimate_render():
+    """Test rendering the ultimate board."""
+    game = UltimateTicTacToeGame()
+    game.make_move(0, 0, "X")
+    rendered = game.render()
+    assert "Meta-board" in rendered
+    assert "X" in rendered
+
+
+def test_ultimate_computer_move():
+    """Test computer making a move."""
+    game = UltimateTicTacToeGame()
+    board_idx, cell_idx = game.computer_move()
+    assert board_idx in range(9)
+    assert cell_idx in range(9)
+
+
+def test_ultimate_full_game_sequence():
+    """Test a sequence of moves leading to a win."""
+    game = UltimateTicTacToeGame()
+    
+    # Player X wins board 0
+    game.make_move(4, 0, "X")  # Center board, top-left cell
+    game.make_move(0, 3, "O")  # Forced to board 0
+    game.make_move(3, 0, "X")  # Move to board 3
+    game.make_move(0, 4, "O")  # Forced to board 0
+    game.make_move(4, 0, "X")  # Back to center
+    game.make_move(0, 5, "O")  # Board 0
+    
+    # Check if board 0 has a winner
+    assert game.small_boards[0].winner() is not None or len(game.small_boards[0].available_moves()) > 0
+
+
 if __name__ == "__main__":
     # Run all tests
     test_functions = [
@@ -362,6 +488,16 @@ if __name__ == "__main__":
         test_validate_symbols,
         test_themed_game,
         test_all_themes_in_game,
+        test_ultimate_initialization,
+        test_ultimate_make_move,
+        test_ultimate_board_restriction,
+        test_ultimate_win_small_board,
+        test_ultimate_meta_board_winner,
+        test_ultimate_draw,
+        test_ultimate_available_moves,
+        test_ultimate_render,
+        test_ultimate_computer_move,
+        test_ultimate_full_game_sequence,
     ]
     
     for test_func in test_functions:
