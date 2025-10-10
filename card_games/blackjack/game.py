@@ -35,6 +35,7 @@ class Outcome(str, Enum):
     - ``PLAYER_LOSS``: Player's hand loses to the dealer's.
     - ``PLAYER_BUST``: Player's hand exceeds 21.
     - ``DEALER_BUST``: Dealer's hand exceeds 21, and player wins.
+    - ``SURRENDER``: Player surrendered the hand.
     """
 
     PLAYER_BLACKJACK = "player_blackjack"
@@ -43,6 +44,55 @@ class Outcome(str, Enum):
     PLAYER_LOSS = "player_loss"
     PLAYER_BUST = "player_bust"
     DEALER_BUST = "dealer_bust"
+    SURRENDER = "surrender"
+
+
+class SideBetType(str, Enum):
+    """Enumeration of available side bet types.
+    
+    - ``TWENTY_ONE_PLUS_THREE``: Poker hand formed from player's first two cards and dealer's up card.
+    - ``PERFECT_PAIRS``: Player's first two cards form a pair.
+    """
+
+    TWENTY_ONE_PLUS_THREE = "21+3"
+    PERFECT_PAIRS = "perfect_pairs"
+
+
+class TwentyOnePlusThreeOutcome(str, Enum):
+    """Outcomes for 21+3 side bet with payouts."""
+
+    SUITED_TRIPS = "suited_trips"  # 100:1
+    STRAIGHT_FLUSH = "straight_flush"  # 40:1
+    THREE_OF_A_KIND = "three_of_a_kind"  # 30:1
+    STRAIGHT = "straight"  # 10:1
+    FLUSH = "flush"  # 5:1
+    LOSE = "lose"
+
+
+class PerfectPairsOutcome(str, Enum):
+    """Outcomes for Perfect Pairs side bet with payouts."""
+
+    PERFECT_PAIR = "perfect_pair"  # Same rank and suit - 25:1
+    COLORED_PAIR = "colored_pair"  # Same rank and color - 12:1
+    MIXED_PAIR = "mixed_pair"  # Same rank different color - 6:1
+    LOSE = "lose"
+
+
+@dataclass
+class SideBet:
+    """Represents a side bet placed on a hand.
+    
+    Attributes:
+        bet_type (SideBetType): The type of side bet.
+        amount (int): The wager amount.
+        outcome (Optional[str]): The outcome of the side bet after resolution.
+        payout (int): The amount paid out for this bet.
+    """
+
+    bet_type: SideBetType
+    amount: int
+    outcome: Optional[str] = None
+    payout: int = 0
 
 
 @dataclass
@@ -59,6 +109,8 @@ class BlackjackHand:
         stood (bool): True if the player has chosen to "stand" on this hand.
         doubled (bool): True if the hand has been "doubled down".
         split_from (Optional[Card]): The card from which this hand was split, if any.
+        surrendered (bool): True if the player has surrendered this hand.
+        side_bets (list[SideBet]): List of side bets placed on this hand.
     """
 
     cards: list[Card] = field(default_factory=list)
@@ -66,6 +118,8 @@ class BlackjackHand:
     stood: bool = False
     doubled: bool = False
     split_from: Optional[Card] = None
+    surrendered: bool = False
+    side_bets: list[SideBet] = field(default_factory=list)
 
     def add_card(self, card: Card) -> None:
         """Add a card to the hand."""
@@ -174,6 +228,18 @@ class BlackjackHand:
         """Return a string description of the hand, including cards and total."""
         return f"{format_cards(self.cards)} ({self.best_total()})"
 
+    def can_surrender(self) -> bool:
+        """Check if the hand can be surrendered.
+        
+        A player can surrender on their initial two cards before taking any action.
+        """
+        return (
+            not self.surrendered
+            and not self.stood
+            and not self.doubled
+            and len(self.cards) == 2
+        )
+
     @staticmethod
     def _card_value(card: Card) -> int:
         """Calculate the blackjack value of a single card.
@@ -198,6 +264,8 @@ class Shoe:
     Attributes:
         decks (int): The number of decks in the shoe.
         cards (list[Card]): The list of cards currently in the shoe.
+        running_count (int): Hi-Lo running count for card counting.
+        cards_dealt_since_shuffle (int): Number of cards dealt since last shuffle.
     """
 
     def __init__(self, decks: int = 6, *, rng=None) -> None:
@@ -206,6 +274,8 @@ class Shoe:
         self.decks = decks
         self._rng = rng
         self.cards: list[Card] = []
+        self.running_count = 0
+        self.cards_dealt_since_shuffle = 0
         self._reshuffle()
 
     def _reshuffle(self) -> None:
@@ -221,6 +291,10 @@ class Shoe:
             random.shuffle(self.cards)
         else:
             self._rng.shuffle(self.cards)
+        
+        # Reset card counting
+        self.running_count = 0
+        self.cards_dealt_since_shuffle = 0
 
     def draw(self) -> Card:
         """Draw a single card from the shoe.
@@ -235,7 +309,147 @@ class Shoe:
         if not self.cards:
             raise RuntimeError("The shoe is empty")
 
-        return self.cards.pop()
+        card = self.cards.pop()
+        self.cards_dealt_since_shuffle += 1
+        
+        # Update Hi-Lo running count
+        if card.rank in {"2", "3", "4", "5", "6"}:
+            self.running_count += 1
+        elif card.rank in {"T", "J", "Q", "K", "A"}:
+            self.running_count -= 1
+        # 7, 8, 9 are neutral (count 0)
+        
+        return card
+    
+    def true_count(self) -> float:
+        """Calculate the true count (running count divided by decks remaining).
+        
+        Returns:
+            float: The true count, or 0 if no cards have been dealt.
+        """
+        total_cards = self.decks * 52
+        if self.cards_dealt_since_shuffle == 0:
+            return 0.0
+        decks_remaining = len(self.cards) / 52
+        if decks_remaining <= 0:
+            return 0.0
+        return self.running_count / decks_remaining
+    
+    def penetration(self) -> float:
+        """Calculate shoe penetration as a percentage.
+        
+        Returns:
+            float: Percentage of cards dealt from the shoe (0-100).
+        """
+        total_cards = self.decks * 52
+        if total_cards == 0:
+            return 0.0
+        return (self.cards_dealt_since_shuffle / total_cards) * 100
+
+
+def evaluate_twenty_one_plus_three(
+    player_cards: list[Card], dealer_up_card: Card
+) -> tuple[TwentyOnePlusThreeOutcome, int]:
+    """Evaluate 21+3 side bet outcome.
+    
+    Forms a poker hand from the player's first two cards and the dealer's up card.
+    
+    Args:
+        player_cards: Player's first two cards.
+        dealer_up_card: Dealer's up card.
+        
+    Returns:
+        Tuple of (outcome, payout_multiplier).
+    """
+    if len(player_cards) < 2:
+        return TwentyOnePlusThreeOutcome.LOSE, 0
+    
+    cards = [player_cards[0], player_cards[1], dealer_up_card]
+    ranks = [c.rank for c in cards]
+    suits = [c.suit for c in cards]
+    
+    # Convert ranks to numeric values for comparison
+    rank_values = []
+    for rank in ranks:
+        if rank == "A":
+            rank_values.append(14)
+        elif rank == "K":
+            rank_values.append(13)
+        elif rank == "Q":
+            rank_values.append(12)
+        elif rank == "J":
+            rank_values.append(11)
+        elif rank == "T":
+            rank_values.append(10)
+        else:
+            rank_values.append(int(rank))
+    
+    sorted_values = sorted(rank_values)
+    
+    # Check for suited trips (all same rank and suit)
+    if ranks[0] == ranks[1] == ranks[2] and suits[0] == suits[1] == suits[2]:
+        return TwentyOnePlusThreeOutcome.SUITED_TRIPS, 100
+    
+    # Check for straight flush
+    is_flush = suits[0] == suits[1] == suits[2]
+    is_straight = (
+        sorted_values[2] - sorted_values[1] == 1
+        and sorted_values[1] - sorted_values[0] == 1
+    ) or (sorted_values == [2, 3, 14])  # Special case: A-2-3
+    
+    if is_straight and is_flush:
+        return TwentyOnePlusThreeOutcome.STRAIGHT_FLUSH, 40
+    
+    # Check for three of a kind
+    if ranks[0] == ranks[1] == ranks[2]:
+        return TwentyOnePlusThreeOutcome.THREE_OF_A_KIND, 30
+    
+    # Check for straight
+    if is_straight:
+        return TwentyOnePlusThreeOutcome.STRAIGHT, 10
+    
+    # Check for flush
+    if is_flush:
+        return TwentyOnePlusThreeOutcome.FLUSH, 5
+    
+    return TwentyOnePlusThreeOutcome.LOSE, 0
+
+
+def evaluate_perfect_pairs(player_cards: list[Card]) -> tuple[PerfectPairsOutcome, int]:
+    """Evaluate Perfect Pairs side bet outcome.
+    
+    Checks if the player's first two cards form a pair.
+    
+    Args:
+        player_cards: Player's first two cards.
+        
+    Returns:
+        Tuple of (outcome, payout_multiplier).
+    """
+    if len(player_cards) < 2:
+        return PerfectPairsOutcome.LOSE, 0
+    
+    card1, card2 = player_cards[0], player_cards[1]
+    
+    # Not a pair
+    if card1.rank != card2.rank:
+        return PerfectPairsOutcome.LOSE, 0
+    
+    # Perfect pair - same rank and suit
+    if card1.suit == card2.suit:
+        return PerfectPairsOutcome.PERFECT_PAIR, 25
+    
+    # Colored pair - same rank and color (both red or both black)
+    red_suits = {Suit.HEARTS, Suit.DIAMONDS}
+    black_suits = {Suit.CLUBS, Suit.SPADES}
+    
+    if (card1.suit in red_suits and card2.suit in red_suits) or (
+        card1.suit in black_suits and card2.suit in black_suits
+    ):
+        return PerfectPairsOutcome.COLORED_PAIR, 12
+    
+    # Mixed pair - same rank, different color
+    return PerfectPairsOutcome.MIXED_PAIR, 6
 
 
 @dataclass
@@ -270,6 +484,7 @@ class BlackjackGame:
         dealer (Player): The dealer.
         shoe (Shoe): The shoe of cards for the game.
         history (list): A log of outcomes from previous hands.
+        educational_mode (bool): When enabled, shows card counting hints.
     """
 
     def __init__(
@@ -279,6 +494,7 @@ class BlackjackGame:
         min_bet: int = 10,
         decks: int = 6,
         rng=None,
+        educational_mode: bool = False,
     ) -> None:
         if bankroll <= 0:
             raise ValueError("bankroll must be positive")
@@ -292,12 +508,17 @@ class BlackjackGame:
         self.dealer = Player("Dealer", bankroll=0)  # Dealer has infinite bankroll
         self.shoe = Shoe(decks, rng=rng)
         self.history: list[tuple[Outcome, BlackjackHand, BlackjackHand]] = []
+        self.educational_mode = educational_mode
 
     def can_continue(self) -> bool:
         """Check if the player has enough money to continue playing."""
         return self.player.bankroll >= self.min_bet
 
-    def start_round(self, bet: int) -> None:
+    def start_round(
+        self,
+        bet: int,
+        side_bets: Optional[dict[SideBetType, int]] = None,
+    ) -> None:
         """Start a new round of blackjack.
 
         This involves taking the player's bet, dealing two cards to both the
@@ -305,14 +526,29 @@ class BlackjackGame:
 
         Args:
             bet (int): The amount the player wishes to bet.
+            side_bets (Optional[dict[SideBetType, int]]): Dictionary of side bet types to amounts.
         """
         if bet < self.min_bet:
             raise ValueError(f"Bet must be at least {self.min_bet}")
         if bet > self.player.bankroll:
             raise ValueError("Insufficient bankroll for bet")
 
-        self.player.bankroll -= bet
-        player_hand = BlackjackHand(bet=bet)
+        # Validate and deduct side bets
+        total_side_bet = 0
+        side_bet_objects = []
+        if side_bets:
+            for bet_type, amount in side_bets.items():
+                if amount < 0:
+                    raise ValueError("Side bet amount must be non-negative")
+                if amount > 0:
+                    total_side_bet += amount
+                    side_bet_objects.append(SideBet(bet_type=bet_type, amount=amount))
+        
+        if bet + total_side_bet > self.player.bankroll:
+            raise ValueError("Insufficient bankroll for bet and side bets")
+
+        self.player.bankroll -= bet + total_side_bet
+        player_hand = BlackjackHand(bet=bet, side_bets=side_bet_objects)
         dealer_hand = BlackjackHand()
 
         self.player.hands = [player_hand]
@@ -323,6 +559,9 @@ class BlackjackGame:
             # Cards alternate player/dealer to mimic casino dealing order.
             player_hand.add_card(self.shoe.draw())
             dealer_hand.add_card(self.shoe.draw())
+        
+        # Evaluate side bets immediately after dealing
+        self._resolve_side_bets(player_hand)
 
     @property
     def dealer_hand(self) -> BlackjackHand:
@@ -336,6 +575,8 @@ class BlackjackGame:
             actions.append("double")
         if hand.can_split(self.player.bankroll):
             actions.append("split")
+        if hand.can_surrender():
+            actions.append("surrender")
         return actions
 
     def hit(self, hand: BlackjackHand) -> Card:
@@ -381,6 +622,20 @@ class BlackjackGame:
 
         return new_hand
 
+    def surrender(self, hand: BlackjackHand) -> None:
+        """Surrender the hand and get half the bet back.
+        
+        Args:
+            hand (BlackjackHand): The hand to surrender.
+        """
+        if not hand.can_surrender():
+            raise ValueError("Cannot surrender this hand")
+        
+        hand.surrendered = True
+        hand.stood = True
+        # Return half the bet to the player
+        self.player.bankroll += hand.bet // 2
+
     def dealer_play(self) -> None:
         """Perform the dealer's turn according to standard casino rules.
 
@@ -392,6 +647,36 @@ class BlackjackGame:
         while hand.best_total() < 17 or (hand.best_total() == 17 and hand.is_soft()):
             self.hit(hand)
         hand.stood = True
+
+    def _resolve_side_bets(self, hand: BlackjackHand) -> None:
+        """Resolve side bets for a hand.
+        
+        Args:
+            hand (BlackjackHand): The hand with side bets to resolve.
+        """
+        if not hand.side_bets:
+            return
+        
+        dealer_up_card = self.dealer_hand.cards[0] if self.dealer_hand.cards else None
+        
+        for side_bet in hand.side_bets:
+            if side_bet.bet_type == SideBetType.TWENTY_ONE_PLUS_THREE:
+                if dealer_up_card:
+                    outcome, multiplier = evaluate_twenty_one_plus_three(
+                        hand.cards, dealer_up_card
+                    )
+                    side_bet.outcome = outcome.value
+                    side_bet.payout = side_bet.amount * multiplier
+                    if multiplier > 0:
+                        # Pay out: return bet plus winnings
+                        self.player.bankroll += side_bet.amount + side_bet.payout
+            elif side_bet.bet_type == SideBetType.PERFECT_PAIRS:
+                outcome, multiplier = evaluate_perfect_pairs(hand.cards)
+                side_bet.outcome = outcome.value
+                side_bet.payout = side_bet.amount * multiplier
+                if multiplier > 0:
+                    # Pay out: return bet plus winnings
+                    self.player.bankroll += side_bet.amount + side_bet.payout
 
     def resolve(self, hand: BlackjackHand) -> Outcome:
         """Resolve a single player hand against the dealer's hand.
@@ -405,6 +690,12 @@ class BlackjackGame:
         Returns:
             Outcome: The outcome of the hand.
         """
+        # Check if hand was surrendered
+        if hand.surrendered:
+            outcome = Outcome.SURRENDER
+            self.history.append((outcome, hand, self.dealer_hand))
+            return outcome
+        
         dealer_total = self.dealer_hand.best_total()
         player_total = hand.best_total()
 
@@ -448,10 +739,64 @@ class BlackjackGame:
     def format_hand(self, hand: BlackjackHand) -> str:
         """Return a formatted string representation of a hand."""
         return hand.describe()
+    
+    def get_counting_hint(self, hand: BlackjackHand) -> str:
+        """Get a card counting hint for the current hand.
+        
+        Args:
+            hand (BlackjackHand): The player's hand.
+            
+        Returns:
+            str: A hint based on the true count and basic strategy.
+        """
+        if not self.educational_mode:
+            return ""
+        
+        true_count = self.shoe.true_count()
+        dealer_up_card = self.dealer_hand.cards[0] if self.dealer_hand.cards else None
+        player_total = hand.best_total()
+        
+        hints = []
+        hints.append(f"Running Count: {self.shoe.running_count}")
+        hints.append(f"True Count: {true_count:.1f}")
+        
+        # Basic betting advice based on true count
+        if true_count >= 2:
+            hints.append("Count is favorable - consider increasing bet")
+        elif true_count <= -2:
+            hints.append("Count is unfavorable - consider minimum bet")
+        else:
+            hints.append("Count is neutral")
+        
+        # Basic strategy hints
+        if dealer_up_card and len(hand.cards) == 2:
+            dealer_value = BlackjackHand._card_value(dealer_up_card)
+            
+            # Insurance hint
+            if dealer_up_card.rank == "A" and true_count >= 3:
+                hints.append("Consider insurance (high count)")
+            
+            # Hit/Stand hints based on true count deviation
+            if player_total == 16 and dealer_value == 10:
+                if true_count >= 0:
+                    hints.append("Deviation: Stand on 16 vs 10 (positive count)")
+                else:
+                    hints.append("Basic: Hit on 16 vs 10")
+            elif player_total == 12 and dealer_value in {2, 3}:
+                if true_count >= 3:
+                    hints.append("Deviation: Stand on 12 vs 2/3 (high count)")
+                else:
+                    hints.append("Basic: Hit on 12 vs 2/3")
+        
+        return " | ".join(hints)
 
 
 __all__ = [
     "BlackjackGame",
     "BlackjackHand",
     "Outcome",
+    "SideBet",
+    "SideBetType",
+    "TwentyOnePlusThreeOutcome",
+    "PerfectPairsOutcome",
 ]
