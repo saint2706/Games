@@ -1,6 +1,6 @@
 # Format and Lint Auto-fix workflow
-# This workflow is for local development - it auto-formats code on workflow_dispatch
-# For CI checks, use the 'lint.yml' workflow instead
+# This workflow is for local development - it auto-formats code
+# on workflow_dispatch. For CI checks, use the 'lint.yml' workflow instead
 
 name: Format and Lint (Auto-fix)
 
