@@ -10,7 +10,7 @@ from __future__ import annotations
 import random
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque, Dict, List, Optional, Sequence, Set, Tuple
+from typing import Deque, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 # Type alias for a coordinate tuple.
 Coordinate = Tuple[int, int]
