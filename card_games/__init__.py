@@ -1,3 +1,3 @@
 """Card Games package housing multiple playable card game implementations."""
 
-__all__ = ["poker", "bluff"]
+__all__ = ["poker", "bluff", "uno"]
