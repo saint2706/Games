@@ -15,8 +15,10 @@ from typing import Iterable, List, Sequence, Set
 
 # The path to the JSON file containing the wordlist.
 WORDLIST_PATH = Path(__file__).with_name("wordlist.json")
+THEMED_WORDS_PATH = Path(__file__).with_name("themed_words.json")
 # A cache for the default wordlist to avoid reading from disk multiple times.
 _DEFAULT_WORD_CACHE: List[str] | None = None
+_THEMED_WORD_CACHE: dict[str, List[str]] | None = None
 
 
 def _load_words_from_disk() -> List[str]:
@@ -37,6 +39,53 @@ def load_default_words() -> List[str]:
     if _DEFAULT_WORD_CACHE is None:
         _DEFAULT_WORD_CACHE = _load_words_from_disk()
     return list(_DEFAULT_WORD_CACHE)
+
+
+def load_words_by_difficulty(difficulty: str = "all") -> List[str]:
+    """Load words filtered by difficulty level.
+    
+    Args:
+        difficulty: One of "easy", "medium", "hard", or "all"
+        
+    Returns:
+        List of words matching the difficulty level.
+    """
+    data = json.loads(WORDLIST_PATH.read_text(encoding="utf-8"))
+    if difficulty == "all":
+        collected: Set[str] = set()
+        for diff in ("easy", "medium", "hard"):
+            collected.update(word.lower() for word in data.get(diff, ()))
+        return sorted(collected)
+    elif difficulty in ("easy", "medium", "hard"):
+        return [word.lower() for word in data.get(difficulty, [])]
+    else:
+        raise ValueError(f"Invalid difficulty: {difficulty}. Must be 'easy', 'medium', 'hard', or 'all'")
+
+
+def load_themed_words(theme: str | None = None) -> List[str] | dict[str, List[str]]:
+    """Load themed word lists.
+    
+    Args:
+        theme: Optional theme name. If None, returns all themes.
+        
+    Returns:
+        List of words for the specified theme, or dict of all themes.
+    """
+    global _THEMED_WORD_CACHE
+    if _THEMED_WORD_CACHE is None:
+        if not THEMED_WORDS_PATH.exists():
+            _THEMED_WORD_CACHE = {}
+        else:
+            _THEMED_WORD_CACHE = json.loads(THEMED_WORDS_PATH.read_text(encoding="utf-8"))
+    
+    if theme is None:
+        return dict(_THEMED_WORD_CACHE)
+    
+    if theme not in _THEMED_WORD_CACHE:
+        available = ", ".join(sorted(_THEMED_WORD_CACHE.keys()))
+        raise ValueError(f"Unknown theme: {theme}. Available themes: {available}")
+    
+    return list(_THEMED_WORD_CACHE[theme])
 
 
 # The ASCII art stages of the hangman drawing.
@@ -106,6 +155,140 @@ HANGMAN_STAGES: Sequence[str] = (
     """.rstrip(),
 )
 
+# Alternative ASCII art style - "simple"
+HANGMAN_STAGES_SIMPLE: Sequence[str] = (
+    r"""
+    +---+
+    |   |
+        |
+        |
+        |
+        |
+    ========
+    """.rstrip(),
+    r"""
+    +---+
+    |   |
+    O   |
+        |
+        |
+        |
+    ========
+    """.rstrip(),
+    r"""
+    +---+
+    |   |
+    O   |
+    |   |
+        |
+        |
+    ========
+    """.rstrip(),
+    r"""
+    +---+
+    |   |
+    O   |
+   /|   |
+        |
+        |
+    ========
+    """.rstrip(),
+    r"""
+    +---+
+    |   |
+    O   |
+   /|\  |
+        |
+        |
+    ========
+    """.rstrip(),
+    r"""
+    +---+
+    |   |
+    O   |
+   /|\  |
+   /    |
+        |
+    ========
+    """.rstrip(),
+    r"""
+    +---+
+    |   |
+    O   |
+   /|\  |
+   / \  |
+        |
+    ========
+    """.rstrip(),
+)
+
+# Alternative ASCII art style - "minimal"
+HANGMAN_STAGES_MINIMAL: Sequence[str] = (
+    r"""
+    
+    
+    
+    
+    
+    ___
+    """.rstrip(),
+    r"""
+    
+    
+    O
+    
+    
+    ___
+    """.rstrip(),
+    r"""
+    
+    
+    O
+    |
+    
+    ___
+    """.rstrip(),
+    r"""
+    
+    
+    O
+   \|
+    
+    ___
+    """.rstrip(),
+    r"""
+    
+    
+    O
+   \|/
+    
+    ___
+    """.rstrip(),
+    r"""
+    
+    
+    O
+   \|/
+   /
+    ___
+    """.rstrip(),
+    r"""
+    
+    
+    O
+   \|/
+   / \
+    ___
+    """.rstrip(),
+)
+
+# Map of available art styles
+HANGMAN_ART_STYLES: dict[str, Sequence[str]] = {
+    "classic": HANGMAN_STAGES,
+    "simple": HANGMAN_STAGES_SIMPLE,
+    "minimal": HANGMAN_STAGES_MINIMAL,
+}
+
 
 @dataclass
 class HangmanGame:
@@ -113,6 +296,10 @@ class HangmanGame:
 
     words: Iterable[str] = field(default_factory=load_default_words)
     max_attempts: int = 6
+    theme: str | None = None
+    hints_enabled: bool = True
+    max_hints: int = 3
+    art_style: str = "classic"
 
     def __post_init__(self) -> None:
         """Validates the initial game state after the dataclass is created."""
@@ -121,6 +308,7 @@ class HangmanGame:
             raise ValueError("At least one word must be supplied.")
         if self.max_attempts < 1:
             raise ValueError("max_attempts must be at least one.")
+        self.hints_used: int = 0
         self.reset()
 
     def reset(self) -> None:
@@ -177,23 +365,29 @@ class HangmanGame:
     def stage(self) -> str:
         """Return the ASCII gallows that reflects the current danger level."""
         wrong = self.max_attempts - self.attempts_left
+        stages = HANGMAN_ART_STYLES.get(self.art_style, HANGMAN_STAGES)
         if self.max_attempts <= 0:
-            return HANGMAN_STAGES[-1]
+            return stages[-1]
         # Scale the number of wrong guesses to the number of hangman stages.
-        scale = (len(HANGMAN_STAGES) - 1) / self.max_attempts
-        index = min(len(HANGMAN_STAGES) - 1, int(round(wrong * scale)))
-        return HANGMAN_STAGES[index]
+        scale = (len(stages) - 1) / self.max_attempts
+        index = min(len(stages) - 1, int(round(wrong * scale)))
+        return stages[index]
 
     def status_lines(self) -> List[str]:
         """Human-friendly summary of the current round."""
         wrong_letters = sorted(guess for guess in self.wrong_guesses if len(guess) == 1)
         wrong_words = sorted(guess for guess in self.wrong_guesses if len(guess) > 1)
         lines = [self.stage, f"Word: {self.obscured_word}"]
+        if self.theme:
+            lines.append(f"Theme: {self.theme}")
         if wrong_letters:
             lines.append(f"Wrong letters: {' '.join(wrong_letters)}")
         if wrong_words:
             lines.append("Wrong words: " + ", ".join(wrong_words))
         lines.append(f"Attempts left: {self.attempts_left}")
+        if self.hints_enabled:
+            hints_left = self.max_hints - self.hints_used
+            lines.append(f"Hints remaining: {hints_left}")
         return lines
 
     def is_won(self) -> bool:
@@ -203,3 +397,27 @@ class HangmanGame:
     def is_lost(self) -> bool:
         """Return True if the player has exhausted the allowed attempts."""
         return self.attempts_left <= 0
+
+    def get_hint(self) -> str | None:
+        """Reveal an unguessed letter as a hint.
+        
+        Returns:
+            The revealed letter, or None if no hints available.
+        """
+        if not self.hints_enabled:
+            return None
+        if self.hints_used >= self.max_hints:
+            return None
+        
+        # Find letters that haven't been guessed yet
+        unguessed = [letter for letter in set(self.secret_word) 
+                     if letter not in self.guessed_letters]
+        
+        if not unguessed:
+            return None
+        
+        # Reveal a random unguessed letter
+        hint_letter = random.choice(unguessed)
+        self.guessed_letters.add(hint_letter)
+        self.hints_used += 1
+        return hint_letter
