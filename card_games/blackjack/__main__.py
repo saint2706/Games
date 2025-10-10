@@ -7,7 +7,12 @@ from typing import Iterable
 
 from card_games.blackjack.cli import game_loop
 from card_games.blackjack.game import BlackjackGame
-from card_games.blackjack.gui import run_app
+try:  # pragma: no cover - optional GUI dependency
+    from card_games.blackjack.gui import run_app
+    _GUI_IMPORT_ERROR: Exception | None = None
+except Exception as exc:  # pragma: no cover - degrade gracefully without Tk
+    run_app = None  # type: ignore[assignment]
+    _GUI_IMPORT_ERROR = exc
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,6 +45,10 @@ def main(argv: Iterable[str] | None = None) -> None:
         game = BlackjackGame(bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng)
         game_loop(game)
     else:
+        if run_app is None:
+            raise RuntimeError(
+                "Tkinter is required for the blackjack GUI but is not available."
+            ) from _GUI_IMPORT_ERROR
         run_app(bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng)
 
 
