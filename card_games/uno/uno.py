@@ -8,10 +8,45 @@ import textwrap
 from dataclasses import dataclass
 from typing import Iterable, List, Optional, Sequence
 
+from colorama import Fore, Style, init as colorama_init
+
+colorama_init(autoreset=True)
+
 COLORS = ("red", "yellow", "green", "blue")
 NUMBER_VALUES = tuple(str(n) for n in range(10))
 ACTION_VALUES = ("skip", "reverse", "+2")
 WILD_VALUES = ("wild", "+4")
+
+COLOR_STYLE_MAP = {
+    "red": Fore.RED,
+    "yellow": Fore.YELLOW,
+    "green": Fore.GREEN,
+    "blue": Fore.BLUE,
+}
+
+
+def colorize_color(color: str) -> str:
+    color = color.lower()
+    style = COLOR_STYLE_MAP.get(color, Fore.WHITE)
+    return f"{style}{color.capitalize()}{Style.RESET_ALL}"
+
+
+def format_card(card: "UnoCard", *, emphasize: bool = False) -> str:
+    base = card.label()
+    if card.color is None:
+        style = Fore.MAGENTA if card.value == "+4" else Fore.WHITE
+    else:
+        style = COLOR_STYLE_MAP.get(card.color, Fore.WHITE)
+    weight = Style.BRIGHT if emphasize else ""
+    return f"{weight}{style}{base}{Style.RESET_ALL}"
+
+
+def format_highlight(message: str, color: str, *, style: str = "") -> str:
+    return f"{style}{color}{message}{Style.RESET_ALL}"
+
+
+def format_section_heading(message: str) -> str:
+    return format_highlight(message, Fore.CYAN, style=Style.BRIGHT)
 
 
 @dataclass(frozen=True)
@@ -257,14 +292,18 @@ class UnoGame:
             self.penalty_value = None
             self.penalty_amount = 0
             actor = player.name if player else "A player"
-            print(f"{actor} skips the next player!")
+            print(format_highlight(f"{actor} skips the next player!", Fore.MAGENTA))
             skip_next = True
         elif card.value == "reverse":
             self.penalty_value = None
             self.penalty_amount = 0
             self.direction *= -1
             direction_label = "clockwise" if self.direction == 1 else "counter-clockwise"
-            print(f"Play order reverses and is now {direction_label}!")
+            print(
+                format_highlight(
+                    f"Play order reverses and is now {direction_label}!", Fore.MAGENTA
+                )
+            )
             if len(self.players) == 2 and not initializing:
                 skip_next = True
         elif card.value == "+2":
@@ -283,7 +322,12 @@ class UnoGame:
             self.active_color = card.color
         if card.color is None:
             self.active_color = chosen_color or player.preferred_color()
-            print(f"Active color is now {self.active_color.capitalize()}.")
+            print(
+                format_highlight(
+                    f"Active color is now {colorize_color(self.active_color)}.",
+                    Fore.CYAN,
+                )
+            )
         skip_next = False
         if card.value in {"skip", "reverse", "+2", "+4"}:
             skip_next = self._apply_action_card(card, player=player)
@@ -299,7 +343,10 @@ class UnoGame:
         if playable:
             return False
         print(
-            f"{player.name} must draw {self.penalty_amount} cards due to a {self.penalty_value}."
+            format_highlight(
+                f"{player.name} must draw {self.penalty_amount} cards due to a {self.penalty_value}.",
+                Fore.YELLOW,
+            )
         )
         self._draw_cards(player, self.penalty_amount)
         self.penalty_amount = 0
@@ -317,9 +364,9 @@ class UnoGame:
         return drawn
 
     def _display_hand(self, player: UnoPlayer) -> None:
-        print("Your hand:")
+        print(format_section_heading("Your hand:"))
         for index, card in enumerate(player.hand, start=1):
-            print(f"  {index}) {card.label()}")
+            print(f"  {index}) {format_card(card)}")
 
     def play(self) -> UnoPlayer:
         """Run the main game loop. Returns the winner."""
@@ -328,11 +375,19 @@ class UnoGame:
             player = self.players[self.current_index]
             print("\n" + "-" * 60)
             print(
-                f"Top card: {self.discard_pile[-1].label()} | Active color: {self.active_color.capitalize()}"
+                format_section_heading(
+                    "Top card: "
+                    + format_card(self.discard_pile[-1], emphasize=True)
+                    + " | Active color: "
+                    + colorize_color(self.active_color)
+                )
             )
             if self.penalty_amount:
                 print(
-                    f"Pending penalty: draw {self.penalty_amount} (must stack {self.penalty_value})."
+                    format_highlight(
+                        f"Pending penalty: draw {self.penalty_amount} (must stack {self.penalty_value}).",
+                        Fore.YELLOW,
+                    )
                 )
 
             if self._handle_draw_penalty(player):
@@ -362,7 +417,12 @@ class UnoGame:
                         choice = "draw"
                     if choice.lower() == "draw":
                         if penalty_active:
-                            print(f"You accept the penalty of {self.penalty_amount} cards.")
+                            print(
+                                format_highlight(
+                                    f"You accept the penalty of {self.penalty_amount} cards.",
+                                    Fore.YELLOW,
+                                )
+                            )
                             self._draw_cards(player, self.penalty_amount)
                             self.penalty_amount = 0
                             self.penalty_value = None
@@ -370,7 +430,12 @@ class UnoGame:
                         else:
                             drawn_cards = self._draw_cards(player, 1)
                             drawn_card = drawn_cards[0]
-                            print(f"You drew {drawn_card.label()}.")
+                            print(
+                                format_highlight(
+                                    f"You drew {format_card(drawn_card, emphasize=True)}.",
+                                    Fore.GREEN,
+                                )
+                            )
                             if drawn_card.matches(self.active_color, self.active_value):
                                 while True:
                                     play_now = input("Play the drawn card? [y/N]: ").strip().lower()
@@ -384,18 +449,33 @@ class UnoGame:
                         break
                     else:
                         if not playable:
-                            print("You have no playable cards. You must draw.")
+                            print(
+                                format_highlight(
+                                    "You have no playable cards. You must draw.",
+                                    Fore.YELLOW,
+                                )
+                            )
                             continue
                         if not choice.isdigit():
-                            print("Please choose a card number or 'draw'.")
+                            print(
+                                format_highlight(
+                                    "Please choose a card number or 'draw'.",
+                                    Fore.YELLOW,
+                                )
+                            )
                             continue
                         index = int(choice) - 1
                         if not 0 <= index < len(player.hand):
-                            print("Invalid card selection.")
+                            print(format_highlight("Invalid card selection.", Fore.RED))
                             continue
                         candidate = player.hand[index]
                         if candidate not in playable:
-                            print("That card cannot be played right now.")
+                            print(
+                                format_highlight(
+                                    "That card cannot be played right now.",
+                                    Fore.RED,
+                                )
+                            )
                             continue
                         chosen_card = candidate
                         if candidate.is_wild():
@@ -404,18 +484,31 @@ class UnoGame:
             else:
                 if not playable:
                     drawn_card = self._draw_cards(player, 1)[0]
-                    print(f"{player.name} draws a card.")
+                    print(format_highlight(f"{player.name} draws a card.", Fore.WHITE))
                     if drawn_card.matches(self.active_color, self.active_value):
                         chosen_card = drawn_card
                         if drawn_card.is_wild():
                             chosen_color = player.preferred_color()
                             print(
-                                f"{player.name} plays the drawn {drawn_card.label()} and sets color to {chosen_color}."
+                                format_highlight(
+                                    f"{player.name} plays the drawn {format_card(drawn_card)} and sets color to {colorize_color(chosen_color)}.",
+                                    Fore.GREEN,
+                                )
                             )
                         else:
-                            print(f"{player.name} plays the drawn {drawn_card.label()}.")
+                            print(
+                                format_highlight(
+                                    f"{player.name} plays the drawn {format_card(drawn_card)}.",
+                                    Fore.GREEN,
+                                )
+                            )
                     else:
-                        print(f"{player.name} keeps the drawn card.")
+                        print(
+                            format_highlight(
+                                f"{player.name} keeps the drawn card.",
+                                Fore.WHITE,
+                            )
+                        )
                 else:
                     chosen_card = player.choose_card(playable, self.active_color)
                     if chosen_card is None:
@@ -423,10 +516,18 @@ class UnoGame:
                     if chosen_card.is_wild():
                         chosen_color = player.preferred_color()
                         print(
-                            f"{player.name} plays {chosen_card.label()} and changes color to {chosen_color}."
+                            format_highlight(
+                                f"{player.name} plays {format_card(chosen_card)} and changes color to {colorize_color(chosen_color)}.",
+                                Fore.GREEN,
+                            )
                         )
                     else:
-                        print(f"{player.name} plays {chosen_card.label()}.")
+                        print(
+                            format_highlight(
+                                f"{player.name} plays {format_card(chosen_card)}.",
+                                Fore.GREEN,
+                            )
+                        )
 
             if took_penalty:
                 self._advance_turn()
@@ -435,10 +536,18 @@ class UnoGame:
             if chosen_card:
                 skip_next = self._play_card(player, chosen_card, chosen_color)
                 if not player.has_cards():
-                    print(f"\n{player.name} wins the game!")
+                    print(
+                        format_highlight(
+                            f"\n{player.name} wins the game!", Fore.CYAN, style=Style.BRIGHT
+                        )
+                    )
                     return player
                 if len(player.hand) == 1:
-                    print(f"{player.name} calls UNO!")
+                    print(
+                        format_highlight(
+                            f"{player.name} calls UNO!", Fore.CYAN, style=Style.BRIGHT
+                        )
+                    )
                 self._advance_turn(skip_next=skip_next)
             else:
                 self._advance_turn()
@@ -448,7 +557,12 @@ class UnoGame:
             choice = input("Choose a color (red, yellow, green, blue): ").strip().lower()
             if choice in COLORS:
                 return choice
-            print("Invalid color. Please choose red, yellow, green, or blue.")
+            print(
+                format_highlight(
+                    "Invalid color. Please choose red, yellow, green, or blue.",
+                    Fore.RED,
+                )
+            )
 
 
 def _build_players(total: int, *, bots: int, bot_skill: str) -> List[UnoPlayer]:
