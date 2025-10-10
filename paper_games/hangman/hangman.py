@@ -43,10 +43,10 @@ def load_default_words() -> List[str]:
 
 def load_words_by_difficulty(difficulty: str = "all") -> List[str]:
     """Load words filtered by difficulty level.
-    
+
     Args:
         difficulty: One of "easy", "medium", "hard", or "all"
-        
+
     Returns:
         List of words matching the difficulty level.
     """
@@ -64,10 +64,10 @@ def load_words_by_difficulty(difficulty: str = "all") -> List[str]:
 
 def load_themed_words(theme: str | None = None) -> List[str] | dict[str, List[str]]:
     """Load themed word lists.
-    
+
     Args:
         theme: Optional theme name. If None, returns all themes.
-        
+
     Returns:
         List of words for the specified theme, or dict of all themes.
     """
@@ -77,14 +77,14 @@ def load_themed_words(theme: str | None = None) -> List[str] | dict[str, List[st
             _THEMED_WORD_CACHE = {}
         else:
             _THEMED_WORD_CACHE = json.loads(THEMED_WORDS_PATH.read_text(encoding="utf-8"))
-    
+
     if theme is None:
         return dict(_THEMED_WORD_CACHE)
-    
+
     if theme not in _THEMED_WORD_CACHE:
         available = ", ".join(sorted(_THEMED_WORD_CACHE.keys()))
         raise ValueError(f"Unknown theme: {theme}. Available themes: {available}")
-    
+
     return list(_THEMED_WORD_CACHE[theme])
 
 
@@ -400,7 +400,7 @@ class HangmanGame:
 
     def get_hint(self) -> str | None:
         """Reveal an unguessed letter as a hint.
-        
+
         Returns:
             The revealed letter, or None if no hints available.
         """
@@ -408,14 +408,13 @@ class HangmanGame:
             return None
         if self.hints_used >= self.max_hints:
             return None
-        
+
         # Find letters that haven't been guessed yet
-        unguessed = [letter for letter in set(self.secret_word) 
-                     if letter not in self.guessed_letters]
-        
+        unguessed = [letter for letter in set(self.secret_word) if letter not in self.guessed_letters]
+
         if not unguessed:
             return None
-        
+
         # Reveal a random unguessed letter
         hint_letter = random.choice(unguessed)
         self.guessed_letters.add(hint_letter)
