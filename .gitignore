@@ -15,7 +15,11 @@ dist/
 # Testing
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
+coverage.xml
+.mutmut-cache/
+*.pyc
 
 # IDEs
 .vscode/
