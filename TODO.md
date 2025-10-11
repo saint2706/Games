@@ -78,12 +78,12 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Implement hand history log for review after each session
 
 ### Blackjack
-- [ ] Add progressive side bets (21+3, Perfect Pairs)
-- [ ] Implement card counting hint system for educational purposes
-- [ ] Add multiplayer mode with multiple player hands at once
-- [ ] Implement shoe penetration indicator
-- [ ] Add surrender option (early/late surrender)
-- [ ] Create casino mode with multiple table options
+- [x] Add progressive side bets (21+3, Perfect Pairs)
+- [x] Implement card counting hint system for educational purposes
+- [x] Add multiplayer mode with multiple player hands at once
+- [x] Implement shoe penetration indicator
+- [x] Add surrender option (early/late surrender)
+- [x] Create casino mode with multiple table options
 
 ### Bluff
 - [ ] Add replay system to review previous games

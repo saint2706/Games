@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 from typing import Iterable
 
-from card_games.blackjack.game import BlackjackGame, BlackjackHand
+from card_games.blackjack.game import BlackjackGame, BlackjackHand, SideBetType
 from card_games.common.cards import format_cards
 
 
@@ -35,6 +35,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--seed", type=int, help="Optional random seed for deterministic play"
+    )
+    parser.add_argument(
+        "--educational",
+        action="store_true",
+        help="Enable educational mode with card counting hints",
     )
     return parser
 
@@ -61,16 +66,16 @@ def render_hand(title: str, hand: BlackjackHand, *, hide_hole: bool = False) -> 
     return f"{title}: {format_cards(cards)} ({hand.best_total()})"
 
 
-def prompt_bet(game: BlackjackGame) -> int:
-    """Prompt the player to enter a bet and validate it.
+def prompt_bet(game: BlackjackGame) -> tuple[int, dict[SideBetType, int]]:
+    """Prompt the player to enter a bet and optional side bets.
 
-    This function will continue to prompt until a valid bet is entered.
+    This function will continue to prompt until valid bets are entered.
 
     Args:
         game (BlackjackGame): The current game instance.
 
     Returns:
-        int: The validated bet amount.
+        tuple[int, dict[SideBetType, int]]: The main bet and side bets dictionary.
     """
     while True:
         raw = input(
@@ -84,10 +89,37 @@ def prompt_bet(game: BlackjackGame) -> int:
             continue
 
         bet = int(raw)
+        if bet < game.min_bet or bet > game.player.bankroll:
+            print(f"Bet must be between {game.min_bet} and {game.player.bankroll}.")
+            continue
+        
+        # Prompt for side bets
+        side_bets = {}
+        side_bet_prompt = input(
+            "Place side bets? (p=Perfect Pairs, t=21+3, n=none): "
+        ).strip().lower()
+        
+        if side_bet_prompt and side_bet_prompt != "n":
+            remaining = game.player.bankroll - bet
+            if "p" in side_bet_prompt:
+                pp_raw = input(f"Perfect Pairs bet (max {remaining}): ").strip()
+                if pp_raw.isdigit():
+                    pp_amount = int(pp_raw)
+                    if 0 < pp_amount <= remaining:
+                        side_bets[SideBetType.PERFECT_PAIRS] = pp_amount
+                        remaining -= pp_amount
+            
+            if "t" in side_bet_prompt:
+                tp_raw = input(f"21+3 bet (max {remaining}): ").strip()
+                if tp_raw.isdigit():
+                    tp_amount = int(tp_raw)
+                    if 0 < tp_amount <= remaining:
+                        side_bets[SideBetType.TWENTY_ONE_PLUS_THREE] = tp_amount
+        
         try:
             # Validate the bet against the game rules
-            game.start_round(bet)
-            return bet
+            game.start_round(bet, side_bets=side_bets if side_bets else None)
+            return bet, side_bets
         except ValueError as exc:
             print(exc)
 
@@ -99,6 +131,19 @@ def display_table(game: BlackjackGame, *, hide_dealer: bool = True) -> None:
         game (BlackjackGame): The current game instance.
         hide_dealer (bool): If True, the dealer's hole card is hidden.
     """
+    # Display shoe info and card counting
+    print(f"\n{'='*60}")
+    print(
+        f"Shoe: {len(game.shoe.cards)} cards remaining "
+        f"({game.shoe.penetration():.1f}% dealt)"
+    )
+    if game.educational_mode:
+        print(
+            f"Card Count - Running: {game.shoe.running_count}, "
+            f"True: {game.shoe.true_count():.2f}"
+        )
+    print(f"{'='*60}")
+    
     dealer = render_hand("Dealer", game.dealer_hand, hide_hole=hide_dealer)
     print("\n" + dealer)
 
@@ -109,6 +154,8 @@ def display_table(game: BlackjackGame, *, hide_dealer: bool = True) -> None:
             status.append("blackjack!")
         elif hand.is_bust():
             status.append("bust")
+        elif hand.surrendered:
+            status.append("surrendered")
         elif hand.stood:
             status.append("stood")
         if hand.doubled:
@@ -116,11 +163,24 @@ def display_table(game: BlackjackGame, *, hide_dealer: bool = True) -> None:
 
         suffix = f" [{', '.join(status)}]" if status else ""
         print(f"{prefix}: {format_cards(hand.cards)} ({hand.best_total()}){suffix}")
+        
+        # Display side bet results if any
+        if hand.side_bets:
+            for sb in hand.side_bets:
+                outcome_str = sb.outcome or "pending"
+                payout_str = f"+${sb.payout}" if sb.payout > 0 else "lost"
+                print(f"  Side bet {sb.bet_type.value}: {outcome_str} ({payout_str})")
+        
+        # Display card counting hint for educational mode
+        if game.educational_mode and not hand.stood and not hand.is_bust():
+            hint = game.get_counting_hint(hand)
+            if hint:
+                print(f"  💡 Hint: {hint}")
     print()
 
 
 def prompt_action(game: BlackjackGame, hand: BlackjackHand) -> str:
-    """Prompt the player for an action (hit, stand, double, split).
+    """Prompt the player for an action (hit, stand, double, split, surrender).
 
     Args:
         game (BlackjackGame): The current game instance.
@@ -130,7 +190,13 @@ def prompt_action(game: BlackjackGame, hand: BlackjackHand) -> str:
         str: The chosen action, validated against the available options.
     """
     # Map short keyboard responses to the canonical action verbs.
-    action_map = {"h": "hit", "s": "stand", "d": "double", "p": "split"}
+    action_map = {
+        "h": "hit",
+        "s": "stand",
+        "d": "double",
+        "p": "split",
+        "r": "surrender",
+    }
     while True:
         actions = game.player_actions(hand)
         available = {
@@ -166,8 +232,13 @@ def handle_player_turn(game: BlackjackGame) -> None:
     while index < len(game.player.hands):
         hand = game.player.hands[index]
 
-        # Loop until the hand is stood, bust, or blackjack
-        while not hand.stood and not hand.is_bust() and not hand.is_blackjack():
+        # Loop until the hand is stood, bust, blackjack, or surrendered
+        while (
+            not hand.stood
+            and not hand.is_bust()
+            and not hand.is_blackjack()
+            and not hand.surrendered
+        ):
             display_table(game)
             action = prompt_action(game, hand)
 
@@ -189,6 +260,9 @@ def handle_player_turn(game: BlackjackGame) -> None:
                 print("Hands split into two bets.")
                 # The loop continues to play the current hand (which is now one of the split hands)
                 continue
+            elif action == "surrender":
+                game.surrender(hand)
+                print(f"Surrendered. You get back ${hand.bet // 2}.")
 
         display_table(game)
         index += 1
@@ -270,8 +344,20 @@ def main(argv: Iterable[str] | None = None) -> None:
         rng = random.Random(args.seed)
 
     game = BlackjackGame(
-        bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng
+        bankroll=args.bankroll,
+        min_bet=args.min_bet,
+        decks=args.decks,
+        rng=rng,
+        educational_mode=args.educational,
     )
+    
+    if args.educational:
+        print("\n" + "="*60)
+        print("EDUCATIONAL MODE ENABLED")
+        print("Card counting hints will be displayed during play.")
+        print("This is for educational purposes only!")
+        print("="*60 + "\n")
+    
     game_loop(game)
 
 
