@@ -125,10 +125,46 @@ join_game(host="localhost", port=5555, player_name="Bob")
 - tkinter (optional, for GUI - usually included with Python)
 - No external dependencies for CLI mode
 
-## Implementation Notes
+## Implementation Details
 
-- The AI uses chain analysis to make strategic decisions
+### AI Strategy
+
+- Uses chain analysis to make strategic decisions
 - Chain length calculation simulates opponent's optimal play
-- The GUI updates in real-time as you hover over edges
-- Network multiplayer uses TCP sockets with JSON protocol
-- Tournament mode supports both interactive and automated play
+- Prioritizes safe moves and avoids creating chains for the opponent
+- Supports multiple difficulty levels through chain-awareness tuning
+
+### GUI Features
+
+- Real-time chain analysis when hovering over edges
+- Visual feedback system:
+  - ✅ **Safe move**: No chain created
+  - ⚠️ **Warning**: Creates a chain (shows box count)
+  - ⭐ **Scoring move**: Completes a box
+- Color-coded edge highlighting
+- Interactive learning tool for strategy improvement
+
+### Network Protocol
+
+- TCP socket-based communication using JSON protocol
+- Host/client architecture for peer-to-peer play
+- Real-time move synchronization
+- Connection error handling and recovery
+- Works over local network or internet
+
+### Tournament System
+
+- Supports both interactive and automated play
+- Tracks comprehensive statistics across multiple games
+- Records win/loss ratios and score differences
+- Suitable for AI evaluation and player skill assessment
+
+### Supported Board Sizes
+
+Board dimensions scale correctly for all sizes:
+
+- 2x2: 4 boxes, 12 edges
+- 3x3: 9 boxes, 24 edges
+- 4x4: 16 boxes, 40 edges
+- 5x5: 25 boxes, 60 edges
+- 6x6: 36 boxes, 84 edges
