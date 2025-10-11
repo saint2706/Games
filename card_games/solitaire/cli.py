@@ -62,10 +62,7 @@ def display_game(game: SolitaireGame) -> None:
 
     # Statistics
     print("\nStats:")
-    print(
-        f"  Score: {summary['score']}  Moves: {summary['moves_made']}  Auto moves: {summary['auto_moves']}  "
-        f"Recycles used: {summary['recycles_used']}"
-    )
+    print(f"  Score: {summary['score']}  Moves: {summary['moves_made']}  Auto moves: {summary['auto_moves']}  " f"Recycles used: {summary['recycles_used']}")
 
 
 def parse_move(user_input: str, game: SolitaireGame) -> bool:

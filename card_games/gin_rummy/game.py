@@ -119,18 +119,10 @@ def _generate_run_melds(cards: Sequence[Card]) -> list[Meld]:
                 continue
             else:
                 if len(run) >= 3:
-                    melds.extend(
-                        Meld(MeldType.RUN, tuple(run[i:j]))
-                        for i in range(0, len(run) - 2)
-                        for j in range(i + 3, len(run) + 1)
-                    )
+                    melds.extend(Meld(MeldType.RUN, tuple(run[i:j])) for i in range(0, len(run) - 2) for j in range(i + 3, len(run) + 1))
                 run = [card]
         if len(run) >= 3:
-            melds.extend(
-                Meld(MeldType.RUN, tuple(run[i:j]))
-                for i in range(0, len(run) - 2)
-                for j in range(i + 3, len(run) + 1)
-            )
+            melds.extend(Meld(MeldType.RUN, tuple(run[i:j])) for i in range(0, len(run) - 2) for j in range(i + 3, len(run) + 1))
     return melds
 
 
@@ -154,9 +146,7 @@ def _best_meld_plan(cards: Sequence[Card]) -> HandAnalysis:
         if index == len(candidates):
             deadwood_cards = tuple(card for card in ordered_cards if card not in used)
             deadwood = sum(_deadwood_value(card) for card in deadwood_cards)
-            if deadwood < best_deadwood or (
-                deadwood == best_deadwood and len(chosen) > len(best_melds)
-            ):
+            if deadwood < best_deadwood or (deadwood == best_deadwood and len(chosen) > len(best_melds)):
                 best_deadwood = deadwood
                 best_melds = tuple(chosen)
                 best_deadwood_cards = deadwood_cards
@@ -525,6 +515,7 @@ class GinRummyGame:
 
         analysis = self.analyze_hand(player.hand)
         if analysis.deadwood_cards:
+
             def priority(card: Card) -> tuple[int, int, int]:
                 value = _deadwood_value(card)
                 same_rank = sum(1 for c in player.hand if c.rank == card.rank)

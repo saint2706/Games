@@ -56,9 +56,7 @@ class TestSolitaire:
         from card_games.common.cards import Card, Suit
 
         for foundation in game.foundations:
-            foundation.cards = [
-                Card(r, Suit.HEARTS) for r in ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
-            ]
+            foundation.cards = [Card(r, Suit.HEARTS) for r in ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]]
 
         assert game.is_won() is True
 
@@ -612,11 +610,13 @@ class TestGinRummy:
 
         # Exhaust the stock manually.
         game.deck.cards = []
-        game.discard_pile.extend([
-            Card("2", Suit.CLUBS),
-            Card("3", Suit.CLUBS),
-            Card("4", Suit.CLUBS),
-        ])
+        game.discard_pile.extend(
+            [
+                Card("2", Suit.CLUBS),
+                Card("3", Suit.CLUBS),
+                Card("4", Suit.CLUBS),
+            ]
+        )
 
         drawn = game.draw_from_stock()
         assert drawn is not None

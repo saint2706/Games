@@ -6,7 +6,6 @@ from card_games.common.cards import format_cards, parse_card
 from card_games.gin_rummy.game import (
     GinRummyGame,
     GinRummyPlayer,
-    KnockType,
     Meld,
     MeldType,
     RoundSummary,
@@ -184,10 +183,7 @@ def _display_round_summary(summary: RoundSummary, game: GinRummyGame) -> None:
     print(f"Knocker: {summary.knocker} ({summary.knock_type.name.replace('_', ' ').title()})")
     print(f"Opponent: {summary.opponent}")
     print(f"Knocker deadwood: {summary.knocker_deadwood}")
-    print(
-        "Opponent deadwood: "
-        f"{summary.opponent_deadwood} (was {summary.opponent_initial_deadwood} before layoffs)"
-    )
+    print("Opponent deadwood: " f"{summary.opponent_deadwood} (was {summary.opponent_initial_deadwood} before layoffs)")
 
     if summary.melds_shown:
         print("Melds revealed:")

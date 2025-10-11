@@ -356,11 +356,7 @@ class BridgeGame:
                 return Call(player, CallType.BID, bid)
 
         # Consider bidding a new suit with a strong five-card holding.
-        strong_suits = [
-            (suit_key, count)
-            for suit_key, count in distribution.items()
-            if count >= 5 and suit_key != suit
-        ]
+        strong_suits = [(suit_key, count) for suit_key, count in distribution.items() if count >= 5 and suit_key != suit]
         if hcp >= 10 and strong_suits:
             chosen = max(strong_suits, key=lambda item: (item[1], SUIT_ORDER[item[0]] * -1))
             mapping = {

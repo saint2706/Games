@@ -30,7 +30,6 @@ from typing import Optional
 
 from card_games.common.cards import Card, Deck, Suit
 
-
 RANK_ORDER = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
 
 
@@ -405,4 +404,3 @@ class SolitaireGame:
             pile.face_up_count = 1
             if self.scoring_mode == "standard":
                 self.score += 5
-

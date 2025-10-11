@@ -14,7 +14,6 @@ from card_games.bridge.game import (
 )
 from card_games.common.cards import format_cards, parse_card
 
-
 SUIT_SYMBOLS = {
     BidSuit.CLUBS: "♣",
     BidSuit.DIAMONDS: "♦",

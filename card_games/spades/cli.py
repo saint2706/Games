@@ -106,16 +106,10 @@ def game_loop() -> None:
             print(f"{player.name}: bid {bid_str}, won {player.tricks_won} tricks")
 
         round_scores = game.calculate_round_score()
-        print(
-            f"Round score: Partnership 1 {round_scores[0]} pts, Partnership 2 {round_scores[1]} pts"
-        )
+        print(f"Round score: Partnership 1 {round_scores[0]} pts, Partnership 2 {round_scores[1]} pts")
 
-        print(
-            f"\nPartnership 1 ({game.players[0].name} & {game.players[2].name}): {game.team_scores[0]} points, {game.bags[0]} bags"
-        )
-        print(
-            f"Partnership 2 ({game.players[1].name} & {game.players[3].name}): {game.team_scores[1]} points, {game.bags[1]} bags"
-        )
+        print(f"\nPartnership 1 ({game.players[0].name} & {game.players[2].name}): {game.team_scores[0]} points, {game.bags[0]} bags")
+        print(f"Partnership 2 ({game.players[1].name} & {game.players[3].name}): {game.team_scores[1]} points, {game.bags[1]} bags")
 
         print("\nBids:")
         for bidder, bid in game.bidding_history:

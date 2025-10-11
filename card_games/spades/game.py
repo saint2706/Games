@@ -232,9 +232,7 @@ class SpadesGame:
     def suggest_bid(self, player: SpadesPlayer) -> int:
         """AI logic to suggest a bid."""
         spade_cards = [c for c in player.hand if c.suit == Suit.SPADES]
-        non_spade_high_cards = [
-            c for c in player.hand if c.suit != Suit.SPADES and c.rank in {"A", "K", "Q"}
-        ]
+        non_spade_high_cards = [c for c in player.hand if c.suit != Suit.SPADES and c.rank in {"A", "K", "Q"}]
         if not any(card.rank in {"A", "K", "Q", "J"} for card in player.hand) and len(spade_cards) <= 1:
             return 0
 

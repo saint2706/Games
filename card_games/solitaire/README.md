@@ -12,10 +12,10 @@ python -m card_games.solitaire [--draw-count {1,3}] [--max-recycles N] [--scorin
 
 ### Launch Options
 
-* ``--draw-count`` – choose between drawing 1 or 3 cards from the stock (default: 3).
-* ``--max-recycles`` – cap how many times the waste may be recycled back to the stock (defaults to ``None`` for draw-one and ``3`` for draw-three).
-* ``--scoring`` – ``standard`` (Windows scoring with flip bonuses) or ``vegas`` (buy-in of -52, +5 per foundation card).
-* ``--seed`` – provide a random seed for reproducible shuffles.
+- `--draw-count` – choose between drawing 1 or 3 cards from the stock (default: 3).
+- `--max-recycles` – cap how many times the waste may be recycled back to the stock (defaults to `None` for draw-one and `3` for draw-three).
+- `--scoring` – `standard` (Windows scoring with flip bonuses) or `vegas` (buy-in of -52, +5 per foundation card).
+- `--seed` – provide a random seed for reproducible shuffles.
 
 ## Game Rules
 
@@ -40,8 +40,8 @@ python -m card_games.solitaire [--draw-count {1,3}] [--max-recycles N] [--scorin
 
 ## Features
 
-* Draw-one and draw-three game styles with realistic redeal limits (three passes by default for draw-three).
-* Standard scoring (+10 to foundations, +5 tableau flips, -15 for withdrawing from foundations) and Vegas (-52 buy-in, +5 per foundation card).
-* Automatic foundation moves, move counting, and state summaries for CLI overlays or analytics.
-* Full tableau face-up tracking so revealing a new card immediately awards the appropriate flip bonus.
-* Comprehensive win detection and stock recycling logic that mirrors the behaviour of digital Klondike clients.
+- Draw-one and draw-three game styles with realistic redeal limits (three passes by default for draw-three).
+- Standard scoring (+10 to foundations, +5 tableau flips, -15 for withdrawing from foundations) and Vegas (-52 buy-in, +5 per foundation card).
+- Automatic foundation moves, move counting, and state summaries for CLI overlays or analytics.
+- Full tableau face-up tracking so revealing a new card immediately awards the appropriate flip bonus.
+- Comprehensive win detection and stock recycling logic that mirrors the behaviour of digital Klondike clients.
