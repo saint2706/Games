@@ -8,6 +8,7 @@ This package provides shared functionality including:
 - Replay/undo system
 - Observer pattern for GUI synchronization
 - Game engine abstractions
+- Educational features (tutorials, strategy tips, probability calculators)
 - Enhanced CLI utilities
 - GUI enhancements (themes, sounds, animations, accessibility, i18n, shortcuts)
 """
@@ -25,6 +26,17 @@ from .architecture.persistence import (
 from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
 from .architecture.replay import ReplayAction, ReplayManager, ReplayRecorder
 from .architecture.settings import Settings, SettingsManager
+from .challenges import Challenge, ChallengePack, ChallengeManager, DifficultyLevel, get_default_challenge_manager
+from .educational import (
+    AIExplainer,
+    GameTheoryExplanation,
+    GameTheoryExplainer,
+    ProbabilityCalculator,
+    StrategyTip,
+    StrategyTipProvider,
+    TutorialMode,
+    TutorialStep,
+)
 from .cli_utils import (
     ASCIIArt,
     Color,
@@ -87,6 +99,21 @@ __all__ = [
     # Settings
     "Settings",
     "SettingsManager",
+    # Educational
+    "TutorialMode",
+    "TutorialStep",
+    "StrategyTip",
+    "StrategyTipProvider",
+    "ProbabilityCalculator",
+    "GameTheoryExplainer",
+    "GameTheoryExplanation",
+    "AIExplainer",
+    # Challenges
+    "Challenge",
+    "ChallengePack",
+    "ChallengeManager",
+    "DifficultyLevel",
+    "get_default_challenge_manager",
     # CLI utilities
     "Color",
     "TextStyle",
