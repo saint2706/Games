@@ -122,9 +122,6 @@ def guess_heuristic(move: int, game: NumberGuessingGame) -> float:
         return -abs(move - middle)
 
     # Binary search: prefer middle of remaining range
-    too_high = [g for g in game.guesses if g > game.target] if game.target else []
-    too_low = [g for g in game.guesses if g < game.target] if game.target else []
-
     # Estimate range based on hints (in real game, we don't know target)
     # This is a simplified heuristic
     if game.last_hint == "Too low!":
