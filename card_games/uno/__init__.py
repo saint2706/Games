@@ -2,7 +2,6 @@
 
 # Public re-exports make it easy for callers to discover the primary
 # interfaces without digging through submodules.
-from .gui import TkUnoInterface, launch_uno_gui
 from .uno import (
     ConsoleUnoInterface,
     PlayerDecision,
@@ -13,14 +12,21 @@ from .uno import (
     main,
 )
 
+# GUI components are imported conditionally to avoid tkinter dependency
 __all__ = [
     "ConsoleUnoInterface",
     "PlayerDecision",
-    "TkUnoInterface",
     "UnoCard",
     "UnoDeck",
     "UnoGame",
     "build_players",
-    "launch_uno_gui",
     "main",
 ]
+
+# Try to import GUI components, but don't fail if tkinter is unavailable
+try:
+    from .gui import TkUnoInterface, launch_uno_gui
+    __all__.extend(["TkUnoInterface", "launch_uno_gui"])
+except ImportError:
+    # tkinter not available, GUI components won't be exported
+    pass
