@@ -7,7 +7,7 @@ components to be notified of state changes without tight coupling.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List
 
 
 class Observer(ABC):

@@ -6,11 +6,11 @@ PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from paper_games.tic_tac_toe.network import NetworkConfig, NetworkTicTacToeClient, NetworkTicTacToeServer
 from paper_games.tic_tac_toe.stats import GameStats
 from paper_games.tic_tac_toe.themes import THEMES, get_theme, list_themes, validate_symbols
 from paper_games.tic_tac_toe.tic_tac_toe import TicTacToeGame
 from paper_games.tic_tac_toe.ultimate import UltimateTicTacToeGame
-from paper_games.tic_tac_toe.network import NetworkConfig, NetworkTicTacToeServer, NetworkTicTacToeClient
 
 
 def test_standard_3x3_board():
@@ -47,45 +47,45 @@ def test_custom_win_length():
 def test_winner_horizontal_4x4():
     """Test horizontal winner detection on 4x4 board."""
     game = TicTacToeGame(board_size=4, win_length=3)
-    game.make_move(0, 'X')  # A1
-    game.make_move(1, 'X')  # A2
-    game.make_move(2, 'X')  # A3
-    assert game.winner() == 'X'
+    game.make_move(0, "X")  # A1
+    game.make_move(1, "X")  # A2
+    game.make_move(2, "X")  # A3
+    assert game.winner() == "X"
 
 
 def test_winner_vertical_4x4():
     """Test vertical winner detection on 4x4 board."""
     game = TicTacToeGame(board_size=4, win_length=3)
-    game.make_move(0, 'O')  # A1
-    game.make_move(4, 'O')  # B1
-    game.make_move(8, 'O')  # C1
-    assert game.winner() == 'O'
+    game.make_move(0, "O")  # A1
+    game.make_move(4, "O")  # B1
+    game.make_move(8, "O")  # C1
+    assert game.winner() == "O"
 
 
 def test_winner_diagonal_4x4():
     """Test diagonal winner detection on 4x4 board."""
     game = TicTacToeGame(board_size=4, win_length=3)
-    game.make_move(0, 'X')  # A1
-    game.make_move(5, 'X')  # B2
-    game.make_move(10, 'X')  # C3
-    assert game.winner() == 'X'
+    game.make_move(0, "X")  # A1
+    game.make_move(5, "X")  # B2
+    game.make_move(10, "X")  # C3
+    assert game.winner() == "X"
 
 
 def test_winner_anti_diagonal_5x5():
     """Test anti-diagonal winner detection on 5x5 board."""
     game = TicTacToeGame(board_size=5, win_length=4)
-    game.make_move(3, 'O')  # A4
-    game.make_move(7, 'O')  # B3
-    game.make_move(11, 'O')  # C2
-    game.make_move(15, 'O')  # D1
-    assert game.winner() == 'O'
+    game.make_move(3, "O")  # A4
+    game.make_move(7, "O")  # B3
+    game.make_move(11, "O")  # C2
+    game.make_move(15, "O")  # D1
+    assert game.winner() == "O"
 
 
 def test_no_winner_partial_line():
     """Test that partial lines don't count as wins."""
     game = TicTacToeGame(board_size=4, win_length=3)
-    game.make_move(0, 'X')  # A1
-    game.make_move(1, 'X')  # A2
+    game.make_move(0, "X")  # A1
+    game.make_move(1, "X")  # A2
     assert game.winner() is None
 
 
@@ -130,7 +130,7 @@ def test_available_moves_4x4():
     """Test available moves on 4x4 board."""
     game = TicTacToeGame(board_size=4)
     assert len(game.available_moves()) == 16
-    game.make_move(0, 'X')
+    game.make_move(0, "X")
     assert len(game.available_moves()) == 15
     assert 0 not in game.available_moves()
 
@@ -141,10 +141,22 @@ def test_is_draw_4x4():
     # Fill board in a pattern that prevents any wins
     # Pattern: XOXO / XOXO / OXOX / OXOX
     moves = [
-        ('X', 0), ('O', 1), ('X', 2), ('O', 3),
-        ('X', 4), ('O', 5), ('X', 6), ('O', 7),
-        ('O', 8), ('X', 9), ('O', 10), ('X', 11),
-        ('O', 12), ('X', 13), ('O', 14), ('X', 15),
+        ("X", 0),
+        ("O", 1),
+        ("X", 2),
+        ("O", 3),
+        ("X", 4),
+        ("O", 5),
+        ("X", 6),
+        ("O", 7),
+        ("O", 8),
+        ("X", 9),
+        ("O", 10),
+        ("X", 11),
+        ("O", 12),
+        ("X", 13),
+        ("O", 14),
+        ("X", 15),
     ]
     for symbol, pos in moves:
         game.make_move(pos, symbol)
@@ -204,12 +216,12 @@ def test_stats_win_rate():
     """Test win rate calculation."""
     stats = GameStats()
     assert stats.win_rate() == 0.0
-    
+
     stats.record_game("X", "X", "O")
     stats.record_game("O", "X", "O")
     stats.record_game("X", "X", "O")
     stats.record_game(None, "X", "O")
-    
+
     # 2 wins out of 4 games = 0.5
     assert stats.win_rate() == 0.5
 
@@ -220,7 +232,7 @@ def test_stats_by_board_size():
     stats.record_game("X", "X", "O", board_size=3)
     stats.record_game("O", "X", "O", board_size=4)
     stats.record_game("X", "X", "O", board_size=3)
-    
+
     assert "3x3" in stats.stats_by_board_size
     assert "4x4" in stats.stats_by_board_size
     assert stats.stats_by_board_size["3x3"]["games"] == 2
@@ -233,11 +245,11 @@ def test_stats_save_and_load():
     stats.record_game("X", "X", "O")
     stats.record_game("O", "X", "O")
     stats.record_game(None, "X", "O")
-    
+
     with tempfile.TemporaryDirectory() as tmpdir:
         filepath = pathlib.Path(tmpdir) / "stats.json"
         stats.save(filepath)
-        
+
         loaded_stats = GameStats.load(filepath)
         assert loaded_stats.human_wins == stats.human_wins
         assert loaded_stats.computer_wins == stats.computer_wins
@@ -250,7 +262,7 @@ def test_stats_summary():
     stats = GameStats()
     stats.record_game("X", "X", "O", board_size=3)
     stats.record_game("O", "X", "O", board_size=4)
-    
+
     summary = stats.summary()
     assert "Total games played: 2" in summary
     assert "Your wins: 1" in summary
@@ -265,7 +277,7 @@ def test_get_theme():
     sym1, sym2 = get_theme("classic")
     assert sym1 == "X"
     assert sym2 == "O"
-    
+
     sym1, sym2 = get_theme("hearts")
     assert sym1 == "♥"
     assert sym2 == "♡"
@@ -292,14 +304,14 @@ def test_validate_symbols():
     """Test symbol validation."""
     assert validate_symbols("X", "O") is True
     assert validate_symbols("♥", "♡") is True
-    
+
     # Test identical symbols
     try:
         validate_symbols("X", "X")
         assert False, "Should have raised ValueError"
     except ValueError:
         pass
-    
+
     # Test empty symbols
     try:
         validate_symbols("", "O")
@@ -313,10 +325,10 @@ def test_themed_game():
     game = TicTacToeGame(human_symbol="♥", computer_symbol="♡")
     assert game.human_symbol == "♥"
     assert game.computer_symbol == "♡"
-    
+
     game.make_move(0, "♥")
     game.make_move(1, "♡")
-    
+
     rendered = game.render()
     assert "♥" in rendered
     assert "♡" in rendered
@@ -369,10 +381,10 @@ def test_ultimate_win_small_board():
     game.small_boards[0].make_move(0, "X")
     game.small_boards[0].make_move(1, "X")
     game.small_boards[0].make_move(2, "X")
-    
+
     # Check if the small board is won
     assert game.small_boards[0].winner() == "X"
-    
+
     # Now update meta board based on this win
     game.meta_board[0] = game.small_boards[0].winner()
     assert game.meta_board[0] == "X"
@@ -386,17 +398,17 @@ def test_ultimate_meta_board_winner():
     for i in range(3):
         game.small_boards[0].make_move(i, "X")
     game.meta_board[0] = "X"
-    
+
     # Win board 1
     for i in range(3):
         game.small_boards[1].make_move(i, "X")
     game.meta_board[1] = "X"
-    
+
     # Win board 2
     for i in range(3):
         game.small_boards[2].make_move(i, "X")
     game.meta_board[2] = "X"
-    
+
     assert game.winner() == "X"
 
 
@@ -415,7 +427,7 @@ def test_ultimate_available_moves():
     moves = game.available_moves()
     # Initially all 81 cells should be available
     assert len(moves) == 81
-    
+
     # Make a move
     game.make_move(0, 0, "X")
     moves = game.available_moves()
@@ -443,7 +455,7 @@ def test_ultimate_computer_move():
 def test_ultimate_full_game_sequence():
     """Test a sequence of moves leading to a win."""
     game = UltimateTicTacToeGame()
-    
+
     # Player X wins board 0
     game.make_move(4, 0, "X")  # Center board, top-left cell
     game.make_move(0, 3, "O")  # Forced to board 0
@@ -451,7 +463,7 @@ def test_ultimate_full_game_sequence():
     game.make_move(0, 4, "O")  # Forced to board 0
     game.make_move(4, 0, "X")  # Back to center
     game.make_move(0, 5, "O")  # Board 0
-    
+
     # Check if board 0 has a winner
     assert game.small_boards[0].winner() is not None or len(game.small_boards[0].available_moves()) > 0
 
@@ -491,7 +503,7 @@ def test_network_message_format():
     }
     assert move_msg["type"] == "move"
     assert move_msg["position"] == 4
-    
+
     # Test config message
     config_msg = {
         "type": "config",
@@ -551,7 +563,7 @@ if __name__ == "__main__":
         test_network_client_init,
         test_network_message_format,
     ]
-    
+
     for test_func in test_functions:
         try:
             test_func()
@@ -560,5 +572,5 @@ if __name__ == "__main__":
             print(f"✗ {test_func.__name__}: {e}")
         except Exception as e:
             print(f"✗ {test_func.__name__}: {e}")
-    
+
     print("\nAll tests completed!")

@@ -68,9 +68,7 @@ class BlackjackApp(tk.Tk):
         self.option_add("*Label.foreground", _TEXT_PRIMARY)
 
         # Initialize the game engine and UI state variables
-        self.game = BlackjackGame(
-            bankroll=bankroll, min_bet=min_bet, decks=decks, rng=rng
-        )
+        self.game = BlackjackGame(bankroll=bankroll, min_bet=min_bet, decks=decks, rng=rng)
         # Track whether a hand is currently in progress so button handlers can
         # short-circuit when the round ends asynchronously.
         self.round_active = False
@@ -100,23 +98,15 @@ class BlackjackApp(tk.Tk):
         header = tk.Frame(self, bg=_TABLE_GREEN)
         header.pack(fill="x", padx=24, pady=(24, 12))
 
-        title = tk.Label(
-            header, text="Blackjack", font=("Segoe UI", 26, "bold"), fg=_TEXT_ALERT
-        )
+        title = tk.Label(header, text="Blackjack", font=("Segoe UI", 26, "bold"), fg=_TEXT_ALERT)
         title.pack(side="left")
 
         info_panel = tk.Frame(header, bg=_TABLE_GREEN)
         info_panel.pack(side="right")
 
-        tk.Label(
-            info_panel, text="Bankroll", font=("Segoe UI", 12, "bold"), fg=_TEXT_MUTED
-        ).pack(anchor="e")
-        tk.Label(
-            info_panel, textvariable=self.bankroll_var, font=("Segoe UI", 18, "bold")
-        ).pack(anchor="e")
-        tk.Label(info_panel, textvariable=self.shoe_var, font=("Segoe UI", 10)).pack(
-            anchor="e"
-        )
+        tk.Label(info_panel, text="Bankroll", font=("Segoe UI", 12, "bold"), fg=_TEXT_MUTED).pack(anchor="e")
+        tk.Label(info_panel, textvariable=self.bankroll_var, font=("Segoe UI", 18, "bold")).pack(anchor="e")
+        tk.Label(info_panel, textvariable=self.shoe_var, font=("Segoe UI", 10)).pack(anchor="e")
 
         # Controls section for betting and actions
         controls = tk.Frame(self, bg=_TABLE_GREEN)
@@ -125,9 +115,7 @@ class BlackjackApp(tk.Tk):
         # Betting controls
         bet_panel = tk.Frame(controls, bg=_TABLE_GREEN)
         bet_panel.pack(side="left")
-        tk.Label(
-            bet_panel, text="Wager", font=("Segoe UI", 12, "bold"), fg=_TEXT_MUTED
-        ).pack(anchor="w")
+        tk.Label(bet_panel, text="Wager", font=("Segoe UI", 12, "bold"), fg=_TEXT_MUTED).pack(anchor="w")
         spin = tk.Spinbox(
             bet_panel,
             from_=self.game.min_bet,
@@ -160,9 +148,7 @@ class BlackjackApp(tk.Tk):
         action_panel.pack(side="right")
         self.hit_button = self._action_button(action_panel, "Hit", self.hit)
         self.stand_button = self._action_button(action_panel, "Stand", self.stand)
-        self.double_button = self._action_button(
-            action_panel, "Double", self.double_down
-        )
+        self.double_button = self._action_button(action_panel, "Double", self.double_down)
         self.split_button = self._action_button(action_panel, "Split", self.split_hand)
 
         # The main table area for displaying cards
@@ -245,15 +231,9 @@ class BlackjackApp(tk.Tk):
         # Render dealer's hand
         dealer_hand = self.game.dealer_hand if self.game.dealer.hands else None
         if dealer_hand:
-            self._render_hand_cards(
-                self.dealer_cards, dealer_hand, hide_hole=self.dealer_hidden
-            )
-            info = self._hand_summary(
-                dealer_hand, dealer=True, hide_hole=self.dealer_hidden
-            )
-            tk.Label(
-                self.dealer_cards, text=info, font=("Segoe UI", 11), fg=_TEXT_MUTED
-            ).pack(pady=(6, 0))
+            self._render_hand_cards(self.dealer_cards, dealer_hand, hide_hole=self.dealer_hidden)
+            info = self._hand_summary(dealer_hand, dealer=True, hide_hole=self.dealer_hidden)
+            tk.Label(self.dealer_cards, text=info, font=("Segoe UI", 11), fg=_TEXT_MUTED).pack(pady=(6, 0))
 
         # Render each of the player's hands
         for index, hand in enumerate(self.game.player.hands):
@@ -269,17 +249,9 @@ class BlackjackApp(tk.Tk):
             # Hand header with label and bet amount
             header = tk.Frame(container, bg=container["background"])
             header.pack(fill="x")
-            label = (
-                "Hand {}".format(index + 1)
-                if len(self.game.player.hands) > 1
-                else "Your hand"
-            )
-            tk.Label(
-                header, text=label, font=("Segoe UI", 13, "bold"), fg=_TEXT_PRIMARY
-            ).pack(side="left")
-            tk.Label(
-                header, text=f"Bet ${hand.bet:,}", font=("Segoe UI", 11), fg=_TEXT_ALERT
-            ).pack(side="right")
+            label = "Hand {}".format(index + 1) if len(self.game.player.hands) > 1 else "Your hand"
+            tk.Label(header, text=label, font=("Segoe UI", 13, "bold"), fg=_TEXT_PRIMARY).pack(side="left")
+            tk.Label(header, text=f"Bet ${hand.bet:,}", font=("Segoe UI", 11), fg=_TEXT_ALERT).pack(side="right")
 
             # Card widgets
             cards_frame = tk.Frame(container, bg=container["background"])
@@ -294,9 +266,7 @@ class BlackjackApp(tk.Tk):
                 fg=_TEXT_MUTED,
             ).pack(pady=(4, 0))
 
-    def _hand_summary(
-        self, hand: BlackjackHand, *, dealer: bool = False, hide_hole: bool = False
-    ) -> str:
+    def _hand_summary(self, hand: BlackjackHand, *, dealer: bool = False, hide_hole: bool = False) -> str:
         """Generate a summary string for a hand (e.g., "Total 20 · Stood")."""
         if hide_hole:
             # For a hidden dealer hand, only show the value of the up-card
@@ -323,9 +293,7 @@ class BlackjackApp(tk.Tk):
 
         return " · ".join(parts)
 
-    def _render_hand_cards(
-        self, parent: tk.Widget, hand: BlackjackHand, *, hide_hole: bool
-    ) -> None:
+    def _render_hand_cards(self, parent: tk.Widget, hand: BlackjackHand, *, hide_hole: bool) -> None:
         """Render the card widgets for a single hand."""
         cards = list(hand.cards)
         for idx, card in enumerate(cards):
@@ -381,9 +349,7 @@ class BlackjackApp(tk.Tk):
             # Render the face of a card
             suit = card.suit
             rank_display = "10" if card.rank == "T" else card.rank
-            suit_color = (
-                "#d32f2f" if suit in (Suit.HEARTS, Suit.DIAMONDS) else "#1c1c1c"
-            )
+            suit_color = "#d32f2f" if suit in (Suit.HEARTS, Suit.DIAMONDS) else "#1c1c1c"
 
             canvas.create_rectangle(
                 6,
@@ -470,9 +436,7 @@ class BlackjackApp(tk.Tk):
 
     def _current_hand(self) -> Optional[BlackjackHand]:
         """Get the player's hand that is currently being played."""
-        if self.current_hand_index is not None and self.current_hand_index < len(
-            self.game.player.hands
-        ):
+        if self.current_hand_index is not None and self.current_hand_index < len(self.game.player.hands):
             return self.game.player.hands[self.current_hand_index]
         return None
 
@@ -572,9 +536,7 @@ class BlackjackApp(tk.Tk):
             self.message_var.set(str(exc))
             return
 
-        self.message_var.set(
-            f"Double down! Drew {card}, standing on {hand.best_total()}."
-        )
+        self.message_var.set(f"Double down! Drew {card}, standing on {hand.best_total()}.")
         self._refresh_labels()
         self._render_table()
         self.after(500, self._advance_hand)
@@ -663,9 +625,7 @@ class BlackjackApp(tk.Tk):
         # Settle bets and gather outcome messages
         outcomes = self.game.settle_round()
         messages: list[str] = []
-        for idx, (hand, outcome) in enumerate(
-            zip(self.game.player.hands, outcomes), start=1
-        ):
+        for idx, (hand, outcome) in enumerate(zip(self.game.player.hands, outcomes), start=1):
             descriptor = self._describe_outcome(hand, outcome)
             label = f"Hand {idx}: " if len(self.game.player.hands) > 1 else ""
             messages.append(f"{label}{descriptor}")

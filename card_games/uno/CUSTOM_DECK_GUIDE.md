@@ -348,10 +348,10 @@ python -m card_games.uno.validate_deck decks/extreme.json
 ## Best Practices
 
 1. **Balance**: Ensure no single card is too powerful
-2. **Testing**: Playtest custom decks thoroughly
-3. **Clarity**: Clearly document custom effects
-4. **Compatibility**: Make sure custom cards work with house rules
-5. **Validation**: Always validate deck files before use
+1. **Testing**: Playtest custom decks thoroughly
+1. **Clarity**: Clearly document custom effects
+1. **Compatibility**: Make sure custom cards work with house rules
+1. **Validation**: Always validate deck files before use
 
 ## Advanced Features
 

@@ -119,7 +119,7 @@ class TestBattleshipPerformance:
             # Just test that the game can process shots quickly
             try:
                 game.computer_shot()
-            except:
+            except Exception:
                 # If computer_shot fails, that's okay - we're testing performance
                 pass
         elapsed = time.time() - start_time
@@ -200,7 +200,7 @@ class TestUnoPerformance:
         start_time = time.time()
         for _ in range(benchmark_iterations):
             players = build_players(total_players=4, bots=3)
-            game = UnoGame(players=players)
+            _ = UnoGame(players=players)
         elapsed = time.time() - start_time
 
         avg_time = elapsed / benchmark_iterations
@@ -217,7 +217,7 @@ class TestHangmanPerformance:
 
         start_time = time.time()
         for _ in range(100):
-            game = HangmanGame(words=["testing"])
+            _ = HangmanGame(words=["testing"])
         elapsed = time.time() - start_time
 
         assert elapsed < 0.1, f"Word loading too slow: {elapsed:.4f}s for 100 games"
@@ -233,7 +233,7 @@ class TestUnscramblePerformance:
 
         start_time = time.time()
         for _ in range(benchmark_iterations):
-            game = UnscrambleGame()
+            _ = UnscrambleGame()
             # Word scrambling happens during initialization
         elapsed = time.time() - start_time
 
@@ -264,7 +264,7 @@ def test_overall_system_performance():
         bj.start_round(bet=10)
 
         players = build_players(total_players=4, bots=3)
-        uno = UnoGame(players=players)
+        _ = UnoGame(players=players)
         # Just creation is enough
 
     elapsed = time.time() - start_time

@@ -24,7 +24,7 @@ class GameStats:
 
     def record_game(self, winner: Optional[str], human_symbol: str, computer_symbol: str, board_size: int = 3) -> None:
         """Record the outcome of a game.
-        
+
         Args:
             winner: The symbol of the winner, or None for a draw.
             human_symbol: The symbol used by the human player.
@@ -32,14 +32,14 @@ class GameStats:
             board_size: The size of the board used in the game.
         """
         self.games_played += 1
-        
+
         if winner == human_symbol:
             self.human_wins += 1
         elif winner == computer_symbol:
             self.computer_wins += 1
         else:
             self.draws += 1
-        
+
         # Track stats by board size
         board_key = f"{board_size}x{board_size}"
         if board_key not in self.stats_by_board_size:
@@ -49,7 +49,7 @@ class GameStats:
                 "draws": 0,
                 "games": 0,
             }
-        
+
         self.stats_by_board_size[board_key]["games"] += 1
         if winner == human_symbol:
             self.stats_by_board_size[board_key]["human_wins"] += 1
@@ -73,23 +73,23 @@ class GameStats:
             f"Computer wins: {self.computer_wins}",
             f"Draws: {self.draws}",
         ]
-        
+
         if self.games_played > 0:
             win_rate = self.win_rate() * 100
             lines.append(f"Your win rate: {win_rate:.1f}%")
-        
+
         if self.stats_by_board_size:
             lines.append("\n--- By Board Size ---")
             for board_key in sorted(self.stats_by_board_size.keys()):
                 stats = self.stats_by_board_size[board_key]
                 lines.append(f"{board_key}: {stats['games']} games")
                 lines.append(f"  Your wins: {stats['human_wins']}, Computer wins: {stats['computer_wins']}, Draws: {stats['draws']}")
-        
+
         return "\n".join(lines)
 
     def save(self, filepath: pathlib.Path) -> None:
         """Save statistics to a JSON file.
-        
+
         Args:
             filepath: Path to the file where statistics will be saved.
         """
@@ -107,16 +107,16 @@ class GameStats:
     @classmethod
     def load(cls, filepath: pathlib.Path) -> GameStats:
         """Load statistics from a JSON file.
-        
+
         Args:
             filepath: Path to the file to load statistics from.
-        
+
         Returns:
             A GameStats instance with loaded data, or a new instance if the file doesn't exist.
         """
         if not filepath.exists():
             return cls()
-        
+
         try:
             with open(filepath, "r") as f:
                 data = json.load(f)

@@ -39,18 +39,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Play blackjack against the dealer using a GUI or CLI interface.",
     )
-    parser.add_argument(
-        "--bankroll", type=int, default=500, help="Starting bankroll (default: 500)"
-    )
-    parser.add_argument(
-        "--min-bet", type=int, default=10, help="Minimum bet size (default: 10)"
-    )
-    parser.add_argument(
-        "--decks", type=int, default=6, help="Number of decks in the shoe (default: 6)"
-    )
-    parser.add_argument(
-        "--seed", type=int, help="Optional random seed for deterministic shuffles"
-    )
+    parser.add_argument("--bankroll", type=int, default=500, help="Starting bankroll (default: 500)")
+    parser.add_argument("--min-bet", type=int, default=10, help="Minimum bet size (default: 10)")
+    parser.add_argument("--decks", type=int, default=6, help="Number of decks in the shoe (default: 6)")
+    parser.add_argument("--seed", type=int, help="Optional random seed for deterministic shuffles")
     parser.add_argument(
         "--cli",
         action="store_true",
@@ -81,16 +73,12 @@ def main(argv: Iterable[str] | None = None) -> None:
 
     # Launch either the CLI or GUI based on the --cli flag
     if args.cli:
-        game = BlackjackGame(
-            bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng
-        )
+        game = BlackjackGame(bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng)
         game_loop(game)
     else:
         if run_app is None:
             # If GUI is requested but not available, raise an error.
-            raise RuntimeError(
-                "Tkinter is required for the blackjack GUI but is not available."
-            ) from _GUI_IMPORT_ERROR
+            raise RuntimeError("Tkinter is required for the blackjack GUI but is not available.") from _GUI_IMPORT_ERROR
         run_app(bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng)
 
 

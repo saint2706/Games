@@ -20,58 +20,65 @@ These functions should be considered for refactoring:
 #### Critical (D-E-F ratings: 21+)
 
 1. **`paper_games/nim/cli.py:play_classic_nim`** - E (40)
+
    - Very high complexity, main game loop with many nested conditions
    - Recommendation: Split into separate functions for setup, game loop, and turn handling
 
-2. **`paper_games/tic_tac_toe/cli.py:play`** - D (28)
+1. **`paper_games/tic_tac_toe/cli.py:play`** - D (28)
+
    - High complexity in main game loop
    - Recommendation: Extract functions for input handling, display updates, and turn logic
 
-3. **`paper_games/battleship/cli.py:_game_loop`** - D (28)
+1. **`paper_games/battleship/cli.py:_game_loop`** - D (28)
+
    - Complex game loop with multiple phases
    - Recommendation: Split into phase-specific functions
 
-4. **`paper_games/tic_tac_toe/tic_tac_toe.py:TicTacToeGame.winner`** - D (25)
+1. **`paper_games/tic_tac_toe/tic_tac_toe.py:TicTacToeGame.winner`** - D (25)
+
    - Complex winner detection logic
    - Recommendation: Extract helper functions for checking rows, columns, diagonals
 
-5. **`paper_games/hangman/cli.py:_play_multiplayer`** - D (24)
+1. **`paper_games/hangman/cli.py:_play_multiplayer`** - D (24)
+
    - Complex multiplayer logic
    - Recommendation: Split into player setup, turn handling, and scoring
 
-6. **`paper_games/unscramble/cli.py:_play_multiplayer`** - D (23)
+1. **`paper_games/unscramble/cli.py:_play_multiplayer`** - D (23)
+
    - Complex multiplayer game flow
    - Recommendation: Extract turn logic and scoring to separate functions
 
-7. **`paper_games/tic_tac_toe/ultimate_cli.py:play_ultimate`** - D (21)
+1. **`paper_games/tic_tac_toe/ultimate_cli.py:play_ultimate`** - D (21)
+
    - Complex UI and game loop
    - Recommendation: Separate UI rendering from game logic
 
 #### Moderate-High (C rating: 11-20)
 
 8. **`paper_games/battleship/gui.py:BattleshipGUI._draw_board`** - C (18)
-9. **`paper_games/dots_and_boxes/tournament.py:Tournament.play_game`** - C (17)
-10. **`paper_games/nim/nim.py:NimGame.computer_move`** - C (17)
-11. **`paper_games/unscramble/unscramble.py:load_words_by_difficulty`** - C (16)
-12. **`paper_games/battleship/battleship.py:BattleshipGame.ai_shoot`** - C (15)
-13. **`paper_games/tic_tac_toe/network_cli.py:play_network_client`** - C (15)
-14. **`paper_games/tic_tac_toe/network_cli.py:play_network_server`** - C (14)
-15. **`paper_games/battleship/gui.py:BattleshipGUI._on_opponent_canvas_click`** - C (14)
-16. **`paper_games/tic_tac_toe/tic_tac_toe.py:TicTacToeGame.minimax`** - C (14)
-17. **`paper_games/tic_tac_toe/ultimate.py:UltimateTicTacToeGame.render`** - C (13)
-18. **`paper_games/dots_and_boxes/network.py:play_network_game`** - C (13)
-19. **`paper_games/nim/nim.py:NimGame.get_strategy_hint`** - C (13)
-20. **`paper_games/unscramble/stats.py:GameStats.record_word`** - C (13)
-21. **`paper_games/unscramble/stats.py:GameStats.summary`** - C (13)
+1. **`paper_games/dots_and_boxes/tournament.py:Tournament.play_game`** - C (17)
+1. **`paper_games/nim/nim.py:NimGame.computer_move`** - C (17)
+1. **`paper_games/unscramble/unscramble.py:load_words_by_difficulty`** - C (16)
+1. **`paper_games/battleship/battleship.py:BattleshipGame.ai_shoot`** - C (15)
+1. **`paper_games/tic_tac_toe/network_cli.py:play_network_client`** - C (15)
+1. **`paper_games/tic_tac_toe/network_cli.py:play_network_server`** - C (14)
+1. **`paper_games/battleship/gui.py:BattleshipGUI._on_opponent_canvas_click`** - C (14)
+1. **`paper_games/tic_tac_toe/tic_tac_toe.py:TicTacToeGame.minimax`** - C (14)
+1. **`paper_games/tic_tac_toe/ultimate.py:UltimateTicTacToeGame.render`** - C (13)
+1. **`paper_games/dots_and_boxes/network.py:play_network_game`** - C (13)
+1. **`paper_games/nim/nim.py:NimGame.get_strategy_hint`** - C (13)
+1. **`paper_games/unscramble/stats.py:GameStats.record_word`** - C (13)
+1. **`paper_games/unscramble/stats.py:GameStats.summary`** - C (13)
 
 ### Low Maintainability (MI < 20)
 
 These files have low maintainability scores:
 
 1. **`card_games/uno/uno.py`** - MI: 0.00 (very low)
-2. **`card_games/poker/poker.py`** - MI: 0.87 (very low)
-3. **`card_games/bluff/bluff.py`** - MI: 4.22 (very low)
-4. **`card_games/blackjack/game.py`** - MI: 17.97 (low)
+1. **`card_games/poker/poker.py`** - MI: 0.87 (very low)
+1. **`card_games/bluff/bluff.py`** - MI: 4.22 (very low)
+1. **`card_games/blackjack/game.py`** - MI: 17.97 (low)
 
 **Note:** These are complex game engines with extensive logic. While they have low MI scores, they are well-documented and have comprehensive test coverage.
 
@@ -80,16 +87,19 @@ These files have low maintainability scores:
 ### High Priority (Critical Complexity)
 
 1. **Nim CLI** (`paper_games/nim/cli.py:play_classic_nim`)
+
    - Complexity: 40 (E rating)
    - Impact: High - main game function
    - Effort: Medium - can be split into logical sections
 
-2. **Tic Tac Toe CLI** (`paper_games/tic_tac_toe/cli.py:play`)
+1. **Tic Tac Toe CLI** (`paper_games/tic_tac_toe/cli.py:play`)
+
    - Complexity: 28 (D rating)
    - Impact: High - main game function
    - Effort: Medium
 
-3. **Battleship CLI** (`paper_games/battleship/cli.py:_game_loop`)
+1. **Battleship CLI** (`paper_games/battleship/cli.py:_game_loop`)
+
    - Complexity: 28 (D rating)
    - Impact: High - core game loop
    - Effort: High - complex state management
@@ -97,11 +107,13 @@ These files have low maintainability scores:
 ### Medium Priority (Moderate Complexity)
 
 4. **AI Functions** (various `computer_move` functions)
+
    - Complexity: 15-17 (C rating)
    - Impact: Medium - affects gameplay
    - Effort: Low-Medium - can extract decision logic
 
-5. **Rendering Functions** (various `render` functions)
+1. **Rendering Functions** (various `render` functions)
+
    - Complexity: 11-13 (C rating)
    - Impact: Low - display only
    - Effort: Low - can split into helper functions
@@ -109,6 +121,7 @@ These files have low maintainability scores:
 ### Low Priority (Acceptable Complexity)
 
 Functions with complexity 11-13 (C rating) are acceptable but could be improved:
+
 - Network play functions
 - Tournament management
 - Statistics tracking
@@ -118,6 +131,7 @@ Functions with complexity 11-13 (C rating) are acceptable but could be improved:
 ### 1. Extract Method
 
 **Before:**
+
 ```python
 def complex_function():
     # Setup code
@@ -128,6 +142,7 @@ def complex_function():
 ```
 
 **After:**
+
 ```python
 def complex_function():
     _setup()
@@ -224,9 +239,9 @@ Add to CI pipeline:
 ## Guidelines for New Code
 
 1. **Target complexity ≤ 10** for all new functions
-2. **Extract helpers** when approaching the limit
-3. **Use base classes** from `common/` module
-4. **Run checks** before committing:
+1. **Extract helpers** when approaching the limit
+1. **Use base classes** from `common/` module
+1. **Run checks** before committing:
    ```bash
    pre-commit run --all-files
    ./scripts/check_complexity.sh
@@ -243,14 +258,15 @@ Add to CI pipeline:
 ## Next Steps
 
 1. **Address critical complexity** (E-D ratings) in future PRs
-2. **Use base classes** for new games
-3. **Monitor complexity** in code reviews
-4. **Document complex logic** when refactoring isn't feasible
-5. **Add tests** before refactoring to ensure behavior preservation
+1. **Use base classes** for new games
+1. **Monitor complexity** in code reviews
+1. **Document complex logic** when refactoring isn't feasible
+1. **Add tests** before refactoring to ensure behavior preservation
 
 ## Conclusion
 
 While some legacy code has high complexity, the project now has:
+
 - ✅ Tools to measure complexity
 - ✅ Guidelines for new code
 - ✅ Base classes to reduce duplication

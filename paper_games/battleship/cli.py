@@ -7,10 +7,9 @@ Battleship against an AI opponent that uses a hunting strategy.
 from __future__ import annotations
 
 import argparse
-import sys
 from typing import Optional, Sequence
 
-from .battleship import BattleshipGame, Coordinate, DEFAULT_FLEET, EXTENDED_FLEET, SMALL_FLEET
+from .battleship import DEFAULT_FLEET, EXTENDED_FLEET, SMALL_FLEET, BattleshipGame, Coordinate
 
 
 def _prompt_orientation() -> str:
@@ -32,13 +31,11 @@ def _prompt_coordinate(prompt: str) -> Coordinate:
 
 def play(argv: Optional[Sequence[str]] = None) -> None:
     """Interactive Battleship session with command-line configuration.
-    
+
     Args:
         argv: Command-line arguments (uses sys.argv if None)
     """
-    parser = argparse.ArgumentParser(
-        description="Play Battleship with configurable options"
-    )
+    parser = argparse.ArgumentParser(description="Play Battleship with configurable options")
     parser.add_argument(
         "--size",
         type=int,
@@ -74,9 +71,9 @@ def play(argv: Optional[Sequence[str]] = None) -> None:
         default=None,
         help="Random seed for reproducible games",
     )
-    
+
     args = parser.parse_args(argv)
-    
+
     # Select fleet based on arguments
     fleet_map = {
         "small": SMALL_FLEET,
@@ -84,11 +81,12 @@ def play(argv: Optional[Sequence[str]] = None) -> None:
         "extended": EXTENDED_FLEET,
     }
     fleet = fleet_map[args.fleet]
-    
+
     # Create random number generator with optional seed
     import random
+
     rng = random.Random(args.seed) if args.seed is not None else None
-    
+
     # Create game with specified options
     game = BattleshipGame(
         size=args.size,
@@ -98,7 +96,7 @@ def play(argv: Optional[Sequence[str]] = None) -> None:
         two_player=args.two_player,
         salvo_mode=args.salvo,
     )
-    
+
     print("=" * 50)
     print("Welcome to Battleship!")
     print("=" * 50)
@@ -111,10 +109,10 @@ def play(argv: Optional[Sequence[str]] = None) -> None:
     if args.salvo:
         print("Salvo mode: ENABLED")
     print("=" * 50)
-    
+
     # Setup ships for Player 1
     _setup_player(game, player_name="Player 1", is_player_board=True)
-    
+
     # Setup ships for Player 2 or AI
     if game.two_player:
         print("\n" + "=" * 50)
@@ -127,24 +125,24 @@ def play(argv: Optional[Sequence[str]] = None) -> None:
     else:
         game.opponent_board.randomly_place_ships(game.fleet, game.rng)
         print("\nAI opponent fleet is ready!")
-    
+
     # Main game loop
     _game_loop(game)
 
 
 def _setup_player(game: BattleshipGame, player_name: str, is_player_board: bool) -> None:
     """Setup ships for a player.
-    
+
     Args:
         game: The game instance
         player_name: Name of the player setting up
         is_player_board: True for player board, False for opponent board
     """
     board = game.player_board if is_player_board else game.opponent_board
-    
+
     manual = input(f"\n{player_name}, place ships manually? (y/n): ").strip().lower()
     if manual.startswith("y"):
-        print(f"Enter the starting coordinate for each ship.")
+        print("Enter the starting coordinate for each ship.")
         for name, length in game.fleet:
             placed = False
             while not placed:
@@ -164,48 +162,48 @@ def _setup_player(game: BattleshipGame, player_name: str, is_player_board: bool)
 
 def _game_loop(game: BattleshipGame) -> None:
     """Main game loop for Battleship.
-    
+
     Args:
         game: The game instance
     """
     current_player = 1  # 1 for player/Player 1, 2 for AI/Player 2
-    
+
     while True:
         if game.two_player:
             print("\n" + "=" * 50)
             print(f"Player {current_player}'s Turn")
             print("=" * 50)
             input("Press Enter when ready...")
-        
+
         print("\n" + game.render())
-        
+
         # Determine number of shots for this turn
         if game.salvo_mode:
             shots_available = game.get_salvo_count("player" if current_player == 1 else "opponent")
             print(f"\nYou have {shots_available} shot(s) this turn!")
         else:
             shots_available = 1
-        
+
         # Player/Player 1 turn
         if current_player == 1:
             for shot_num in range(shots_available):
                 if shots_available > 1:
                     print(f"\nShot {shot_num + 1} of {shots_available}")
-                
+
                 try:
                     target = _prompt_coordinate("Fire at (row col): ")
                     result, ship_name = game.player_shoot(target)
                 except ValueError as exc:
                     print(f"Invalid shot: {exc}")
                     continue
-                
+
                 if result == "miss":
                     print("Splash! You missed.")
                 elif result == "hit":
                     print("Direct hit!")
                 else:
                     print(f"You sank the enemy {ship_name}!")
-                
+
                 if game.opponent_has_lost():
                     print("\n" + "=" * 50)
                     print("ALL ENEMY SHIPS DESTROYED!")
@@ -215,14 +213,14 @@ def _game_loop(game: BattleshipGame) -> None:
                         print("YOU WIN!")
                     print("=" * 50)
                     return
-        
+
         # AI/Player 2 turn
         if not game.two_player:
             # AI turn
             ai_shots = game.get_salvo_count("opponent") if game.salvo_mode else 1
             if game.salvo_mode and ai_shots > 1:
                 print(f"\nAI takes {ai_shots} shots...")
-            
+
             for _ in range(ai_shots):
                 coord, ai_result, ship_name = game.ai_shoot()
                 row, col = coord
@@ -232,7 +230,7 @@ def _game_loop(game: BattleshipGame) -> None:
                     print(f"AI hits your ship at ({row}, {col})!")
                 else:
                     print(f"AI sinks your {ship_name} at ({row}, {col})!")
-                
+
                 if game.player_has_lost():
                     print("\n" + "=" * 50)
                     print("YOUR FLEET HAS BEEN DESTROYED!")
@@ -246,20 +244,20 @@ def _game_loop(game: BattleshipGame) -> None:
             print("Player 2's Turn")
             print("=" * 50)
             input("Press Enter when Player 1 has looked away...")
-            
+
             # Show Player 2's view (their fleet and where they've shot at Player 1)
             print("\n" + _render_player2_view(game))
-            
+
             if game.salvo_mode:
                 shots_available = game.get_salvo_count("opponent")
                 print(f"\nYou have {shots_available} shot(s) this turn!")
             else:
                 shots_available = 1
-            
+
             for shot_num in range(shots_available):
                 if shots_available > 1:
                     print(f"\nShot {shot_num + 1} of {shots_available}")
-                
+
                 try:
                     target = _prompt_coordinate("Fire at (row col): ")
                     # Player 2 shoots at Player 1's board
@@ -267,21 +265,21 @@ def _game_loop(game: BattleshipGame) -> None:
                 except ValueError as exc:
                     print(f"Invalid shot: {exc}")
                     continue
-                
+
                 if result == "miss":
                     print("Splash! You missed.")
                 elif result == "hit":
                     print("Direct hit!")
                 else:
                     print(f"You sank Player 1's {ship_name}!")
-                
+
                 if game.player_has_lost():
                     print("\n" + "=" * 50)
                     print("PLAYER 1'S FLEET DESTROYED!")
                     print("PLAYER 2 WINS!")
                     print("=" * 50)
                     return
-            
+
             current_player = 1
             print("\n" + "=" * 50)
             input("Press Enter to switch back to Player 1...")
@@ -289,10 +287,10 @@ def _game_loop(game: BattleshipGame) -> None:
 
 def _render_player2_view(game: BattleshipGame) -> str:
     """Render the board from Player 2's perspective.
-    
+
     Args:
         game: The game instance
-        
+
     Returns:
         String representation of both boards from Player 2's view
     """

@@ -120,18 +120,18 @@ move = medium_ai.select_move(valid_moves, game_state)
 ## Benefits
 
 1. **Code Reusability**: Common functionality shared across all games
-2. **Consistency**: Standardized interfaces and behavior
-3. **Maintainability**: Changes to common code benefit all games
-4. **Testability**: Abstract interfaces make unit testing easier
-5. **Extensibility**: Easy to add new games following established patterns
+1. **Consistency**: Standardized interfaces and behavior
+1. **Maintainability**: Changes to common code benefit all games
+1. **Testability**: Abstract interfaces make unit testing easier
+1. **Extensibility**: Easy to add new games following established patterns
 
 ## Integration
 
 Existing games can gradually adopt these components:
 
 1. Implement `GameEngine` interface for game logic
-2. Extend `BaseGUI` for graphical interfaces
-3. Use `AIStrategy` implementations for computer opponents
-4. Leverage utility methods for common tasks
+1. Extend `BaseGUI` for graphical interfaces
+1. Use `AIStrategy` implementations for computer opponents
+1. Leverage utility methods for common tasks
 
 This approach allows incremental adoption without breaking existing code.

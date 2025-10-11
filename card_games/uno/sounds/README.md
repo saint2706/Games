@@ -29,20 +29,24 @@ Place the following `.wav` files in this directory to enable sound effects:
 ### Free Sound Resources
 
 1. **Freesound.org** - https://freesound.org/
+
    - Search for terms like "card shuffle", "card flip", "game win", "beep"
    - Make sure to check the license (CC0 or CC-BY recommended)
 
-2. **OpenGameArt.org** - https://opengameart.org/
+1. **OpenGameArt.org** - https://opengameart.org/
+
    - Browse game sound effects
    - Filter by license (Public Domain or CC0)
 
-3. **Zapsplat.com** - https://www.zapsplat.com/
+1. **Zapsplat.com** - https://www.zapsplat.com/
+
    - Free sound effects library
    - Requires attribution for free tier
 
 ### Creating Your Own Sounds
 
 You can record or generate sounds using:
+
 - **Audacity** (free, open-source audio editor)
 - **LMMS** (free music production software)
 - **Bfxr/Sfxr** (retro game sound effect generators)
@@ -63,18 +67,20 @@ You can record or generate sounds using:
 ## Installation
 
 1. Install pygame (required for sound playback):
+
    ```bash
    pip install pygame
    ```
 
-2. Place sound files in this directory
+1. Place sound files in this directory
 
-3. Launch the game with GUI mode:
+1. Launch the game with GUI mode:
+
    ```bash
    python -m card_games.uno --gui
    ```
 
-4. Sounds will play automatically during gameplay
+1. Sounds will play automatically during gameplay
 
 ## Troubleshooting
 
@@ -83,7 +89,7 @@ You can record or generate sounds using:
 - **Check pygame installation**: `python -c "import pygame; print('OK')"`
 - **Verify sound files exist**: Look for `.wav` files in this directory
 - **Check file names**: Files must match the exact names listed above
-- **Test pygame mixer**: 
+- **Test pygame mixer**:
   ```python
   import pygame
   pygame.mixer.init()
@@ -100,6 +106,7 @@ You can record or generate sounds using:
 ## License
 
 Sound files you add to this directory should be:
+
 - Public domain
 - Licensed under Creative Commons (CC0 or CC-BY preferred)
 - Created by you with appropriate rights

@@ -43,7 +43,6 @@ class TestBattleshipGUI:
         """Test Battleship GUI initialization without display."""
         try:
             from paper_games.battleship import BattleshipGame
-            from paper_games.battleship.gui import BattleshipGUI
 
             # This tests that the class can be instantiated
             # In a real GUI test with display, we would create the actual window

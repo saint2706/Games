@@ -34,7 +34,7 @@ This project aims to be welcoming and inclusive. Please:
 ### Fork and Clone
 
 1. Fork the repository on GitHub
-2. Clone your fork locally:
+1. Clone your fork locally:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/Games.git
@@ -118,10 +118,10 @@ game_name/
 Every game must include:
 
 1. **Game Engine**: Core logic independent of UI
-2. **Documentation**: Module docstrings, function docstrings, README
-3. **CLI Interface**: At minimum, a playable command-line version
-4. **Tests**: Unit tests for game logic
-5. **Entry Point**: Runnable via `python -m package.game_name`
+1. **Documentation**: Module docstrings, function docstrings, README
+1. **CLI Interface**: At minimum, a playable command-line version
+1. **Tests**: Unit tests for game logic
+1. **Entry Point**: Runnable via `python -m package.game_name`
 
 ### Game Engine Template
 
@@ -261,9 +261,9 @@ if __name__ == '__main__':
 If your game includes AI:
 
 1. **Separate AI Logic**: Keep AI in separate class/module
-2. **Difficulty Levels**: Provide at least 2-3 difficulty levels
-3. **Explain Strategy**: Document how AI makes decisions
-4. **Reasonable Speed**: AI should respond in <1 second typically
+1. **Difficulty Levels**: Provide at least 2-3 difficulty levels
+1. **Explain Strategy**: Document how AI makes decisions
+1. **Reasonable Speed**: AI should respond in \<1 second typically
 
 Example AI structure:
 
@@ -405,6 +405,7 @@ Fixes #123
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -414,6 +415,7 @@ Types:
 - `perf`: Performance improvements
 
 Examples:
+
 ```
 feat(poker): add Omaha variant
 
@@ -512,14 +514,14 @@ python -m unittest tests.test_game_name.TestGameEngine.test_valid_move
 For each game, provide:
 
 1. **Module Docstrings**: Explain overall architecture
-2. **Function Docstrings**: Explain purpose, parameters, returns
-3. **README.md**: User-facing documentation with:
+1. **Function Docstrings**: Explain purpose, parameters, returns
+1. **README.md**: User-facing documentation with:
    - Game overview
    - How to play
    - Command-line options
    - Examples
    - Strategy tips (optional)
-4. **Update Main README**: Add your game to the main README.md
+1. **Update Main README**: Add your game to the main README.md
 
 ### Documentation Template
 
@@ -539,45 +541,51 @@ make html
 ### Before Submitting
 
 1. **Run Tests**: Ensure all tests pass
+
    ```bash
    python -m unittest discover -s tests
    ```
 
-2. **Check Style**: Code follows style guidelines
+1. **Check Style**: Code follows style guidelines
 
-3. **Update Docs**: Documentation is complete and accurate
+1. **Update Docs**: Documentation is complete and accurate
 
-4. **Test Manually**: Play your game to ensure it works
+1. **Test Manually**: Play your game to ensure it works
 
-5. **Update TODO.md**: If completing a TODO item, mark it done
+1. **Update TODO.md**: If completing a TODO item, mark it done
 
 ### Pull Request Process
 
 1. **Create Branch**: Create a feature branch
+
    ```bash
    git checkout -b feature/my-new-game
    ```
 
-2. **Make Changes**: Implement your feature/fix
+1. **Make Changes**: Implement your feature/fix
 
-3. **Commit**: Make clear, logical commits
+1. **Commit**: Make clear, logical commits
+
    ```bash
    git add .
    git commit -m "feat(game): add new game"
    ```
 
-4. **Update**: Sync with upstream
+1. **Update**: Sync with upstream
+
    ```bash
    git fetch upstream
    git rebase upstream/master
    ```
 
-5. **Push**: Push to your fork
+1. **Push**: Push to your fork
+
    ```bash
    git push origin feature/my-new-game
    ```
 
-6. **Open PR**: Open Pull Request on GitHub
+1. **Open PR**: Open Pull Request on GitHub
+
    - Use clear title following commit conventions
    - Describe changes comprehensively
    - Reference related issues
@@ -641,7 +649,7 @@ Fixes #123
 - Profile slow code
 - Optimize hot paths
 - Consider memory usage
-- Keep AI response time reasonable (<1s typically)
+- Keep AI response time reasonable (\<1s typically)
 
 ### Compatibility
 
@@ -679,6 +687,7 @@ By contributing, you agree that your contributions will be licensed under the sa
 ## Recognition
 
 Contributors are recognized in:
+
 - Git commit history
 - Release notes
 - Main README.md (for significant contributions)

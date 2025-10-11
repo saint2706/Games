@@ -137,12 +137,8 @@ class TkUnoInterface(UnoInterface):
         for player in self.players:
             frame = tk.Frame(self.status_frame)
             frame.pack(fill=tk.X, pady=2)
-            tk.Label(frame, text=player.name, font=("Helvetica", 12, "bold")).pack(
-                side=tk.LEFT
-            )
-            count_label = tk.Label(
-                frame, text=f"{len(player.hand)} cards", font=("Helvetica", 11)
-            )
+            tk.Label(frame, text=player.name, font=("Helvetica", 12, "bold")).pack(side=tk.LEFT)
+            count_label = tk.Label(frame, text=f"{len(player.hand)} cards", font=("Helvetica", 11))
             count_label.pack(side=tk.RIGHT)
             self.score_labels.append(count_label)
 
@@ -156,15 +152,11 @@ class TkUnoInterface(UnoInterface):
         self.heading_var.set(strip_ansi(message))
         self.root.update_idletasks()
 
-    def show_message(
-        self, message: str, *, color: str = Fore.WHITE, style: str = ""
-    ) -> None:
+    def show_message(self, message: str, *, color: str = Fore.WHITE, style: str = "") -> None:
         """Display a message in the game log with appropriate color and style."""
         tag, hex_color = COLOR_TAGS.get(color, ("normal", "#f5f5f5"))
         font_weight = "bold" if style == Style.BRIGHT else "normal"
-        self.log_widget.tag_configure(
-            tag, foreground=hex_color, font=("Courier New", 11, font_weight)
-        )
+        self.log_widget.tag_configure(tag, foreground=hex_color, font=("Courier New", 11, font_weight))
         self.log_widget.configure(state=tk.NORMAL)
         self.log_widget.insert(tk.END, strip_ansi(message) + "\n", tag)
         self.log_widget.configure(state=tk.DISABLED)
@@ -177,9 +169,7 @@ class TkUnoInterface(UnoInterface):
             widget.destroy()
         self.card_buttons.clear()
 
-        info = tk.Label(
-            self.hand_frame, text="Select a card or choose an action below.", anchor="w"
-        )
+        info = tk.Label(self.hand_frame, text="Select a card or choose an action below.", anchor="w")
         info.pack(fill=tk.X, padx=8, pady=4)
 
         button_row = tk.Frame(self.hand_frame)
@@ -213,9 +203,7 @@ class TkUnoInterface(UnoInterface):
         self._teardown_action_controls()
         return self.pending_decision or PlayerDecision(action="draw")
 
-    def handle_drawn_card(
-        self, game: UnoGame, player: UnoPlayer, card: UnoCard
-    ) -> PlayerDecision:
+    def handle_drawn_card(self, game: UnoGame, player: UnoPlayer, card: UnoCard) -> PlayerDecision:
         """Prompt the user to play or keep a card they just drew."""
         self.show_hand(player, [game.interface.render_card(c) for c in player.hand])
         if not card.matches(game.active_color, game.active_value):
@@ -233,9 +221,7 @@ class TkUnoInterface(UnoInterface):
 
         def play_drawn() -> None:
             declare = self.uno_var.get() and len(player.hand) == 1
-            self.pending_decision = PlayerDecision(
-                action="play", card_index=len(player.hand) - 1, declare_uno=declare
-            )
+            self.pending_decision = PlayerDecision(action="play", card_index=len(player.hand) - 1, declare_uno=declare)
             self.decision_ready.set(True)
 
         def keep_drawn() -> None:
@@ -244,12 +230,8 @@ class TkUnoInterface(UnoInterface):
 
         buttons = tk.Frame(self.action_frame)
         buttons.pack(fill=tk.X, padx=6, pady=4)
-        tk.Button(buttons, text="Play Drawn Card", command=play_drawn).pack(
-            side=tk.LEFT, padx=4
-        )
-        tk.Button(buttons, text="Keep Card", command=keep_drawn).pack(
-            side=tk.LEFT, padx=4
-        )
+        tk.Button(buttons, text="Play Drawn Card", command=play_drawn).pack(side=tk.LEFT, padx=4)
+        tk.Button(buttons, text="Keep Card", command=keep_drawn).pack(side=tk.LEFT, padx=4)
         self.root.wait_variable(self.decision_ready)
         info.destroy()
         buttons.destroy()
@@ -259,9 +241,7 @@ class TkUnoInterface(UnoInterface):
         """Open a dialog for the user to choose a color after playing a wild."""
         dialog = tk.Toplevel(self.root)
         dialog.title("Choose a Color")
-        tk.Label(
-            dialog, text="Select the new active color:", font=("Helvetica", 12)
-        ).pack(padx=12, pady=8)
+        tk.Label(dialog, text="Select the new active color:", font=("Helvetica", 12)).pack(padx=12, pady=8)
         color_var = tk.StringVar()
 
         def select_color(color: str) -> None:
@@ -283,15 +263,11 @@ class TkUnoInterface(UnoInterface):
         self.root.wait_variable(color_var)
         return color_var.get()
 
-    def choose_swap_target(
-        self, player: UnoPlayer, players: Sequence[UnoPlayer]
-    ) -> int:
+    def choose_swap_target(self, player: UnoPlayer, players: Sequence[UnoPlayer]) -> int:
         """Open a dialog for the user to choose another player to swap hands with."""
         dialog = tk.Toplevel(self.root)
         dialog.title("Choose Swap Target")
-        tk.Label(
-            dialog, text="Choose a player to swap hands with:", font=("Helvetica", 12)
-        ).pack(padx=12, pady=8)
+        tk.Label(dialog, text="Choose a player to swap hands with:", font=("Helvetica", 12)).pack(padx=12, pady=8)
         target_var = tk.IntVar(value=-1)
 
         def select_target(idx: int) -> None:
@@ -314,20 +290,14 @@ class TkUnoInterface(UnoInterface):
         self.root.wait_variable(target_var)
         return target_var.get()
 
-    def prompt_challenge(
-        self, challenger: UnoPlayer, target: UnoPlayer, *, bluff_possible: bool
-    ) -> bool:
+    def prompt_challenge(self, challenger: UnoPlayer, target: UnoPlayer, *, bluff_possible: bool) -> bool:
         """Ask the user if they want to challenge a +4 card."""
-        message = f"Challenge {target.name}'s +4?" + (
-            " It might be a bluff!" if bluff_possible else ""
-        )
+        message = f"Challenge {target.name}'s +4?" + (" It might be a bluff!" if bluff_possible else "")
         return messagebox.askyesno("Challenge?", message, parent=self.root)
 
     def notify_uno_called(self, player: UnoPlayer) -> None:
         """Display a message indicating a player has called "Uno!"."""
-        self.show_message(
-            f"{player.name} calls UNO!", color=Fore.CYAN, style=Style.BRIGHT
-        )
+        self.show_message(f"{player.name} calls UNO!", color=Fore.CYAN, style=Style.BRIGHT)
 
     def notify_uno_penalty(self, player: UnoPlayer) -> None:
         """Display a message for a missed "Uno!" call."""
@@ -339,9 +309,7 @@ class TkUnoInterface(UnoInterface):
 
     def announce_winner(self, winner: UnoPlayer) -> None:
         """Announce the winner of the game."""
-        self.show_message(
-            f"{winner.name} wins the round!", color=Fore.CYAN, style=Style.BRIGHT
-        )
+        self.show_message(f"{winner.name} wins the round!", color=Fore.CYAN, style=Style.BRIGHT)
         messagebox.showinfo("Uno", f"{winner.name} wins the game!")
 
     def update_status(self, game: UnoGame) -> None:
@@ -361,9 +329,7 @@ class TkUnoInterface(UnoInterface):
         return f"{COLOR_EMOJI.get(color, '⬜')} {color.capitalize()}"
 
     # Internal helpers -------------------------------------------------
-    def _prepare_action_controls(
-        self, playable: Sequence[int], penalty_active: bool, game: UnoGame
-    ) -> None:
+    def _prepare_action_controls(self, playable: Sequence[int], penalty_active: bool, game: UnoGame) -> None:
         """Set up the action buttons for the user's turn."""
         for i, btn in enumerate(self.card_buttons):
             if i in playable:
@@ -397,9 +363,7 @@ class TkUnoInterface(UnoInterface):
                 width=16,
             ).pack(side=tk.LEFT, padx=4)
         else:
-            tk.Button(
-                self.action_frame, text="Draw Card", command=self._draw_card, width=14
-            ).pack(side=tk.LEFT, padx=4)
+            tk.Button(self.action_frame, text="Draw Card", command=self._draw_card, width=14).pack(side=tk.LEFT, padx=4)
             if penalty_active:
                 tk.Button(
                     self.action_frame,
@@ -422,18 +386,15 @@ class TkUnoInterface(UnoInterface):
         """Handle the user's card selection."""
         swap_target = None
         # Check if playing a 7 with seven_zero_swap rule enabled
-        if (self.game and self.game.house_rules.seven_zero_swap and
-            0 <= index < len(self.game.players[self.game.current_index].hand)):
+        if self.game and self.game.house_rules.seven_zero_swap and 0 <= index < len(self.game.players[self.game.current_index].hand):
             current_player = self.game.players[self.game.current_index]
             card = current_player.hand[index]
             if card.value == "7":
                 swap_target = self.choose_swap_target(current_player, self.game.players)
-        
+
         self._animate_card_play(index)
-        
-        self.pending_decision = PlayerDecision(
-            action="play", card_index=index, declare_uno=self.uno_var.get(), swap_target=swap_target
-        )
+
+        self.pending_decision = PlayerDecision(action="play", card_index=index, declare_uno=self.uno_var.get(), swap_target=swap_target)
         self.decision_ready.set(True)
 
     def _draw_card(self) -> None:
@@ -443,7 +404,7 @@ class TkUnoInterface(UnoInterface):
 
     def _animate_card_play(self, card_index: int) -> None:
         """Animate a card being played with highlight and scale effects.
-        
+
         This method shows a visual animation when a card is played:
         - Highlights the card with a bright color
         - Creates a pulsing effect
@@ -451,13 +412,13 @@ class TkUnoInterface(UnoInterface):
         """
         if not self.enable_animations:
             return
-        
+
         # Animate the button to indicate the card being played
         if 0 <= card_index < len(self.card_buttons):
             btn = self.card_buttons[card_index]
             original_bg = btn.cget("background")
             original_relief = btn.cget("relief")
-            
+
             def animate(step: int = 0) -> None:
                 if step < 6:
                     # Alternate between highlighted and normal state
@@ -470,15 +431,15 @@ class TkUnoInterface(UnoInterface):
                 else:
                     # Restore original appearance
                     btn.configure(bg=original_bg, relief=original_relief)
-            
+
             animate()
 
     def play_sound(self, sound_type: str) -> None:
         """Play a sound effect using the sound manager.
-        
+
         Args:
             sound_type: Type of sound to play ('card_play', 'draw', 'uno', 'win', etc.)
-        
+
         Sound types:
         - 'card_play': When a card is played
         - 'draw': When drawing cards
@@ -493,7 +454,7 @@ class TkUnoInterface(UnoInterface):
         """
         if not self.enable_sounds or self.sound_manager is None:
             return
-        
+
         self.sound_manager.play(sound_type)
 
     def _accept_penalty(self) -> None:

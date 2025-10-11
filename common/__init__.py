@@ -10,6 +10,7 @@ This package provides shared functionality including:
 - Game engine abstractions
 """
 
+from .ai_strategy import AIStrategy, HeuristicStrategy, MinimaxStrategy, RandomStrategy
 from .architecture.engine import GameEngine, GamePhase, GameState
 from .architecture.events import Event, EventBus, EventHandler, FunctionEventHandler
 from .architecture.observer import Observable, Observer, PropertyObservable
@@ -28,6 +29,11 @@ __all__ = [
     "GameEngine",
     "GameState",
     "GamePhase",
+    # AI Strategy
+    "AIStrategy",
+    "RandomStrategy",
+    "MinimaxStrategy",
+    "HeuristicStrategy",
     # Event system
     "Event",
     "EventBus",

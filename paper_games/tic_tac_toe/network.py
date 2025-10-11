@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import socket
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional
 
 from .tic_tac_toe import TicTacToeGame
 
@@ -29,7 +29,7 @@ class NetworkTicTacToeServer:
 
     def __init__(self, config: NetworkConfig) -> None:
         """Initialize the server.
-        
+
         Args:
             config: Network configuration.
         """
@@ -44,13 +44,13 @@ class NetworkTicTacToeServer:
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.bind((self.config.host, self.config.port))
         self.server_socket.listen(1)
-        
+
         print(f"Server listening on {self.config.host}:{self.config.port}")
         print("Waiting for opponent to connect...")
-        
+
         self.client_socket, address = self.server_socket.accept()
         print(f"Connected to {address}")
-        
+
         # Initialize the game
         self.game = TicTacToeGame(
             human_symbol="X",
@@ -59,51 +59,55 @@ class NetworkTicTacToeServer:
             board_size=self.config.board_size,
             win_length=self.config.win_length or self.config.board_size,
         )
-        
+
         # Send game config to client
-        self._send_message({
-            "type": "config",
-            "board_size": self.config.board_size,
-            "win_length": self.game.win_length,
-            "your_symbol": "O",
-            "opponent_symbol": "X",
-        })
+        self._send_message(
+            {
+                "type": "config",
+                "board_size": self.config.board_size,
+                "win_length": self.game.win_length,
+                "your_symbol": "O",
+                "opponent_symbol": "X",
+            }
+        )
 
     def send_move(self, position: int) -> bool:
         """Send a move to the opponent.
-        
+
         Args:
             position: The position to play.
-        
+
         Returns:
             True if the move was sent successfully.
         """
         if not self.game or not self.client_socket:
             return False
-        
-        self._send_message({
-            "type": "move",
-            "position": position,
-            "symbol": "X",
-        })
+
+        self._send_message(
+            {
+                "type": "move",
+                "position": position,
+                "symbol": "X",
+            }
+        )
         return True
 
     def receive_move(self) -> Optional[int]:
         """Receive a move from the opponent.
-        
+
         Returns:
             The position played by the opponent, or None if connection lost.
         """
         if not self.client_socket:
             return None
-        
+
         try:
             message = self._receive_message()
             if message and message.get("type") == "move":
                 return message.get("position")
         except (ConnectionResetError, BrokenPipeError):
             return None
-        
+
         return None
 
     def close(self) -> None:
@@ -124,14 +128,14 @@ class NetworkTicTacToeServer:
         """Receive a JSON message from the client."""
         if not self.client_socket:
             return None
-        
+
         buffer = b""
         while b"\n" not in buffer:
             chunk = self.client_socket.recv(1024)
             if not chunk:
                 return None
             buffer += chunk
-        
+
         data = buffer.split(b"\n")[0]
         return json.loads(data.decode("utf-8"))
 
@@ -141,7 +145,7 @@ class NetworkTicTacToeClient:
 
     def __init__(self, host: str = "localhost", port: int = 5555) -> None:
         """Initialize the client.
-        
+
         Args:
             host: Server hostname or IP address.
             port: Server port number.
@@ -155,7 +159,7 @@ class NetworkTicTacToeClient:
 
     def connect(self) -> bool:
         """Connect to the server.
-        
+
         Returns:
             True if connection was successful.
         """
@@ -163,7 +167,7 @@ class NetworkTicTacToeClient:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.host, self.port))
             print(f"Connected to {self.host}:{self.port}")
-            
+
             # Receive game config
             config = self._receive_message()
             if config and config.get("type") == "config":
@@ -171,7 +175,7 @@ class NetworkTicTacToeClient:
                 win_length = config.get("win_length", board_size)
                 self.my_symbol = config.get("your_symbol", "O")
                 self.opponent_symbol = config.get("opponent_symbol", "X")
-                
+
                 self.game = TicTacToeGame(
                     human_symbol=self.my_symbol,
                     computer_symbol=self.opponent_symbol,
@@ -183,44 +187,46 @@ class NetworkTicTacToeClient:
         except (ConnectionRefusedError, socket.timeout):
             print("Could not connect to server.")
             return False
-        
+
         return False
 
     def send_move(self, position: int) -> bool:
         """Send a move to the opponent.
-        
+
         Args:
             position: The position to play.
-        
+
         Returns:
             True if the move was sent successfully.
         """
         if not self.socket:
             return False
-        
-        self._send_message({
-            "type": "move",
-            "position": position,
-            "symbol": self.my_symbol,
-        })
+
+        self._send_message(
+            {
+                "type": "move",
+                "position": position,
+                "symbol": self.my_symbol,
+            }
+        )
         return True
 
     def receive_move(self) -> Optional[int]:
         """Receive a move from the opponent.
-        
+
         Returns:
             The position played by the opponent, or None if connection lost.
         """
         if not self.socket:
             return None
-        
+
         try:
             message = self._receive_message()
             if message and message.get("type") == "move":
                 return message.get("position")
         except (ConnectionResetError, BrokenPipeError):
             return None
-        
+
         return None
 
     def close(self) -> None:
@@ -239,13 +245,13 @@ class NetworkTicTacToeClient:
         """Receive a JSON message from the server."""
         if not self.socket:
             return None
-        
+
         buffer = b""
         while b"\n" not in buffer:
             chunk = self.socket.recv(1024)
             if not chunk:
                 return None
             buffer += chunk
-        
+
         data = buffer.split(b"\n")[0]
         return json.loads(data.decode("utf-8"))

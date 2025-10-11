@@ -9,8 +9,9 @@ This document provides technical implementation notes for the Uno game features 
 ### ✅ House Rules Options (Partial)
 
 #### Stacking (Fully Implemented)
+
 - **Status**: Complete and tested
-- **Implementation**: 
+- **Implementation**:
   - Logic in `uno.py` methods `_execute_play()` and `_accept_penalty()`
   - Allows players to stack +2 and +4 cards
   - Penalty accumulates until a player accepts or the chain breaks
@@ -18,6 +19,7 @@ This document provides technical implementation notes for the Uno game features 
 - **Usage**: `--stacking` flag
 
 #### 7-0 Swapping (Fully Implemented)
+
 - **Status**: Complete and tested
 - **Implementation**:
   - Hand swapping for 7 cards: `_swap_hands()` method
@@ -27,18 +29,20 @@ This document provides technical implementation notes for the Uno game features 
 - **Usage**: `--seven-zero` flag
 
 #### Jump-In (Not Implemented)
+
 - **Status**: Flag exists, game logic not implemented
 - **Implementation**: Command-line argument parsing exists
 - **Reason**: Requires significant changes to turn flow:
   1. After each card play, need to check all other players
-  2. Prompt each player if they have an identical card
-  3. Handle simultaneous jump-in attempts
-  4. Manage turn order interruption
-  5. Update both console and GUI interfaces
+  1. Prompt each player if they have an identical card
+  1. Handle simultaneous jump-in attempts
+  1. Manage turn order interruption
+  1. Update both console and GUI interfaces
 - **TODO**: Marked with comment in `HouseRules` dataclass
 - **Future Work**: Would require refactoring the main game loop in `play()` method
 
 ### ✅ 2v2 Team Play Mode (Fully Implemented)
+
 - **Status**: Complete and tested
 - **Implementation**:
   - Team assignment in `build_players()` function
@@ -50,6 +54,7 @@ This document provides technical implementation notes for the Uno game features 
 - **File**: `uno.py` lines 968-1022
 
 ### ✅ Card Animation Effects in GUI (Enhanced)
+
 - **Status**: Basic implementation enhanced
 - **Implementation**:
   - Method: `_animate_card_play()` in `gui.py`
@@ -67,6 +72,7 @@ This document provides technical implementation notes for the Uno game features 
 - **File**: `gui.py` lines 444-471
 
 ### ✅ Sound Effects (Fully Implemented)
+
 - **Status**: Complete infrastructure, optional pygame dependency
 - **Implementation**:
   - New module: `sound_manager.py`
@@ -88,12 +94,13 @@ This document provides technical implementation notes for the Uno game features 
 - **Sound Hooks**: Already integrated throughout game logic in `uno.py`
 - **Dependencies**: Optional pygame installation (`pip install pygame`)
 - **Directory**: `sounds/` with README.md for user guidance
-- **Files**: 
+- **Files**:
   - `sound_manager.py` (new)
   - `gui.py` (modified)
   - `sounds/README.md` (new)
 
 ### ❌ Online Multiplayer Capability (Not Implemented)
+
 - **Status**: Guide exists, implementation not done
 - **Reason**: Out of scope for minimal changes requirement
 - **Requirements**:
@@ -110,6 +117,7 @@ This document provides technical implementation notes for the Uno game features 
 - **Decision**: Marked as future enhancement
 
 ### ❌ Custom Deck Designer (Not Implemented)
+
 - **Status**: Guide exists, implementation not done
 - **Reason**: Out of scope for minimal changes requirement
 - **Requirements**:
@@ -127,9 +135,11 @@ This document provides technical implementation notes for the Uno game features 
 ## Architecture Decisions
 
 ### Conditional GUI Import
+
 **Problem**: The uno package import failed when tkinter was not available (e.g., in headless environments or during testing).
 
 **Solution**: Modified `__init__.py` to conditionally import GUI components:
+
 ```python
 try:
     from .gui import TkUnoInterface, launch_uno_gui
@@ -139,42 +149,50 @@ except ImportError:
 ```
 
 **Benefits**:
+
 - Tests can run without tkinter
 - Console mode works in headless environments
 - GUI components only loaded when available
 
 ### Sound Manager Design
+
 **Pattern**: Factory pattern with graceful degradation
 
 **Key Features**:
+
 1. **Optional Dependency**: pygame not required for game to work
-2. **Silent Failure**: Missing sound files don't crash the game
-3. **Simple Interface**: Single `play()` method for all sounds
-4. **Extensibility**: Easy to add new sound types
+1. **Silent Failure**: Missing sound files don't crash the game
+1. **Simple Interface**: Single `play()` method for all sounds
+1. **Extensibility**: Easy to add new sound types
 
 **Implementation Details**:
+
 ```python
 PYGAME_AVAILABLE = True/False  # Module-level flag
 SoundManager.enabled  # Instance-level flag
 ```
 
 ### Animation Design
+
 **Pattern**: Closure-based recursive animation
 
 **Key Features**:
+
 1. **Non-blocking**: Uses `root.after()` for timing
-2. **Self-contained**: Animation state in closure
-3. **Cancellable**: Can be interrupted naturally
-4. **Configurable**: Easy to adjust timing and effects
+1. **Self-contained**: Animation state in closure
+1. **Cancellable**: Can be interrupted naturally
+1. **Configurable**: Easy to adjust timing and effects
 
 ## Testing Strategy
 
 ### Test Coverage
+
 - **Unit Tests**: Core game logic (cards, players, rules)
 - **Integration Tests**: Feature interactions (team mode with house rules)
 - **Mock Objects**: UI independence for testing
 
 ### Test File: `tests/test_uno_features.py`
+
 - Tests for HouseRules configuration
 - Tests for team mode player assignment
 - Tests for stacking functionality
@@ -182,6 +200,7 @@ SoundManager.enabled  # Instance-level flag
 - Tests for card matching logic
 
 ### Running Tests
+
 ```bash
 python tests/test_uno_features.py
 ```
@@ -191,101 +210,124 @@ All tests pass successfully as of this implementation.
 ## File Changes Summary
 
 ### Modified Files
+
 1. `card_games/uno/__init__.py`
+
    - Conditional GUI import
    - Prevents tkinter dependency issues
 
-2. `card_games/uno/uno.py`
+1. `card_games/uno/uno.py`
+
    - Added TODO comment for jump-in rule
    - No functional changes
 
-3. `card_games/uno/gui.py`
+1. `card_games/uno/gui.py`
+
    - Integrated SoundManager
    - Enhanced `_animate_card_play()` method
    - Updated `play_sound()` implementation
 
-4. `.gitignore`
+1. `.gitignore`
+
    - Added sound file patterns to ignore user-added sounds
 
 ### New Files
+
 1. `card_games/uno/sound_manager.py`
+
    - Complete sound effect system
    - Pygame integration with fallback
 
-2. `card_games/uno/sounds/README.md`
+1. `card_games/uno/sounds/README.md`
+
    - User guide for adding sound files
    - Sound resources and format specifications
 
-3. `card_games/uno/sounds/.gitkeep`
+1. `card_games/uno/sounds/.gitkeep`
+
    - Ensures sounds directory is tracked
 
-4. `card_games/uno/FEATURES.md`
+1. `card_games/uno/FEATURES.md`
+
    - Comprehensive feature documentation
    - Usage examples and implementation status
 
-5. `card_games/uno/IMPLEMENTATION_NOTES.md`
+1. `card_games/uno/IMPLEMENTATION_NOTES.md`
+
    - This file - technical implementation details
 
-6. `tests/test_uno_features.py`
+1. `tests/test_uno_features.py`
+
    - Complete test suite for implemented features
 
 ## Known Limitations
 
 1. **Jump-In Rule**: Flag exists but no implementation
+
    - Would require major refactoring of turn flow
    - Marked for future implementation
 
-2. **Sound Files**: Not included in repository
+1. **Sound Files**: Not included in repository
+
    - Users must provide their own sound files
    - See `sounds/README.md` for guidance
 
-3. **Team Mode**: Only supports 4-player games
+1. **Team Mode**: Only supports 4-player games
+
    - Could be extended to support other even numbers
    - Currently enforced in `build_players()`
 
-4. **Animations**: Basic implementation
+1. **Animations**: Basic implementation
+
    - Could be enhanced with more sophisticated effects
    - Currently limited to highlight/pulse
 
 ## Future Enhancements
 
 ### Short-term (Minimal Changes)
+
 1. Implement jump-in rule logic
-2. Add more animation effects
-3. Create default sound effects pack
-4. Support more team configurations (6 players = 2v2v2)
+1. Add more animation effects
+1. Create default sound effects pack
+1. Support more team configurations (6 players = 2v2v2)
 
 ### Medium-term (Moderate Changes)
+
 1. Add replay system
-2. Implement game statistics tracking
-3. Add AI difficulty levels
-4. Create tournament mode
+1. Implement game statistics tracking
+1. Add AI difficulty levels
+1. Create tournament mode
 
 ### Long-term (Major Changes)
+
 1. Online multiplayer with server
-2. Custom deck designer tool
-3. Mobile app version
-4. Achievements and leaderboards
+1. Custom deck designer tool
+1. Mobile app version
+1. Achievements and leaderboards
 
 ## Dependencies
 
 ### Required
+
 - Python 3.9+
 - colorama (for console colors)
 
 ### Optional
+
 - pygame (for sound effects)
 - tkinter (for GUI, usually bundled with Python)
 
 ## Compatibility
 
 ### Tested Environments
+
 - Python 3.9, 3.10, 3.11, 3.12
 - Linux (Ubuntu, Debian)
 - macOS (should work, not explicitly tested)
 - Windows (should work, not explicitly tested)
 
 ### Known Issues
+
 - tkinter may not be available in some Python installations
 - pygame must be manually installed for sound effects
 - Sound files not included (users provide their own)
@@ -293,18 +335,21 @@ All tests pass successfully as of this implementation.
 ## Maintenance Notes
 
 ### Code Quality
+
 - All files pass Python syntax checking
 - Follows existing code style in repository
 - Uses type hints where appropriate
 - Comprehensive docstrings added
 
 ### Documentation
+
 - All new features documented
 - Usage examples provided
 - Implementation notes included
 - Test coverage documented
 
 ### Testing
+
 - All tests pass successfully
 - Mock objects used to avoid UI dependencies
 - Tests cover core functionality
@@ -313,11 +358,12 @@ All tests pass successfully as of this implementation.
 ## Contributing
 
 When extending these features:
+
 1. Follow the existing code patterns
-2. Add tests for new functionality
-3. Update documentation
-4. Maintain backward compatibility
-5. Handle optional dependencies gracefully
+1. Add tests for new functionality
+1. Update documentation
+1. Maintain backward compatibility
+1. Handle optional dependencies gracefully
 
 ## References
 

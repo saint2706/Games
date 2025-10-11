@@ -21,21 +21,11 @@ def build_parser() -> argparse.ArgumentParser:
     Returns:
         argparse.ArgumentParser: The configured argument parser.
     """
-    parser = argparse.ArgumentParser(
-        description="Play a game of blackjack against the dealer."
-    )
-    parser.add_argument(
-        "--bankroll", type=int, default=500, help="Starting bankroll (default: 500)"
-    )
-    parser.add_argument(
-        "--min-bet", type=int, default=10, help="Minimum bet size (default: 10)"
-    )
-    parser.add_argument(
-        "--decks", type=int, default=6, help="Number of decks in the shoe (default: 6)"
-    )
-    parser.add_argument(
-        "--seed", type=int, help="Optional random seed for deterministic play"
-    )
+    parser = argparse.ArgumentParser(description="Play a game of blackjack against the dealer.")
+    parser.add_argument("--bankroll", type=int, default=500, help="Starting bankroll (default: 500)")
+    parser.add_argument("--min-bet", type=int, default=10, help="Minimum bet size (default: 10)")
+    parser.add_argument("--decks", type=int, default=6, help="Number of decks in the shoe (default: 6)")
+    parser.add_argument("--seed", type=int, help="Optional random seed for deterministic play")
     parser.add_argument(
         "--educational",
         action="store_true",
@@ -78,9 +68,7 @@ def prompt_bet(game: BlackjackGame) -> tuple[int, dict[SideBetType, int]]:
         tuple[int, dict[SideBetType, int]]: The main bet and side bets dictionary.
     """
     while True:
-        raw = input(
-            f"Place your bet (min {game.min_bet}, bankroll {game.player.bankroll}): "
-        ).strip()
+        raw = input(f"Place your bet (min {game.min_bet}, bankroll {game.player.bankroll}): ").strip()
         if not raw:
             print("Bet cannot be empty.")
             continue
@@ -92,13 +80,11 @@ def prompt_bet(game: BlackjackGame) -> tuple[int, dict[SideBetType, int]]:
         if bet < game.min_bet or bet > game.player.bankroll:
             print(f"Bet must be between {game.min_bet} and {game.player.bankroll}.")
             continue
-        
+
         # Prompt for side bets
         side_bets = {}
-        side_bet_prompt = input(
-            "Place side bets? (p=Perfect Pairs, t=21+3, n=none): "
-        ).strip().lower()
-        
+        side_bet_prompt = input("Place side bets? (p=Perfect Pairs, t=21+3, n=none): ").strip().lower()
+
         if side_bet_prompt and side_bet_prompt != "n":
             remaining = game.player.bankroll - bet
             if "p" in side_bet_prompt:
@@ -108,14 +94,14 @@ def prompt_bet(game: BlackjackGame) -> tuple[int, dict[SideBetType, int]]:
                     if 0 < pp_amount <= remaining:
                         side_bets[SideBetType.PERFECT_PAIRS] = pp_amount
                         remaining -= pp_amount
-            
+
             if "t" in side_bet_prompt:
                 tp_raw = input(f"21+3 bet (max {remaining}): ").strip()
                 if tp_raw.isdigit():
                     tp_amount = int(tp_raw)
                     if 0 < tp_amount <= remaining:
                         side_bets[SideBetType.TWENTY_ONE_PLUS_THREE] = tp_amount
-        
+
         try:
             # Validate the bet against the game rules
             game.start_round(bet, side_bets=side_bets if side_bets else None)
@@ -133,17 +119,11 @@ def display_table(game: BlackjackGame, *, hide_dealer: bool = True) -> None:
     """
     # Display shoe info and card counting
     print(f"\n{'='*60}")
-    print(
-        f"Shoe: {len(game.shoe.cards)} cards remaining "
-        f"({game.shoe.penetration():.1f}% dealt)"
-    )
+    print(f"Shoe: {len(game.shoe.cards)} cards remaining " f"({game.shoe.penetration():.1f}% dealt)")
     if game.educational_mode:
-        print(
-            f"Card Count - Running: {game.shoe.running_count}, "
-            f"True: {game.shoe.true_count():.2f}"
-        )
+        print(f"Card Count - Running: {game.shoe.running_count}, " f"True: {game.shoe.true_count():.2f}")
     print(f"{'='*60}")
-    
+
     dealer = render_hand("Dealer", game.dealer_hand, hide_hole=hide_dealer)
     print("\n" + dealer)
 
@@ -163,14 +143,14 @@ def display_table(game: BlackjackGame, *, hide_dealer: bool = True) -> None:
 
         suffix = f" [{', '.join(status)}]" if status else ""
         print(f"{prefix}: {format_cards(hand.cards)} ({hand.best_total()}){suffix}")
-        
+
         # Display side bet results if any
         if hand.side_bets:
             for sb in hand.side_bets:
                 outcome_str = sb.outcome or "pending"
                 payout_str = f"+${sb.payout}" if sb.payout > 0 else "lost"
                 print(f"  Side bet {sb.bet_type.value}: {outcome_str} ({payout_str})")
-        
+
         # Display card counting hint for educational mode
         if game.educational_mode and not hand.stood and not hand.is_bust():
             hint = game.get_counting_hint(hand)
@@ -199,9 +179,7 @@ def prompt_action(game: BlackjackGame, hand: BlackjackHand) -> str:
     }
     while True:
         actions = game.player_actions(hand)
-        available = {
-            key: value for key, value in action_map.items() if value in actions
-        }
+        available = {key: value for key, value in action_map.items() if value in actions}
         options = "/".join(key.upper() for key in available)
 
         choice = input(f"Choose action [{options}]: ").strip().lower()
@@ -233,12 +211,7 @@ def handle_player_turn(game: BlackjackGame) -> None:
         hand = game.player.hands[index]
 
         # Loop until the hand is stood, bust, blackjack, or surrendered
-        while (
-            not hand.stood
-            and not hand.is_bust()
-            and not hand.is_blackjack()
-            and not hand.surrendered
-        ):
+        while not hand.stood and not hand.is_bust() and not hand.is_blackjack() and not hand.surrendered:
             display_table(game)
             action = prompt_action(game, hand)
 
@@ -252,9 +225,7 @@ def handle_player_turn(game: BlackjackGame) -> None:
                 print("You stand.")
             elif action == "double":
                 card = game.double_down(hand)
-                print(
-                    f"Double down! You draw {card} and stand with {hand.best_total()}."
-                )
+                print(f"Double down! You draw {card} and stand with {hand.best_total()}.")
             elif action == "split":
                 game.split(hand)
                 print("Hands split into two bets.")
@@ -350,14 +321,14 @@ def main(argv: Iterable[str] | None = None) -> None:
         rng=rng,
         educational_mode=args.educational,
     )
-    
+
     if args.educational:
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("EDUCATIONAL MODE ENABLED")
         print("Card counting hints will be displayed during play.")
         print("This is for educational purposes only!")
-        print("="*60 + "\n")
-    
+        print("=" * 60 + "\n")
+
     game_loop(game)
 
 

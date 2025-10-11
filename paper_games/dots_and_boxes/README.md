@@ -17,11 +17,13 @@ A feature-rich implementation of the classic Dots and Boxes game with AI opponen
 ### Command Line Interface (CLI)
 
 Play a standard game with default 2x2 board:
+
 ```bash
 python -m paper_games.dots_and_boxes
 ```
 
 Play with a larger board (3x3, 4x4, 5x5, or 6x6):
+
 ```bash
 python -m paper_games.dots_and_boxes --size 4
 ```
@@ -29,11 +31,13 @@ python -m paper_games.dots_and_boxes --size 4
 ### Graphical Interface (GUI)
 
 Launch the GUI (requires tkinter):
+
 ```bash
 python -m paper_games.dots_and_boxes --gui --size 3
 ```
 
 Enable move hints in GUI:
+
 ```bash
 python -m paper_games.dots_and_boxes --gui --hints
 ```
@@ -41,11 +45,13 @@ python -m paper_games.dots_and_boxes --gui --hints
 ### Tournament Mode
 
 Play a tournament of 5 games:
+
 ```bash
 python -m paper_games.dots_and_boxes --tournament 5 --size 3
 ```
 
 The tournament tracks:
+
 - Total games played
 - Win/loss/tie statistics
 - Total scores
@@ -55,16 +61,19 @@ The tournament tracks:
 ### Network Multiplayer
 
 Host a multiplayer game:
+
 ```bash
 python -m paper_games.dots_and_boxes --host --size 3 --name "Alice"
 ```
 
 Join a multiplayer game:
+
 ```bash
 python -m paper_games.dots_and_boxes --join localhost --name "Bob"
 ```
 
 Join a game on a different computer:
+
 ```bash
 python -m paper_games.dots_and_boxes --join 192.168.1.100 --port 5555 --name "Bob"
 ```
@@ -76,6 +85,7 @@ Dots and Boxes is played on a grid of dots. Players take turns drawing horizonta
 ## Strategy Tips
 
 The GUI provides real-time feedback:
+
 - ✅ **Safe move**: Doesn't create a chain opportunity for opponent
 - ⚠️ **Warning**: Creates a chain - opponent could capture multiple boxes
 - ⭐ **Scoring move**: Completes a box!

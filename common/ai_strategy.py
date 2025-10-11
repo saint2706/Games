@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import random
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Generic, List, Optional, TypeVar
+from typing import Callable, Generic, List, Optional, TypeVar
 
 # Type variable for move representation
 MoveType = TypeVar("MoveType")
@@ -216,9 +216,7 @@ class HeuristicStrategy(AIStrategy[MoveType, StateType]):
             raise ValueError("No valid moves available")
 
         # Evaluate all moves
-        scored_moves = [
-            (move, self.heuristic_fn(move, game_state)) for move in valid_moves
-        ]
+        scored_moves = [(move, self.heuristic_fn(move, game_state)) for move in valid_moves]
 
         # Find the maximum score
         max_score = max(score for _, score in scored_moves)

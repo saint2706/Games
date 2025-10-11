@@ -1,11 +1,11 @@
 """Tests for Uno game features including house rules and team mode."""
 
 import random
-from unittest.mock import MagicMock
 
 # Import directly from uno.py to avoid tkinter dependency
 import sys
 from pathlib import Path
+from unittest.mock import MagicMock
 
 # Add the parent directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -13,9 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from card_games.uno.uno import (
     HouseRules,
     UnoCard,
-    UnoDeck,
     UnoGame,
-    UnoPlayer,
     build_players,
 )
 

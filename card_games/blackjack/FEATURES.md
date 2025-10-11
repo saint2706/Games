@@ -9,13 +9,17 @@ This document describes the new features added to the Blackjack game.
 Two popular casino side bets have been implemented:
 
 #### Perfect Pairs
+
 Pays out when your first two cards form a pair:
+
 - **Perfect Pair** (same rank and suit): 25:1
 - **Colored Pair** (same rank, same color): 12:1
 - **Mixed Pair** (same rank, different color): 6:1
 
 #### 21+3
+
 Creates a poker hand from your two cards and the dealer's up card:
+
 - **Suited Trips**: 100:1
 - **Straight Flush**: 40:1
 - **Three of a Kind**: 30:1
@@ -23,6 +27,7 @@ Creates a poker hand from your two cards and the dealer's up card:
 - **Flush**: 5:1
 
 **Usage in CLI:**
+
 ```bash
 python -m card_games.blackjack.cli
 # When prompted:
@@ -32,6 +37,7 @@ python -m card_games.blackjack.cli
 ```
 
 **Usage in Code:**
+
 ```python
 from card_games.blackjack.game import BlackjackGame, SideBetType
 
@@ -53,11 +59,13 @@ Educational mode enables a Hi-Lo card counting system with helpful hints:
 - **Penetration Indicator**: Shows % of shoe dealt
 
 **Usage in CLI:**
+
 ```bash
 python -m card_games.blackjack.cli --educational
 ```
 
 **Usage in Code:**
+
 ```python
 game = BlackjackGame(bankroll=1000, min_bet=10, educational_mode=True)
 game.start_round(50)
@@ -80,12 +88,14 @@ Players can surrender their hand to get back half their bet:
 - Can be disabled via table rules
 
 **Usage in CLI:**
+
 ```bash
 # When prompted for action:
 # Choose action [H/S/D/R]: r  # Press 'r' to surrender
 ```
 
 **Usage in Code:**
+
 ```python
 game = BlackjackGame(bankroll=1000, min_bet=10)
 game.start_round(100)
@@ -105,6 +115,7 @@ Support for up to 7 players at a single table:
 - Backward compatible with single-player mode
 
 **Usage in Code:**
+
 ```python
 # Create a 3-player game
 game = BlackjackGame(bankroll=1000, min_bet=10, num_players=3)
@@ -132,6 +143,7 @@ Visual indicator showing how far through the shoe you are:
 - Shoe reshuffles at ~75% penetration
 
 **Usage:**
+
 ```python
 game = BlackjackGame(bankroll=1000, min_bet=10, decks=6)
 game.start_round(50)
@@ -145,6 +157,7 @@ print(f"Cards remaining: {len(game.shoe.cards)}")
 Three predefined table configurations:
 
 #### Standard Table
+
 - Blackjack pays 3:2
 - Dealer stands on soft 17
 - Surrender allowed
@@ -152,6 +165,7 @@ Three predefined table configurations:
 - Up to 3 splits
 
 #### Liberal Table
+
 - Blackjack pays 3:2
 - Dealer stands on soft 17
 - Surrender allowed
@@ -160,6 +174,7 @@ Three predefined table configurations:
 - Up to 4 splits
 
 #### Conservative Table (House favorable)
+
 - Blackjack pays 6:5
 - Dealer hits soft 17
 - Surrender NOT allowed
@@ -167,6 +182,7 @@ Three predefined table configurations:
 - Up to 2 splits
 
 **Usage:**
+
 ```python
 from card_games.blackjack.game import BlackjackGame, TABLE_CONFIGS
 

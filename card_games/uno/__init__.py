@@ -26,6 +26,7 @@ __all__ = [
 # Try to import GUI components, but don't fail if tkinter is unavailable
 try:
     from .gui import TkUnoInterface, launch_uno_gui
+
     __all__.extend(["TkUnoInterface", "launch_uno_gui"])
 except ImportError:
     # tkinter not available, GUI components won't be exported

@@ -3,8 +3,6 @@
 import tempfile
 from pathlib import Path
 
-import pytest
-
 from common.architecture import GamePlugin, PluginManager, PluginMetadata
 
 
@@ -125,7 +123,7 @@ def test_plugin_manager_load_plugin_from_file():
 
         # Create a real plugin file
         plugin_file = plugin_dir / "real_plugin.py"
-        plugin_code = '''
+        plugin_code = """
 from common.architecture import GamePlugin, PluginMetadata
 
 class RealPlugin(GamePlugin):
@@ -142,7 +140,7 @@ class RealPlugin(GamePlugin):
         return object
 
 plugin = RealPlugin()
-'''
+"""
         plugin_file.write_text(plugin_code)
 
         success = manager.load_plugin("real_plugin")

@@ -7,12 +7,12 @@ This document describes the architecture components available in the Games repos
 The `common/architecture` module provides a comprehensive set of architectural patterns and utilities to support game development:
 
 1. **Plugin System** - Add third-party games without modifying core code
-2. **Event-Driven Architecture** - Decouple components using events
-3. **Save/Load System** - Persist and restore game state
-4. **Unified Settings** - Centralized configuration management
-5. **Replay/Undo System** - Record and replay game actions
-6. **Observer Pattern** - Synchronize GUIs with game state
-7. **Game Engine Abstraction** - Common interface for all games
+1. **Event-Driven Architecture** - Decouple components using events
+1. **Save/Load System** - Persist and restore game state
+1. **Unified Settings** - Centralized configuration management
+1. **Replay/Undo System** - Record and replay game actions
+1. **Observer Pattern** - Synchronize GUIs with game state
+1. **Game Engine Abstraction** - Common interface for all games
 
 ## Components
 
@@ -55,9 +55,9 @@ manager.load_plugin("my_game")
 #### Creating a Plugin
 
 1. Create a Python file or package in the `plugins` directory
-2. Implement the `GamePlugin` interface
-3. Define your game engine class
-4. Export a `plugin` variable with your plugin instance
+1. Implement the `GamePlugin` interface
+1. Define your game engine class
+1. Export a `plugin` variable with your plugin instance
 
 ### 2. Event-Driven Architecture
 
@@ -350,19 +350,21 @@ class MyGame(GameEngine):
 ## Best Practices
 
 1. **Use Events for Decoupling**: Emit events when state changes rather than directly calling methods
-2. **Implement Observable**: Make game state observable so GUIs can react to changes
-3. **Support Save/Load**: Implement `save_state()` and `load_state()` methods
-4. **Record Actions**: Use ReplayManager to enable undo/redo functionality
-5. **Centralize Settings**: Use SettingsManager for all configuration
-6. **Follow the Interface**: Implement GameEngine interface for consistency
+1. **Implement Observable**: Make game state observable so GUIs can react to changes
+1. **Support Save/Load**: Implement `save_state()` and `load_state()` methods
+1. **Record Actions**: Use ReplayManager to enable undo/redo functionality
+1. **Centralize Settings**: Use SettingsManager for all configuration
+1. **Follow the Interface**: Implement GameEngine interface for consistency
 
 ## Testing
 
 The architecture components include comprehensive tests in:
+
 - `tests/test_architecture.py` - Core architecture tests
 - `tests/test_plugin_system.py` - Plugin system tests
 
 Run tests with:
+
 ```bash
 pytest tests/test_architecture.py tests/test_plugin_system.py -v
 ```
@@ -384,10 +386,10 @@ Planned improvements to the architecture:
 When adding new games:
 
 1. Extend `GameEngine` for your game logic
-2. Use the event system for state changes
-3. Implement save/load functionality
-4. Add settings support
-5. Make state observable for GUI integration
-6. Include comprehensive tests
+1. Use the event system for state changes
+1. Implement save/load functionality
+1. Add settings support
+1. Make state observable for GUI integration
+1. Include comprehensive tests
 
 See `CONTRIBUTING.md` for detailed guidelines.

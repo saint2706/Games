@@ -7,35 +7,44 @@ This directory contains automated workflows for continuous integration, testing,
 ### CI Workflows (Run on Push/PR)
 
 #### `ci.yml` - Continuous Integration
+
 Combined workflow that runs all quality checks:
+
 - Linting (Black, Ruff, mdformat)
 - Testing on Python 3.11 and 3.12
 
 This is the primary workflow that should pass before merging pull requests.
 
 #### `test.yml` - Testing
+
 Runs the pytest test suite on multiple Python versions (3.11, 3.12) to ensure compatibility.
 
 #### `lint.yml` - Code Quality
+
 Checks code formatting and style compliance without making changes:
+
 - Black for Python formatting
 - mdformat for Markdown formatting
 - Ruff for linting
 
 #### `codeql.yml` - Security Analysis
+
 Analyzes code for security vulnerabilities and coding errors. Runs:
+
 - On push/PR to master/main branches
 - Weekly on Mondays (scheduled)
 
 ### Manual Workflows
 
 #### `format-and-lint.yml` - Auto-fix Formatting
+
 Manual workflow (workflow_dispatch) that automatically formats code and commits changes.
 Use this for local development to fix formatting issues in bulk.
 
 ## Dependabot
 
 The `.github/dependabot.yml` configuration enables automated dependency updates:
+
 - Python packages (pip) - weekly
 - GitHub Actions - weekly
 

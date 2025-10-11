@@ -1,7 +1,8 @@
 """Common game fixtures for testing."""
 
-import pytest
 import random
+
+import pytest
 
 
 @pytest.fixture

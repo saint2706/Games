@@ -115,9 +115,7 @@ def rank_five_card_hand(cards: Sequence[Card]) -> HandRank:
 
     # Count the occurrences of each card rank.
     counts = {value: values.count(value) for value in unique_values}
-    sorted_counts = sorted(
-        counts.items(), key=lambda item: (item[1], item[0]), reverse=True
-    )
+    sorted_counts = sorted(counts.items(), key=lambda item: (item[1], item[0]), reverse=True)
 
     # --- Hand Rank Evaluation Logic ---
     if is_straight and is_flush:
@@ -125,9 +123,7 @@ def rank_five_card_hand(cards: Sequence[Card]) -> HandRank:
 
     if sorted_counts[0][1] == 4:  # Four of a Kind
         kicker = max(v for v in values if v != sorted_counts[0][0])
-        return HandRank(
-            HandCategory.FOUR_OF_A_KIND, (sorted_counts[0][0], kicker), sorted_cards
-        )
+        return HandRank(HandCategory.FOUR_OF_A_KIND, (sorted_counts[0][0], kicker), sorted_cards)
 
     if sorted_counts[0][1] == 3 and sorted_counts[1][1] == 2:  # Full House
         return HandRank(
@@ -144,9 +140,7 @@ def rank_five_card_hand(cards: Sequence[Card]) -> HandRank:
 
     if sorted_counts[0][1] == 3:  # Three of a Kind
         kickers = tuple(v for v in values if v != sorted_counts[0][0])
-        return HandRank(
-            HandCategory.THREE_OF_A_KIND, (sorted_counts[0][0],) + kickers, sorted_cards
-        )
+        return HandRank(HandCategory.THREE_OF_A_KIND, (sorted_counts[0][0],) + kickers, sorted_cards)
 
     if sorted_counts[0][1] == 2 and sorted_counts[1][1] == 2:  # Two Pair
         pair_values = (sorted_counts[0][0], sorted_counts[1][0])
