@@ -94,10 +94,10 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Create advanced AI that learns from player patterns
 
 ### Uno
-- [ ] Add house rules options (stacking, jump-in, 7-0 swapping)
-- [ ] Implement 2v2 team play mode
-- [ ] Add card animation effects in GUI
-- [ ] Implement voice/sound effects for card plays
+- [x] Add house rules options (stacking, jump-in, 7-0 swapping)
+- [x] Implement 2v2 team play mode
+- [x] Add card animation effects in GUI
+- [x] Implement voice/sound effects for card plays
 - [ ] Add online multiplayer capability
 - [ ] Create custom deck designer
 
@@ -124,11 +124,11 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Add salvo mode (multiple shots per turn)
 
 ### Dots and Boxes
-- [ ] Implement larger board sizes (4x4, 5x5, 6x6)
-- [ ] Add chain identification highlighting in GUI
-- [ ] Implement network multiplayer mode
-- [ ] Add move hints/suggestions for learning
-- [ ] Create tournament mode with multiple games
+- [x] Implement larger board sizes (4x4, 5x5, 6x6)
+- [x] Add chain identification highlighting in GUI
+- [x] Implement network multiplayer mode
+- [x] Add move hints/suggestions for learning
+- [x] Create tournament mode with multiple games
 
 ### Nim
 - [x] Add more variants (Nim-like games: Northcott, Wythoff)
