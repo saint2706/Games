@@ -120,7 +120,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Add more ship types with various sizes
 - [x] Implement difficulty levels with AI strategy variations
 - [x] Add 2-player hot-seat mode
-- [ ] Create GUI version with drag-and-drop ship placement
+- [x] Create GUI version with drag-and-drop ship placement
 - [x] Add salvo mode (multiple shots per turn)
 
 ### Dots and Boxes

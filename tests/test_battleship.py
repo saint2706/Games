@@ -166,3 +166,19 @@ def test_extended_fleet_requires_larger_board():
     # Verify all ships were placed
     assert len(game.player_board.ships) == len(EXTENDED_FLEET)
     assert len(game.opponent_board.ships) == len(EXTENDED_FLEET)
+
+
+def test_gui_import():
+    """Test that GUI module can be imported."""
+    try:
+        from paper_games.battleship.gui import BattleshipGUI, run_gui
+        assert BattleshipGUI is not None
+        assert run_gui is not None
+    except ImportError as e:
+        # Skip test if tkinter is not available
+        import sys
+        if "tkinter" in str(e).lower():
+            import pytest
+            pytest.skip("tkinter not available")
+        else:
+            raise

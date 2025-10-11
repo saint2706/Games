@@ -15,6 +15,7 @@ from .battleship import (
     Ship,
 )
 from .cli import play
+from .gui import run_gui
 
 __all__ = [
     "BattleshipGame",
@@ -25,4 +26,5 @@ __all__ = [
     "EXTENDED_FLEET",
     "SMALL_FLEET",
     "play",
+    "run_gui",
 ]
