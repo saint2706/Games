@@ -550,7 +550,7 @@ class TestGinRummy:
         players = [GinRummyPlayer("Knocker"), GinRummyPlayer("Opponent")]
         game = GinRummyGame(players)
 
-        # Knocker knocks with a meld and 6 deadwood.
+        # Knocker knocks with melds and modest deadwood.
         players[0].hand = [
             Card("4", Suit.HEARTS),
             Card("5", Suit.HEARTS),
@@ -558,9 +558,9 @@ class TestGinRummy:
             Card("9", Suit.CLUBS),
             Card("9", Suit.DIAMONDS),
             Card("9", Suit.HEARTS),
-            Card("A", Suit.SPADES),
             Card("2", Suit.SPADES),
             Card("3", Suit.SPADES),
+            Card("4", Suit.SPADES),
             Card("5", Suit.CLUBS),
         ]
 
@@ -579,8 +579,9 @@ class TestGinRummy:
 
         summary = game.calculate_round_score(players[0], players[1])
         assert summary.knock_type == KnockType.KNOCK
-        # Opponent should lay off 7♥ onto the 4♥-5♥-6♥ run.
+        # Opponent should lay off the 7♥-8♥ run extensions.
         assert Card("7", Suit.HEARTS) in summary.layoff_cards
+        assert Card("8", Suit.HEARTS) in summary.layoff_cards
         assert summary.points_awarded["Knocker"] == summary.opponent_deadwood - summary.knocker_deadwood
 
         # Modify opponent to undercut.

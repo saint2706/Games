@@ -206,12 +206,21 @@ def _apply_layoffs(deadwood_cards: Sequence[Card], melds: Sequence[Meld]) -> tup
 
     remaining = list(deadwood_cards)
     layoff: list[Card] = []
+    current_meld_cards: dict[Meld, list[Card]] = {meld: list(meld.cards) for meld in melds}
 
     for card in list(remaining):
         for meld in melds:
-            if _can_layoff(card, meld):
+            current_meld = Meld(meld.meld_type, tuple(current_meld_cards[meld]))
+            if _can_layoff(card, current_meld):
                 layoff.append(card)
                 remaining.remove(card)
+                if meld.meld_type == MeldType.SET:
+                    current_meld_cards[meld].append(card)
+                else:
+                    if card.value < current_meld_cards[meld][0].value:
+                        current_meld_cards[meld].insert(0, card)
+                    else:
+                        current_meld_cards[meld].append(card)
                 break
 
     return tuple(remaining), tuple(layoff)
