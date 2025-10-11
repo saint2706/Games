@@ -27,6 +27,7 @@ Play the mathematical game of Nim with an optimal computer opponent. The game in
 A spatial variant where players slide pieces towards each other on parallel rows. The gaps between pieces form Nim heaps, combining positional play with Nim strategy.
 
 **Features:**
+
 - Configurable board size and number of rows
 - Visual board representation
 - Optimal computer opponent using Nim-sum analysis
@@ -34,10 +35,12 @@ A spatial variant where players slide pieces towards each other on parallel rows
 #### Wythoff's Game
 
 A two-heap variant where players can either:
+
 - Remove any number from one heap (standard Nim move)
 - Remove the same number from both heaps (diagonal move)
 
 **Features:**
+
 - Based on the golden ratio and Beatty sequences
 - "Cold position" analysis (losing positions)
 - Optimal strategy using Wythoff pairs
@@ -57,6 +60,7 @@ print(game.render(graphical=True))
 ```
 
 Output:
+
 ```
                 ▓▓▓  
                 ▓▓▓  
@@ -79,6 +83,7 @@ print(hint)
 ```
 
 Output shows:
+
 - Binary representation of heaps
 - Nim-sum calculation
 - Position analysis (winning/losing)
@@ -158,6 +163,7 @@ h1, h2 = game.computer_move()
 ### Classic Nim
 
 Nim is a solved game using the **Nim-sum** (XOR of all heap sizes):
+
 - If Nim-sum = 0: current player is in a **losing position**
 - If Nim-sum ≠ 0: current player can force a win
 
@@ -174,6 +180,7 @@ This is equivalent to Nim where the "heap" is the gap between pieces. The game d
 ### Wythoff's Game
 
 Uses the **golden ratio** (φ ≈ 1.618) to define losing positions. The losing positions form pairs:
+
 - (0, 0), (1, 2), (3, 5), (4, 7), (6, 10), ...
 - These follow the Beatty sequences: aₖ = ⌊k·φ⌋ and bₖ = ⌊k·φ²⌋
 
@@ -182,12 +189,12 @@ Uses the **golden ratio** (φ ≈ 1.618) to define losing positions. The losing 
 When you run `python -m paper_games.nim`, you can:
 
 1. **Choose a game variant**: Classic Nim, Northcott, or Wythoff
-2. **Configure rules**: Misère mode, max-take limits, heap sizes
-3. **Enable features**:
+1. **Configure rules**: Misère mode, max-take limits, heap sizes
+1. **Enable features**:
    - Graphical heap display
    - Educational mode with strategy hints
    - Multiplayer mode (3-6 players)
-4. **Learn as you play**: Request hints and explanations at any time
+1. **Learn as you play**: Request hints and explanations at any time
 
 ## API Reference
 
@@ -205,6 +212,7 @@ class NimGame:
 ```
 
 **Methods:**
+
 - `render(graphical: bool = False) -> str`: Display game state
 - `get_strategy_hint() -> str`: Get educational analysis
 - `computer_move(explain: bool = False)`: AI move with optional explanation
@@ -225,6 +233,7 @@ class NorthcottGame:
 ```
 
 **Methods:**
+
 - `render() -> str`: Display board state
 - `make_move(row_index: int, piece: str, new_position: int)`: Move a piece
 - `computer_move() -> Tuple[int, str, int]`: AI move
@@ -239,6 +248,7 @@ class WythoffGame:
 ```
 
 **Methods:**
+
 - `render() -> str`: Display heap state
 - `make_move(from_heap1: int, from_heap2: int)`: Remove from heaps
 - `computer_move() -> Tuple[int, int]`: AI move
@@ -258,13 +268,14 @@ python tests/test_nim_enhancements.py
 This implementation is designed for learning:
 
 1. **Combinatorial Game Theory**: Understand Nim-sum and winning strategies
-2. **Mathematical Patterns**: Explore golden ratio in Wythoff's Game
-3. **Algorithm Design**: See how optimal AI opponents are implemented
-4. **Code Quality**: Well-documented, type-hinted Python code
+1. **Mathematical Patterns**: Explore golden ratio in Wythoff's Game
+1. **Algorithm Design**: See how optimal AI opponents are implemented
+1. **Code Quality**: Well-documented, type-hinted Python code
 
 ## Future Enhancements
 
 Potential additions:
+
 - GUI implementation with animations
 - Network multiplayer mode
 - Additional variants (Dawson's Chess, Kayles, etc.)

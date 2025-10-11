@@ -20,18 +20,21 @@ Welcome to the Games documentation! This guide will help you navigate the compre
 #### For Developers
 
 2. **[Architecture Documentation](source/architecture/index.rst)** - Understand how games are built
+
    - 🏗️ [Architecture Overview](source/architecture/index.rst) - Design patterns and principles
    - ♠️ [Poker Architecture](source/architecture/poker_architecture.rst) - Deep dive with diagrams
    - 🎭 [Bluff Architecture](source/architecture/bluff_architecture.rst) - Game mechanics and AI
    - 🤖 [AI Strategies](source/architecture/ai_strategies.rst) - Algorithms explained (Minimax, Monte Carlo, etc.)
 
-3. **[Code Examples](source/examples/index.rst)** - Learn by doing
+1. **[Code Examples](source/examples/index.rst)** - Learn by doing
+
    - 30+ practical code examples
    - Common patterns and best practices
    - Custom game creation
    - AI integration
 
-4. **[API Reference](source/api/)** - Complete module documentation
+1. **[API Reference](source/api/)** - Complete module documentation
+
    - [Card Games API](source/api/card_games.rst)
    - [Paper Games API](source/api/paper_games.rst)
 
@@ -146,8 +149,8 @@ Lists:
 ### Adding New Pages
 
 1. Create a new `.rst` file in the appropriate directory
-2. Add it to the `toctree` in the parent `index.rst`
-3. Rebuild the documentation
+1. Add it to the `toctree` in the parent `index.rst`
+1. Rebuild the documentation
 
 ### API Documentation
 
@@ -170,22 +173,22 @@ Module Name
 When contributing documentation:
 
 1. Follow the existing style and structure
-2. Use clear, concise language
-3. Include code examples where appropriate
-4. Test that the documentation builds without errors
-5. Check for broken links and formatting issues
+1. Use clear, concise language
+1. Include code examples where appropriate
+1. Test that the documentation builds without errors
+1. Check for broken links and formatting issues
 
 ## Viewing Documentation Online
 
 Once published, documentation will be available at:
 
-* GitHub Pages: (to be configured)
-* Read the Docs: (to be configured)
+- GitHub Pages: (to be configured)
+- Read the Docs: (to be configured)
 
 ## Getting Help
 
 For questions about documentation:
 
-* Open an issue on GitHub
-* Check Sphinx documentation: https://www.sphinx-doc.org/
-* Review existing documentation files for examples
+- Open an issue on GitHub
+- Check Sphinx documentation: https://www.sphinx-doc.org/
+- Review existing documentation files for examples

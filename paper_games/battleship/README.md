@@ -5,7 +5,9 @@ A feature-rich implementation of the classic Battleship game with multiple gamep
 ## Features
 
 ### Grid Size Options
+
 Play on different board sizes:
+
 - **8x8**: Faster games, ideal for quick matches
 - **10x10**: Classic Battleship size
 
@@ -15,17 +17,22 @@ python -m paper_games.battleship --size 10
 ```
 
 ### Fleet Configurations
+
 Choose from three fleet types:
 
 #### Small Fleet (4 ships)
+
 Perfect for 8x8 boards:
+
 - Battleship (4 cells)
 - Cruiser (3 cells)
 - Submarine (3 cells)
 - Destroyer (2 cells)
 
 #### Default Fleet (5 ships)
+
 Classic Battleship configuration:
+
 - Carrier (5 cells)
 - Battleship (4 cells)
 - Cruiser (3 cells)
@@ -33,7 +40,9 @@ Classic Battleship configuration:
 - Destroyer (2 cells)
 
 #### Extended Fleet (7 ships)
+
 More challenging with additional ships:
+
 - Carrier (5 cells)
 - Battleship (4 cells)
 - Cruiser (3 cells)
@@ -49,6 +58,7 @@ python -m paper_games.battleship --fleet extended
 ```
 
 ### AI Difficulty Levels
+
 Three difficulty levels with distinct strategies:
 
 - **Easy**: AI shoots randomly without strategy
@@ -62,7 +72,9 @@ python -m paper_games.battleship --difficulty hard
 ```
 
 ### 2-Player Hot-Seat Mode
+
 Play against a friend on the same computer:
+
 - Each player sets up their own fleet
 - Turn-based gameplay with screen hiding
 - No AI opponent
@@ -72,7 +84,9 @@ python -m paper_games.battleship --two-player
 ```
 
 ### Salvo Mode
+
 A strategic variant where you get multiple shots per turn:
+
 - Number of shots equals your number of unsunk ships
 - As your ships sink, you get fewer shots
 - Adds strategic depth to gameplay
@@ -82,6 +96,7 @@ python -m paper_games.battleship --salvo
 ```
 
 ### Reproducible Games
+
 Set a random seed for reproducible ship placement and AI behavior:
 
 ```bash
@@ -91,21 +106,25 @@ python -m paper_games.battleship --seed 12345
 ## Usage Examples
 
 ### Quick 8x8 Game
+
 ```bash
 python -m paper_games.battleship --size 8 --fleet small --difficulty easy
 ```
 
 ### Challenging Solo Game
+
 ```bash
 python -m paper_games.battleship --difficulty hard --salvo
 ```
 
 ### 2-Player Match with Salvo
+
 ```bash
 python -m paper_games.battleship --two-player --salvo
 ```
 
 ### Extended Fleet on Large Board
+
 ```bash
 python -m paper_games.battleship --size 10 --fleet extended --difficulty hard
 ```
@@ -135,14 +154,17 @@ options:
 ## Gameplay
 
 ### Ship Placement
+
 - Choose manual placement to position each ship
 - Or use automatic random placement for quick setup
 
 ### Shooting
+
 - Enter coordinates as "row col" (e.g., "3 5")
 - In salvo mode, you'll make multiple shots per turn
 
 ### Winning
+
 - Sink all opponent ships to win
 - In salvo mode, protect your ships to maintain firepower
 
@@ -179,11 +201,13 @@ if game.opponent_has_lost():
 ## Testing
 
 Run the test suite:
+
 ```bash
 python tests/test_battleship.py
 ```
 
 All tests validate:
+
 - Board size configurations
 - Fleet variations
 - AI difficulty behaviors

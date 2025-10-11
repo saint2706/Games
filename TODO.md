@@ -5,6 +5,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 ## 🎮 New Card Games
 
 ### High Priority
+
 - [ ] **Bridge** - Implement classic contract bridge with bidding system, partnership play, and scoring
 - [ ] **Hearts** - Add pass-the-cards mechanic, shooting-the-moon strategy, and AI that avoids hearts
 - [ ] **Spades** - Bidding-based trick-taking game with nil bids and partnership mechanics
@@ -12,6 +13,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] **Solitaire (Klondike)** - Single-player patience game with drag-and-drop GUI support
 
 ### Medium Priority
+
 - [ ] **Cribbage** - Implement the pegging board, 15s counting, and strategic discarding to the crib
 - [ ] **Euchre** - Trump-based trick-taking game with "going alone" and unique deck structure
 - [ ] **Rummy 500** - Variant with melding, laying off, and negative scoring for cards in hand
@@ -19,6 +21,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] **Go Fish** - Family-friendly card game with set collection mechanics
 
 ### Low Priority
+
 - [ ] **Canasta** - Implement melding with wild cards, minimum point requirements, and partnership scoring
 - [ ] **Pinochle** - Double-deck trick-taking game with complex bidding and melding phases
 - [ ] **Crazy Eights** - Shedding game similar to Uno but with standard deck mechanics
@@ -26,6 +29,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 ## 📝 New Paper & Pencil Games
 
 ### High Priority
+
 - [ ] **Connect Four** - Implement vertical grid with gravity, win detection for 4-in-a-row patterns
 - [ ] **Checkers** - Add jump mechanics, king promotion, and minimax AI for perfect play
 - [ ] **Mancala** - Implement stone distribution, capture rules, and strategic AI opponent
@@ -33,6 +37,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] **Sudoku** - Puzzle generator with multiple difficulty levels and hint system
 
 ### Medium Priority
+
 - [ ] **Mastermind** - Code-breaking game with colored pegs and logical deduction
 - [ ] **Boggle** - Word search in a random letter grid with dictionary validation
 - [ ] **Yahtzee** - Dice-based scoring game with category selection strategy
@@ -40,6 +45,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] **Chess** - Full implementation with castling, en passant, and chess engine integration
 
 ### Low Priority
+
 - [ ] **Backgammon** - Dice-based race game with bearing off and doubling cube
 - [ ] **Pentago** - Rotating quadrant board game with 5-in-a-row win condition
 - [ ] **Sprouts** - Topological graph game with dot and line mechanics
@@ -49,18 +55,21 @@ This document outlines planned expansions and future upgrades for the Games repo
 ## 🎲 New Game Categories
 
 ### Dice Games
+
 - [ ] **Craps** - Casino dice game with pass/don't pass betting
 - [ ] **Farkle** - Risk-based scoring with push-your-luck mechanics
 - [ ] **Liar's Dice** - Bluffing game similar to Bluff but with dice
 - [ ] **Bunco** - Party dice game with rounds and team scoring
 
 ### Trivia & Word Games
+
 - [ ] **Trivia Quiz** - Multiple choice questions from various categories with API integration
 - [ ] **Crossword Generator** - Create and solve crossword puzzles with clue system
 - [ ] **Anagrams** - Word rearrangement game with scoring system
 - [ ] **Scrabble-like** - Tile-based word building game (avoiding trademark issues)
 
 ### Logic & Puzzle Games
+
 - [ ] **Minesweeper** - Classic mine detection game with difficulty levels
 - [ ] **Sokoban** - Warehouse puzzle with box-pushing mechanics
 - [ ] **Sliding Puzzle (15-puzzle)** - Number tile sliding game with solvability check
@@ -70,6 +79,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 ## ✨ Feature Enhancements for Existing Games
 
 ### Poker
+
 - [x] Add Omaha hold'em variant with 4 hole cards
 - [x] Implement tournament mode with blinds increasing over time
 - [x] Add showdown animation in GUI with hand ranking explanations
@@ -78,6 +88,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Implement hand history log for review after each session
 
 ### Blackjack
+
 - [x] Add progressive side bets (21+3, Perfect Pairs)
 - [x] Implement card counting hint system for educational purposes
 - [x] Add multiplayer mode with multiple player hands at once
@@ -86,6 +97,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Create casino mode with multiple table options
 
 ### Bluff
+
 - [x] Add replay system to review previous games
 - [x] Implement variable deck types (specialized decks, custom cards)
 - [x] Add tournament mode with elimination rounds
@@ -94,6 +106,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Create advanced AI that learns from player patterns
 
 ### Uno
+
 - [x] Add house rules options (stacking, jump-in, 7-0 swapping)
 - [x] Implement 2v2 team play mode
 - [x] Add card animation effects in GUI
@@ -102,6 +115,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] Create custom deck designer
 
 ### Hangman
+
 - [x] Add themed word lists (movies, countries, sports, etc.)
 - [x] Implement difficulty selector based on word length/obscurity
 - [x] Add multiplayer mode where players take turns choosing words
@@ -109,6 +123,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Add ASCII art variations and customization
 
 ### Tic-Tac-Toe
+
 - [x] Implement larger board sizes (4x4, 5x5) with variable win conditions
 - [x] Add ultimate tic-tac-toe variant (meta-board gameplay)
 - [x] Implement network play for 2 players
@@ -116,6 +131,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Create themed boards (holiday versions, custom symbols)
 
 ### Battleship
+
 - [x] Increase grid size options (8x8, 10x10)
 - [x] Add more ship types with various sizes
 - [x] Implement difficulty levels with AI strategy variations
@@ -124,6 +140,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Add salvo mode (multiple shots per turn)
 
 ### Dots and Boxes
+
 - [x] Implement larger board sizes (4x4, 5x5, 6x6)
 - [x] Add chain identification highlighting in GUI
 - [x] Implement network multiplayer mode
@@ -131,6 +148,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Create tournament mode with multiple games
 
 ### Nim
+
 - [x] Add more variants (Nim-like games: Northcott, Wythoff)
 - [x] Implement graphical heap representation
 - [x] Add educational mode explaining optimal strategy
@@ -138,6 +156,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Implement custom rule variations
 
 ### Unscramble
+
 - [x] Add timed mode with countdown for each word
 - [x] Implement difficulty-based word selection
 - [x] Add multiplayer competitive mode
@@ -147,6 +166,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 ## 🏗️ Technical Improvements
 
 ### Testing
+
 - [x] Increase test coverage to 90%+ for all modules (infrastructure in place)
 - [x] Add integration tests for CLI interfaces
 - [x] Implement GUI testing framework (e.g., pytest-qt)
@@ -156,6 +176,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Add mutation testing to validate test quality
 
 ### Documentation
+
 - [x] Create comprehensive API documentation with Sphinx
 - [x] Add tutorial series for each game (getting started guides)
 - [x] Create architecture diagrams for complex games (poker, bluff)
@@ -165,6 +186,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Document AI strategies and algorithms used
 
 ### Code Quality
+
 - [x] Refactor common GUI code into reusable components
 - [x] Extract shared AI logic into strategy pattern implementations
 - [ ] Implement type hints throughout entire codebase
@@ -174,6 +196,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Add code complexity analysis and reduce high-complexity methods
 
 ### Architecture
+
 - [x] Create plugin system for third-party game additions
 - [x] Implement event-driven architecture for game state changes
 - [x] Add save/load game state functionality across all games
@@ -185,6 +208,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 ## 🎨 User Interface Improvements
 
 ### GUI Enhancements
+
 - [ ] Implement unified theme system (dark mode, light mode, custom themes)
 - [ ] Add sound effects and background music with volume controls
 - [ ] Create animated card transitions and effects
@@ -194,6 +218,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] Implement keyboard shortcuts for all GUI actions
 
 ### CLI Enhancements
+
 - [ ] Add colorful ASCII art for game states
 - [ ] Implement rich text formatting with better visual hierarchy
 - [ ] Add progress bars and spinners for loading states
@@ -202,6 +227,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] Add support for terminal themes and custom color schemes
 
 ### Main Launcher
+
 - [ ] Create unified game launcher application
 - [ ] Implement game browsing with screenshots/descriptions
 - [ ] Add recently played games list
@@ -212,6 +238,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 ## 🌐 Online & Multiplayer Features
 
 ### Networking
+
 - [ ] Implement WebSocket-based real-time multiplayer
 - [ ] Add lobby system for game matchmaking
 - [ ] Create user authentication and profiles
@@ -221,6 +248,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] Implement replay sharing and viewing
 
 ### Social Features
+
 - [ ] Add friend system and invitations
 - [ ] Implement achievements and badges
 - [ ] Create daily challenges and special events
@@ -307,7 +335,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] Organize coding competitions and game jams
 - [ ] Establish code review and mentorship program
 
----
+______________________________________________________________________
 
 ## Priority Legend
 

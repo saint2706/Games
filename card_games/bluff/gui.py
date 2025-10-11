@@ -47,9 +47,7 @@ class BluffGUI:
         self.root.geometry("960x640")
 
         # UI state variables
-        self.status_var = tk.StringVar(
-            value="Welcome to Bluff! Shed every card to win."
-        )
+        self.status_var = tk.StringVar(value="Welcome to Bluff! Shed every card to win.")
         self.pile_var = tk.StringVar(value="Pile: 0 cards")
         self.turn_var = tk.StringVar(value="Turn 1")
         self._selected_card: Optional[int] = None
@@ -90,9 +88,7 @@ class BluffGUI:
         header.columnconfigure(0, weight=2)
         header.columnconfigure(1, weight=1)
         header.columnconfigure(2, weight=1)
-        ttk.Label(
-            header, textvariable=self.status_var, font=("Segoe UI", 14, "bold")
-        ).grid(row=0, column=0, sticky="w")
+        ttk.Label(header, textvariable=self.status_var, font=("Segoe UI", 14, "bold")).grid(row=0, column=0, sticky="w")
         ttk.Label(header, textvariable=self.turn_var).grid(row=0, column=1, sticky="e")
         ttk.Label(header, textvariable=self.pile_var).grid(row=0, column=2, sticky="e")
 
@@ -117,14 +113,10 @@ class BluffGUI:
         sidebar = ttk.Frame(board, padding=10)
         sidebar.grid(row=0, column=1, sticky="nsew")
         sidebar.columnconfigure(0, weight=1)
-        ttk.Label(sidebar, text="Table summary", font=("Segoe UI", 12, "bold")).grid(
-            row=0, column=0, sticky="w"
-        )
+        ttk.Label(sidebar, text="Table summary", font=("Segoe UI", 12, "bold")).grid(row=0, column=0, sticky="w")
         self.summary = tk.Text(sidebar, height=12, state="disabled", wrap="word")
         self.summary.grid(row=1, column=0, sticky="nsew", pady=(4, 10))
-        ttk.Label(sidebar, textvariable=self._last_claim_text, wraplength=220).grid(
-            row=2, column=0, sticky="w"
-        )
+        ttk.Label(sidebar, textvariable=self._last_claim_text, wraplength=220).grid(row=2, column=0, sticky="w")
 
         # Player controls area
         controls = ttk.Frame(root, padding=12)
@@ -154,9 +146,7 @@ class BluffGUI:
             state="readonly",
         )
         self.claim_combo.grid(row=0, column=1, sticky="ew", padx=6)
-        self.submit_btn = ttk.Button(
-            claim_frame, text="Play selected card", command=self.submit_claim
-        )
+        self.submit_btn = ttk.Button(claim_frame, text="Play selected card", command=self.submit_claim)
         self.submit_btn.grid(row=0, column=2, sticky="ew")
 
         # Challenge controls
@@ -208,9 +198,7 @@ class BluffGUI:
 
         user = self.game.players[0]
         for idx, card in enumerate(user.hand):
-            style = (
-                "SelectedCard.TButton" if idx == self._selected_card else "Card.TButton"
-            )
+            style = "SelectedCard.TButton" if idx == self._selected_card else "Card.TButton"
             button = ttk.Button(
                 self.hand_frame,
                 text=str(card),
@@ -277,9 +265,7 @@ class BluffGUI:
             for msg in messages:
                 self._log(msg)
             self._log(f"{current.name} claims their card is a {claim.claimed_rank}.")
-            self._last_claim_text.set(
-                f"Latest claim: {current.name} says {claim.claimed_rank}."
-            )
+            self._last_claim_text.set(f"Latest claim: {current.name} says {claim.claimed_rank}.")
             self._update_scoreboard()
             self.root.after(450, self._resolve_challenges)
 
@@ -319,17 +305,13 @@ class BluffGUI:
             if challenger.is_user:
                 # Prompt the user to challenge or trust
                 claimant = self.game.claim_in_progress.claimant
-                self.status_var.set(
-                    f"{claimant.name} claims a {self.game.claim_in_progress.claimed_rank}. Challenge?"
-                )
+                self.status_var.set(f"{claimant.name} claims a {self.game.claim_in_progress.claimed_rank}. Challenge?")
                 self._set_challenge_controls_state(enabled=True)
                 return
 
             # Bot decides whether to challenge
             decision = self.game.bot_should_challenge(challenger)
-            self._log(
-                f"{challenger.name} {'challenges the claim!' if decision else 'decides to wait.'}"
-            )
+            self._log(f"{challenger.name} {'challenges the claim!' if decision else 'decides to wait.'}")
             outcome = self.game.evaluate_challenge(decision)
             for line in outcome.messages:
                 self._log(line)
@@ -347,17 +329,14 @@ class BluffGUI:
             return
 
         self._set_challenge_controls_state(enabled=False)
-        
+
         # If challenging, show animation before resolving
         if decision:
             claim = self.game.claim_in_progress
-            self._animate_challenge_reveal(
-                claim.truthful,
-                lambda: self._finish_resolve_challenge(decision)
-            )
+            self._animate_challenge_reveal(claim.truthful, lambda: self._finish_resolve_challenge(decision))
         else:
             self._finish_resolve_challenge(decision)
-    
+
     def _finish_resolve_challenge(self, decision: bool) -> None:
         """Complete the challenge resolution after any animation."""
         outcome = self.game.evaluate_challenge(decision)
@@ -384,23 +363,24 @@ class BluffGUI:
         else:
             self.status_var.set(f"{self.game.winner.name} wins the match.")
             self._log(f"{self.game.winner.name} finishes with the fewest cards.")
-        
+
         # Save replay if recording was enabled
         if self.game._record_replay:
             replay = self.game.get_replay()
             if replay:
-                from pathlib import Path
                 import datetime
+                from pathlib import Path
+
                 replay_dir = Path.home() / ".bluff_replays"
                 replay_dir.mkdir(exist_ok=True)
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                 replay_file = replay_dir / f"bluff_replay_{timestamp}.json"
                 replay.save_to_file(replay_file)
                 self._log(f"\nReplay saved to: {replay_file}")
-    
+
     def _animate_challenge_reveal(self, truthful: bool, callback) -> None:
         """Animate the reveal of a challenge outcome.
-        
+
         Args:
             truthful: Whether the claim was truthful.
             callback: Function to call after animation completes.
@@ -414,9 +394,10 @@ class BluffGUI:
             bg="white",
         )
         reveal_label.place(relx=0.5, rely=0.5, anchor="center")
-        
+
         # Fade in effect
         alpha = 0.0
+
         def fade_in():
             nonlocal alpha
             alpha += 0.1
@@ -426,7 +407,7 @@ class BluffGUI:
             else:
                 # Hold for a moment then fade out
                 self.root.after(500, fade_out)
-        
+
         def fade_out():
             nonlocal alpha
             alpha -= 0.1
@@ -435,7 +416,7 @@ class BluffGUI:
             else:
                 reveal_label.destroy()
                 callback()
-        
+
         fade_in()
 
 

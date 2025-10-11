@@ -15,6 +15,7 @@ The game now includes five themed word categories:
 - **Food**: Delicious dishes and ingredients (47 words)
 
 **How to Use:**
+
 ```python
 from paper_games.hangman import load_themed_words, HangmanGame
 
@@ -37,6 +38,7 @@ Words are categorized by difficulty based on length:
 - **Hard**: 3 letter words (360 words)
 
 **How to Use:**
+
 ```python
 from paper_games.hangman import load_words_by_difficulty, HangmanGame
 
@@ -55,6 +57,7 @@ game = HangmanGame(hard_words)
 Players can take turns choosing secret words for others to guess.
 
 **Features:**
+
 - Support for 2-4 players
 - Configurable number of rounds per player
 - Score tracking
@@ -68,12 +71,14 @@ In the CLI, select option 2 "Multiplayer" when prompted for game mode.
 Players can request hints to reveal unguessed letters.
 
 **Features:**
+
 - 3 hints available per game (configurable)
 - Hints reveal one random unguessed letter
 - Hint usage tracked in game status
 - Can be disabled if desired
 
 **How to Use:**
+
 ```python
 from paper_games.hangman import HangmanGame
 
@@ -98,6 +103,7 @@ Three different ASCII art styles are available:
 - **Minimal**: Ultra-minimalist style
 
 **How to Use:**
+
 ```python
 from paper_games.hangman import HangmanGame, HANGMAN_ART_STYLES
 
@@ -113,11 +119,12 @@ game = HangmanGame(["test"], art_style="simple")
 When you run `python -m paper_games.hangman`, you'll see an interactive menu:
 
 1. **Game Mode Selection**: Single player or multiplayer
-2. **Difficulty Selection**: Easy, medium, hard, or all
-3. **Theme Selection**: Choose a theme or use standard words
-4. **Art Style Selection**: Choose your preferred ASCII art style
+1. **Difficulty Selection**: Easy, medium, hard, or all
+1. **Theme Selection**: Choose a theme or use standard words
+1. **Art Style Selection**: Choose your preferred ASCII art style
 
 During gameplay:
+
 - Type a letter to guess
 - Type `hint` to get a hint
 - Type the full word to guess the entire word
@@ -162,6 +169,7 @@ play(words)
 ## Examples
 
 ### Themed Game with Hints
+
 ```python
 from paper_games.hangman import load_themed_words, HangmanGame
 
@@ -189,6 +197,7 @@ while not (game.is_won() or game.is_lost()):
 ```
 
 ### Hard Difficulty Game
+
 ```python
 from paper_games.hangman import load_words_by_difficulty, HangmanGame
 

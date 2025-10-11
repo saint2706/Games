@@ -3,13 +3,12 @@
 import random
 
 from card_games.blackjack.game import (
+    TABLE_CONFIGS,
     BlackjackGame,
     BlackjackHand,
     Outcome,
     PerfectPairsOutcome,
-    SideBet,
     SideBetType,
-    TABLE_CONFIGS,
     TwentyOnePlusThreeOutcome,
     evaluate_perfect_pairs,
     evaluate_twenty_one_plus_three,
@@ -104,9 +103,7 @@ class TestSurrender:
 
     def test_can_surrender_initial_hand(self):
         """Test that surrender is available on initial two-card hand."""
-        hand = BlackjackHand(
-            cards=[Card("T", Suit.SPADES), Card("6", Suit.HEARTS)], bet=50
-        )
+        hand = BlackjackHand(cards=[Card("T", Suit.SPADES), Card("6", Suit.HEARTS)], bet=50)
         assert hand.can_surrender()
 
     def test_cannot_surrender_after_hit(self):
@@ -171,7 +168,8 @@ class TestCardCounting:
         rng = random.Random(42)
         game = BlackjackGame(bankroll=1000, min_bet=10, decks=1, rng=rng)
 
-        initial_count = game.shoe.running_count
+        # Store initial count to verify it changes (we just need to verify it exists)
+        _ = game.shoe.running_count
         game.start_round(50)
 
         # Count should have changed after dealing cards
@@ -205,9 +203,7 @@ class TestCardCounting:
     def test_educational_mode_hints(self):
         """Test that educational mode provides hints."""
         rng = random.Random(42)
-        game = BlackjackGame(
-            bankroll=1000, min_bet=10, decks=6, rng=rng, educational_mode=True
-        )
+        game = BlackjackGame(bankroll=1000, min_bet=10, decks=6, rng=rng, educational_mode=True)
         game.start_round(50)
 
         hint = game.get_counting_hint(game.player.hands[0])
@@ -332,9 +328,7 @@ class TestIntegration:
     def test_complete_game_with_side_bets(self):
         """Test a complete game round with side bets."""
         rng = random.Random(42)
-        game = BlackjackGame(
-            bankroll=1000, min_bet=10, decks=6, rng=rng, educational_mode=True
-        )
+        game = BlackjackGame(bankroll=1000, min_bet=10, decks=6, rng=rng, educational_mode=True)
 
         side_bets = {
             SideBetType.PERFECT_PAIRS: 5,

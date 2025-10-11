@@ -386,15 +386,15 @@ pytest --cov=paper_games --cov=card_games --cov-report=term-missing
 ## Best Practices
 
 1. **Write tests first**: Use TDD when possible
-2. **Test behavior, not implementation**: Focus on what code does, not how
-3. **Use descriptive names**: Test names should explain what they test
-4. **Keep tests isolated**: Each test should be independent
-5. **Use fixtures**: Share common setup code via fixtures
-6. **Mock external dependencies**: Don't rely on network, files, etc.
-7. **Test edge cases**: Include boundary conditions and error cases
-8. **Maintain fast tests**: Keep unit tests under 1 second
-9. **Document complex tests**: Add docstrings explaining test purpose
-10. **Run tests frequently**: Test early and often during development
+1. **Test behavior, not implementation**: Focus on what code does, not how
+1. **Use descriptive names**: Test names should explain what they test
+1. **Keep tests isolated**: Each test should be independent
+1. **Use fixtures**: Share common setup code via fixtures
+1. **Mock external dependencies**: Don't rely on network, files, etc.
+1. **Test edge cases**: Include boundary conditions and error cases
+1. **Maintain fast tests**: Keep unit tests under 1 second
+1. **Document complex tests**: Add docstrings explaining test purpose
+1. **Run tests frequently**: Test early and often during development
 
 ## Coverage Goals
 
@@ -461,10 +461,10 @@ rm -rf .pytest_cache htmlcov .coverage
 When contributing tests:
 
 1. Follow existing test patterns
-2. Ensure all new code has tests
-3. Maintain or increase coverage
-4. Add markers appropriately
-5. Document complex test scenarios
-6. Run full test suite before submitting PR
+1. Ensure all new code has tests
+1. Maintain or increase coverage
+1. Add markers appropriately
+1. Document complex test scenarios
+1. Run full test suite before submitting PR
 
 For more information, see CONTRIBUTING.md (to be created).

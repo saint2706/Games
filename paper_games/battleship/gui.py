@@ -14,14 +14,14 @@ from __future__ import annotations
 
 import tkinter as tk
 from tkinter import messagebox, ttk
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, Optional, Set, Tuple
 
 from .battleship import (
-    BattleshipGame,
-    Coordinate,
     DEFAULT_FLEET,
     EXTENDED_FLEET,
     SMALL_FLEET,
+    BattleshipGame,
+    Coordinate,
 )
 
 
@@ -70,6 +70,7 @@ class BattleshipGUI:
 
         # Create random number generator
         import random
+
         rng = random.Random(seed) if seed is not None else None
 
         # Create game instance
@@ -89,7 +90,7 @@ class BattleshipGUI:
         self.ship_orientation = "h"  # h or v
         self.dragging_ship: Optional[Tuple[str, int]] = None
         self.preview_coords: Set[Coordinate] = set()
-        
+
         # Track shots remaining in salvo mode
         self.shots_remaining = 0
 
@@ -155,9 +156,7 @@ class BattleshipGUI:
         sidebar.grid(row=1, column=0, columnspan=2, sticky="ew")
 
         # Status label
-        ttk.Label(sidebar, text="Status:", font=("Arial", 10, "bold")).grid(
-            row=0, column=0, sticky="w", padx=(0, 5)
-        )
+        ttk.Label(sidebar, text="Status:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", padx=(0, 5))
         self.status_label = ttk.Label(sidebar, text="", font=("Arial", 10))
         self.status_label.grid(row=0, column=1, sticky="w")
 
@@ -165,10 +164,8 @@ class BattleshipGUI:
         self.setup_frame = ttk.Frame(sidebar)
         self.setup_frame.grid(row=1, column=0, columnspan=2, pady=10, sticky="ew")
 
-        ttk.Label(self.setup_frame, text="Ship Placement:").grid(
-            row=0, column=0, sticky="w"
-        )
-        
+        ttk.Label(self.setup_frame, text="Ship Placement:").grid(row=0, column=0, sticky="w")
+
         self.orientation_button = ttk.Button(
             self.setup_frame,
             text="Orientation: Horizontal",
@@ -187,12 +184,8 @@ class BattleshipGUI:
         control_frame = ttk.Frame(sidebar)
         control_frame.grid(row=2, column=0, columnspan=2, pady=5, sticky="ew")
 
-        ttk.Button(control_frame, text="New Game", command=self._new_game).pack(
-            side="left", padx=5
-        )
-        ttk.Button(control_frame, text="Quit", command=self.root.quit).pack(
-            side="left", padx=5
-        )
+        ttk.Button(control_frame, text="New Game", command=self._new_game).pack(side="left", padx=5)
+        ttk.Button(control_frame, text="Quit", command=self.root.quit).pack(side="left", padx=5)
 
         # Bind canvas events
         self.player_canvas.bind("<Motion>", self._on_player_canvas_motion)
@@ -242,7 +235,7 @@ class BattleshipGUI:
 
                 # Determine cell color
                 color = "lightblue"
-                
+
                 # Show ships on player board or during setup
                 if is_player and coord in board.occupied:
                     color = "gray"
@@ -259,9 +252,7 @@ class BattleshipGUI:
                 if is_player and self.setup_phase and coord in self.preview_coords:
                     color = "lightgreen"
 
-                rect_id = canvas.create_rectangle(
-                    x1, y1, x2, y2, fill=color, outline="navy", width=1
-                )
+                rect_id = canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline="navy", width=1)
                 cells_dict[coord] = rect_id
 
                 # Show hit/miss markers
@@ -274,9 +265,7 @@ class BattleshipGUI:
                     elif shot_result in ("hit", "sunk"):
                         canvas.create_text(cx, cy, text="✗", font=("Arial", 16, "bold"), fill="darkred")
 
-    def _get_canvas_coordinate(
-        self, canvas: tk.Canvas, event: tk.Event
-    ) -> Optional[Coordinate]:
+    def _get_canvas_coordinate(self, canvas: tk.Canvas, event: tk.Event) -> Optional[Coordinate]:
         """Convert canvas pixel coordinates to board coordinates.
 
         Args:
@@ -345,9 +334,7 @@ class BattleshipGUI:
 
         # Try to place the ship
         try:
-            self.game.player_board.place_ship(
-                ship_name, ship_length, coord, self.ship_orientation
-            )
+            self.game.player_board.place_ship(ship_name, ship_length, coord, self.ship_orientation)
             self.placing_ship_index += 1
             self.preview_coords.clear()
 
@@ -387,9 +374,9 @@ class BattleshipGUI:
         # Take the shot
         try:
             result, ship_name = self.game.player_shoot(coord)
-            
+
             self._draw_boards()
-            
+
             # Show result
             if result == "miss":
                 msg = "Miss!"
@@ -397,7 +384,7 @@ class BattleshipGUI:
                 msg = "Hit!"
             else:  # sunk
                 msg = f"You sank the enemy {ship_name}!"
-            
+
             # Update status temporarily to show shot result
             self.status_label.config(text=msg)
             self.root.update()
@@ -442,9 +429,9 @@ class BattleshipGUI:
                 self.root.after(300 * i)  # Stagger shots slightly
 
             coord, result, ship_name = self.game.ai_shoot()
-            
+
             self._draw_boards()
-            
+
             # Show AI's shot result
             if result == "miss":
                 msg = f"AI shot at {coord} and missed."
@@ -452,10 +439,10 @@ class BattleshipGUI:
                 msg = f"AI hit your ship at {coord}!"
             else:  # sunk
                 msg = f"AI sank your {ship_name} at {coord}!"
-            
+
             self.status_label.config(text=msg)
             self.root.update()
-            
+
             # Check for loss
             if self.game.player_has_lost():
                 self._draw_boards()
@@ -465,11 +452,11 @@ class BattleshipGUI:
 
         # Player's turn again
         self.current_player = 1
-        
+
         # Set shots remaining for next turn if salvo mode
         if self.salvo_mode:
             self.shots_remaining = self.game.get_salvo_count("player")
-        
+
         self.root.after(1000, self._update_status)
 
     def _finish_player_setup(self) -> None:
@@ -493,11 +480,11 @@ class BattleshipGUI:
         # Hide setup controls
         self.setup_frame.grid_remove()
         self.setup_phase = False
-        
+
         # Initialize salvo mode shots
         if self.salvo_mode:
             self.shots_remaining = self.game.get_salvo_count("player")
-        
+
         self._draw_boards()
         self._update_status()
 
@@ -545,8 +532,9 @@ class BattleshipGUI:
         """Start a new game."""
         # Reset game state
         import random
+
         rng = random.Random(self.seed) if self.seed is not None else None
-        
+
         self.game = BattleshipGame(
             size=self.size,
             fleet=self.fleet,
@@ -555,18 +543,18 @@ class BattleshipGUI:
             two_player=self.two_player,
             salvo_mode=self.salvo_mode,
         )
-        
+
         self.setup_phase = True
         self.current_player = 1
         self.placing_ship_index = 0
         self.ship_orientation = "h"
         self.preview_coords.clear()
         self.shots_remaining = 0
-        
+
         # Show setup controls
         self.setup_frame.grid()
         self.orientation_button.config(text="Orientation: Horizontal")
-        
+
         self._draw_boards()
         self._update_status()
 
@@ -606,9 +594,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Play Battleship with a graphical interface")
-    parser.add_argument(
-        "--size", type=int, choices=[8, 10], default=10, help="Board size (8x8 or 10x10)"
-    )
+    parser.add_argument("--size", type=int, choices=[8, 10], default=10, help="Board size (8x8 or 10x10)")
     parser.add_argument(
         "--fleet",
         choices=["small", "default", "extended"],
@@ -621,15 +607,9 @@ if __name__ == "__main__":
         default="medium",
         help="AI difficulty level",
     )
-    parser.add_argument(
-        "--two-player", action="store_true", help="Enable 2-player hot-seat mode"
-    )
-    parser.add_argument(
-        "--salvo", action="store_true", help="Enable salvo mode"
-    )
-    parser.add_argument(
-        "--seed", type=int, default=None, help="Random seed for reproducible games"
-    )
+    parser.add_argument("--two-player", action="store_true", help="Enable 2-player hot-seat mode")
+    parser.add_argument("--salvo", action="store_true", help="Enable salvo mode")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducible games")
 
     args = parser.parse_args()
 

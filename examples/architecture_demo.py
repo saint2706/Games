@@ -10,17 +10,17 @@ This script shows how to use all the architecture components together:
 - Replay/undo
 """
 
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 from common.architecture import (
-    EventHandler,
     Event,
+    EventHandler,
     Observer,
     PluginManager,
+    ReplayManager,
     SaveLoadManager,
     SettingsManager,
-    ReplayManager,
 )
 
 
@@ -136,9 +136,7 @@ def main():
         save_manager = SaveLoadManager(save_dir=Path(tmpdir))
 
         final_state = game.get_public_state()
-        save_path = save_manager.save(
-            "number_guessing", final_state, save_name="demo_save"
-        )
+        save_path = save_manager.save("number_guessing", final_state, save_name="demo_save")
         print(f"Game saved to: {save_path.name}")
 
         # List saves

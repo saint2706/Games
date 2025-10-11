@@ -134,9 +134,7 @@ class DotsAndBoxesGUI:
                 y1 = offset + row * self.CELL_SIZE
                 x2 = offset + (col + 1) * self.CELL_SIZE
                 y2 = y1
-                line_id = self.canvas.create_line(
-                    x1, y1, x2, y2, width=self.EDGE_WIDTH, fill="lightgray", tags="edge"
-                )
+                line_id = self.canvas.create_line(x1, y1, x2, y2, width=self.EDGE_WIDTH, fill="lightgray", tags="edge")
                 self.horizontal_lines[(row, col)] = line_id
 
         # Draw vertical edges
@@ -146,9 +144,7 @@ class DotsAndBoxesGUI:
                 y1 = offset + row * self.CELL_SIZE
                 x2 = x1
                 y2 = offset + (row + 1) * self.CELL_SIZE
-                line_id = self.canvas.create_line(
-                    x1, y1, x2, y2, width=self.EDGE_WIDTH, fill="lightgray", tags="edge"
-                )
+                line_id = self.canvas.create_line(x1, y1, x2, y2, width=self.EDGE_WIDTH, fill="lightgray", tags="edge")
                 self.vertical_lines[(row, col)] = line_id
 
         # Initialize box labels (will be filled when boxes are claimed)
@@ -261,10 +257,7 @@ class DotsAndBoxesGUI:
             self.chain_label.config(text="⭐ This move completes a box!")
         elif self.game._creates_third_edge(edge):
             chain_length = self.game._chain_length_if_opened(edge)
-            self.chain_label.config(
-                text=f"⚠️ Warning: This creates a chain!\n"
-                f"Opponent could capture {chain_length} box{'es' if chain_length != 1 else ''}."
-            )
+            self.chain_label.config(text=f"⚠️ Warning: This creates a chain!\n" f"Opponent could capture {chain_length} box{'es' if chain_length != 1 else ''}.")
         else:
             self.chain_label.config(text="✅ Safe move - no chain created")
 

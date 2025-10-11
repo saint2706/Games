@@ -4,8 +4,6 @@ import tempfile
 import time
 from pathlib import Path
 
-import pytest
-
 from common.architecture import (
     Event,
     EventBus,
@@ -19,14 +17,12 @@ from common.architecture import (
     Observer,
     PickleSerializer,
     PropertyObservable,
-    ReplayAction,
     ReplayManager,
     ReplayRecorder,
     SaveLoadManager,
     Settings,
     SettingsManager,
 )
-
 
 # ==================== Event System Tests ====================
 

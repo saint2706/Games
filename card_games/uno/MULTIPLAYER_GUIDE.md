@@ -45,17 +45,20 @@ The multiplayer system uses a message-based protocol over WebSockets for real-ti
 #### Components
 
 1. **Game Server**
+
    - Manages multiple game instances
    - Routes messages between clients
    - Enforces game rules
    - Handles disconnections and reconnections
 
-2. **Lobby System**
+1. **Lobby System**
+
    - Create/join game lobbies
    - Player matchmaking
    - Game configuration (house rules, player count)
 
-3. **Authentication** (optional)
+1. **Authentication** (optional)
+
    - User accounts
    - Session management
    - Player statistics
@@ -101,6 +104,7 @@ class NetworkUnoInterface(UnoInterface):
 #### Client-Side Prediction
 
 To reduce latency, implement client-side prediction:
+
 - Show card play immediately
 - Roll back if server rejects the action
 
@@ -127,27 +131,31 @@ To reduce latency, implement client-side prediction:
 ## Implementation Steps
 
 ### Phase 1: Local Multiplayer Testing
+
 1. Refactor `UnoGame` to support networked interface
-2. Add event serialization/deserialization
-3. Create mock network interface for testing
+1. Add event serialization/deserialization
+1. Create mock network interface for testing
 
 ### Phase 2: Server Development
+
 1. Implement WebSocket server
-2. Create lobby system
-3. Add game state management
-4. Implement message routing
+1. Create lobby system
+1. Add game state management
+1. Implement message routing
 
 ### Phase 3: Client Integration
+
 1. Create `NetworkUnoInterface`
-2. Add connection management
-3. Implement state synchronization
-4. Add reconnection logic
+1. Add connection management
+1. Implement state synchronization
+1. Add reconnection logic
 
 ### Phase 4: Features & Polish
+
 1. Add chat functionality
-2. Implement spectator mode
-3. Add player statistics
-4. Create leaderboard system
+1. Implement spectator mode
+1. Add player statistics
+1. Create leaderboard system
 
 ## Example Server Code (Pseudocode)
 
@@ -251,18 +259,18 @@ class UnoClient:
 ## Security Considerations
 
 1. **Input Validation**: Validate all client actions server-side
-2. **Rate Limiting**: Prevent message spam
-3. **Cheat Prevention**: Server validates all moves
-4. **Authentication**: Use tokens or session IDs
-5. **Encryption**: Use WSS (WebSocket Secure) for production
+1. **Rate Limiting**: Prevent message spam
+1. **Cheat Prevention**: Server validates all moves
+1. **Authentication**: Use tokens or session IDs
+1. **Encryption**: Use WSS (WebSocket Secure) for production
 
 ## Testing Strategy
 
 1. **Unit Tests**: Test message serialization/deserialization
-2. **Integration Tests**: Test client-server communication
-3. **Load Tests**: Test with multiple concurrent games
-4. **Latency Tests**: Simulate network delays
-5. **Disconnection Tests**: Test reconnection logic
+1. **Integration Tests**: Test client-server communication
+1. **Load Tests**: Test with multiple concurrent games
+1. **Latency Tests**: Simulate network delays
+1. **Disconnection Tests**: Test reconnection logic
 
 ## Future Enhancements
 

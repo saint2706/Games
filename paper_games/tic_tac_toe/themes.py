@@ -29,13 +29,13 @@ THEMES: Dict[str, Tuple[str, str, str]] = {
 
 def get_theme(theme_name: str) -> Tuple[str, str]:
     """Get the symbols for a given theme.
-    
+
     Args:
         theme_name: The name of the theme to use.
-    
+
     Returns:
         A tuple of (player1_symbol, player2_symbol).
-    
+
     Raises:
         ValueError: If the theme name is not recognized.
     """
@@ -46,7 +46,7 @@ def get_theme(theme_name: str) -> Tuple[str, str]:
 
 def list_themes() -> str:
     """Generate a list of available themes with descriptions.
-    
+
     Returns:
         A formatted string listing all available themes.
     """
@@ -58,14 +58,14 @@ def list_themes() -> str:
 
 def validate_symbols(symbol1: str, symbol2: str) -> bool:
     """Validate that two symbols are distinct and suitable for use.
-    
+
     Args:
         symbol1: First player's symbol.
         symbol2: Second player's symbol.
-    
+
     Returns:
         True if the symbols are valid.
-    
+
     Raises:
         ValueError: If the symbols are invalid.
     """

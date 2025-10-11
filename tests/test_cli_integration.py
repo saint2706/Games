@@ -6,7 +6,6 @@ These tests verify that CLI interfaces work correctly with realistic user input.
 import pathlib
 import subprocess
 import sys
-from io import StringIO
 
 import pytest
 

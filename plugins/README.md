@@ -7,9 +7,9 @@ This directory contains third-party game plugins that can be dynamically loaded 
 A plugin is a Python module or package that implements the `GamePlugin` interface, providing:
 
 1. Game engine implementation
-2. Metadata (name, version, author, description)
-3. Optional UI components
-4. Configuration schema
+1. Metadata (name, version, author, description)
+1. Optional UI components
+1. Configuration schema
 
 ## Creating a Plugin
 
@@ -141,12 +141,12 @@ while not game.is_finished():
 ## Best Practices
 
 1. **Use Events**: Emit events for important game state changes
-2. **Observable State**: Make your game engine observable for GUI integration
-3. **Save/Load Support**: Implement save_state() and load_state() methods
-4. **Settings Support**: Use the SettingsManager for configuration
-5. **Comprehensive Metadata**: Provide detailed plugin metadata
-6. **Documentation**: Include docstrings and usage examples
-7. **Testing**: Write tests for your game logic
+1. **Observable State**: Make your game engine observable for GUI integration
+1. **Save/Load Support**: Implement save_state() and load_state() methods
+1. **Settings Support**: Use the SettingsManager for configuration
+1. **Comprehensive Metadata**: Provide detailed plugin metadata
+1. **Documentation**: Include docstrings and usage examples
+1. **Testing**: Write tests for your game logic
 
 ## Plugin Requirements
 
@@ -160,9 +160,9 @@ while not game.is_finished():
 To distribute your plugin:
 
 1. Package your plugin files
-2. Include a README with installation instructions
-3. List any dependencies in the plugin metadata
-4. Provide example usage code
+1. Include a README with installation instructions
+1. List any dependencies in the plugin metadata
+1. Provide example usage code
 
 Users can install by simply placing your plugin file/directory in the `plugins` folder.
 

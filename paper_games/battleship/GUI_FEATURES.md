@@ -16,6 +16,7 @@ All requested features from the problem statement have been successfully impleme
 The new graphical interface includes:
 
 ### Ship Placement Phase
+
 - **Interactive placement**: Click on the board to place ships
 - **Orientation toggle**: Switch between horizontal and vertical with a button
 - **Visual preview**: Green highlight shows valid placement before clicking
@@ -23,6 +24,7 @@ The new graphical interface includes:
 - **Real-time validation**: Invalid placements won't show a preview
 
 ### Gameplay Phase
+
 - **Dual board view**: Your fleet (left) and enemy waters (right)
 - **Visual feedback**:
   - Gray squares show your ships
@@ -34,11 +36,13 @@ The new graphical interface includes:
 ## 📸 Screenshots
 
 ### Ship Placement Phase
+
 ![Ship Placement](battleship_gui_setup.png)
 
 *The setup screen showing ship placement controls with orientation toggle and random placement button.*
 
 ### Active Gameplay
+
 ![Gameplay](battleship_gui_game.png)
 
 *The game in progress with player fleet visible on the left and enemy waters on the right.*
@@ -48,11 +52,13 @@ The new graphical interface includes:
 ### Command Line
 
 Run with default settings:
+
 ```bash
 python -m paper_games.battleship.gui
 ```
 
 Run with custom options:
+
 ```bash
 python -m paper_games.battleship.gui --size 8 --fleet small --difficulty hard --salvo
 ```
@@ -81,26 +87,32 @@ run_gui(size=8, fleet="small", difficulty="hard", salvo=True)
 ## 📦 Files Added
 
 1. **`paper_games/battleship/gui.py`** (600+ lines)
+
    - Complete Tkinter-based GUI implementation
    - Interactive ship placement with visual feedback
    - Support for all game modes and configurations
 
-2. **Updated `paper_games/battleship/README.md`**
+1. **Updated `paper_games/battleship/README.md`**
+
    - Added GUI mode section with usage instructions
    - Includes examples and configuration options
 
-3. **Updated `paper_games/battleship/__init__.py`**
+1. **Updated `paper_games/battleship/__init__.py`**
+
    - Added `run_gui` export for easy access
 
-4. **Updated `tests/test_battleship.py`**
+1. **Updated `tests/test_battleship.py`**
+
    - Added test for GUI module import
 
-5. **Updated `TODO.md`**
+1. **Updated `TODO.md`**
+
    - Marked GUI feature as complete [x]
 
 ## ✅ Testing
 
 All tests pass successfully:
+
 ```
 tests/test_battleship.py::test_board_sizes PASSED
 tests/test_battleship.py::test_fleet_configurations PASSED
@@ -120,6 +132,7 @@ tests/test_battleship.py::test_gui_import PASSED
 ## 🎯 Summary
 
 The Battleship game now has **all requested features fully implemented**:
+
 - Multiple board sizes (8x8, 10x10)
 - Various fleet configurations (small, default, extended)
 - AI difficulty levels with different strategies

@@ -21,9 +21,7 @@ except Exception:  # pragma: no cover - gracefully degrade without Tk
     PokerGUI = None  # type: ignore[assignment]
 
     def launch_gui(*args, **kwargs):  # type: ignore[override]
-        raise RuntimeError(
-            "Tkinter is required for the poker GUI but is not available."
-        )
+        raise RuntimeError("Tkinter is required for the poker GUI but is not available.")
 
 
 from .poker_core import HandCategory, HandRank, best_hand

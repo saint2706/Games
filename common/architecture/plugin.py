@@ -175,9 +175,7 @@ class PluginManager:
             # Try loading as a package
             elif plugin_package.exists() and (plugin_package / "__init__.py").exists():
                 try:
-                    spec = importlib.util.spec_from_file_location(
-                        plugin_name, plugin_package / "__init__.py"
-                    )
+                    spec = importlib.util.spec_from_file_location(plugin_name, plugin_package / "__init__.py")
                     if spec and spec.loader:
                         module = importlib.util.module_from_spec(spec)
                         sys.modules[plugin_name] = module
@@ -210,11 +208,7 @@ class PluginManager:
         # Look for a class that inherits from GamePlugin
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
-            if (
-                isinstance(attr, type)
-                and issubclass(attr, GamePlugin)
-                and attr is not GamePlugin
-            ):
+            if isinstance(attr, type) and issubclass(attr, GamePlugin) and attr is not GamePlugin:
                 return attr()
 
         return None

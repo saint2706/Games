@@ -44,11 +44,7 @@ class SimpleNumberGuessingGame(GameEngine):
         """Check if the game is finished."""
         if self._state is None:
             return False
-        return (
-            self._state.phase == GamePhase.FINISHED
-            or len(self.guesses) >= self.max_guesses
-            or (self.guesses and self.guesses[-1] == self.target_number)
-        )
+        return self._state.phase == GamePhase.FINISHED or len(self.guesses) >= self.max_guesses or (self.guesses and self.guesses[-1] == self.target_number)
 
     def get_current_player(self):
         """Get current player (single player game)."""

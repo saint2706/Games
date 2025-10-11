@@ -230,12 +230,15 @@ class SettingsManager:
         Returns:
             Global settings object
         """
-        return self.load_settings("global", defaults={
-            "theme": "default",
-            "sound_enabled": True,
-            "auto_save": True,
-            "language": "en",
-        })
+        return self.load_settings(
+            "global",
+            defaults={
+                "theme": "default",
+                "sound_enabled": True,
+                "auto_save": True,
+                "language": "en",
+            },
+        )
 
     def save_global_settings(self, settings: Settings) -> bool:
         """Save global settings.

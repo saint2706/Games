@@ -15,9 +15,7 @@ except Exception:  # pragma: no cover - gracefully degrade without Tk
     BluffGUI = None  # type: ignore[assignment]
 
     def run_gui(*args, **kwargs):  # type: ignore[override]
-        raise RuntimeError(
-            "Tkinter is required for the bluff GUI but is not available."
-        )
+        raise RuntimeError("Tkinter is required for the bluff GUI but is not available.")
 
 
 __all__ = [

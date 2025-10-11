@@ -84,8 +84,8 @@ game_name/
 ### Core Components
 
 1. **GameEngine**: Core logic independent of UI (in `common/game_engine.py`)
-2. **BaseGUI**: Common GUI utilities (in `common/gui_base.py`)
-3. **AI Strategy**: Strategy pattern for AI opponents (in `common/ai_strategy.py`)
+1. **BaseGUI**: Common GUI utilities (in `common/gui_base.py`)
+1. **AI Strategy**: Strategy pattern for AI opponents (in `common/ai_strategy.py`)
 
 ### Available Architectural Patterns
 
@@ -140,17 +140,17 @@ def test_valid_move():
 ### Before Coding
 
 1. Review existing game implementations for patterns
-2. Check `ARCHITECTURE.md` for design guidance
-3. Review `CODE_QUALITY.md` for standards
-4. Look at `CONTRIBUTING.md` for contribution guidelines
+1. Check `ARCHITECTURE.md` for design guidance
+1. Review `CODE_QUALITY.md` for standards
+1. Look at `CONTRIBUTING.md` for contribution guidelines
 
 ### During Development
 
 1. Write code following PEP 8 (enforced by Black)
-2. Add type hints to all functions
-3. Keep function complexity ≤ 10
-4. Write docstrings for public APIs
-5. Add tests for new functionality
+1. Add type hints to all functions
+1. Keep function complexity ≤ 10
+1. Write docstrings for public APIs
+1. Add tests for new functionality
 
 ### Before Committing
 
@@ -326,10 +326,10 @@ class MyGameGUI(BaseGUI):
 When implementing AI opponents:
 
 1. Use the strategy pattern from `common/ai_strategy.py`
-2. Implement heuristic functions that evaluate game state
-3. Consider difficulty levels (easy, medium, hard)
-4. Document strategy in docstrings
-5. Test AI decisions thoroughly
+1. Implement heuristic functions that evaluate game state
+1. Consider difficulty levels (easy, medium, hard)
+1. Document strategy in docstrings
+1. Test AI decisions thoroughly
 
 Example:
 
@@ -353,10 +353,10 @@ def evaluate_position(game_state) -> float:
 When adding GUI support:
 
 1. Inherit from `BaseGUI` in `common/gui_base.py`
-2. Keep GUI code separate from game logic
-3. Use observer pattern for state synchronization
-4. Provide both GUI and CLI interfaces
-5. Test GUI components with pytest-qt
+1. Keep GUI code separate from game logic
+1. Use observer pattern for state synchronization
+1. Provide both GUI and CLI interfaces
+1. Test GUI components with pytest-qt
 
 ## Entry Points
 
@@ -406,7 +406,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
----
+______________________________________________________________________
 
 **Remember**: The goal is maintainable, well-documented, tested code that follows consistent patterns across all games.
 Prioritize code quality and simplicity over clever solutions.

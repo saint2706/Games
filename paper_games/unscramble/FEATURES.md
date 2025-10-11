@@ -14,6 +14,7 @@ The game now includes three difficulty levels based on word length:
 - **Mixed**: All difficulties combined (1,080 words)
 
 **How to Use:**
+
 ```python
 from paper_games.unscramble import load_words_by_difficulty, UnscrambleGame
 
@@ -37,6 +38,7 @@ Five themed word categories are now available:
 - **Music**: Musical terms and concepts (52 words)
 
 **How to Use:**
+
 ```python
 from paper_games.unscramble import load_themed_words, UnscrambleGame
 
@@ -60,6 +62,7 @@ Play with a countdown timer for each word:
 - **Hard**: 10 seconds per word
 
 Features:
+
 - Real-time countdown
 - Automatic timeout detection
 - Time tracking for statistics
@@ -79,18 +82,20 @@ Compete with 2-4 players:
 - **Winner declaration**: Automatic winner announcement at game end
 
 **How to Play:**
+
 1. Select "Multiplayer Mode" from the CLI menu
-2. Enter number of players (2-4)
-3. Enter player names
-4. Choose number of rounds
-5. Select difficulty and theme
-6. Optionally enable timer
+1. Enter number of players (2-4)
+1. Enter player names
+1. Choose number of rounds
+1. Select difficulty and theme
+1. Optionally enable timer
 
 ### 5. Streak Tracking and Achievement System
 
 Comprehensive statistics and achievements:
 
 **Statistics Tracked:**
+
 - Total words attempted
 - Words solved
 - Current streak (consecutive correct answers)
@@ -103,6 +108,7 @@ Comprehensive statistics and achievements:
 - Total games played
 
 **Achievements:**
+
 - **First Solve**: Solve your first word
 - **Getting Started**: Solve 10 words
 - **Word Master**: Solve 50 words
@@ -116,6 +122,7 @@ Comprehensive statistics and achievements:
 - **Dedicated**: Complete 25 game sessions
 
 **How to Use:**
+
 ```python
 from paper_games.unscramble import GameStats
 
@@ -138,18 +145,21 @@ stats.save(filepath)
 ### 6. Three Game Modes
 
 **Classic Mode:**
+
 - No time limit
 - Focus on accuracy
 - Choose difficulty and themes
 - Track time for statistics
 
 **Timed Mode:**
+
 - Countdown timer per word
 - Three difficulty levels (10s/20s/30s)
 - High-pressure gameplay
 - Speed-based achievements
 
 **Multiplayer Mode:**
+
 - 2-4 players
 - Competitive turn-based play
 - Optional timer
@@ -186,6 +196,7 @@ stats.save(filepath)
 ## Examples
 
 ### Classic Mode with Difficulty
+
 ```python
 from paper_games.unscramble import UnscrambleGame, load_words_by_difficulty
 
@@ -204,6 +215,7 @@ for round_num in range(5):
 ```
 
 ### Themed Game with Statistics
+
 ```python
 from paper_games.unscramble import (
     UnscrambleGame,
@@ -241,6 +253,7 @@ stats.save(Path.home() / ".games" / "unscramble_stats.json")
 ```
 
 ### Multiplayer Game
+
 ```python
 from paper_games.unscramble import UnscrambleGame
 
@@ -273,11 +286,13 @@ print(f"\n{winner['name']} wins with {winner['score']} points!")
 ## Statistics File Location
 
 Statistics are automatically saved to:
+
 ```
 ~/.games/unscramble_stats.json
 ```
 
 This file contains:
+
 - All word attempt history (aggregated)
 - Streak information
 - Achievements unlocked
@@ -287,36 +302,43 @@ This file contains:
 ## Command Line Interface
 
 When running the game via CLI:
+
 ```bash
 python -m paper_games.unscramble
 ```
 
 You'll be presented with:
+
 1. Option to view existing statistics
-2. Game mode selection (Classic/Timed/Multiplayer)
-3. Difficulty selection
-4. Theme selection (optional)
-5. Game-specific options (rounds, timer duration, player count)
-6. Achievement notifications
-7. Final statistics summary
+1. Game mode selection (Classic/Timed/Multiplayer)
+1. Difficulty selection
+1. Theme selection (optional)
+1. Game-specific options (rounds, timer duration, player count)
+1. Achievement notifications
+1. Final statistics summary
 
 ## Implementation Notes
 
 ### Word Selection
+
 Words are selected randomly from the chosen difficulty or theme. Each word is scrambled by shuffling its letters, ensuring the scrambled version is different from the original word.
 
 ### Time Tracking
+
 Time is tracked using Python's `time.time()` for precise measurements. Times are recorded in seconds with decimal precision.
 
 ### Statistics Persistence
+
 Statistics are saved as JSON files with human-readable formatting. The file is created automatically on first use.
 
 ### Achievements
+
 Achievements are checked after each game session. Once unlocked, achievements persist permanently in the statistics file.
 
 ## Future Enhancements
 
 Potential features for future versions:
+
 - Hint system (reveal one letter)
 - Hint penalties (time or point deduction)
 - Online multiplayer with real-time competition

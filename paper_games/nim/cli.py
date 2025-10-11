@@ -20,7 +20,7 @@ from .nim import NimGame, NorthcottGame, WythoffGame
 
 def play() -> None:
     """Run a terminal-based Nim match against the computer."""
-    
+
     print("=" * 60)
     print("Welcome to Nim and Variants!")
     print("=" * 60)
@@ -28,9 +28,9 @@ def play() -> None:
     print("  1. Classic Nim")
     print("  2. Northcott's Game")
     print("  3. Wythoff's Game")
-    
+
     game_choice = input("\nSelect game (1-3) [1]: ").strip()
-    
+
     if game_choice == "2":
         play_northcott()
     elif game_choice == "3":
@@ -41,7 +41,7 @@ def play() -> None:
 
 def play_classic_nim() -> None:
     """Play classic Nim with all enhancements."""
-    
+
     print("\n" + "=" * 60)
     print("Classic Nim")
     print("=" * 60)
@@ -66,19 +66,19 @@ def play_classic_nim() -> None:
     # Get the game rules from the user.
     misere_choice = input("Play misère Nim (last move loses)? [y/N]: ").strip().lower()
     misere = misere_choice == "y"
-    
+
     # Ask about graphical mode
     graphical_choice = input("Use graphical heap display? [Y/n]: ").strip().lower()
     graphical = graphical_choice != "n"
-    
+
     # Ask about educational mode
     educational_choice = input("Enable educational mode (strategy hints)? [y/N]: ").strip().lower()
     educational = educational_choice == "y"
-    
+
     # Ask about custom rules
     max_take_input = input("Limit max objects per turn? (press Enter for no limit, or enter a number): ").strip()
     max_take = int(max_take_input) if max_take_input else None
-    
+
     # Ask about multiplayer
     num_players = 2
     multiplayer_choice = input("Play with more than 2 players? [y/N]: ").strip().lower()
@@ -91,7 +91,7 @@ def play_classic_nim() -> None:
                 print("Please enter a number between 2 and 6.")
             except ValueError:
                 print("Please enter a valid number.")
-    
+
     # Determine first player
     if num_players == 2:
         first_choice = input("Do you want to move first? [Y/n]: ").strip().lower()
@@ -103,7 +103,7 @@ def play_classic_nim() -> None:
         current_player_is_human = True
 
     game = NimGame(heaps=heaps, misere=misere, num_players=num_players, max_take=max_take)
-    
+
     rules_summary = f"\nStarting heaps: {', '.join(str(heap) for heap in game.heaps)}"
     rules_summary += f" ({'misère' if misere else 'normal'} rules"
     if max_take:
@@ -115,13 +115,13 @@ def play_classic_nim() -> None:
     while not game.is_over():
         print("\n" + ("=" * 60))
         print(game.render(graphical=graphical))
-        
+
         # Show educational hints if enabled
         if educational and current_player_is_human:
             show_hint = input("\nShow strategy hint? [y/N]: ").strip().lower()
             if show_hint == "y":
                 print("\n" + game.get_strategy_hint())
-        
+
         if num_players == 2:
             player_name = "You" if current_player_is_human else "Computer"
         else:
@@ -129,9 +129,9 @@ def play_classic_nim() -> None:
                 player_name = f"Player {game.current_player + 1} (Computer)"
             else:
                 player_name = f"Player {game.current_player + 1}"
-        
+
         print(f"\n{player_name}'s turn:")
-        
+
         if current_player_is_human or (num_players > 2 and game.current_player < num_players - 1):
             # Human player move
             move = input("Choose heap and amount (e.g., 2 3 to take 3 from heap 2): ").split()
@@ -154,7 +154,7 @@ def play_classic_nim() -> None:
             else:
                 heap_index, count = game.computer_move()
                 print(f"Computer removes {count} from heap {heap_index + 1}.")
-        
+
         if not game.is_over():
             if num_players == 2:
                 current_player_is_human = not current_player_is_human
@@ -164,9 +164,9 @@ def play_classic_nim() -> None:
     print("\n" + "=" * 60)
     print("Game Over!")
     print("=" * 60)
-    
+
     last_player = (game.current_player - 1) % game.num_players
-    
+
     if misere:
         # In misère, the last player to move loses
         winner = (last_player + 1) % game.num_players
@@ -174,7 +174,7 @@ def play_classic_nim() -> None:
     else:
         winner = last_player
         print("Normal scoring: taking the last object wins.")
-    
+
     if num_players == 2:
         if (winner == 0 and human_starts) or (winner == 1 and not human_starts):
             print("You win! Congratulations.")
@@ -189,31 +189,31 @@ def play_classic_nim() -> None:
 
 def play_northcott() -> None:
     """Play Northcott's Game."""
-    
+
     print("\n" + "=" * 60)
     print("Northcott's Game")
     print("=" * 60)
     print("Players slide pieces towards each other on rows.")
     print("The gaps between pieces form Nim heaps.")
     print("The last player to move wins.")
-    
+
     # Setup game
     board_size = 8
     num_rows = 3
-    
+
     game = NorthcottGame(board_size=board_size, num_rows=num_rows)
-    
+
     first_choice = input("\nDo you want to move first? [Y/n]: ").strip().lower()
     human_turn = first_choice != "n"
-    
+
     print("\nStarting position:")
     print(game.render())
-    
+
     # Main game loop
     while not game.is_over():
         print("\n" + "=" * 60)
         print(game.render())
-        
+
         if human_turn:
             print("\nYour turn:")
             move_str = input("Enter: row piece position (e.g., '1 white 3' to move white in row 1 to position 3): ").split()
@@ -231,14 +231,14 @@ def play_northcott() -> None:
         else:
             row_idx, piece, new_pos = game.computer_move()
             print(f"\nComputer moves {piece} piece in row {row_idx + 1} to position {new_pos}")
-        
+
         human_turn = not human_turn
-    
+
     # Determine winner
     print("\n" + "=" * 60)
     print("Game Over!")
     print("=" * 60)
-    
+
     if human_turn:
         # Computer made last move
         print("Computer wins. Better luck next time!")
@@ -248,33 +248,33 @@ def play_northcott() -> None:
 
 def play_wythoff() -> None:
     """Play Wythoff's Game."""
-    
+
     print("\n" + "=" * 60)
     print("Wythoff's Game")
     print("=" * 60)
     print("Two heaps: Remove from one heap, or the same amount from both.")
     print("The last player to move wins.")
-    
+
     # Setup game
     heap1_input = input("\nEnter size of heap 1 (press Enter for 5): ").strip()
     heap1 = int(heap1_input) if heap1_input else 5
-    
+
     heap2_input = input("Enter size of heap 2 (press Enter for 8): ").strip()
     heap2 = int(heap2_input) if heap2_input else 8
-    
+
     game = WythoffGame(heap1=heap1, heap2=heap2)
-    
+
     first_choice = input("\nDo you want to move first? [Y/n]: ").strip().lower()
     human_turn = first_choice != "n"
-    
+
     print("\nStarting position:")
     print(game.render())
-    
+
     # Main game loop
     while not game.is_over():
         print("\n" + "=" * 60)
         print(game.render())
-        
+
         if human_turn:
             print("\nYour turn:")
             print("Enter amounts to remove from each heap.")
@@ -298,14 +298,14 @@ def play_wythoff() -> None:
                 print(f"\nComputer removes {h1_remove} from heap 1")
             else:
                 print(f"\nComputer removes {h2_remove} from heap 2")
-        
+
         human_turn = not human_turn
-    
+
     # Determine winner
     print("\n" + "=" * 60)
     print("Game Over!")
     print("=" * 60)
-    
+
     if human_turn:
         # Computer made last move
         print("Computer wins. Better luck next time!")

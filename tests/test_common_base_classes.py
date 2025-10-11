@@ -5,47 +5,68 @@ in the common module.
 """
 
 import unittest
-from typing import List, Optional
+from typing import Any, List, Optional
 
-from common import AIStrategy, GameEngine, GameState, HeuristicStrategy, RandomStrategy
+from common import GameEngine, GamePhase, GameState, HeuristicStrategy, RandomStrategy
 
 
-class SimpleTestGame(GameEngine[int, str]):
+class SimpleTestGame(GameEngine):
     """A simple test game implementation for testing the GameEngine base class."""
 
     def __init__(self) -> None:
         """Initialize the test game."""
+        super().__init__()
         self.board: List[str] = [" "] * 9
         self.current_player_val: str = "X"
-        self.state: GameState = GameState.IN_PROGRESS
+        self._state = GameState(phase=GamePhase.RUNNING)
+
+    def initialize(self, **kwargs: Any) -> None:
+        """Initialize the game."""
+        self.reset()
 
     def reset(self) -> None:
         """Reset the game."""
         self.board = [" "] * 9
         self.current_player_val = "X"
-        self.state = GameState.IN_PROGRESS
+        self._state = GameState(phase=GamePhase.RUNNING)
+
+    def is_finished(self) -> bool:
+        """Check if game is finished."""
+        return self._state.phase == GamePhase.FINISHED
 
     def is_game_over(self) -> bool:
-        """Check if game is over."""
-        return self.state == GameState.FINISHED
+        """Check if game is over (alias for is_finished)."""
+        return self.is_finished()
 
     def get_current_player(self) -> str:
         """Get current player."""
         return self.current_player_val
 
-    def get_valid_moves(self) -> List[int]:
-        """Get valid moves."""
+    def get_valid_actions(self) -> List[int]:
+        """Get valid actions (moves)."""
         return [i for i, cell in enumerate(self.board) if cell == " "]
+
+    def get_valid_moves(self) -> List[int]:
+        """Get valid moves (alias for get_valid_actions)."""
+        return self.get_valid_actions()
+
+    def is_valid_move(self, move: int) -> bool:
+        """Check if move is valid."""
+        return move in self.get_valid_moves()
+
+    def execute_action(self, action: int) -> bool:
+        """Execute an action (move)."""
+        return self.make_move(action)
 
     def make_move(self, move: int) -> bool:
         """Make a move."""
-        if move not in self.get_valid_moves():
+        if not self.is_valid_move(move):
             return False
         self.board[move] = self.current_player_val
         self.current_player_val = "O" if self.current_player_val == "X" else "X"
         # Check if board is full
         if not self.get_valid_moves():
-            self.state = GameState.FINISHED
+            self._state = GameState(phase=GamePhase.FINISHED)
         return True
 
     def get_winner(self) -> Optional[str]:
@@ -54,9 +75,9 @@ class SimpleTestGame(GameEngine[int, str]):
             return None  # Draw
         return None
 
-    def get_game_state(self) -> GameState:
+    def get_game_state(self) -> GamePhase:
         """Get game state."""
-        return self.state
+        return self._state.phase
 
 
 class TestGameEngine(unittest.TestCase):
@@ -70,7 +91,7 @@ class TestGameEngine(unittest.TestCase):
         """Test initial game state."""
         self.assertEqual(self.game.get_current_player(), "X")
         self.assertFalse(self.game.is_game_over())
-        self.assertEqual(self.game.get_game_state(), GameState.IN_PROGRESS)
+        self.assertEqual(self.game.get_game_state(), GamePhase.RUNNING)
         self.assertEqual(len(self.game.get_valid_moves()), 9)
 
     def test_make_move(self) -> None:
@@ -104,7 +125,7 @@ class TestGameEngine(unittest.TestCase):
         for i in range(9):
             self.game.make_move(i)
         self.assertTrue(self.game.is_game_over())
-        self.assertEqual(self.game.get_game_state(), GameState.FINISHED)
+        self.assertEqual(self.game.get_game_state(), GamePhase.FINISHED)
 
 
 class TestRandomStrategy(unittest.TestCase):

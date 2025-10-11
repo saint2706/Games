@@ -7,6 +7,7 @@ This document summarizes the enhancements made to the poker module as specified 
 ### 1. Omaha Hold'em Variant ✅
 
 **Implementation Details:**
+
 - Added `GameVariant` enum with `TEXAS_HOLDEM` and `OMAHA` options
 - Modified `PokerTable.start_hand()` to deal 4 hole cards for Omaha (vs 2 for Texas Hold'em)
 - Implemented `PokerTable._evaluate_hand()` method that enforces Omaha hand rules:
@@ -15,11 +16,13 @@ This document summarizes the enhancements made to the poker module as specified 
 - Updated CLI argument parser with `--variant` option
 
 **Usage:**
+
 ```bash
 python -m card_games.poker --variant omaha
 ```
 
 **Testing:**
+
 - Verified 4 hole cards are dealt to each player
 - Confirmed hand evaluation uses exactly 2+3 card combinations
 - Tested showdown scenarios with proper Omaha rules
@@ -27,6 +30,7 @@ python -m card_games.poker --variant omaha
 ### 2. Tournament Mode with Increasing Blinds ✅
 
 **Implementation Details:**
+
 - Created `TournamentMode` dataclass with configurable blind schedule
 - Default schedule: [(10,20), (15,30), (25,50), (50,100), (100,200)]
 - Blinds increase every 5 hands by default (configurable)
@@ -34,11 +38,13 @@ python -m card_games.poker --variant omaha
 - Added blind level display in both CLI and GUI
 
 **Usage:**
+
 ```bash
 python -m card_games.poker --tournament --rounds 10
 ```
 
 **Features:**
+
 - Automatic blind increases based on hand number
 - Visual notification when blinds increase
 - Blind level displayed in GUI header
@@ -47,12 +53,14 @@ python -m card_games.poker --tournament --rounds 10
 ### 3. Showdown Animation in GUI ✅
 
 **Implementation Details:**
+
 - Added `_animate_showdown()` method to GUI
 - Sequential card reveals with timing delays
 - Hand category display during evaluation
 - Winner highlighting after showdown completes
 
 **Features:**
+
 - Cards revealed with 300ms delay per player
 - Hand ranking categories displayed during evaluation
 - Winner names announced after evaluation
@@ -61,6 +69,7 @@ python -m card_games.poker --tournament --rounds 10
 ### 4. Pot-Limit and No-Limit Betting Options ✅
 
 **Implementation Details:**
+
 - Added `BettingLimit` enum with `NO_LIMIT`, `POT_LIMIT`, and `FIXED_LIMIT` options
 - Modified `PokerTable.apply_action()` to enforce pot-limit restrictions:
   - Bet limit: current_bet + pot size
@@ -68,11 +77,13 @@ python -m card_games.poker --tournament --rounds 10
 - Added `--limit` CLI argument
 
 **Usage:**
+
 ```bash
 python -m card_games.poker --limit pot-limit
 ```
 
 **Enforcement:**
+
 - No-limit: No restrictions (default)
 - Pot-limit: Bets/raises capped at pot size
 - Fixed-limit: Structure in place for future implementation
@@ -80,6 +91,7 @@ python -m card_games.poker --limit pot-limit
 ### 5. Player Statistics Tracking ✅
 
 **Implementation Details:**
+
 - Created `PlayerStatistics` dataclass tracking:
   - Hands played / won / folded
   - Total wagered / winnings
@@ -89,12 +101,14 @@ python -m card_games.poker --limit pot-limit
 - Integrated into both `Player` class and match flow
 
 **Features:**
+
 - Real-time statistics tracking during play
 - Summary display at match end in CLI
 - Final statistics shown in GUI log
 - Per-player breakdown of performance
 
 **Display Format:**
+
 ```
 You:
   Hands played: 10
@@ -107,6 +121,7 @@ You:
 ### 6. Hand History Log ✅
 
 **Implementation Details:**
+
 - Created `HandHistory` dataclass to record:
   - Hand number and timestamp
   - Game variant and blind levels
@@ -120,6 +135,7 @@ You:
 History files are automatically saved in the working directory after each match.
 
 **JSON Structure:**
+
 ```json
 {
   "game_variant": "omaha",
@@ -166,11 +182,11 @@ python -m card_games.poker --variant omaha --limit pot-limit
 All features have been tested with the following scenarios:
 
 1. **Omaha Variant**: Verified 4-card dealing and proper hand evaluation
-2. **Tournament Mode**: Confirmed blind increases at correct intervals
-3. **Pot-Limit Betting**: Tested bet size restrictions
-4. **Statistics**: Validated tracking across multiple hands
-5. **Hand History**: Confirmed JSON export with complete game data
-6. **Combined Features**: Tested all features working together
+1. **Tournament Mode**: Confirmed blind increases at correct intervals
+1. **Pot-Limit Betting**: Tested bet size restrictions
+1. **Statistics**: Validated tracking across multiple hands
+1. **Hand History**: Confirmed JSON export with complete game data
+1. **Combined Features**: Tested all features working together
 
 ## Code Quality
 
@@ -182,10 +198,10 @@ All features have been tested with the following scenarios:
 ## Files Modified
 
 1. `card_games/poker/poker.py` - Core engine enhancements
-2. `card_games/poker/gui.py` - GUI updates for new features
-3. `README.md` - Updated documentation
-4. `TODO.md` - Marked completed tasks
-5. `.gitignore` - Added poker history file exclusion
+1. `card_games/poker/gui.py` - GUI updates for new features
+1. `README.md` - Updated documentation
+1. `TODO.md` - Marked completed tasks
+1. `.gitignore` - Added poker history file exclusion
 
 ## Breaking Changes
 

@@ -16,11 +16,11 @@ the showdown.
 
 1. **Players and Deck**: Texas Hold'em is usually played with 2–10 players and a
    standard 52-card deck without jokers.
-2. **Button and Blinds**: A dealer button rotates clockwise after each hand.
+1. **Button and Blinds**: A dealer button rotates clockwise after each hand.
    The players immediately to the left of the button post the *small blind* and
    *big blind*, which are forced bets that kick-start the pot.
-3. **Hole Cards**: Each player receives two private cards dealt face down.
-4. **Betting Rounds**: There are four betting rounds—pre-flop, flop, turn, and
+1. **Hole Cards**: Each player receives two private cards dealt face down.
+1. **Betting Rounds**: There are four betting rounds—pre-flop, flop, turn, and
    river—each allowing players to wager chips based on the strength of their
    hand or bluffing strategy.
 
@@ -47,11 +47,11 @@ raised, or folded.
 
 1. **Pre-Flop**: After receiving hole cards, players decide whether to call the
    big blind, raise, or fold.
-2. **Flop**: Three community cards are revealed. A new round of betting begins
+1. **Flop**: Three community cards are revealed. A new round of betting begins
    with the first active player to the left of the button.
-3. **Turn**: A fourth community card is dealt face up, followed by another
+1. **Turn**: A fourth community card is dealt face up, followed by another
    betting round. Betting amounts often double in limit games at this stage.
-4. **River**: The fifth and final community card appears. One last betting
+1. **River**: The fifth and final community card appears. One last betting
    round ensues.
 
 If more than one player remains after the river betting, the hand proceeds to a
@@ -64,15 +64,15 @@ the pot. If players share identical best hands, the pot is split evenly between
 them. Hands are ranked from highest to lowest as follows:
 
 1. **Royal Flush**: A, K, Q, J, 10 of the same suit.
-2. **Straight Flush**: Five consecutive cards of the same suit.
-3. **Four of a Kind**: Four cards of identical rank.
-4. **Full House**: Three cards of one rank plus two of another.
-5. **Flush**: Any five cards of the same suit, not in sequence.
-6. **Straight**: Five consecutive cards of mixed suits.
-7. **Three of a Kind**: Three cards of the same rank.
-8. **Two Pair**: Two different pairs.
-9. **One Pair**: Two cards of the same rank.
-10. **High Card**: None of the above; the highest card wins.
+1. **Straight Flush**: Five consecutive cards of the same suit.
+1. **Four of a Kind**: Four cards of identical rank.
+1. **Full House**: Three cards of one rank plus two of another.
+1. **Flush**: Any five cards of the same suit, not in sequence.
+1. **Straight**: Five consecutive cards of mixed suits.
+1. **Three of a Kind**: Three cards of the same rank.
+1. **Two Pair**: Two different pairs.
+1. **One Pair**: Two cards of the same rank.
+1. **High Card**: None of the above; the highest card wins.
 
 Remember that suits have no ranking. If hands tie on every metric, the pot can
 be split.

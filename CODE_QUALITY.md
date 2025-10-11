@@ -247,8 +247,8 @@ def complex_function(a: int, b: int, c: int, d: int, e: int) -> int:
 Imports should be organized in the following order:
 
 1. Standard library imports
-2. Third-party imports
-3. Local imports
+1. Third-party imports
+1. Local imports
 
 **Example:**
 
@@ -330,14 +330,14 @@ class TestFeatureX(unittest.TestCase):
    git checkout -b feature/my-feature
    ```
 
-2. **Make changes**
+1. **Make changes**
 
    - Write code following standards
    - Add type hints
    - Keep complexity low
    - Add tests
 
-3. **Check quality locally**
+1. **Check quality locally**
 
    ```bash
    # Format code
@@ -353,7 +353,7 @@ class TestFeatureX(unittest.TestCase):
    ./scripts/check_complexity.sh
    ```
 
-4. **Commit changes**
+1. **Commit changes**
 
    ```bash
    git add .
@@ -361,7 +361,8 @@ class TestFeatureX(unittest.TestCase):
    # Pre-commit hooks run automatically
    ```
 
-5. **Push and create PR**
+1. **Push and create PR**
+
    ```bash
    git push origin feature/my-feature
    ```
@@ -371,9 +372,9 @@ class TestFeatureX(unittest.TestCase):
 If pre-commit hooks fail:
 
 1. **Review the error messages**
-2. **Fix the issues** (or let the tool auto-fix)
-3. **Stage the changes** (`git add .`)
-4. **Commit again**
+1. **Fix the issues** (or let the tool auto-fix)
+1. **Stage the changes** (`git add .`)
+1. **Commit again**
 
 **Common fixes:**
 
@@ -414,10 +415,10 @@ When reviewing code, check for:
 When refactoring:
 
 1. **Start with tests** - Ensure existing tests pass
-2. **Make small changes** - One improvement at a time
-3. **Run tests frequently** - After each change
-4. **Check complexity** - Ensure it improves
-5. **Update documentation** - Keep it in sync
+1. **Make small changes** - One improvement at a time
+1. **Run tests frequently** - After each change
+1. **Check complexity** - Ensure it improves
+1. **Update documentation** - Keep it in sync
 
 ### Performance Considerations
 
@@ -439,6 +440,6 @@ When refactoring:
 If you have questions about code quality standards, please:
 
 1. Check this document
-2. Review `ARCHITECTURE.md` for patterns
-3. Look at existing code examples
-4. Open an issue for discussion
+1. Review `ARCHITECTURE.md` for patterns
+1. Look at existing code examples
+1. Open an issue for discussion
