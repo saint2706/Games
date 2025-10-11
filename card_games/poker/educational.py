@@ -6,7 +6,7 @@ explanations for poker games.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List
 
 from common.educational import (
     AIExplainer,
@@ -16,8 +16,8 @@ from common.educational import (
 )
 
 if TYPE_CHECKING:
-    from .poker import Action, Player, PokerTable
     from ..common.cards import Card
+    from .poker import Action, Player, PokerTable
 
 
 class PokerProbabilityCalculator(ProbabilityCalculator):
@@ -58,8 +58,6 @@ class PokerProbabilityCalculator(ProbabilityCalculator):
         Returns:
             Dictionary of hand types to their probabilities.
         """
-        from .poker import estimate_win_rate
-        from .poker_core import HandRank
 
         # This is a simplified version - in a full implementation,
         # we'd track how often each hand rank is made

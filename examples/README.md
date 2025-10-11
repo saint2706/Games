@@ -32,6 +32,7 @@ Comprehensive demonstration of CLI enhancement features:
 - **Themes** - Predefined and custom color schemes
 
 Run with:
+
 ```bash
 python examples/cli_utils_demo.py
 ```
@@ -48,6 +49,7 @@ Complete working game using all CLI utilities - a number guessing game with:
 - Status messages and ASCII art
 
 Run with:
+
 ```bash
 python examples/cli_enhanced_game.py
 ```
@@ -86,6 +88,7 @@ python examples/gui_enhancements_demo.py
 ```
 
 Features demonstrated:
+
 - Real-time theme switching with color updates
 - Animated button highlights
 - Accessibility toggles (high contrast, focus indicators)

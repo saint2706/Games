@@ -191,9 +191,7 @@ class CheckersGame(GameEngine[CheckersMove, str]):
                 results.append(CheckersMove(path=tuple(extended_path), captures=tuple(extended_captures)))
         return results
 
-    def _apply_move_on_board(
-        self, board: BoardType, move: CheckersMove, player: str
-    ) -> Tuple[str, Optional[str], bool]:
+    def _apply_move_on_board(self, board: BoardType, move: CheckersMove, player: str) -> Tuple[str, Optional[str], bool]:
         start_row, start_column = move.path[0]
         piece = board[start_row][start_column]
         if piece is None or piece.color != player:

@@ -153,7 +153,7 @@ print(f"AI: {explanation}")
 Open these files in any text editor:
 
 - `docs/source/guides/poker_strategy.rst` - Complete poker strategy
-- `docs/source/guides/blackjack_strategy.rst` - Complete blackjack strategy  
+- `docs/source/guides/blackjack_strategy.rst` - Complete blackjack strategy
 - `docs/source/guides/game_theory.rst` - Game theory concepts
 
 Or build the documentation:
@@ -167,10 +167,10 @@ open build/html/guides/index.html
 ## Next Steps
 
 1. **Complete Documentation**: Read `docs/EDUCATIONAL_FEATURES.md`
-2. **Code Examples**: Check `tests/test_educational_features.py`
-3. **Strategy Guides**: Study `docs/source/guides/`
-4. **Practice**: Try the challenge packs
-5. **Integrate**: Add educational features to your game
+1. **Code Examples**: Check `tests/test_educational_features.py`
+1. **Strategy Guides**: Study `docs/source/guides/`
+1. **Practice**: Try the challenge packs
+1. **Integrate**: Add educational features to your game
 
 ## Quick Reference
 

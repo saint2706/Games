@@ -5,10 +5,10 @@
 This implementation adds five complete, playable card games to the repository, all specified as high-priority items in TODO.md:
 
 1. **Solitaire (Klondike)** - Classic patience game
-2. **Hearts** - Trick-taking with shooting the moon
-3. **Spades** - Partnership bidding game
-4. **Gin Rummy** - Two-player melding game
-5. **Bridge** - Classic contract bridge (simplified)
+1. **Hearts** - Trick-taking with shooting the moon
+1. **Spades** - Partnership bidding game
+1. **Gin Rummy** - Two-player melding game
+1. **Bridge** - Classic contract bridge (simplified)
 
 ## Implementation Details
 
@@ -38,6 +38,7 @@ game_name/
 ### Game Features
 
 #### Solitaire (Klondike)
+
 - 7 tableau piles with proper face-up/face-down tracking
 - 4 foundation piles (Ace to King by suit)
 - Stock and waste pile mechanics
@@ -48,6 +49,7 @@ game_name/
 **Lines of Code**: ~310 (game.py + cli.py)
 
 #### Hearts
+
 - 4-player game with full trick-taking rules
 - Pass cards phase (LEFT → RIGHT → ACROSS → NONE rotation)
 - Hearts breaking detection
@@ -59,6 +61,7 @@ game_name/
 **Lines of Code**: ~380 (game.py + cli.py)
 
 #### Spades
+
 - 4-player partnership game (0&2 vs 1&3)
 - Bidding phase with nil bid support
 - Spades as permanent trump suit
@@ -70,6 +73,7 @@ game_name/
 **Lines of Code**: ~340 (game.py + cli.py)
 
 #### Gin Rummy
+
 - 2-player melding game
 - Automatic meld detection (sets and runs)
 - Deadwood calculation
@@ -81,6 +85,7 @@ game_name/
 **Lines of Code**: ~360 (game.py + cli.py)
 
 #### Bridge
+
 - 4-player partnership game (N-S vs E-W)
 - Simplified automated bidding based on HCP
 - Contract system (1♣ to 7NT)
@@ -96,29 +101,34 @@ game_name/
 Created `tests/test_new_card_games.py` with 18 tests:
 
 ### Solitaire Tests (4)
+
 - Game initialization
 - Tableau setup
 - Drawing from stock
 - Win detection
 
 ### Hearts Tests (4)
+
 - Game initialization
 - Card dealing
 - Round points calculation
 - Shooting the moon
 
 ### Spades Tests (3)
+
 - Game initialization
 - Card dealing
 - AI bidding
 
 ### Gin Rummy Tests (4)
+
 - Game initialization
 - Card dealing
 - Meld detection
 - Deadwood calculation
 
 ### Bridge Tests (3)
+
 - Game initialization
 - Card dealing
 - HCP evaluation
@@ -130,29 +140,35 @@ Created `tests/test_new_card_games.py` with 18 tests:
 Each game includes strategic AI opponents:
 
 ### Solitaire
+
 - N/A (single player)
 
 ### Hearts
+
 - **Passing**: Prioritizes Queen of Spades, high hearts, high cards
 - **Playing**: Avoids taking tricks with hearts, plays low when following
 - **Dumping**: Discards Queen of Spades and high hearts when can't follow suit
 
 ### Spades
+
 - **Bidding**: Counts high cards and long suits, especially spades
 - **Playing**: Leads low non-spades, tries to win with high cards
 
 ### Gin Rummy
+
 - **Drawing**: Prefers stock over discard
 - **Discarding**: Removes highest deadwood cards
 - **Knocking**: Knocks when deadwood ≤ 5
 
 ### Bridge
+
 - **Bidding**: Based on HCP (12+ to open), bids longest suit
 - **Playing**: Plays high when leading, tries to win tricks
 
 ## Performance
 
 All games run efficiently:
+
 - Game initialization: < 1ms
 - Card dealing: < 5ms
 - Move validation: < 1ms
@@ -167,14 +183,16 @@ All games run efficiently:
 ## Documentation
 
 Each game includes:
+
 1. **README.md**: Rules, commands, features
-2. **Module docstring**: Detailed game description
-3. **Function docstrings**: Complete API documentation
-4. **Type hints**: Full type coverage
+1. **Module docstring**: Detailed game description
+1. **Function docstrings**: Complete API documentation
+1. **Type hints**: Full type coverage
 
 ## Future Enhancements
 
 Possible improvements (not in scope):
+
 - GUI implementations (Solitaire mentioned drag-and-drop in requirements)
 - Network multiplayer
 - Save/load game state
@@ -186,6 +204,7 @@ Possible improvements (not in scope):
 ## Files Modified/Created
 
 ### New Files (25 total)
+
 - `card_games/solitaire/` (5 files)
 - `card_games/hearts/` (5 files)
 - `card_games/spades/` (5 files)
@@ -194,9 +213,11 @@ Possible improvements (not in scope):
 - `tests/test_new_card_games.py` (1 file)
 
 ### Modified Files (1)
+
 - `TODO.md` (marked 5 items as complete)
 
 ### Total Lines Added: ~2,500 lines
+
 - Game engines: ~1,400 lines
 - CLI interfaces: ~800 lines
 - Tests: ~200 lines
@@ -205,6 +226,7 @@ Possible improvements (not in scope):
 ## Conclusion
 
 All five high-priority card games have been successfully implemented with:
+
 - ✅ Complete game mechanics
 - ✅ AI opponents
 - ✅ CLI interfaces

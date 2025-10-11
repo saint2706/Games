@@ -269,4 +269,4 @@ run_gui(size=8, fleet="small", difficulty="hard", salvo=True)
 The GUI provides an intuitive visual interface with two main screens:
 
 1. **Ship Placement**: Interactive board with ship placement controls (see `battleship_gui_setup.png`)
-2. **Active Gameplay**: Dual-board view showing your fleet and enemy waters (see `battleship_gui_game.png`)
+1. **Active Gameplay**: Dual-board view showing your fleet and enemy waters (see `battleship_gui_game.png`)

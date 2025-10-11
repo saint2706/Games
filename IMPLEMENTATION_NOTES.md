@@ -629,10 +629,12 @@ October 2025
 #### Examples
 
 - **examples/cli_utils_demo.py** (236 lines)
+
   - Demonstrates each feature in isolation
   - Interactive walkthrough
 
 - **examples/cli_enhanced_game.py** (310 lines)
+
   - Complete working game using all features
   - Number guessing game with enhanced UI
   - Shows practical integration

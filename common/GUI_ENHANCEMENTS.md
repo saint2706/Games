@@ -501,27 +501,29 @@ pip install pygame
 
 1. **Theme Consistency**: Always use theme colors from `self.current_theme.colors` instead of hardcoded colors.
 
-2. **Sound Management**: Initialize sound manager with proper sound directory and handle graceful degradation.
+1. **Sound Management**: Initialize sound manager with proper sound directory and handle graceful degradation.
 
-3. **Accessibility**: Always add screen reader labels and focus indicators to interactive elements.
+1. **Accessibility**: Always add screen reader labels and focus indicators to interactive elements.
 
-4. **Internationalization**: Use `_()` function for all user-facing text to support translation.
+1. **Internationalization**: Use `_()` function for all user-facing text to support translation.
 
-5. **Keyboard Shortcuts**: Register shortcuts in `_setup_shortcuts()` method and provide descriptions.
+1. **Keyboard Shortcuts**: Register shortcuts in `_setup_shortcuts()` method and provide descriptions.
 
-6. **Responsive Design**: Use grid layout with weight configuration for responsive behavior.
+1. **Responsive Design**: Use grid layout with weight configuration for responsive behavior.
 
 ## Migration Guide
 
 To migrate existing GUIs to use these enhancements:
 
 1. **Update imports**:
+
    ```python
    from common.gui_base import BaseGUI, GUIConfig
    from common import _
    ```
 
-2. **Update GUIConfig**:
+1. **Update GUIConfig**:
+
    ```python
    config = GUIConfig(
        # ... existing config
@@ -530,11 +532,12 @@ To migrate existing GUIs to use these enhancements:
    )
    ```
 
-3. **Replace hardcoded colors** with theme colors:
+1. **Replace hardcoded colors** with theme colors:
+
    ```python
    # Before
    button.config(bg="#FFFFFF", fg="#000000")
-   
+
    # After
    button.config(
        bg=self.current_theme.colors.button_bg,
@@ -542,16 +545,18 @@ To migrate existing GUIs to use these enhancements:
    )
    ```
 
-4. **Wrap UI text** in translation function:
+1. **Wrap UI text** in translation function:
+
    ```python
    # Before
    label = tk.Label(root, text="New Game")
-   
+
    # After
    label = tk.Label(root, text=_("new_game"))
    ```
 
-5. **Add shortcuts** in `_setup_shortcuts()`:
+1. **Add shortcuts** in `_setup_shortcuts()`:
+
    ```python
    def _setup_shortcuts(self):
        self.register_shortcut("<Control-n>", self.new_game, "New Game")

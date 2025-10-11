@@ -5,11 +5,11 @@ This guide shows how to integrate the analytics system into your games to track 
 ## Table of Contents
 
 1. [Quick Start](#quick-start)
-2. [Core Concepts](#core-concepts)
-3. [Step-by-Step Integration](#step-by-step-integration)
-4. [Advanced Features](#advanced-features)
-5. [Best Practices](#best-practices)
-6. [Examples](#examples)
+1. [Core Concepts](#core-concepts)
+1. [Step-by-Step Integration](#step-by-step-integration)
+1. [Advanced Features](#advanced-features)
+1. [Best Practices](#best-practices)
+1. [Examples](#examples)
 
 ## Quick Start
 
@@ -45,6 +45,7 @@ class MyGame:
 ### Game Statistics
 
 Tracks overall game outcomes:
+
 - Wins, losses, draws per player
 - Win/loss streaks
 - Total playtime
@@ -53,6 +54,7 @@ Tracks overall game outcomes:
 ### Performance Metrics
 
 Tracks timing and quality:
+
 - Decision time per move
 - Game duration
 - Move quality (optional)
@@ -61,12 +63,14 @@ Tracks timing and quality:
 ### Rating Systems
 
 Tracks player skill:
+
 - **ELO**: Classic rating system (simpler)
 - **Glicko-2**: Advanced system with uncertainty (more accurate)
 
 ### Replay Analysis
 
 Analyzes gameplay:
+
 - Move patterns
 - Position frequency
 - Strategy analysis
@@ -74,6 +78,7 @@ Analyzes gameplay:
 ### Visualizations
 
 Presents data:
+
 - Dashboards for statistics
 - Heatmaps for position analysis
 - Charts and graphs
@@ -588,6 +593,7 @@ def decay_ratings(self, decay_factor=0.95):
 ## Support
 
 For questions or issues:
+
 1. Check existing game integrations for examples
-2. Review test cases for usage patterns
-3. Create an issue on GitHub with details
+1. Review test cases for usage patterns
+1. Create an issue on GitHub with details

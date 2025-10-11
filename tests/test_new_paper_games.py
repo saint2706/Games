@@ -3,7 +3,6 @@ from __future__ import annotations
 import random
 
 # Ensure deterministic SudokuGenerator seeding
-
 from common.game_engine import GameState
 from paper_games.checkers import CheckersAI, CheckersGame, CheckersMove, CheckersPiece
 from paper_games.connect_four import ConnectFourGame, ConnectFourMove
