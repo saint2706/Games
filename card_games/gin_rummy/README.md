@@ -1,38 +1,47 @@
 # Gin Rummy
 
-Two-player card game where players form melds (sets and runs) and try to minimize deadwood (unmatched cards).
+The Gin Rummy module now simulates full-length matches with authentic rules:
 
-## How to Play
+* Alternating dealers with an opening upcard offer that each player may accept or pass.
+* Exhaustive meld search to minimise deadwood and surface the exact sets/runs a player can table.
+* Realistic scoring that distinguishes normal knocks, gin, big gin, and undercuts while processing opponent layoffs.
+* Automatic stock reshuffles, discard restrictions (no throwing back the taken upcard), and a persistent round log.
+* A smarter AI capable of evaluating draw sources, timing safe knocks, and discarding cards that hinder meld formation.
+
+## Running the CLI
+
+Launch the interactive experience with:
 
 ```bash
 python -m card_games.gin_rummy
 ```
 
-## Game Rules
+During play you will see your hand analysis, available melds, and live scoring updates after every hand. The AI follows the same rules and will attempt to capitalise on gin or undercuts when the odds favour those plays.
 
-- Two players compete
-- Each player is dealt 10 cards
-- **Melds**:
-  - **Set**: Three or four cards of the same rank
-  - **Run**: Three or more consecutive cards of the same suit
-- **Deadwood**: Unmatched cards count against you (face cards = 10, aces = 1)
-- Draw from stock or discard pile
-- Discard one card each turn
-- **Knock**: Declare when deadwood ≤ 10 points
-- **Gin**: Knock with 0 deadwood for bonus points
-- **Undercut**: If opponent has less deadwood when you knock, they get bonus
-- First to 100 points wins
+## Core Rules Implemented
 
-## Scoring
+* Two players receive 10 cards; the dealer alternates each round.
+* The non-dealer may take the turned-up discard. If both players pass, that card cannot be taken until after the first stock draw.
+* Melds include three- or four-of-a-kind sets and same-suit runs of length ≥ 3. The engine automatically finds the configuration that minimises deadwood.
+* Players may knock with 10 or fewer deadwood points. Zero deadwood after drawing is scored as gin, or big gin when holding 11 cards.
+* When a player knocks without gin, the opponent may lay off cards that extend the revealed melds before their deadwood is counted.
+* Games continue until a player reaches 100 points.
 
-- **Gin**: Opponent's deadwood + 25 bonus
-- **Knock**: Deadwood difference
-- **Undercut**: Deadwood difference + 25 bonus
+### Scoring Details
 
-## Features
+| Event        | Points Awarded |
+|--------------|----------------|
+| Knock        | Deadwood difference (opponent minus knocker) |
+| Gin          | Opponent deadwood + 25 bonus points |
+| Big Gin      | Opponent deadwood + 31 bonus points |
+| Undercut     | Deadwood difference + 25 points to the undercutter |
 
-- Automatic meld detection (sets and runs)
-- Deadwood calculation
-- Knock and gin logic
-- Multi-round scoring
-- AI opponent
+## Testing
+
+Run the focused test suite with:
+
+```bash
+pytest tests/test_new_card_games.py::TestGinRummy -q
+```
+
+These tests cover meld discovery, deadwood optimisation, scoring outcomes (including layoffs and undercuts), and deck recycling behaviour.

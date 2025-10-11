@@ -1,21 +1,37 @@
 """Solitaire (Klondike) game engine.
 
-This module implements the classic Klondike solitaire game. The game involves:
-- Building four foundation piles (one per suit) from Ace to King
-- Seven tableau piles where cards can be moved and stacked in descending order with alternating colors
-- A stock pile from which cards are drawn
-- A waste pile where drawn cards are placed
+This module implements a feature-complete version of Klondike (Solitaire).
+It supports both *draw-one* and *draw-three* styles, limited stock recycles,
+standard and Vegas scoring, automatic moves to the foundations, and detailed
+state statistics so the CLI (and tests) can surface a realistic experience.
 
-The goal is to move all cards to the foundation piles.
+The core gameplay concepts are:
+
+* Building four foundation piles (one per suit) from Ace to King.
+* Seven tableau piles that build down in alternating colours and allow moving
+  whole face-up runs.
+* A stock pile from which cards are drawn one or three at a time into the
+  waste pile, with optional limits on how often the waste may be recycled
+  back to the stock.
+* Scoring that mirrors the Windows "Standard" rules (+10 per foundation move,
+  +5 when flipping tableau cards, -15 for withdrawing from a foundation) and
+  the Vegas casino rules (-52 buy-in, +5 per foundation move).
+
+The engine purposefully keeps UI concerns out of the logic so both CLI and
+future GUI front-ends can provide a rich depiction of a Klondike session.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum, auto
+from random import Random
 from typing import Optional
 
 from card_games.common.cards import Card, Deck, Suit
+
+
+RANK_ORDER = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
 
 
 class PileType(Enum):
@@ -56,8 +72,7 @@ class Pile:
         top = self.top_card()
         if top and top.suit == card.suit:
             # Must be one rank higher
-            rank_order = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
-            return rank_order.index(card.rank) == rank_order.index(top.rank) + 1
+            return RANK_ORDER.index(card.rank) == RANK_ORDER.index(top.rank) + 1
 
         return False
 
@@ -72,9 +87,8 @@ class Pile:
         top = self.top_card()
         if top:
             # Must be opposite color and one rank lower
-            rank_order = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]
             is_opposite_color = self._is_opposite_color(card, top)
-            is_one_rank_lower = rank_order.index(card.rank) == rank_order.index(top.rank) - 1
+            is_one_rank_lower = RANK_ORDER.index(card.rank) == RANK_ORDER.index(top.rank) - 1
             return is_opposite_color and is_one_rank_lower
 
         return False
@@ -95,12 +109,40 @@ class SolitaireGame:
     between piles according to solitaire rules.
     """
 
-    def __init__(self, *, rng=None):
+    def __init__(
+        self,
+        *,
+        draw_count: int = 3,
+        max_recycles: Optional[int] = None,
+        scoring_mode: str = "standard",
+        rng: Optional[Random] = None,
+    ):
         """Initialize a new solitaire game.
 
         Args:
+            draw_count: Number of cards to draw from the stock at a time (1 or 3).
+            max_recycles: Optional limit for how many times the waste may be
+                recycled back into the stock. ``None`` indicates no limit.
+            scoring_mode: Scoring variant to use (``"standard"`` or ``"vegas"``).
             rng: Optional random number generator for shuffling.
+
+        Raises:
+            ValueError: If any configuration option is invalid.
         """
+        if draw_count not in (1, 3):
+            raise ValueError("draw_count must be 1 or 3 for Klondike")
+
+        if scoring_mode not in {"standard", "vegas"}:
+            raise ValueError("scoring_mode must be either 'standard' or 'vegas'")
+
+        self.draw_count = draw_count
+        self.max_recycles = max_recycles if max_recycles is not None else (3 if draw_count == 3 else None)
+        self.recycles_used = 0
+        self.scoring_mode = scoring_mode
+        self.score = -52 if scoring_mode == "vegas" else 0
+        self.moves_made = 0
+        self.auto_moves_made = 0
+
         self.rng = rng
         self.deck = Deck()
         if rng:
@@ -120,7 +162,7 @@ class SolitaireGame:
         """Deal cards to tableau and stock piles."""
         # Deal to tableau: 1 card to first pile, 2 to second, etc.
         for i in range(7):
-            for j in range(i + 1):
+            for _ in range(i + 1):
                 card = self.deck.deal(1)[0]
                 self.tableau[i].cards.append(card)
             # Only the top card is face up
@@ -131,40 +173,60 @@ class SolitaireGame:
         self.deck.cards.clear()
 
     def draw_from_stock(self) -> bool:
-        """Draw a card from stock to waste.
+        """Draw card(s) from stock to waste.
 
         Returns:
-            True if a card was drawn, False if stock is empty.
+            True if at least one card was drawn, False if stock is empty.
         """
-        if self.stock.cards:
+        if not self.stock.cards:
+            return False
+
+        cards_to_draw = min(self.draw_count, len(self.stock.cards))
+        for _ in range(cards_to_draw):
             card = self.stock.cards.pop()
             self.waste.cards.append(card)
+
+        self.moves_made += 1
+        return True
+
+    def can_reset_stock(self) -> bool:
+        """Check whether the waste may be recycled back into the stock."""
+
+        if not self.waste.cards or self.stock.cards:
+            return False
+
+        if self.max_recycles is None:
             return True
-        return False
+
+        return self.recycles_used < self.max_recycles
 
     def reset_stock(self) -> bool:
-        """Move all cards from waste back to stock.
+        """Move all cards from waste back to stock respecting recycle limits."""
 
-        Returns:
-            True if cards were moved, False if waste is empty.
-        """
-        if self.waste.cards:
-            self.stock.cards = list(reversed(self.waste.cards))
-            self.waste.cards.clear()
-            return True
-        return False
+        if not self.can_reset_stock():
+            return False
 
-    def move_to_foundation(self, source_pile: Pile, foundation_index: int) -> bool:
+        self.stock.cards = list(reversed(self.waste.cards))
+        self.waste.cards.clear()
+        self.recycles_used += 1
+        return True
+
+    def move_to_foundation(self, source_pile: Pile, foundation_index: int, *, register_move: bool = True) -> bool:
         """Move top card from source pile to foundation.
 
         Args:
             source_pile: The pile to move from.
             foundation_index: Index of the foundation pile (0-3).
+            register_move: Whether to count the move towards statistics.
 
         Returns:
             True if move was successful, False otherwise.
         """
         if not source_pile.cards:
+            return False
+
+        if source_pile.pile_type == PileType.FOUNDATION:
+            # Foundations only ever receive cards
             return False
 
         card = source_pile.top_card()
@@ -173,10 +235,17 @@ class SolitaireGame:
 
             # Update face-up count for tableau piles
             if source_pile.pile_type == PileType.TABLEAU and source_pile.cards:
-                if source_pile.face_up_count > len(source_pile.cards):
-                    source_pile.face_up_count = len(source_pile.cards)
-                if source_pile.face_up_count == 0:
-                    source_pile.face_up_count = 1
+                source_pile.face_up_count -= 1
+                if source_pile.face_up_count < 0:
+                    source_pile.face_up_count = 0
+                self._reveal_top_card(source_pile)
+            elif source_pile.pile_type == PileType.TABLEAU:
+                source_pile.face_up_count = 0
+
+            if register_move:
+                self.moves_made += 1
+
+            self._apply_scoring_on_foundation_move(source_pile.pile_type)
 
             return True
         return False
@@ -203,6 +272,9 @@ class SolitaireGame:
         if source_pile.pile_type == PileType.TABLEAU:
             if num_cards > source_pile.face_up_count:
                 return False
+        elif source_pile.pile_type == PileType.FOUNDATION and self.scoring_mode == "vegas":
+            # Vegas rules do not allow removing cards from the foundation
+            return False
 
         # Get the cards to move
         cards_to_move = source_pile.cards[-num_cards:]
@@ -220,10 +292,17 @@ class SolitaireGame:
             # Update source face-up count
             if source_pile.pile_type == PileType.TABLEAU:
                 source_pile.face_up_count -= num_cards
-                # Turn over next card if needed
-                if source_pile.cards and source_pile.face_up_count == 0:
-                    source_pile.face_up_count = 1
+                if source_pile.face_up_count < 0:
+                    source_pile.face_up_count = 0
+                self._reveal_top_card(source_pile)
+            elif source_pile.pile_type == PileType.FOUNDATION and self.scoring_mode == "standard":
+                # Standard scoring penalises withdrawing from the foundation
+                self.score -= 15
 
+            if source_pile.pile_type == PileType.WASTE and self.scoring_mode == "standard":
+                self.score += 5
+
+            self.moves_made += 1
             return True
         return False
 
@@ -241,24 +320,39 @@ class SolitaireGame:
         Returns:
             True if at least one card was moved, False otherwise.
         """
-        moved = False
+        moved_any = False
 
-        # Try waste pile first
-        if self.waste.cards:
-            for i in range(4):
-                if self.move_to_foundation(self.waste, i):
-                    moved = True
-                    break
+        while True:
+            moved_this_cycle = False
 
-        # Try tableau piles
-        for tableau_pile in self.tableau:
-            if tableau_pile.cards:
+            if self.waste.cards:
                 for i in range(4):
-                    if self.move_to_foundation(tableau_pile, i):
-                        moved = True
+                    if self.move_to_foundation(self.waste, i, register_move=False):
+                        moved_any = True
+                        moved_this_cycle = True
                         break
 
-        return moved
+            if moved_this_cycle:
+                continue
+
+            for tableau_pile in self.tableau:
+                if not tableau_pile.cards:
+                    continue
+                for i in range(4):
+                    if self.move_to_foundation(tableau_pile, i, register_move=False):
+                        moved_any = True
+                        moved_this_cycle = True
+                        break
+                if moved_this_cycle:
+                    break
+
+            if not moved_this_cycle:
+                break
+
+        if moved_any:
+            self.auto_moves_made += 1
+
+        return moved_any
 
     def get_state_summary(self) -> dict:
         """Get a summary of the current game state.
@@ -278,4 +372,37 @@ class SolitaireGame:
                 }
                 for t in self.tableau
             ],
+            "draw_count": self.draw_count,
+            "score": self.score,
+            "moves_made": self.moves_made,
+            "auto_moves": self.auto_moves_made,
+            "recycles_used": self.recycles_used,
+            "recycles_remaining": None if self.max_recycles is None else max(self.max_recycles - self.recycles_used, 0),
+            "scoring_mode": self.scoring_mode,
         }
+
+    def _apply_scoring_on_foundation_move(self, source_type: PileType) -> None:
+        """Adjust the score for a successful move to a foundation."""
+
+        if self.scoring_mode == "vegas":
+            self.score += 5
+            return
+
+        if source_type == PileType.WASTE or source_type == PileType.TABLEAU:
+            self.score += 10
+
+    def _reveal_top_card(self, pile: Pile) -> None:
+        """Flip the next tableau card face up and apply scoring if relevant."""
+
+        if pile.pile_type != PileType.TABLEAU:
+            return
+
+        if not pile.cards:
+            pile.face_up_count = 0
+            return
+
+        if pile.face_up_count == 0:
+            pile.face_up_count = 1
+            if self.scoring_mode == "standard":
+                self.score += 5
+

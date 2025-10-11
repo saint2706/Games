@@ -1,4 +1,4 @@
-"""Command-line interface for Solitaire (Klondike)."""
+"""Command-line interface helpers for the Klondike Solitaire engine."""
 
 from __future__ import annotations
 
@@ -15,11 +15,17 @@ def display_game(game: SolitaireGame) -> None:
     print("SOLITAIRE (KLONDIKE)")
     print("=" * 80)
 
+    summary = game.get_state_summary()
+
     # Stock and Waste
-    stock_count = len(game.stock.cards)
-    waste_top = game.waste.top_card()
-    waste_display = str(waste_top) if waste_top else "[]"
-    print(f"\nStock: [{stock_count} cards]  Waste: {waste_display}")
+    stock_count = summary["stock"]
+    waste_cards = game.waste.cards[-game.draw_count :]
+    waste_display = " ".join(str(card) for card in waste_cards[::-1]) if waste_cards else "[]"
+    draw_note = f"draw {game.draw_count}" + (
+        " (limitless redeals)" if summary["recycles_remaining"] is None else f" ({summary['recycles_remaining']} redeal(s) left)"
+    )
+    print(f"\nStock: [{stock_count} cards] {draw_note}")
+    print(f"Waste: {waste_display}")
 
     # Foundations
     print("\nFoundations:")
@@ -54,6 +60,13 @@ def display_game(game: SolitaireGame) -> None:
 
     print("\n  0     1     2     3     4     5     6")
 
+    # Statistics
+    print("\nStats:")
+    print(
+        f"  Score: {summary['score']}  Moves: {summary['moves_made']}  Auto moves: {summary['auto_moves']}  "
+        f"Recycles used: {summary['recycles_used']}"
+    )
+
 
 def parse_move(user_input: str, game: SolitaireGame) -> bool:
     """Parse and execute a move command.
@@ -74,11 +87,17 @@ def parse_move(user_input: str, game: SolitaireGame) -> bool:
 
     # Draw from stock
     if command in ("d", "draw"):
+        before_waste = len(game.waste.cards)
         if game.draw_from_stock():
-            print("Drew a card from stock.")
+            drawn = len(game.waste.cards) - before_waste
+            drawn_cards = " ".join(str(card) for card in game.waste.cards[-drawn:][::-1])
+            print(f"Drew: {drawn_cards}")
             return True
         else:
-            print("Stock is empty. Use 'reset' to flip waste back to stock.")
+            if game.can_reset_stock():
+                print("Stock is empty. Use 'reset' to flip the waste back onto the stock.")
+            else:
+                print("No cards left to draw.")
             return False
 
     # Reset stock
@@ -87,17 +106,29 @@ def parse_move(user_input: str, game: SolitaireGame) -> bool:
             print("Reset stock from waste pile.")
             return True
         else:
-            print("Waste pile is empty.")
+            if game.waste.cards:
+                print("No redeals remaining. Finish the tableau or undo moves from foundations.")
+            else:
+                print("Waste pile is empty.")
             return False
 
     # Auto-move to foundation
     if command in ("a", "auto"):
         if game.auto_move_to_foundation():
-            print("Moved card(s) to foundation.")
+            print("Moved available cards to the foundations.")
             return True
         else:
             print("No cards can be automatically moved to foundation.")
             return False
+
+    if command in ("s", "stats"):
+        summary = game.get_state_summary()
+        print(
+            "Current stats -> "
+            f"Score: {summary['score']} | Moves: {summary['moves_made']} | Auto: {summary['auto_moves']} | "
+            f"Recycles used: {summary['recycles_used']}"
+        )
+        return False
 
     # Move commands: "w 0" (waste to tableau 0), "0 f" (tableau 0 to foundation)
     if len(parts) >= 2:
@@ -151,9 +182,10 @@ def print_help() -> None:
     print("\n" + "=" * 80)
     print("COMMANDS")
     print("=" * 80)
-    print("  d, draw           - Draw a card from stock to waste")
-    print("  r, reset          - Reset stock from waste pile")
-    print("  a, auto           - Auto-move cards to foundations")
+    print("  d, draw           - Draw from stock to waste (respecting draw setting)")
+    print("  r, reset          - Recycle waste back to stock when allowed")
+    print("  a, auto           - Auto-move eligible cards to foundations")
+    print("  s, stats          - Show score, move count, and recycle usage")
     print("  w <dest>          - Move waste card (e.g., 'w 0' moves to tableau 0)")
     print("  <src> f           - Move tableau card to foundation (e.g., '0 f')")
     print("  <src> <dest> [n]  - Move n cards from tableau src to dest (e.g., '0 1 3')")
@@ -161,6 +193,8 @@ def print_help() -> None:
     print("  q, quit           - Quit game")
     print("\nTableau columns are numbered 0-6 from left to right.")
     print("Foundation piles are automatically selected based on card suit.")
+    print("Standard scoring: +10 to foundations, +5 flip bonuses, -15 when pulling from foundations.")
+    print("Vegas scoring: buy-in of -52 with +5 per card moved to the foundations.")
     print("=" * 80)
 
 

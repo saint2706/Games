@@ -1,6 +1,7 @@
 # Bridge
 
-Classic contract bridge with bidding, partnership play, and trick-taking. This is a simplified implementation of the complex game.
+Classic contract bridge with bidding, partnership play, and trick-taking. This implementation now models key elements of modern
+duplicate-style bridge including vulnerability, doubles, and rubber-style scoring.
 
 ## How to Play
 
