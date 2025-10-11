@@ -156,13 +156,13 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] Add mutation testing to validate test quality
 
 ### Documentation
-- [ ] Create comprehensive API documentation with Sphinx
-- [ ] Add tutorial series for each game (getting started guides)
-- [ ] Create architecture diagrams for complex games (poker, bluff)
-- [ ] Write contributing guidelines for new game submissions
-- [ ] Add code examples and usage patterns documentation
+- [x] Create comprehensive API documentation with Sphinx
+- [x] Add tutorial series for each game (getting started guides)
+- [x] Create architecture diagrams for complex games (poker, bluff)
+- [x] Write contributing guidelines for new game submissions
+- [x] Add code examples and usage patterns documentation
 - [ ] Create video tutorials/demos for complex games
-- [ ] Document AI strategies and algorithms used
+- [x] Document AI strategies and algorithms used
 
 ### Code Quality
 - [x] Refactor common GUI code into reusable components
