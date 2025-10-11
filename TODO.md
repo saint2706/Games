@@ -135,12 +135,24 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [ ] Add achievement system across all games
 - [ ] Create unified profile and progression system
 - [ ] Implement cross-game tutorial system using existing documentation
+- [ ] Add daily challenges with rotation across different games
+- [ ] Create game recommendation system based on play history
+- [ ] Implement cross-game leaderboard integration
 
 ## 🏗️ Technical Improvements
 
 ### Documentation
 
 - [ ] Create video tutorials/demos for complex games
+
+### AI Enhancements
+
+- [ ] Implement reinforcement learning for game AI (using stable-baselines3 or similar)
+- [ ] Add neural network-based AI opponents for complex games
+- [ ] Create AI difficulty auto-adjustment based on player performance
+- [ ] Implement AI personality traits (aggressive, defensive, balanced)
+- [ ] Add explainable AI features showing decision reasoning
+- [ ] Create AI training mode where players can teach strategies
 
 ### Performance & Optimization
 
@@ -215,6 +227,19 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [ ] Implement crash reporting and error analytics
 - [ ] Create web-based versions using PyScript or similar
 - [ ] Package for mobile platforms (Android/iOS via Kivy or BeeWare)
+- [ ] Create GitHub Actions for automated releases
+- [ ] Add homebrew formula for macOS installation
+- [ ] Create snap/flatpak packages for Linux
+
+## 🔌 Integrations & APIs
+
+- [ ] Create REST API for game state and move validation
+- [ ] Add Discord bot for playing games in Discord servers
+- [ ] Implement Twitch extension for interactive streams
+- [ ] Create Slack bot for workplace game sessions
+- [ ] Add webhook support for external integrations
+- [ ] Implement game streaming API for spectators
+- [ ] Create embeddable widget for websites
 
 ## 🎓 Educational Features (Advanced)
 
@@ -247,6 +272,9 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [ ] Add touchscreen support for GUIs
 - [ ] Implement gamepad/controller support
 - [ ] Test on various screen resolutions and DPI settings
+- [ ] Add voice control support for accessibility
+- [ ] Create mobile-responsive web version of games
+- [ ] Optimize for low-resource devices (old computers, single-board computers)
 
 ## 🎉 Community & Engagement
 
