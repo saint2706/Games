@@ -4,9 +4,10 @@ This file provides context-specific guidance for GitHub Copilot when working in 
 
 ## Repository Overview
 
-This is a Python-based games collection featuring card games (Poker, Blackjack, Bluff, Uno) and paper games
-(Tic-Tac-Toe, Battleship, Nim, Hangman, Dots and Boxes, Unscramble). The project emphasizes clean architecture, AI
-opponents, and both CLI and GUI interfaces.
+This is a Python-based games collection featuring card games (Poker, Blackjack, Bluff, Uno, Solitaire, Hearts, Spades, 
+Gin Rummy, Bridge) and paper games (Tic-Tac-Toe, Battleship, Nim, Hangman, Dots and Boxes, Unscramble, Checkers, 
+Connect Four, Othello, Sudoku, Mancala). The project emphasizes clean architecture, AI opponents, and both CLI and GUI 
+interfaces.
 
 ## Code Quality Standards
 
