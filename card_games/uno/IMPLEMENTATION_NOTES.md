@@ -322,7 +322,7 @@ When extending these features:
 ## References
 
 - Original TODO: `TODO.md` line 97-102
-- Sound Guide: `SOUND_EFFECTS.md`
+- Sound Guide: `sounds/README.md`
 - Multiplayer Guide: `MULTIPLAYER_GUIDE.md`
 - Custom Deck Guide: `CUSTOM_DECK_GUIDE.md`
 - Feature Status: `FEATURES.md`

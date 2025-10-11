@@ -4,6 +4,7 @@ This document describes the testing infrastructure for the Games project.
 
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [Overview](#overview)
 - [Running Tests](#running-tests)
 - [Test Coverage](#test-coverage)
@@ -13,6 +14,79 @@ This document describes the testing infrastructure for the Games project.
 - [Mutation Testing](#mutation-testing)
 - [Writing Tests](#writing-tests)
 - [Continuous Integration](#continuous-integration)
+
+## Quick Start
+
+### Setup (First Time Only)
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
+
+### Most Common Commands
+
+```bash
+# Run all tests
+pytest
+
+# Run all tests with coverage report
+./scripts/run_tests.sh coverage
+
+# Run fast tests only (skip slow ones)
+./scripts/run_tests.sh fast
+
+# Run specific test category
+pytest -m integration  # Integration tests
+pytest -m gui          # GUI tests  
+pytest -m performance  # Performance tests
+```
+
+### Test a Specific File or Test
+
+```bash
+# Test a specific file
+pytest tests/test_nim.py
+
+# Test a specific function
+pytest tests/test_nim.py::test_computer_move_leaves_zero_nim_sum_when_possible
+
+# Test a specific class
+pytest tests/test_cli_integration.py::TestNimCLI
+```
+
+### Pre-Commit Checklist
+
+Before committing code:
+
+```bash
+# 1. Format code
+black .
+ruff check . --fix
+
+# 2. Run fast tests
+./scripts/run_tests.sh fast
+
+# 3. Check coverage of changed files
+pytest --cov=paper_games/your_module --cov-report=term-missing
+
+# 4. Run full test suite (if you have time)
+pytest
+```
+
+### Quick Reference
+
+| Command | What It Does |
+|---------|--------------|
+| `pytest` | Run all tests |
+| `pytest -v` | Verbose output |
+| `pytest -m integration` | Run integration tests |
+| `pytest -k "test_name"` | Run tests matching name |
+| `pytest --cov` | Run with coverage |
+| `pytest -x` | Stop on first failure |
+| `pytest --pdb` | Debug on failure |
+| `./scripts/run_tests.sh help` | Show script options |
 
 ## Overview
 
