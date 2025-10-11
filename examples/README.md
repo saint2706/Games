@@ -37,6 +37,29 @@ A comprehensive demonstration of all architecture components:
 
 The demo uses the example number guessing game plugin to demonstrate all features in action.
 
+### gui_enhancements_demo.py
+
+An interactive demonstration of all GUI enhancement features:
+
+1. **Theme System** - Switch between light, dark, and high contrast themes
+1. **Animation Framework** - Visual effects and transitions
+1. **Accessibility Features** - High contrast mode, focus indicators
+1. **Internationalization** - Multi-language support
+1. **Keyboard Shortcuts** - Complete shortcut system with F1 help
+
+To run:
+
+```bash
+python examples/gui_enhancements_demo.py
+```
+
+Features demonstrated:
+- Real-time theme switching with color updates
+- Animated button highlights
+- Accessibility toggles (high contrast, focus indicators)
+- Language selection (shows available translations)
+- Keyboard shortcuts (F1 for help, Ctrl+T/L for themes, Esc to quit)
+
 ### Expected Output
 
 When you run the demo, you'll see:
