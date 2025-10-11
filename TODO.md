@@ -116,12 +116,12 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Create themed boards (holiday versions, custom symbols)
 
 ### Battleship
-- [ ] Increase grid size options (8x8, 10x10)
-- [ ] Add more ship types with various sizes
-- [ ] Implement difficulty levels with AI strategy variations
-- [ ] Add 2-player hot-seat mode
+- [x] Increase grid size options (8x8, 10x10)
+- [x] Add more ship types with various sizes
+- [x] Implement difficulty levels with AI strategy variations
+- [x] Add 2-player hot-seat mode
 - [ ] Create GUI version with drag-and-drop ship placement
-- [ ] Add salvo mode (multiple shots per turn)
+- [x] Add salvo mode (multiple shots per turn)
 
 ### Dots and Boxes
 - [ ] Implement larger board sizes (4x4, 5x5, 6x6)

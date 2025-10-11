@@ -147,6 +147,25 @@ DEFAULT_FLEET: Tuple[Tuple[str, int], ...] = (
     ("Destroyer", 2),
 )
 
+# Extended fleet with more ship types
+EXTENDED_FLEET: Tuple[Tuple[str, int], ...] = (
+    ("Carrier", 5),
+    ("Battleship", 4),
+    ("Cruiser", 3),
+    ("Submarine", 3),
+    ("Destroyer", 2),
+    ("Patrol Boat", 2),
+    ("Frigate", 3),
+)
+
+# Small fleet for 8x8 boards
+SMALL_FLEET: Tuple[Tuple[str, int], ...] = (
+    ("Battleship", 4),
+    ("Cruiser", 3),
+    ("Submarine", 3),
+    ("Destroyer", 2),
+)
+
 
 class BattleshipGame:
     """Full Battleship game against a computer opponent."""
@@ -157,11 +176,26 @@ class BattleshipGame:
         size: int = 10,
         fleet: Sequence[Tuple[str, int]] = DEFAULT_FLEET,
         rng: Optional[random.Random] = None,
+        difficulty: str = "medium",
+        two_player: bool = False,
+        salvo_mode: bool = False,
     ) -> None:
-        """Initializes the game with a given size, fleet, and random number generator."""
+        """Initializes the game with a given size, fleet, and random number generator.
+        
+        Args:
+            size: Board size (e.g., 8 for 8x8, 10 for 10x10)
+            fleet: Sequence of (ship_name, ship_length) tuples
+            rng: Random number generator for reproducible games
+            difficulty: AI difficulty level ("easy", "medium", "hard")
+            two_player: If True, enables 2-player hot-seat mode (no AI)
+            salvo_mode: If True, allows multiple shots per turn based on remaining ships
+        """
         self.rng = rng or random.Random()
         self.size = size
         self.fleet = tuple(fleet)
+        self.difficulty = difficulty
+        self.two_player = two_player
+        self.salvo_mode = salvo_mode
         self.player_board = Board(size)
         self.opponent_board = Board(size)
         coords = [(r, c) for r in range(size) for c in range(size)]
@@ -198,20 +232,30 @@ class BattleshipGame:
 
     def ai_shoot(self) -> Tuple[Coordinate, str, Optional[str]]:
         """AI shoots at the player's board."""
-        # Prioritize targets in the queue.
-        while self._ai_targets:
-            target = self._ai_targets.popleft()
-            if target in self.player_board.shots:
-                continue
-            break
-        else:
-            # If no targets, fall back to hunting mode.
-            if self._ai_hunt_even:
-                target = self._ai_hunt_even.pop()
-            elif self._ai_hunt_odd:
-                target = self._ai_hunt_odd.pop()
-            else:
+        # Easy difficulty: just random shots
+        if self.difficulty == "easy":
+            available = [(r, c) for r in range(self.size) for c in range(self.size)
+                        if (r, c) not in self.player_board.shots]
+            if not available:
                 raise RuntimeError("AI has no available shots left.")
+            target = self.rng.choice(available)
+        else:
+            # Medium/Hard difficulty: use hunting strategy
+            # Hard difficulty: always prioritize targets, medium: 70% of the time
+            should_hunt = self.difficulty == "hard" or (self.difficulty == "medium" and self.rng.random() < 0.7)
+            
+            # Prioritize targets in the queue.
+            if should_hunt and self._ai_targets:
+                while self._ai_targets:
+                    target = self._ai_targets.popleft()
+                    if target in self.player_board.shots:
+                        continue
+                    break
+                else:
+                    target = self._get_hunt_target()
+            else:
+                target = self._get_hunt_target()
+        
         result, ship_name = self.player_board.receive_shot(target)
         # If it's a hit, add neighboring cells to the target queue.
         if result in {"hit", "sunk"}:
@@ -220,6 +264,16 @@ class BattleshipGame:
         if result == "sunk":
             self._flush_invalid_targets()
         return target, result, ship_name
+    
+    def _get_hunt_target(self) -> Coordinate:
+        """Gets the next hunting target for the AI."""
+        # If no targets, fall back to hunting mode.
+        if self._ai_hunt_even:
+            return self._ai_hunt_even.pop()
+        elif self._ai_hunt_odd:
+            return self._ai_hunt_odd.pop()
+        else:
+            raise RuntimeError("AI has no available shots left.")
 
     def _enqueue_targets(self, coord: Coordinate) -> None:
         """Adds neighboring cells to the AI's target queue."""
@@ -252,3 +306,15 @@ class BattleshipGame:
     def opponent_has_lost(self) -> bool:
         """Checks if the opponent has lost the game."""
         return self.opponent_board.all_sunk()
+    
+    def get_salvo_count(self, player: str = "player") -> int:
+        """Returns the number of shots available in salvo mode.
+        
+        Args:
+            player: "player" or "opponent" to count their remaining ships
+        
+        Returns:
+            Number of unsunk ships (number of shots in salvo mode)
+        """
+        board = self.player_board if player == "player" else self.opponent_board
+        return sum(1 for ship in board.ships if not ship.is_sunk)
