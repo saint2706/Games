@@ -1,0 +1,150 @@
+Games Repository - Architecture System
+=======================================
+
+📦 common/architecture/          Core Architecture Components
+├── 🎮 engine.py                 Game Engine Abstraction Layer
+│   ├── GameEngine (ABC)         - Base class for all games
+│   ├── GameState                - State container
+│   └── GamePhase (Enum)         - Standard game phases
+│
+├── 📡 events.py                  Event-Driven Architecture
+│   ├── Event                    - Event data structure
+│   ├── EventBus                 - Central event dispatcher
+│   ├── EventHandler (ABC)       - Handler interface
+│   └── FunctionEventHandler     - Function wrapper
+│
+├── 👁️ observer.py                Observer Pattern
+│   ├── Observer (ABC)           - Observer interface
+│   ├── Observable               - Base observable class
+│   └── PropertyObservable       - Property-specific observation
+│
+├── 💾 persistence.py             Save/Load System
+│   ├── GameStateSerializer      - Serializer interface
+│   ├── JSONSerializer           - JSON format
+│   ├── PickleSerializer         - Binary format
+│   └── SaveLoadManager          - High-level API
+│
+├── 🔌 plugin.py                  Plugin System
+│   ├── GamePlugin (ABC)         - Plugin interface
+│   ├── PluginMetadata           - Plugin information
+│   └── PluginManager            - Plugin lifecycle
+│
+├── 🎬 replay.py                  Replay/Undo System
+│   ├── ReplayAction             - Action record
+│   ├── ReplayRecorder           - Records actions
+│   └── ReplayManager            - Undo/redo management
+│
+└── ⚙️ settings.py                Unified Settings
+    ├── Settings                 - Settings container
+    └── SettingsManager          - Persistence manager
+
+📁 plugins/                       Plugin Directory
+├── 📄 README.md                  Plugin development guide
+└── 🎯 example_plugin.py          Working example plugin
+    ├── SimpleNumberGuessingGame - Example game engine
+    └── ExampleGamePlugin        - Example plugin
+
+📁 examples/                      Usage Examples
+├── 📄 README.md                  Examples documentation
+└── 🎪 architecture_demo.py       Comprehensive demo
+    ├── Plugin loading
+    ├── Event system
+    ├── Observer pattern
+    ├── Save/load
+    ├── Settings
+    └── Replay/undo
+
+📁 tests/                         Test Suite
+├── ✅ test_architecture.py       Core tests (31 tests)
+│   ├── Event system (7)
+│   ├── Observer pattern (4)
+│   ├── Game engine (4)
+│   ├── Persistence (5)
+│   ├── Replay system (5)
+│   └── Settings system (6)
+│
+└── ✅ test_plugin_system.py      Plugin tests (10 tests)
+
+📚 Documentation
+├── 📖 ARCHITECTURE.md            Comprehensive guide
+├── 📊 ARCHITECTURE_SUMMARY.md    Implementation summary
+├── 📝 TODO.md                    Updated with completed tasks
+└── 📋 ARCHITECTURE_STRUCTURE.txt This file
+
+Component Integration Flow
+===========================
+
+┌─────────────┐
+│   Plugin    │ ← Loads third-party games
+│   Manager   │
+└──────┬──────┘
+       │ creates
+       ↓
+┌─────────────┐     emits      ┌─────────────┐
+│    Game     │ ─────────────→ │    Event    │
+│   Engine    │                │     Bus     │
+└──────┬──────┘                └──────┬──────┘
+       │                              │ notifies
+       │ notifies                     ↓
+       ↓                        ┌─────────────┐
+┌─────────────┐                │   Event     │
+│  Observers  │                │  Handlers   │
+└─────────────┘                └─────────────┘
+
+       ↓ saves state
+┌─────────────┐
+│  Save/Load  │
+│   Manager   │
+└─────────────┘
+
+       ↓ records actions
+┌─────────────┐
+│   Replay    │
+│   Manager   │
+└─────────────┘
+
+       ↓ loads config
+┌─────────────┐
+│  Settings   │
+│   Manager   │
+└─────────────┘
+
+Key Features
+============
+
+✅ Plugin System
+   • Dynamic loading
+   • Metadata management
+   • Safe unloading
+
+✅ Event System
+   • Publish/subscribe
+   • Event history
+   • Filtering
+
+✅ Observer Pattern
+   • Multi-observer support
+   • Property observation
+   • Context passing
+
+✅ Persistence
+   • JSON/Pickle formats
+   • Metadata tracking
+   • Save management
+
+✅ Replay System
+   • Action recording
+   • Undo/redo
+   • State snapshots
+
+✅ Settings
+   • Per-game config
+   • Global settings
+   • Persistence
+
+✅ Game Engine
+   • Abstract interface
+   • State management
+   • Event integration
+
+Test Coverage: 41/41 tests passing ✅
