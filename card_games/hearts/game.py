@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Optional
+from typing import Iterable, Optional, Sequence
 
 from card_games.common.cards import Card, Deck, Suit
 
@@ -30,7 +30,11 @@ class PassDirection(Enum):
     NONE = auto()  # No passing on 4th hand
 
 
-@dataclass
+TWO_OF_CLUBS = Card("2", Suit.CLUBS)
+QUEEN_OF_SPADES = Card("Q", Suit.SPADES)
+
+
+@dataclass(eq=False)
 class HeartsPlayer:
     """Represents a player in Hearts.
 
@@ -66,9 +70,24 @@ class HeartsPlayer:
         for card in self.tricks_won:
             if card.suit == Suit.HEARTS:
                 points += 1
-            elif card.suit == Suit.SPADES and card.rank == "Q":
+            elif card == QUEEN_OF_SPADES:
                 points += 13
         return points
+
+
+@dataclass(frozen=True)
+class TrickRecord:
+    """Snapshot of a completed trick used for post-round analysis.
+
+    Attributes:
+        leader: Name of the player who led the trick.
+        cards: Ordered sequence of ``(player_name, card)`` tuples in play order.
+        winner: Name of the player who captured the trick.
+    """
+
+    leader: str
+    cards: tuple[tuple[str, Card], ...]
+    winner: str
 
 
 class HeartsGame:
@@ -95,6 +114,13 @@ class HeartsGame:
         self.hearts_broken = False
         self.current_trick: list[tuple[HeartsPlayer, Card]] = []
         self.lead_suit: Optional[Suit] = None
+        self._current_trick_leader: Optional[HeartsPlayer] = None
+        self.trick_number = 0
+        self.trick_history: list[TrickRecord] = []
+        self.last_round_tricks: list[TrickRecord] = []
+        self.last_round_scores: dict[str, int] = {}
+        self.last_round_events: dict[str, str] = {}
+        self.pass_history: list[dict[str, list[Card]]] = []
 
     def deal_cards(self) -> None:
         """Deal all 52 cards evenly to 4 players (13 each)."""
@@ -103,6 +129,16 @@ class HeartsGame:
             self.deck.shuffle(rng=self.rng)
         else:
             self.deck.shuffle()
+
+        # Archive the just-completed round for post-game inspection
+        if self.trick_history:
+            self.last_round_tricks = list(self.trick_history)
+        self.trick_history = []
+        self.current_trick = []
+        self.lead_suit = None
+        self._current_trick_leader = None
+        self.trick_number = 0
+        self.hearts_broken = False
 
         # Clear hands and tricks
         for player in self.players:
@@ -116,7 +152,7 @@ class HeartsGame:
 
         # Sort hands by suit and rank
         for player in self.players:
-            player.hand.sort(key=lambda c: (c.suit.value, c.value))
+            self._sort_hand(player)
 
     def get_pass_direction(self) -> PassDirection:
         """Get the passing direction for the current round.
@@ -127,7 +163,7 @@ class HeartsGame:
         directions = [PassDirection.LEFT, PassDirection.RIGHT, PassDirection.ACROSS, PassDirection.NONE]
         return directions[self.round_number % 4]
 
-    def pass_cards(self, passes: dict[HeartsPlayer, list[Card]]) -> None:
+    def pass_cards(self, passes: dict[HeartsPlayer, Sequence[Card]]) -> None:
         """Execute the card passing phase.
 
         Args:
@@ -139,17 +175,24 @@ class HeartsGame:
             return
 
         # Validate passes
+        if set(passes.keys()) != set(self.players):
+            raise ValueError("Passes must include all players in the round")
+
         for player, cards in passes.items():
             if len(cards) != 3:
                 raise ValueError(f"{player.name} must pass exactly 3 cards")
+            seen: set[Card] = set()
             for card in cards:
                 if card not in player.hand:
                     raise ValueError(f"{player.name} doesn't have {card}")
+                if card in seen:
+                    raise ValueError(f"{player.name} cannot pass duplicate cards")
+                seen.add(card)
 
         # Remove cards from hands
         temp_passes = {}
         for player, cards in passes.items():
-            temp_passes[player] = cards
+            temp_passes[player] = list(cards)
             for card in cards:
                 player.hand.remove(card)
 
@@ -166,7 +209,11 @@ class HeartsGame:
 
         # Sort hands again
         for player in self.players:
-            player.hand.sort(key=lambda c: (c.suit.value, c.value))
+            self._sort_hand(player)
+
+        # Record the pass for history purposes
+        pass_snapshot = {player.name: list(cards) for player, cards in temp_passes.items()}
+        self.pass_history.append(pass_snapshot)
 
     def find_starting_player(self) -> HeartsPlayer:
         """Find the player with the 2 of Clubs (starts the game).
@@ -174,11 +221,22 @@ class HeartsGame:
         Returns:
             The player who has the 2 of Clubs.
         """
-        two_of_clubs = Card("2", Suit.CLUBS)
         for player in self.players:
-            if two_of_clubs in player.hand:
+            if TWO_OF_CLUBS in player.hand:
                 return player
         raise RuntimeError("No player has 2 of Clubs")
+
+    @staticmethod
+    def _sort_hand(player: HeartsPlayer) -> None:
+        """Sort a player's hand in-place by suit then rank."""
+
+        player.hand.sort(key=lambda c: (c.suit.value, c.value))
+
+    @staticmethod
+    def _is_penalty_card(card: Card) -> bool:
+        """Return whether a card is worth penalty points."""
+
+        return card.suit == Suit.HEARTS or card == QUEEN_OF_SPADES
 
     def is_valid_play(self, player: HeartsPlayer, card: Card) -> bool:
         """Check if a card play is valid.
@@ -193,26 +251,25 @@ class HeartsGame:
         if card not in player.hand:
             return False
 
-        # First trick: must play 2 of Clubs if you have it
-        if not any(p.tricks_won for p in self.players):
-            if not self.current_trick:
-                return card == Card("2", Suit.CLUBS)
-            # Can't play hearts or Queen of Spades on first trick
-            if card.suit == Suit.HEARTS:
-                return False
-            if card.suit == Suit.SPADES and card.rank == "Q":
-                return False
+        is_first_trick = self.trick_number == 0
 
         # Leading a trick
         if not self.current_trick:
-            # Can't lead hearts unless hearts broken or only have hearts
-            if card.suit == Suit.HEARTS:
-                return self.hearts_broken or player.has_only_hearts()
+            if is_first_trick:
+                return card == TWO_OF_CLUBS
+            if card.suit == Suit.HEARTS and not (self.hearts_broken or player.has_only_hearts()):
+                return False
             return True
 
         # Following a trick: must follow suit if possible
         if self.lead_suit and player.has_suit(self.lead_suit):
             return card.suit == self.lead_suit
+
+        # Out of suit: additional first trick restrictions
+        if is_first_trick:
+            if self._is_penalty_card(card):
+                safe_cards = [c for c in player.hand if not self._is_penalty_card(c)]
+                return not safe_cards
 
         return True
 
@@ -232,9 +289,10 @@ class HeartsGame:
         # Set lead suit for this trick
         if len(self.current_trick) == 1:
             self.lead_suit = card.suit
+            self._current_trick_leader = player
 
-        # Break hearts if a heart is played
-        if card.suit == Suit.HEARTS:
+        # Break hearts if a heart or the queen of spades is played
+        if card.suit == Suit.HEARTS or card == QUEEN_OF_SPADES:
             self.hearts_broken = True
 
     def complete_trick(self) -> HeartsPlayer:
@@ -259,9 +317,18 @@ class HeartsGame:
         for _, card in self.current_trick:
             winner.tricks_won.append(card)
 
+        trick_snapshot = TrickRecord(
+            leader=self._current_trick_leader.name if self._current_trick_leader else self.current_trick[0][0].name,
+            cards=tuple((p.name, c) for p, c in self.current_trick),
+            winner=winner.name,
+        )
+        self.trick_history.append(trick_snapshot)
+
         # Reset for next trick
         self.current_trick = []
         self.lead_suit = None
+        self._current_trick_leader = None
+        self.trick_number += 1
 
         return winner
 
@@ -271,33 +338,37 @@ class HeartsGame:
         Returns:
             Dictionary mapping player names to their points for this round.
         """
-        round_scores = {}
-        for player in self.players:
-            round_scores[player.name] = player.calculate_round_points()
+        round_scores = {player.name: player.calculate_round_points() for player in self.players}
 
-        # Check for shooting the moon
-        shooter = None
+        shooter: Optional[HeartsPlayer] = None
+        events: dict[str, str] = {}
         for player in self.players:
             if round_scores[player.name] == 26:
                 shooter = player
+                if len(player.tricks_won) == 52:
+                    events[player.name] = "shot_the_sun"
+                else:
+                    events[player.name] = "shot_the_moon"
                 break
 
+        final_scores: dict[str, int] = {}
         if shooter:
-            # This player shot the moon!
-            # Give 26 points to everyone else, 0 to shooter
             for player in self.players:
                 if player == shooter:
-                    round_scores[player.name] = 0
+                    final_scores[player.name] = 0
                     player.score += 0
                 else:
-                    round_scores[player.name] = 26
+                    final_scores[player.name] = 26
                     player.score += 26
         else:
-            # Normal scoring
             for player in self.players:
+                final_scores[player.name] = round_scores[player.name]
                 player.score += round_scores[player.name]
 
-        return round_scores
+        self.last_round_scores = dict(final_scores)
+        self.last_round_events = events
+        self.last_round_tricks = list(self.trick_history)
+        return final_scores
 
     def is_game_over(self, target_score: int = 100) -> bool:
         """Check if the game is over.
@@ -338,24 +409,48 @@ class HeartsGame:
         Returns:
             List of 3 cards to pass.
         """
-        # Strategy: pass high cards, especially Queen of Spades, King/Ace of hearts
-        priority = []
+        suits: dict[Suit, list[Card]] = {}
         for card in player.hand:
-            score = 0
-            # Strongly prefer to pass Queen of Spades
-            if card.suit == Suit.SPADES and card.rank == "Q":
-                score += 100
-            # Prefer high hearts
-            if card.suit == Suit.HEARTS:
-                score += card.value + 10
-            # Prefer high cards in general
-            if card.rank in ("A", "K"):
-                score += 5
-            priority.append((score, card))
+            suits.setdefault(card.suit, []).append(card)
 
-        # Sort by priority (descending) and take top 3
-        priority.sort(reverse=True, key=lambda x: x[0])
-        return [card for _, card in priority[:3]]
+        for cards in suits.values():
+            cards.sort(key=lambda c: c.value)
+
+        selection: list[Card] = []
+
+        # Always pass the queen of spades if possible
+        if QUEEN_OF_SPADES in player.hand:
+            selection.append(QUEEN_OF_SPADES)
+            suits[Suit.SPADES].remove(QUEEN_OF_SPADES)
+
+        # Pass other dangerous spades (Ace/King) when holding few spades
+        spades = suits.get(Suit.SPADES, [])
+        while spades and len(selection) < 3 and (len(spades) <= 2 or spades[-1].rank in {"A", "K"}):
+            selection.append(spades.pop())
+
+        # Try to void short suits (excluding hearts) by shedding highest cards
+        non_heart_suits = [suit for suit in suits if suit not in {Suit.HEARTS, Suit.SPADES}]
+        non_heart_suits.sort(key=lambda suit: (len(suits[suit]), -suits[suit][-1].value if suits[suit] else -1))
+        for suit in non_heart_suits:
+            while suits[suit] and len(selection) < 3 and len(suits[suit]) <= 3:
+                selection.append(suits[suit].pop())
+
+        # Shed high hearts if still needing cards
+        hearts = suits.get(Suit.HEARTS, [])
+        while hearts and len(selection) < 3:
+            selection.append(hearts.pop())
+
+        # Fallback: highest remaining cards regardless of suit
+        if len(selection) < 3:
+            remaining_cards = [card for pile in suits.values() for card in pile]
+            remaining_cards.sort(key=lambda c: c.value, reverse=True)
+            for card in remaining_cards:
+                if card not in selection:
+                    selection.append(card)
+                    if len(selection) == 3:
+                        break
+
+        return selection[:3]
 
     def select_card_to_play(self, player: HeartsPlayer) -> Card:
         """AI logic to select a card to play.
@@ -375,37 +470,51 @@ class HeartsGame:
         if len(valid_cards) == 1:
             return valid_cards[0]
 
-        # Leading a trick: play low cards
+        # Leading a trick: favour safe, low cards from non-penalty suits
         if not self.current_trick:
-            # Avoid leading hearts if possible
-            non_hearts = [c for c in valid_cards if c.suit != Suit.HEARTS]
-            if non_hearts:
-                return min(non_hearts, key=lambda c: c.value)
-            return min(valid_cards, key=lambda c: c.value)
+            return self._select_lead_card(valid_cards)
 
         # Following a trick
         lead_suit_cards = [c for c in valid_cards if c.suit == self.lead_suit]
 
         if lead_suit_cards:
-            # Try to play low and not take the trick
             highest_so_far = max(card.value for _, card in self.current_trick if card.suit == self.lead_suit)
-
-            # Play highest card that doesn't win
             safe_cards = [c for c in lead_suit_cards if c.value < highest_so_far]
             if safe_cards:
                 return max(safe_cards, key=lambda c: c.value)
 
-            # Must win - play lowest winning card
             return min(lead_suit_cards, key=lambda c: c.value)
 
-        # Dumping: get rid of bad cards
-        # Priority: Queen of Spades > High Hearts > High cards
-        queen_of_spades = Card("Q", Suit.SPADES)
-        if queen_of_spades in valid_cards:
-            return queen_of_spades
+        # Discarding: dump penalties first, otherwise shed high cards
+        penalty_cards = [c for c in valid_cards if self._is_penalty_card(c)]
+        if penalty_cards:
+            if QUEEN_OF_SPADES in penalty_cards:
+                return QUEEN_OF_SPADES
+            return max(penalty_cards, key=lambda c: c.value)
 
-        hearts = [c for c in valid_cards if c.suit == Suit.HEARTS]
-        if hearts:
-            return max(hearts, key=lambda c: c.value)
+        return max(valid_cards, key=lambda c: (c.value, c.suit.value))
 
-        return max(valid_cards, key=lambda c: c.value)
+    @staticmethod
+    def _select_lead_card(valid_cards: Iterable[Card]) -> Card:
+        """Pick a low-risk lead from the available valid cards."""
+
+        suit_buckets: dict[Suit, list[Card]] = {}
+        for card in valid_cards:
+            suit_buckets.setdefault(card.suit, []).append(card)
+
+        for cards in suit_buckets.values():
+            cards.sort(key=lambda c: c.value)
+
+        def suit_priority(cards: list[Card]) -> tuple[int, int, int, int]:
+            highest = cards[-1].value
+            has_penalty = any(HeartsGame._is_penalty_card(c) for c in cards)
+            has_queen = QUEEN_OF_SPADES in cards
+            return (
+                1 if has_penalty else 0,
+                1 if has_queen else 0,
+                highest,
+                len(cards),
+            )
+
+        _, best_cards = min(suit_buckets.items(), key=lambda item: suit_priority(item[1]))
+        return best_cards[0]

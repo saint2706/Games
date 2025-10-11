@@ -74,31 +74,27 @@ def game_loop() -> None:
         print(f"ROUND {round_num}")
         print("=" * 60)
 
-        game.deal_cards()
-        game.spades_broken = False
+        game.start_new_round()
 
         # Bidding phase
         print("\nBIDDING PHASE")
         for player in game.players:
             bid = get_bid(player, game)
-            player.bid = bid
-            print(f"{player.name} bids {bid}")
+            game.register_bid(player, bid)
+            print(f"{player.name} bids {bid if bid else 'nil'}")
 
         # Play 13 tricks
-        current_player_idx = 0
-
         for trick_num in range(13):
             print(f"\n--- Trick {trick_num + 1} ---")
-
-            for i in range(4):
-                player = game.players[(current_player_idx + i) % 4]
+            for _ in range(4):
+                current_idx = game.current_player_index or 0
+                player = game.players[current_idx]
                 card = get_card_to_play(player, game)
                 game.play_card(player, card)
                 print(f"{player.name} plays {card}")
 
             winner = game.complete_trick()
             print(f"{winner.name} wins the trick!")
-            current_player_idx = game.players.index(winner)
 
         # Scoring
         print("\n" + "=" * 60)
@@ -110,15 +106,25 @@ def game_loop() -> None:
             print(f"{player.name}: bid {bid_str}, won {player.tricks_won} tricks")
 
         round_scores = game.calculate_round_score()
+        print(
+            f"Round score: Partnership 1 {round_scores[0]} pts, Partnership 2 {round_scores[1]} pts"
+        )
 
-        # Update partnership scores
-        game.players[0].score += round_scores[0]
-        game.players[2].score = game.players[0].score
-        game.players[1].score += round_scores[1]
-        game.players[3].score = game.players[1].score
+        print(
+            f"\nPartnership 1 ({game.players[0].name} & {game.players[2].name}): {game.team_scores[0]} points, {game.bags[0]} bags"
+        )
+        print(
+            f"Partnership 2 ({game.players[1].name} & {game.players[3].name}): {game.team_scores[1]} points, {game.bags[1]} bags"
+        )
 
-        print(f"\nPartnership 1 ({game.players[0].name} & {game.players[2].name}): {game.players[0].score} points, {game.bags[0]} bags")
-        print(f"Partnership 2 ({game.players[1].name} & {game.players[3].name}): {game.players[1].score} points, {game.bags[1]} bags")
+        print("\nBids:")
+        for bidder, bid in game.bidding_history:
+            print(f"  {bidder.name}: {bid}")
+
+        print("\nTrick summary:")
+        for idx, trick in enumerate(game.trick_history, start=1):
+            plays = ", ".join(f"{p.name} played {c}" for p, c in trick)
+            print(f"  Trick {idx}: {plays}")
 
         if not game.is_game_over():
             input("\nPress Enter to continue...")
