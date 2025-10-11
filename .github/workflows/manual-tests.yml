@@ -1,0 +1,115 @@
+# Manual test execution workflow
+# Allows maintainers to run the pytest suite on demand with custom configuration
+
+name: "Manual Test Run"
+
+on:
+  workflow_dispatch:
+    inputs:
+      python-versions:
+        description: 'JSON array of Python versions to test (e.g. ["3.11", "3.12"])'
+        default: '["3.12"]'
+        required: false
+      marker:
+        description: 'Optional pytest marker expression (e.g. "not slow")'
+        default: ''
+        required: false
+      extra-args-json:
+        description: 'JSON array of additional pytest CLI arguments'
+        default: '[]'
+        required: false
+      collect-coverage:
+        description: 'Collect coverage data during the run'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  tests:
+    name: "Tests (Python ${{ matrix.python-version }})"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ${{ fromJson(inputs.python-versions) }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-tk
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run pytest
+        env:
+          PYTEST_MARKERS: ${{ inputs.marker }}
+          EXTRA_PYTEST_ARGS: ${{ inputs.extra-args-json }}
+          COLLECT_COVERAGE: ${{ inputs.collect-coverage }}
+        run: |
+          python <<'PY'
+          from __future__ import annotations
+
+          import json
+          import os
+          import shlex
+          import subprocess
+          import sys
+
+          cmd = [sys.executable, "-m", "pytest", "tests/", "-v"]
+
+          if os.environ.get("COLLECT_COVERAGE", "true").lower() == "true":
+            cmd.extend([
+              "--cov=paper_games",
+              "--cov=card_games",
+              "--cov-report=term-missing",
+            ])
+
+          markers = os.environ.get("PYTEST_MARKERS", "").strip()
+          if markers:
+            cmd.extend(["-m", markers])
+
+          raw_extra = os.environ.get("EXTRA_PYTEST_ARGS", "").strip()
+          if raw_extra:
+            try:
+              extra_args = json.loads(raw_extra)
+            except json.JSONDecodeError as exc:
+              raise SystemExit(f"extra-args-json must be valid JSON array: {exc}")
+            if not isinstance(extra_args, list):
+              raise SystemExit("extra-args-json must decode to a list")
+            cmd.extend(str(arg) for arg in extra_args)
+
+          print("Running:", shlex.join(cmd))
+          subprocess.check_call(cmd)
+          PY
+
+      - name: Upload coverage artifact
+        if: inputs.collect-coverage == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-coverage-${{ matrix.python-version }}
+          path: ./.coverage
+          if-no-files-found: ignore
+          retention-days: 7

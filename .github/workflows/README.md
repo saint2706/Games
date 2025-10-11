@@ -15,18 +15,6 @@ Combined workflow that runs all quality checks:
 
 This is the primary workflow that should pass before merging pull requests.
 
-#### `test.yml` - Testing
-
-Runs the pytest test suite on multiple Python versions (3.11, 3.12) to ensure compatibility.
-
-#### `lint.yml` - Code Quality
-
-Checks code formatting and style compliance without making changes:
-
-- Black for Python formatting
-- mdformat for Markdown formatting
-- Ruff for linting
-
 #### `codeql.yml` - Security Analysis
 
 Analyzes code for security vulnerabilities and coding errors. Runs:
@@ -36,10 +24,23 @@ Analyzes code for security vulnerabilities and coding errors. Runs:
 
 ### Manual Workflows
 
+#### `manual-tests.yml` - Run Tests On Demand
+
+Allows maintainers to manually trigger pytest runs with custom Python version matrices, marker expressions, and additional CLI arguments supplied as a JSON array.
+Useful for reproducing CI runs or verifying fixes before opening a pull request.
+
+#### `manual-coverage.yml` - Generate Coverage Reports
+
+Produces HTML and XML coverage reports on demand with optional Codecov uploads and control over whether to include tests marked as `slow`.
+
 #### `format-and-lint.yml` - Auto-fix Formatting
 
 Manual workflow (workflow_dispatch) that automatically formats code and commits changes.
 Use this for local development to fix formatting issues in bulk.
+
+#### `mutation-testing.yml` - Mutation Testing Sweep
+
+Manual or scheduled workflow that runs `mutmut` over a subset of games to evaluate test robustness.
 
 ## Dependabot
 

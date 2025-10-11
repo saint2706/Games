@@ -1,13 +1,23 @@
-# Coverage workflow
-# Generates detailed coverage reports and uploads to Codecov
+# Manual coverage workflow
+# Generates an HTML and XML coverage report on demand
 
-name: Coverage
+name: "Manual Coverage Report"
 
 on:
-  push:
-    branches: [master, main]
-  pull_request:
-    branches: [master, main]
+  workflow_dispatch:
+    inputs:
+      python-version:
+        description: 'Python version to use'
+        default: '3.12'
+        required: false
+      include-slow-tests:
+        description: 'Include tests marked as slow'
+        type: boolean
+        default: false
+      upload-to-codecov:
+        description: 'Upload coverage report to Codecov'
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -23,10 +33,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ inputs.python-version }}
           cache: 'pip'
           cache-dependency-path: |
             requirements.txt
@@ -46,16 +56,27 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run tests with coverage
+        env:
+          INCLUDE_SLOW: ${{ inputs.include-slow-tests }}
         run: |
+          set -o errexit
+          set -o pipefail
+
+          MARK_EXPR='not slow'
+          if [ "${INCLUDE_SLOW}" = "true" ]; then
+            MARK_EXPR=''
+          fi
+
           python -m pytest tests/ -v \
             --cov=paper_games \
             --cov=card_games \
             --cov-report=xml \
             --cov-report=html \
             --cov-report=term-missing \
-            -m "not slow"
+            ${MARK_EXPR:+-m "${MARK_EXPR}"}
 
       - name: Upload coverage to Codecov
+        if: inputs.upload-to-codecov == true
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
@@ -65,12 +86,12 @@ jobs:
       - name: Archive coverage HTML report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: manual-coverage-html
           path: htmlcov/
-          retention-days: 30
+          retention-days: 14
 
       - name: Coverage summary
         run: |
-          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "## Manual Coverage Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          python -m pytest tests/ --cov=paper_games --cov=card_games --cov-report=term-missing -m "not slow" 2>&1 | tail -50 >> $GITHUB_STEP_SUMMARY
+          tail -n 200 coverage.xml >> $GITHUB_STEP_SUMMARY
