@@ -1,3 +1,29 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "games"
+version = "1.0.0"
+description = "A collection of classic games with AI opponents and GUIs"
+requires-python = ">=3.9"
+dependencies = [
+    "colorama>=0.4.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=24.0",
+    "ruff>=0.8",
+    "mypy>=1.0",
+    "pre-commit>=3.0",
+    "radon>=6.0",
+]
+gui = [
+    "pygame>=2.0",
+]
+
 [tool.black]
 line-length = 160
 
@@ -5,8 +31,30 @@ line-length = 160
 line-length = 160
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "C90"]  # Added C90 for complexity checks
 ignore = ["E402"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+no_strict_optional = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.radon]
+# Radon configuration for code complexity analysis
+# Run: radon cc . -a -s
+# cc: Cyclomatic Complexity
+# mi: Maintainability Index
 
 [tool.mdformat]
 wrap = 120
