@@ -219,12 +219,12 @@ This document outlines planned expansions and future upgrades for the Games repo
 
 ### CLI Enhancements
 
-- [ ] Add colorful ASCII art for game states
-- [ ] Implement rich text formatting with better visual hierarchy
-- [ ] Add progress bars and spinners for loading states
-- [ ] Create interactive command-line menus with arrow key navigation
-- [ ] Implement command history and autocomplete
-- [ ] Add support for terminal themes and custom color schemes
+- [x] Add colorful ASCII art for game states
+- [x] Implement rich text formatting with better visual hierarchy
+- [x] Add progress bars and spinners for loading states
+- [x] Create interactive command-line menus with arrow key navigation
+- [x] Implement command history and autocomplete
+- [x] Add support for terminal themes and custom color schemes
 
 ### Main Launcher
 
