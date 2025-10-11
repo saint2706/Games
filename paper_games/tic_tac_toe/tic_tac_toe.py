@@ -33,12 +33,22 @@ class TicTacToeGame:
     human_symbol: str = "X"
     computer_symbol: str = "O"
     starting_symbol: Optional[str] = None
+    board_size: int = 3
+    win_length: Optional[int] = None
 
     def __post_init__(self) -> None:
         """Validates the initial game state after the dataclass is created."""
         if self.human_symbol == self.computer_symbol:
             raise ValueError("Players must use distinct symbols.")
-        self.board: List[str] = [" "] * 9
+        if not self.human_symbol or not self.computer_symbol:
+            raise ValueError("Symbols cannot be empty.")
+        if self.board_size < 3:
+            raise ValueError("Board size must be at least 3.")
+        if self.win_length is None:
+            self.win_length = self.board_size
+        if self.win_length < 3 or self.win_length > self.board_size:
+            raise ValueError(f"Win length must be between 3 and {self.board_size}.")
+        self.board: List[str] = [" "] * (self.board_size * self.board_size)
         self.reset(self.starting_symbol)
 
     def reset(self, starting_symbol: Optional[str] = None) -> None:
@@ -49,7 +59,7 @@ class TicTacToeGame:
             self.starting_symbol = self.human_symbol
         if self.starting_symbol not in {self.human_symbol, self.computer_symbol}:
             raise ValueError("Starting symbol must belong to one of the players.")
-        self.board = [" "] * 9
+        self.board = [" "] * (self.board_size * self.board_size)
         self.current_turn = self.starting_symbol or self.human_symbol
 
     def available_moves(self) -> List[int]:
@@ -58,8 +68,9 @@ class TicTacToeGame:
 
     def make_move(self, position: int, symbol: str) -> bool:
         """Places a symbol on the board at a given position."""
-        if position not in range(9):
-            raise ValueError("Position must be between 0 and 8 inclusive.")
+        max_position = self.board_size * self.board_size
+        if position not in range(max_position):
+            raise ValueError(f"Position must be between 0 and {max_position - 1} inclusive.")
         if self.board[position] != " ":
             return False
         self.board[position] = symbol
@@ -67,27 +78,46 @@ class TicTacToeGame:
 
     def winner(self) -> Optional[str]:
         """Determines if there is a winner and returns their symbol."""
-        # All possible winning lines.
-        lines = [
-            (0, 1, 2),
-            (3, 4, 5),
-            (6, 7, 8),
-            (0, 3, 6),
-            (1, 4, 7),
-            (2, 5, 8),
-            (0, 4, 8),
-            (2, 4, 6),
-        ]
-        for a, b, c in lines:
-            if self.board[a] != " " and self.board[a] == self.board[b] == self.board[c]:
-                return self.board[a]
+        # Check all possible winning lines for the given win_length
+        # Check rows
+        for row in range(self.board_size):
+            for col in range(self.board_size - self.win_length + 1):
+                start = row * self.board_size + col
+                symbols = [self.board[start + i] for i in range(self.win_length)]
+                if symbols[0] != " " and all(s == symbols[0] for s in symbols):
+                    return symbols[0]
+        
+        # Check columns
+        for col in range(self.board_size):
+            for row in range(self.board_size - self.win_length + 1):
+                start = row * self.board_size + col
+                symbols = [self.board[start + i * self.board_size] for i in range(self.win_length)]
+                if symbols[0] != " " and all(s == symbols[0] for s in symbols):
+                    return symbols[0]
+        
+        # Check diagonals (top-left to bottom-right)
+        for row in range(self.board_size - self.win_length + 1):
+            for col in range(self.board_size - self.win_length + 1):
+                start = row * self.board_size + col
+                symbols = [self.board[start + i * (self.board_size + 1)] for i in range(self.win_length)]
+                if symbols[0] != " " and all(s == symbols[0] for s in symbols):
+                    return symbols[0]
+        
+        # Check diagonals (top-right to bottom-left)
+        for row in range(self.board_size - self.win_length + 1):
+            for col in range(self.win_length - 1, self.board_size):
+                start = row * self.board_size + col
+                symbols = [self.board[start + i * (self.board_size - 1)] for i in range(self.win_length)]
+                if symbols[0] != " " and all(s == symbols[0] for s in symbols):
+                    return symbols[0]
+        
         return None
 
     def is_draw(self) -> bool:
         """Checks if the game is a draw."""
         return " " not in self.board and self.winner() is None
 
-    def minimax(self, is_maximizing: bool, depth: int = 0) -> Tuple[int, Optional[int]]:
+    def minimax(self, is_maximizing: bool, depth: int = 0, max_depth: Optional[int] = None) -> Tuple[int, Optional[int]]:
         """
         The minimax algorithm for finding the optimal move.
 
@@ -95,10 +125,20 @@ class TicTacToeGame:
             is_maximizing: True if the current player is the computer (maximizer),
                            False if the current player is the human (minimizer).
             depth: The current depth of the recursion.
+            max_depth: Maximum depth to search (for performance on larger boards).
 
         Returns:
             A tuple containing the best score and the best move.
         """
+        # Set default max_depth based on board size
+        if max_depth is None:
+            if self.board_size <= 3:
+                max_depth = 100  # No limit for 3x3
+            elif self.board_size == 4:
+                max_depth = 6
+            else:  # 5x5 and larger
+                max_depth = 4
+        
         winner = self.winner()
         # Base cases for the recursion.
         if winner == self.computer_symbol:
@@ -106,6 +146,9 @@ class TicTacToeGame:
         if winner == self.human_symbol:
             return depth - 10, None
         if self.is_draw():
+            return 0, None
+        if depth >= max_depth:
+            # Heuristic evaluation at max depth
             return 0, None
 
         best_score = float("-inf") if is_maximizing else float("inf")
@@ -115,7 +158,7 @@ class TicTacToeGame:
         # Iterate through all available moves.
         for move in self.available_moves():
             self.board[move] = symbol
-            score, _ = self.minimax(not is_maximizing, depth + 1)
+            score, _ = self.minimax(not is_maximizing, depth + 1, max_depth)
             self.board[move] = " "  # Backtrack.
             # Update the best score and move.
             if is_maximizing:
@@ -143,46 +186,89 @@ class TicTacToeGame:
 
     def render(self, show_reference: bool = False) -> str:
         """Return a human-friendly board representation."""
-        header = "    1   2   3"
-        separator = "  +---+---+---"
+        # Generate row labels (A, B, C, ... or A, B, C, D, E, ...)
+        row_labels = [chr(ord('A') + i) for i in range(self.board_size)]
+        
+        # Generate column header
+        col_numbers = " ".join(f"{i+1:3}" for i in range(self.board_size))
+        header = "   " + col_numbers
+        
+        # Generate separator
+        separator = "  +" + "+".join(["---"] * self.board_size)
+        
+        # Generate board rows
         rows = []
-        for row_index, row_label in enumerate("ABC"):
-            start = row_index * 3
-            cells = " | ".join(self.board[start : start + 3])
-            rows.append(f"{row_label} | {cells}")
-        board_render = "\n".join([header, separator, rows[0], separator, rows[1], separator, rows[2]])
-        if not show_reference:
+        for row_index in range(self.board_size):
+            start = row_index * self.board_size
+            cells = " | ".join(self.board[start : start + self.board_size])
+            rows.append(f"{row_labels[row_index]} | {cells}")
+        
+        # Build the board render
+        board_lines = [header, separator]
+        for i, row in enumerate(rows):
+            board_lines.append(row)
+            if i < len(rows) - 1:
+                board_lines.append(separator)
+        
+        board_render = "\n".join(board_lines)
+        
+        if not show_reference or self.board_size > 5:
             return board_render
-        # Also show a reference board with coordinates.
+        
+        # Also show a reference board with coordinates (only for smaller boards)
         reference_rows = []
-        for row_index, row_label in enumerate("ABC"):
-            start = row_index * 3
-            coords = " | ".join(INDEX_TO_COORD[start + offset] for offset in range(3))
-            reference_rows.append(f"{row_label} | {coords}")
-        reference = "\n".join(
-            [
-                "Reference:",
-                "    1   2   3",
-                "  +---+---+---",
-                reference_rows[0],
-                "  +---+---+---",
-                reference_rows[1],
-                "  +---+---+---",
-                reference_rows[2],
-            ]
-        )
+        coords_map = self._generate_coordinates()
+        for row_index in range(self.board_size):
+            start = row_index * self.board_size
+            coords = " | ".join(coords_map[start + offset] for offset in range(self.board_size))
+            reference_rows.append(f"{row_labels[row_index]} | {coords}")
+        
+        reference_lines = ["Reference:", header, separator]
+        for i, row in enumerate(reference_rows):
+            reference_lines.append(row)
+            if i < len(reference_rows) - 1:
+                reference_lines.append(separator)
+        
+        reference = "\n".join(reference_lines)
         return board_render + "\n\n" + reference
+
+    def _generate_coordinates(self) -> Dict[int, str]:
+        """Generate coordinate mapping for the current board size."""
+        coords = {}
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                row_label = chr(ord('A') + row)
+                col_label = str(col + 1)
+                coords[row * self.board_size + col] = f"{row_label}{col_label}"
+        return coords
 
     def legal_coordinates(self) -> Iterable[str]:
         """Returns an iterator over the legal (available) coordinates."""
-        return (coord for coord, idx in COORDINATES.items() if self.board[idx] == " ")
+        coords_map = self._generate_coordinates()
+        return (coords_map[idx] for idx in range(len(self.board)) if self.board[idx] == " ")
 
     def parse_coordinate(self, text: str) -> int:
         """Parses a human-readable coordinate into a board index."""
         text = text.strip().upper()
-        if text not in COORDINATES:
-            raise ValueError("Enter a coordinate like A1, B3, or C2.")
-        return COORDINATES[text]
+        if len(text) < 2:
+            raise ValueError(f"Enter a coordinate like A1, B{self.board_size}, etc.")
+        
+        row_label = text[0]
+        col_label = text[1:]
+        
+        if not row_label.isalpha() or not col_label.isdigit():
+            raise ValueError(f"Enter a coordinate like A1, B{self.board_size}, etc.")
+        
+        row = ord(row_label) - ord('A')
+        try:
+            col = int(col_label) - 1
+        except ValueError:
+            raise ValueError(f"Enter a coordinate like A1, B{self.board_size}, etc.")
+        
+        if row < 0 or row >= self.board_size or col < 0 or col >= self.board_size:
+            raise ValueError(f"Coordinate must be within the {self.board_size}x{self.board_size} board.")
+        
+        return row * self.board_size + col
 
     def swap_turn(self) -> None:
         """Swaps the current turn between the human and the computer."""
