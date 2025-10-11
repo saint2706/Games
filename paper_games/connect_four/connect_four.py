@@ -113,9 +113,7 @@ class ConnectFourGame(GameEngine[ConnectFourMove, int]):
                 return True
         return False
 
-    def _count_consecutive(
-        self, row: int, column: int, delta_row: int, delta_column: int, player: int
-    ) -> int:
+    def _count_consecutive(self, row: int, column: int, delta_row: int, delta_column: int, player: int) -> int:
         """Count consecutive pieces in both directions for a given vector."""
 
         total = 1

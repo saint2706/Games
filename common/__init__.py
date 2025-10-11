@@ -26,18 +26,9 @@ from .architecture.persistence import (
 from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
 from .architecture.replay import ReplayAction, ReplayManager, ReplayRecorder
 from .architecture.settings import Settings, SettingsManager
-from .challenges import Challenge, ChallengePack, ChallengeManager, DifficultyLevel, get_default_challenge_manager
-from .educational import (
-    AIExplainer,
-    GameTheoryExplanation,
-    GameTheoryExplainer,
-    ProbabilityCalculator,
-    StrategyTip,
-    StrategyTipProvider,
-    TutorialMode,
-    TutorialStep,
-)
+from .challenges import Challenge, ChallengeManager, ChallengePack, DifficultyLevel, get_default_challenge_manager
 from .cli_utils import (
+    THEMES,
     ASCIIArt,
     Color,
     CommandHistory,
@@ -45,20 +36,29 @@ from .cli_utils import (
     ProgressBar,
     RichText,
     Spinner,
-    THEMES,
     TextStyle,
     Theme,
     clear_screen,
     get_terminal_size,
 )
+from .educational import (
+    AIExplainer,
+    GameTheoryExplainer,
+    GameTheoryExplanation,
+    ProbabilityCalculator,
+    StrategyTip,
+    StrategyTipProvider,
+    TutorialMode,
+    TutorialStep,
+)
 
 # GUI enhancement imports (optional, only if tkinter available)
 try:
-    from .themes import ThemeConfig, ThemeManager, get_theme_manager
-    from .sound_manager import SoundManager, create_sound_manager
     from .accessibility import AccessibilityManager, get_accessibility_manager
-    from .i18n import TranslationManager, get_translation_manager, _, set_language
+    from .i18n import TranslationManager, _, get_translation_manager, set_language
     from .keyboard_shortcuts import KeyboardShortcut, ShortcutManager, get_shortcut_manager
+    from .sound_manager import SoundManager, create_sound_manager
+    from .themes import ThemeConfig, ThemeManager, get_theme_manager
 
     GUI_ENHANCEMENTS_AVAILABLE = True
 except ImportError:

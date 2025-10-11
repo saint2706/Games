@@ -7,12 +7,12 @@ This document describes the educational features available in the games collecti
 The educational features include:
 
 1. **Tutorial Modes** - Step-by-step guidance for learning each game
-2. **Strategy Tips** - Context-aware advice during gameplay
-3. **AI Move Explanations** - Understanding why the AI made certain decisions
-4. **Probability Calculators** - Calculate odds and probabilities in real-time
-5. **Game Theory Explanations** - Learn about algorithms like minimax and Monte Carlo
-6. **Strategy Guides** - Comprehensive documentation on optimal play
-7. **Challenge Packs** - Practice scenarios and puzzles
+1. **Strategy Tips** - Context-aware advice during gameplay
+1. **AI Move Explanations** - Understanding why the AI made certain decisions
+1. **Probability Calculators** - Calculate odds and probabilities in real-time
+1. **Game Theory Explanations** - Learn about algorithms like minimax and Monte Carlo
+1. **Strategy Guides** - Comprehensive documentation on optimal play
+1. **Challenge Packs** - Practice scenarios and puzzles
 
 ## Tutorial Modes
 
@@ -241,20 +241,23 @@ Comprehensive strategy documentation is available in the `docs/source/guides/` d
 ### Available Guides
 
 1. **Poker Strategy** (`docs/source/guides/poker_strategy.rst`)
+
    - Pre-flop hand selection
    - Position strategy
    - Pot odds and EV
    - Betting strategy
    - Common mistakes
 
-2. **Blackjack Strategy** (`docs/source/guides/blackjack_strategy.rst`)
+1. **Blackjack Strategy** (`docs/source/guides/blackjack_strategy.rst`)
+
    - Complete basic strategy
    - Card counting (Hi-Lo system)
    - Bankroll management
    - House edge analysis
    - Practice drills
 
-3. **Game Theory** (`docs/source/guides/game_theory.rst`)
+1. **Game Theory** (`docs/source/guides/game_theory.rst`)
+
    - Minimax algorithm with code examples
    - Monte Carlo simulation
    - Nim-sum (XOR strategy)
@@ -266,8 +269,8 @@ Comprehensive strategy documentation is available in the `docs/source/guides/` d
 The guides are in reStructuredText format and can be:
 
 1. Read directly as text files
-2. Rendered with Sphinx documentation system
-3. Converted to HTML, PDF, or other formats
+1. Rendered with Sphinx documentation system
+1. Converted to HTML, PDF, or other formats
 
 ## Challenge Packs
 
@@ -276,8 +279,8 @@ Practice your skills with pre-defined scenarios and puzzles.
 ### Available Challenge Packs
 
 1. **Poker Fundamentals** - Practice pot odds, position play, and decision-making
-2. **Blackjack Mastery** - Basic strategy scenarios and card counting situations
-3. **Nim Puzzles** - Solve Nim positions using game theory
+1. **Blackjack Mastery** - Basic strategy scenarios and card counting situations
+1. **Nim Puzzles** - Solve Nim positions using game theory
 
 ### Usage
 
@@ -415,19 +418,19 @@ class GameWithAIExplanations:
 ### For Game Developers
 
 1. **Modular Design**: Keep educational features optional and toggleable
-2. **Clear Explanations**: Write explanations in plain language
-3. **Progressive Learning**: Start with basics, gradually introduce advanced concepts
-4. **Interactive**: Let players practice with immediate feedback
-5. **Consistent UI**: Use similar patterns across games
+1. **Clear Explanations**: Write explanations in plain language
+1. **Progressive Learning**: Start with basics, gradually introduce advanced concepts
+1. **Interactive**: Let players practice with immediate feedback
+1. **Consistent UI**: Use similar patterns across games
 
 ### For Players
 
 1. **Start with Tutorials**: Complete the tutorial mode before playing
-2. **Enable Hints**: Use strategy tips when learning
-3. **Study Strategy Guides**: Read the comprehensive guides
-4. **Practice Challenges**: Work through challenge packs
-5. **Learn Theory**: Understand the math behind the games
-6. **Disable Gradually**: Turn off hints as you improve
+1. **Enable Hints**: Use strategy tips when learning
+1. **Study Strategy Guides**: Read the comprehensive guides
+1. **Practice Challenges**: Work through challenge packs
+1. **Learn Theory**: Understand the math behind the games
+1. **Disable Gradually**: Turn off hints as you improve
 
 ## Command-Line Usage
 
@@ -464,11 +467,11 @@ Potential additions to educational features:
 To add educational features to a game:
 
 1. Create a tutorial mode inheriting from `TutorialMode`
-2. Implement game-specific probability calculator
-3. Add AI explanation capability
-4. Create challenge pack for the game
-5. Write strategy guide documentation
-6. Add tests for new features
+1. Implement game-specific probability calculator
+1. Add AI explanation capability
+1. Create challenge pack for the game
+1. Write strategy guide documentation
+1. Add tests for new features
 
 See `CONTRIBUTING.md` for more details.
 

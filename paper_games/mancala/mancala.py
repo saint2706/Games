@@ -227,9 +227,7 @@ class MancalaAI:
     def _evaluate(self, board: List[int], player: int) -> float:
         opponent = 1 - player
         store_diff = board[MancalaGame()._store_index(player)] - board[MancalaGame()._store_index(opponent)]
-        pit_diff = sum(board[index] for index in MancalaGame()._player_pits(player)) - sum(
-            board[index] for index in MancalaGame()._player_pits(opponent)
-        )
+        pit_diff = sum(board[index] for index in MancalaGame()._player_pits(player)) - sum(board[index] for index in MancalaGame()._player_pits(opponent))
         return store_diff * 3 + pit_diff
 
 

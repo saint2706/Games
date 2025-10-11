@@ -115,9 +115,7 @@ class OthelloGame(GameEngine[OthelloMove, Player]):
         board_copy = [row[:] for row in self._board]
         current_player = self._current_player
         pass_count = self._consecutive_passes
-        finished, winner, next_player, next_pass_count = self._apply_move_simulation(
-            board_copy, current_player, move, pass_count
-        )
+        finished, winner, next_player, next_pass_count = self._apply_move_simulation(board_copy, current_player, move, pass_count)
         return board_copy, next_player, finished, winner, next_pass_count
 
     def _valid_moves_for(self, board: List[List[str]], player: Player) -> List[OthelloMove]:

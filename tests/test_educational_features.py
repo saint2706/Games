@@ -10,8 +10,8 @@ import pytest
 
 from common import (
     Challenge,
-    ChallengePack,
     ChallengeManager,
+    ChallengePack,
     DifficultyLevel,
     GameTheoryExplainer,
     ProbabilityCalculator,

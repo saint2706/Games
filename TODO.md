@@ -7,6 +7,7 @@ This document outlines planned expansions and future upgrades for the Games repo
 Major implementations completed in 2025:
 
 ### Infrastructure & Quality
+
 - ✅ Complete code quality system (pre-commit hooks, complexity analysis, type hints)
 - ✅ Professional testing infrastructure (pytest, coverage, mutation testing, GUI testing)
 - ✅ Comprehensive documentation system (Sphinx, API docs, tutorials, architecture guides)
@@ -15,6 +16,7 @@ Major implementations completed in 2025:
 - ✅ GUI enhancement system (themes, sounds, animations, accessibility, i18n, keyboard shortcuts)
 
 ### Game Enhancements
+
 - ✅ All Poker features (Omaha, tournament mode, animations, betting options, statistics, history)
 - ✅ All Blackjack features (side bets, card counting hints, multiplayer, surrender, casino mode)
 - ✅ All Bluff features (replay system, custom decks, tournament mode, team play, advanced AI)
@@ -27,6 +29,7 @@ Major implementations completed in 2025:
 - ✅ All Unscramble features (timed mode, difficulty levels, multiplayer, themed packs, achievements)
 
 ### Educational
+
 - ✅ Tutorial mode for all games with step-by-step guidance
 - ✅ Strategy tips and AI move explanations
 - ✅ Probability calculators and game theory documentation

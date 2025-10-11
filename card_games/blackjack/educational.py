@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, List
 from common.educational import ProbabilityCalculator, TutorialMode, TutorialStep
 
 if TYPE_CHECKING:
-    from .game import BlackjackGame, BlackjackHand
+    from .game import BlackjackGame
 
 
 class BlackjackProbabilityCalculator(ProbabilityCalculator):

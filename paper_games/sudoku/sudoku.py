@@ -6,7 +6,6 @@ import random
 from dataclasses import dataclass, field
 from typing import Dict, Generator, List, Optional, Tuple
 
-
 Grid = List[List[int]]
 
 

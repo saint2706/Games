@@ -70,8 +70,8 @@ def demo_probability_calculators():
     print("PROBABILITY CALCULATOR DEMONSTRATION")
     print("=" * 70)
 
-    from card_games.poker.educational import PokerProbabilityCalculator
     from card_games.blackjack.educational import BlackjackProbabilityCalculator
+    from card_games.poker.educational import PokerProbabilityCalculator
 
     # Poker calculator
     print("\n🃏 POKER PROBABILITY CALCULATOR")
@@ -80,9 +80,7 @@ def demo_probability_calculators():
 
     # Example: Pot odds calculation
     print("\nScenario: $100 pot, $20 to call, 25% win probability")
-    comparison = poker_calc.format_pot_odds_comparison(
-        amount_to_call=20, current_pot=100, win_probability=0.25
-    )
+    comparison = poker_calc.format_pot_odds_comparison(amount_to_call=20, current_pot=100, win_probability=0.25)
     print(comparison)
 
     # Blackjack calculator
@@ -106,13 +104,9 @@ def demo_probability_calculators():
     # Example: Basic strategy recommendation
     print("\n\nBasic Strategy Recommendation:")
     print("You have: Hard 16, Dealer shows: 10")
-    action = bj_calc.get_basic_strategy_recommendation(
-        player_total=16, dealer_upcard=10, is_soft=False, can_double=False
-    )
+    action = bj_calc.get_basic_strategy_recommendation(player_total=16, dealer_upcard=10, is_soft=False, can_double=False)
     print(f"Recommended: {action}")
-    explanation = bj_calc.explain_basic_strategy_decision(
-        player_total=16, dealer_upcard=10, is_soft=False
-    )
+    explanation = bj_calc.explain_basic_strategy_decision(player_total=16, dealer_upcard=10, is_soft=False)
     print(f"\n{explanation}")
 
 
@@ -251,7 +245,7 @@ def demo_nim_explanations():
         print(f"Move: Remove {count} from heap {heap_idx + 1}")
         print(f"Explanation: {explanation}")
         print(f"New heaps: {game.heaps}")
-    except ImportError as e:
+    except ImportError:
         print("\n⚠️  Nim demo skipped (tkinter not available)")
         print("   Nim has built-in educational features:")
         print("   • get_strategy_hint() - Explains current position")

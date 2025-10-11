@@ -108,6 +108,7 @@ print(f"Selected: {menu.options[choice]}")
 #### Color Enum
 
 Available colors:
+
 - `Color.BLACK`
 - `Color.RED`
 - `Color.GREEN`
@@ -121,6 +122,7 @@ Available colors:
 #### TextStyle Enum
 
 Available styles:
+
 - `TextStyle.RESET`
 - `TextStyle.BRIGHT`
 - `TextStyle.DIM`
@@ -172,6 +174,7 @@ ASCIIArt.banner(
 Creates a banner with the given text.
 
 **Example:**
+
 ```python
 print(ASCIIArt.banner("Welcome!", Color.GREEN, width=40))
 ```
@@ -189,6 +192,7 @@ ASCIIArt.box(
 Creates a box around text.
 
 **Example:**
+
 ```python
 print(ASCIIArt.box("Important\nMessage", Color.YELLOW))
 ```
@@ -236,6 +240,7 @@ RichText.colorize(
 Colorize text with optional style.
 
 **Example:**
+
 ```python
 print(RichText.colorize("Important", Color.RED, TextStyle.BRIGHT))
 ```
@@ -253,6 +258,7 @@ RichText.header(
 Format text as a header (levels 1-3).
 
 **Example:**
+
 ```python
 print(RichText.header("Main Title", level=1))
 print(RichText.header("Subtitle", level=2))
@@ -335,6 +341,7 @@ class ProgressBar:
 ```
 
 **Example:**
+
 ```python
 bar = ProgressBar(total=100, width=50)
 for i in range(101):
@@ -364,6 +371,7 @@ class Spinner:
 ```
 
 **Example:**
+
 ```python
 spinner = Spinner(message="Loading assets")
 spinner.start()
@@ -392,6 +400,7 @@ class InteractiveMenu:
 ```
 
 **Example:**
+
 ```python
 menu = InteractiveMenu(
     "Game Menu",
@@ -402,6 +411,7 @@ print(f"You selected: {menu.options[choice]}")
 ```
 
 **Notes:**
+
 - Arrow key navigation works on most terminals
 - Automatically falls back to numbered menu if arrow keys are unavailable
 - Returns the index of the selected option
@@ -436,6 +446,7 @@ class CommandHistory:
 ```
 
 **Example:**
+
 ```python
 history = CommandHistory()
 
@@ -465,6 +476,7 @@ def clear_screen() -> None:
 ```
 
 **Example:**
+
 ```python
 clear_screen()
 ```
@@ -477,6 +489,7 @@ def get_terminal_size() -> tuple[int, int]:
 ```
 
 **Example:**
+
 ```python
 width, height = get_terminal_size()
 print(f"Terminal: {width}x{height}")
@@ -676,34 +689,34 @@ python examples/cli_utils_demo.py
 If colors don't display correctly:
 
 1. Ensure your terminal supports ANSI escape codes
-2. On Windows, use Windows 10+ or install colorama: `pip install colorama`
-3. Set `TERM` environment variable on Unix: `export TERM=xterm-256color`
+1. On Windows, use Windows 10+ or install colorama: `pip install colorama`
+1. Set `TERM` environment variable on Unix: `export TERM=xterm-256color`
 
 ### Arrow Keys Not Working
 
 If arrow key navigation doesn't work:
 
 1. The menu will automatically fall back to numbered selection
-2. On Unix, ensure terminal has proper termios support
-3. On Windows, ensure you're using a console that supports msvcrt
+1. On Unix, ensure terminal has proper termios support
+1. On Windows, ensure you're using a console that supports msvcrt
 
 ### Unicode Characters Not Displaying
 
 If unicode characters (✓, ✗, ⚠, ℹ) don't display:
 
 1. Ensure your terminal uses UTF-8 encoding
-2. On Windows, use Windows Terminal or set console to UTF-8
-3. The functionality works without these characters, they're just visual enhancements
+1. On Windows, use Windows Terminal or set console to UTF-8
+1. The functionality works without these characters, they're just visual enhancements
 
 ## Contributing
 
 When adding new CLI utilities:
 
 1. Add comprehensive tests to `tests/test_cli_utils.py`
-2. Update this documentation
-3. Add examples to `examples/cli_utils_demo.py`
-4. Ensure code passes linting (black, ruff, mypy)
-5. Follow existing patterns and style
+1. Update this documentation
+1. Add examples to `examples/cli_utils_demo.py`
+1. Ensure code passes linting (black, ruff, mypy)
+1. Follow existing patterns and style
 
 ## License
 

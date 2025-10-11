@@ -15,7 +15,7 @@ python -m card_games.bridge
 - **Bidding Phase**: Players bid contracts (1♣ to 7NT)
   - Bids indicate level (6+level tricks needed) and trump suit
   - Higher bids can overcall lower bids
-- **Playing Phase**: 
+- **Playing Phase**:
   - Declarer's partnership tries to make the contract
   - Defenders try to prevent it
   - Must follow suit if possible
@@ -25,6 +25,7 @@ python -m card_games.bridge
 ## Simplified Features
 
 This implementation includes:
+
 - Automated bidding based on High Card Points (HCP)
 - Partnership play
 - Trump suit mechanics

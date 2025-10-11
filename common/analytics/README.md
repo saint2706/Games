@@ -324,10 +324,10 @@ elo.save(Path("ratings.json"))
 To integrate analytics into your game:
 
 1. Create statistics and metrics trackers at game start
-2. Record decisions and moves during gameplay
-3. Update statistics and ratings after each game
-4. Save analytics data periodically
-5. Display dashboards and summaries to players
+1. Record decisions and moves during gameplay
+1. Update statistics and ratings after each game
+1. Save analytics data periodically
+1. Display dashboards and summaries to players
 
 Example integration:
 
@@ -357,11 +357,11 @@ class MyGame:
 ## Best Practices
 
 1. **Save Regularly**: Persist analytics data after each game or session
-2. **Use Appropriate Metrics**: Choose metrics relevant to your game type
-3. **Normalize Data**: Use normalize() for heatmaps before visualization
-4. **Handle Edge Cases**: Check for zero-division in rate calculations
-5. **Privacy**: Consider player privacy when storing and displaying data
-6. **Performance**: For large datasets, consider batching operations
+1. **Use Appropriate Metrics**: Choose metrics relevant to your game type
+1. **Normalize Data**: Use normalize() for heatmaps before visualization
+1. **Handle Edge Cases**: Check for zero-division in rate calculations
+1. **Privacy**: Consider player privacy when storing and displaying data
+1. **Performance**: For large datasets, consider batching operations
 
 ## Examples
 

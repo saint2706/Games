@@ -19,9 +19,9 @@ except ImportError:
     print("Error: tkinter is required for this demo")
     sys.exit(1)
 
+from common.animations import animate_widget_highlight
 from common.gui_base import BaseGUI, GUIConfig
 from common.i18n import _
-from common.animations import animate_widget_highlight
 
 
 class GUIEnhancementsDemo(BaseGUI):
@@ -310,7 +310,7 @@ class GUIEnhancementsDemo(BaseGUI):
 def main() -> None:
     """Run the demo application."""
     root = tk.Tk()
-    app = GUIEnhancementsDemo(root)
+    _app = GUIEnhancementsDemo(root)  # noqa: F841 - intentionally unused, sets up GUI
 
     # Show welcome message
     messagebox.showinfo(
