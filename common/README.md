@@ -117,6 +117,47 @@ medium_ai = HeuristicStrategy(heuristic_fn=evaluate_position)
 move = medium_ai.select_move(valid_moves, game_state)
 ```
 
+### CLI Utilities (`cli_utils.py`)
+
+Enhanced command-line interface utilities for terminal-based games:
+
+- **Colors and Themes**: Predefined and custom color schemes
+- **ASCII Art**: Victory, defeat, draw art, banners, and boxes
+- **Rich Text**: Headers, status messages, highlighting, colorization
+- **Progress Indicators**: Progress bars and spinners
+- **Interactive Menus**: Arrow key navigation with fallback
+- **Command History**: History navigation, search, and autocomplete
+
+**Usage Example:**
+
+```python
+from common.cli_utils import (
+    ASCIIArt,
+    Color,
+    InteractiveMenu,
+    ProgressBar,
+    RichText,
+    THEMES,
+)
+
+# Display a banner
+print(ASCIIArt.banner("My Game", Color.CYAN))
+
+# Show status messages
+print(RichText.success("Game started!"))
+print(RichText.error("Invalid move!"))
+
+# Create a progress bar
+bar = ProgressBar(total=100, theme=THEMES["ocean"])
+bar.update(50)
+
+# Display an interactive menu
+menu = InteractiveMenu("Main Menu", ["Play", "Options", "Quit"])
+choice = menu.display()
+```
+
+See [docs/CLI_UTILS.md](../docs/CLI_UTILS.md) for complete documentation.
+
 ## Benefits
 
 1. **Code Reusability**: Common functionality shared across all games
