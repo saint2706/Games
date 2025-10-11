@@ -18,6 +18,7 @@ from colorama import Fore, Style
 
 from .uno import (
     COLORS,
+    HouseRules,
     PlayerDecision,
     UnoCard,
     UnoGame,
@@ -57,12 +58,21 @@ class TkUnoInterface(UnoInterface):
     representation of the game and handling user interactions.
     """
 
-    def __init__(self, root: tk.Tk, players: Sequence[UnoPlayer]) -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        players: Sequence[UnoPlayer],
+        *,
+        enable_animations: bool = True,
+        enable_sounds: bool = False,
+    ) -> None:
         """Initialize the Tkinter Uno interface.
 
         Args:
             root: The root Tkinter window.
             players: The sequence of players in the game.
+            enable_animations: Whether to enable card animations.
+            enable_sounds: Whether to enable sound effects.
         """
         self.root = root
         self.root.title("Card Games - Uno")
@@ -71,6 +81,8 @@ class TkUnoInterface(UnoInterface):
         self.decision_ready = tk.BooleanVar(value=False)
         self.pending_decision: Optional[PlayerDecision] = None
         self.uno_var = tk.BooleanVar(value=False)
+        self.enable_animations = enable_animations
+        self.enable_sounds = enable_sounds
         self._build_layout()
         self._build_scoreboard()
 
@@ -269,6 +281,37 @@ class TkUnoInterface(UnoInterface):
         self.root.wait_variable(color_var)
         return color_var.get()
 
+    def choose_swap_target(
+        self, player: UnoPlayer, players: Sequence[UnoPlayer]
+    ) -> int:
+        """Open a dialog for the user to choose another player to swap hands with."""
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Choose Swap Target")
+        tk.Label(
+            dialog, text="Choose a player to swap hands with:", font=("Helvetica", 12)
+        ).pack(padx=12, pady=8)
+        target_var = tk.IntVar(value=-1)
+
+        def select_target(idx: int) -> None:
+            target_var.set(idx)
+            dialog.destroy()
+
+        button_frame = tk.Frame(dialog)
+        button_frame.pack(padx=12, pady=12)
+        for i, p in enumerate(players):
+            if p != player:
+                tk.Button(
+                    button_frame,
+                    text=f"{p.name} ({len(p.hand)} cards)",
+                    width=20,
+                    command=lambda idx=i: select_target(idx),
+                ).pack(pady=4)
+
+        dialog.transient(self.root)
+        dialog.grab_set()
+        self.root.wait_variable(target_var)
+        return target_var.get()
+
     def prompt_challenge(
         self, challenger: UnoPlayer, target: UnoPlayer, *, bluff_possible: bool
     ) -> bool:
@@ -375,8 +418,19 @@ class TkUnoInterface(UnoInterface):
 
     def _select_card(self, index: int) -> None:
         """Handle the user's card selection."""
+        swap_target = None
+        # Check if playing a 7 with seven_zero_swap rule enabled
+        if (self.game and self.game.house_rules.seven_zero_swap and
+            0 <= index < len(self.game.players[self.game.current_index].hand)):
+            current_player = self.game.players[self.game.current_index]
+            card = current_player.hand[index]
+            if card.value == "7":
+                swap_target = self.choose_swap_target(current_player, self.game.players)
+        
+        self._animate_card_play(index)
+        
         self.pending_decision = PlayerDecision(
-            action="play", card_index=index, declare_uno=self.uno_var.get()
+            action="play", card_index=index, declare_uno=self.uno_var.get(), swap_target=swap_target
         )
         self.decision_ready.set(True)
 
@@ -385,6 +439,62 @@ class TkUnoInterface(UnoInterface):
         self.pending_decision = PlayerDecision(action="draw")
         self.decision_ready.set(True)
 
+    def _animate_card_play(self, card_index: int) -> None:
+        """Animate a card being played (placeholder for future animation).
+        
+        This method can be extended to show:
+        - Card sliding from hand to center
+        - Fade-in/fade-out effects
+        - Rotation or flip animations
+        """
+        if not self.enable_animations:
+            return
+        
+        # Placeholder: Flash the button to indicate the card being played
+        if 0 <= card_index < len(self.card_buttons):
+            btn = self.card_buttons[card_index]
+            original_bg = btn.cget("background")
+            
+            def flash(count: int = 0) -> None:
+                if count < 3:
+                    btn.configure(bg="yellow" if count % 2 == 0 else original_bg)
+                    self.root.after(100, lambda: flash(count + 1))
+            
+            flash()
+
+    def play_sound(self, sound_type: str) -> None:
+        """Play a sound effect (placeholder for future sound implementation).
+        
+        Args:
+            sound_type: Type of sound to play ('card_play', 'draw', 'uno', 'win', etc.)
+        
+        To implement sounds, you can use libraries like:
+        - pygame.mixer for cross-platform sound
+        - winsound on Windows
+        - ossaudiodev on Linux
+        - sounddevice for advanced audio
+        
+        Example sound types:
+        - 'card_play': When a card is played
+        - 'draw': When drawing cards
+        - 'uno': When UNO is called
+        - 'win': When someone wins
+        - 'reverse': When direction changes
+        - 'skip': When a player is skipped
+        - 'swap': When hands are swapped (7 card)
+        - 'rotate': When hands rotate (0 card)
+        - 'wild': When a wild card is played
+        - 'draw_penalty': When +2 or +4 is played
+        """
+        if not self.enable_sounds:
+            return
+        
+        # Placeholder for sound implementation
+        # Example implementation with pygame:
+        # if sound_type in self.sounds:
+        #     self.sounds[sound_type].play()
+        pass
+
     def _accept_penalty(self) -> None:
         """Set the pending decision to 'accept_penalty'."""
         self.pending_decision = PlayerDecision(action="accept_penalty")
@@ -392,7 +502,13 @@ class TkUnoInterface(UnoInterface):
 
 
 def launch_uno_gui(
-    total_players: int, *, bots: int, bot_skill: str, seed: Optional[int] = None
+    total_players: int,
+    *,
+    bots: int,
+    bot_skill: str,
+    seed: Optional[int] = None,
+    house_rules: Optional[HouseRules] = None,
+    team_mode: bool = False,
 ) -> None:
     """Launch the Uno GUI application.
 
@@ -401,12 +517,20 @@ def launch_uno_gui(
         bots: The number of bot opponents.
         bot_skill: The personality/skill level of the bots.
         seed: An optional seed for the random number generator.
+        house_rules: Optional house rules configuration.
+        team_mode: Whether to enable team play mode.
     """
     rng = random.Random(seed)
-    players = build_players(total_players, bots=bots, bot_skill=bot_skill)
+    players = build_players(total_players, bots=bots, bot_skill=bot_skill, team_mode=team_mode)
     root = tk.Tk()
     interface = TkUnoInterface(root, players)
-    game = UnoGame(players=players, rng=rng, interface=interface)
+    game = UnoGame(
+        players=players,
+        rng=rng,
+        interface=interface,
+        house_rules=house_rules or HouseRules(),
+        team_mode=team_mode,
+    )
     interface.set_game(game)
 
     def run_game() -> None:
