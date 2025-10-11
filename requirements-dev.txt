@@ -8,6 +8,7 @@ pytest-timeout>=2.1.0  # Test timeout handling
 
 # GUI testing
 pytest-qt>=4.0.0
+pyqt5
 
 # Performance testing
 pytest-benchmark>=4.0.0
