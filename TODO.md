@@ -70,12 +70,12 @@ This document outlines planned expansions and future upgrades for the Games repo
 ## ✨ Feature Enhancements for Existing Games
 
 ### Poker
-- [ ] Add Omaha hold'em variant with 4 hole cards
-- [ ] Implement tournament mode with blinds increasing over time
-- [ ] Add showdown animation in GUI with hand ranking explanations
-- [ ] Implement pot-limit and no-limit betting options
-- [ ] Add player statistics tracking (hands won, fold frequency, etc.)
-- [ ] Implement hand history log for review after each session
+- [x] Add Omaha hold'em variant with 4 hole cards
+- [x] Implement tournament mode with blinds increasing over time
+- [x] Add showdown animation in GUI with hand ranking explanations
+- [x] Implement pot-limit and no-limit betting options
+- [x] Add player statistics tracking (hands won, fold frequency, etc.)
+- [x] Implement hand history log for review after each session
 
 ### Blackjack
 - [ ] Add progressive side bets (21+3, Perfect Pairs)
