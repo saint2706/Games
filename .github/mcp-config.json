@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "deepwiki": {
+      "type": "http",
+      "url": "https://mcp.deepwiki.com/mcp",
+      "tools": ["*"],
+      "headers": {
+        "Accept": "application/json"
+      }
+    },
+    "fetchMCP": {
+      "type": "http",
+      "url": "https://remote.mcpservers.org/fetch/mcp",
+      "tools": ["*"],
+      "headers": {
+        "Accept": "application/json"
+      }
+    },
+    "sequentialThinking": {
+      "type": "http",
+      "url": "https://remote.mcpservers.org/sequentialthinking/mcp",
+      "tools": ["*"],
+      "headers": {
+        "Accept": "application/json"
+      }
+    }
+  }
+}
