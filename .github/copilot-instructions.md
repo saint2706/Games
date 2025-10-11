@@ -15,16 +15,19 @@ opponents, and both CLI and GUI interfaces.
 - **Python Version**: 3.9+
 - **Line Length**: 160 characters (configured in `pyproject.toml`)
 - **Formatter**: Black (enforced via pre-commit hooks)
-- **Linter**: Ruff (includes complexity checks)
-- **Import Sorting**: isort
+- **Linter**: Ruff (complexity checks temporarily disabled, use Radon/check_complexity.sh)
+- **Import Sorting**: isort (separate pre-commit hook)
 - **Type Checking**: mypy (95%+ coverage expected)
+- **Markdown/YAML Formatting**: Prettier (prose-wrap at 120 chars)
 
 ### Complexity Management
 
-- **Maximum Cyclomatic Complexity**: 10 per function
+- **Maximum Cyclomatic Complexity**: 10 per function (target)
 - **Target Complexity Rating**: A or B (1-10)
 - **Tool**: Radon for complexity analysis
 - **Check Script**: `./scripts/check_complexity.sh`
+- **Current Status**: C90 complexity checking in Ruff is temporarily disabled (31 violations to address separately)
+- **Manual Checking**: Use Radon or the check_complexity.sh script until Ruff C90 is re-enabled
 
 ### Type Hints
 
@@ -157,11 +160,18 @@ def test_valid_move():
 Pre-commit hooks automatically run:
 
 - Black (formatting)
-- Ruff (linting + complexity)
-- isort (import sorting)
-- mypy (type checking)
-- YAML/JSON validation
-- Trailing whitespace removal
+- Ruff (linting, currently without C90 complexity checking)
+- isort (import sorting, separate hook)
+- mypy (static type checking)
+- Prettier (markdown and YAML formatting)
+- Standard checks:
+  - Trailing whitespace removal
+  - End of file fixer
+  - YAML/JSON/TOML validation
+  - Large file detection (>1MB)
+  - Merge conflict detection
+  - Private key detection
+  - Mixed line ending fixer
 
 Manual checks:
 
@@ -172,13 +182,19 @@ black .
 # Check linting
 ruff check --fix .
 
+# Sort imports
+isort .
+
 # Run tests
 pytest
 
-# Check complexity
+# Check complexity (manual, as C90 is disabled in Ruff)
 ./scripts/check_complexity.sh
 
-# Run pre-commit manually
+# Type check
+mypy .
+
+# Run all pre-commit hooks manually
 pre-commit run --all-files
 ```
 
@@ -313,13 +329,15 @@ class MyGameGUI(BaseGUI):
 ### DON'T
 
 - ❌ Remove or modify existing tests
-- ❌ Create functions with complexity > 10
+- ❌ Create functions with complexity > 10 (use `./scripts/check_complexity.sh` to verify)
 - ❌ Omit type hints or docstrings
 - ❌ Break backward compatibility
 - ❌ Add dependencies without justification
 - ❌ Skip writing tests for new code
 - ❌ Commit code that fails pre-commit hooks
 - ❌ Exceed 160 character line length
+
+**Note**: While Ruff's C90 complexity checking is temporarily disabled in the configuration (due to 31 existing violations), new code should still maintain complexity ≤ 10. Use `./scripts/check_complexity.sh` or Radon directly to check your code's complexity.
 
 ## AI Opponent Implementation
 
@@ -395,11 +413,12 @@ python -m card_games.blackjack
 # Development
 black .                          # Format code
 ruff check --fix .               # Lint and fix
-mypy .                          # Type check
-pytest                          # Run tests
-pytest --cov                    # Test with coverage
-./scripts/check_complexity.sh   # Check complexity
-pre-commit run --all-files      # Run all hooks
+isort .                          # Sort imports
+mypy .                           # Type check
+pytest                           # Run tests
+pytest --cov                     # Test with coverage
+./scripts/check_complexity.sh    # Check complexity (C90 disabled in Ruff)
+pre-commit run --all-files       # Run all hooks
 
 # Install development tools
 pip install -r requirements-dev.txt
