@@ -216,14 +216,27 @@ All tests validate:
 
 ## GUI Mode
 
-The game includes a graphical user interface with drag-and-drop ship placement.
+The game includes a graphical user interface with interactive ship placement.
 
 ### Features
 
-- **Interactive ship placement**: Click on the board to place ships or use the "Place Randomly" button
-- **Visual feedback**: Clear display of hits, misses, and sunk ships
-- **Orientation toggle**: Switch between horizontal and vertical ship placement
-- All game modes supported: multiple board sizes, fleet configurations, AI difficulties, 2-player mode, and salvo mode
+#### Ship Placement Phase
+
+- **Interactive placement**: Click on the board to place ships
+- **Orientation toggle**: Switch between horizontal and vertical with a button
+- **Visual preview**: Green highlight shows valid placement before clicking
+- **Random placement**: "Place Randomly" button for quick setup
+- **Real-time validation**: Invalid placements won't show a preview
+
+#### Gameplay Phase
+
+- **Dual board view**: Your fleet (left) and enemy waters (right)
+- **Visual feedback**:
+  - Gray squares show your ships
+  - Blue circles (○) indicate misses
+  - Red X marks (✗) indicate hits
+- **Status updates**: Clear messages about whose turn and shot results
+- **All game modes supported**: Board sizes, fleets, AI difficulties, 2-player, salvo mode
 
 ### Usage
 
@@ -251,4 +264,9 @@ run_gui()
 run_gui(size=8, fleet="small", difficulty="hard", salvo=True)
 ```
 
-See [GUI_FEATURES.md](GUI_FEATURES.md) for detailed information about the GUI implementation.
+### Screenshots
+
+The GUI provides an intuitive visual interface with two main screens:
+
+1. **Ship Placement**: Interactive board with ship placement controls (see `battleship_gui_setup.png`)
+2. **Active Gameplay**: Dual-board view showing your fleet and enemy waters (see `battleship_gui_game.png`)
