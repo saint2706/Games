@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 try:
     import tkinter as tk
@@ -21,6 +21,13 @@ except ImportError:
     tk = None  # type: ignore
     scrolledtext = None  # type: ignore
     ttk = None  # type: ignore
+
+# Import enhancement modules
+from common.accessibility import get_accessibility_manager
+from common.i18n import _, get_translation_manager
+from common.keyboard_shortcuts import get_shortcut_manager
+from common.sound_manager import SoundManager, create_sound_manager
+from common.themes import get_theme_manager
 
 
 @dataclass
@@ -36,6 +43,11 @@ class GUIConfig:
         font_size: Default font size
         log_height: Height of the log widget in lines
         log_width: Width of the log widget in characters
+        enable_sounds: Enable sound effects
+        enable_animations: Enable animations
+        theme_name: Name of the theme to use
+        language: Language code for i18n
+        accessibility_mode: Enable accessibility features
     """
 
     window_title: str = "Game"
@@ -46,13 +58,19 @@ class GUIConfig:
     font_size: int = 12
     log_height: int = 10
     log_width: int = 60
+    enable_sounds: bool = False
+    enable_animations: bool = True
+    theme_name: str = "light"
+    language: str = "en"
+    accessibility_mode: bool = False
 
 
 class BaseGUI(ABC):
     """Abstract base class for game GUIs.
 
     This class provides common functionality for building game interfaces
-    including layout management, logging, and status updates.
+    including layout management, logging, status updates, theming, sound,
+    accessibility, i18n, and keyboard shortcuts.
     """
 
     def __init__(self, root: tk.Tk, config: Optional[GUIConfig] = None) -> None:
@@ -64,14 +82,78 @@ class BaseGUI(ABC):
         """
         self.root = root
         self.config = config or GUIConfig()
+
+        # Initialize enhancement managers
+        self.theme_manager = get_theme_manager()
+        self.sound_manager: Optional[SoundManager] = None
+        self.accessibility_manager = get_accessibility_manager()
+        self.translation_manager = get_translation_manager()
+        self.shortcut_manager = get_shortcut_manager()
+
+        # Apply initial configuration
+        self._setup_enhancements()
         self._setup_window()
+        self._setup_shortcuts()
+
+    def _setup_enhancements(self) -> None:
+        """Set up all enhancement systems."""
+        # Set theme
+        self.theme_manager.set_current_theme(self.config.theme_name)
+        self.current_theme = self.theme_manager.get_current_theme()
+
+        # Set language
+        self.translation_manager.set_language(self.config.language)
+
+        # Initialize sound manager
+        if self.config.enable_sounds:
+            self.sound_manager = create_sound_manager(enabled=True)
+
+        # Configure accessibility
+        if self.config.accessibility_mode:
+            self.accessibility_manager.set_high_contrast(True)
+            self.accessibility_manager.set_screen_reader(True)
+
+        # Set shortcut manager root
+        self.shortcut_manager.set_root(self.root)
 
     def _setup_window(self) -> None:
         """Configure the main window with default settings."""
-        self.root.title(self.config.window_title)
+        self.root.title(_(self.config.window_title))
         self.root.geometry(f"{self.config.window_width}x{self.config.window_height}")
-        if self.config.background_color:
-            self.root.configure(bg=self.config.background_color)
+
+        # Apply theme colors
+        bg_color = self.current_theme.colors.background
+
+        if TKINTER_AVAILABLE:
+            self.root.configure(bg=bg_color)
+
+            # Configure ttk styles
+            style = ttk.Style()
+            style.theme_use("clam")  # Use clam theme as base for better customization
+
+            # Configure button style
+            style.configure(
+                "TButton",
+                background=self.current_theme.colors.button_bg,
+                foreground=self.current_theme.colors.button_fg,
+                borderwidth=1,
+                focuscolor=self.current_theme.colors.primary,
+            )
+
+            style.map(
+                "TButton",
+                background=[("active", self.current_theme.colors.button_active_bg)],
+                foreground=[("active", self.current_theme.colors.button_active_fg)],
+            )
+
+        # Make window resizable
+        self.root.rowconfigure(0, weight=1)
+        self.root.columnconfigure(0, weight=1)
+
+    def _setup_shortcuts(self) -> None:
+        """Set up default keyboard shortcuts."""
+        # Subclasses can override this to add custom shortcuts
+        pass
 
     @abstractmethod
     def build_layout(self) -> None:
@@ -213,9 +295,74 @@ class BaseGUI(ABC):
         """
         frame = tk.LabelFrame(
             parent,
-            text=title,
-            font=(self.config.font_family, self.config.font_size, "bold"),
+            text=_(title),
+            font=(self.current_theme.font_family, self.current_theme.font_size, "bold"),
+            bg=self.current_theme.colors.background,
+            fg=self.current_theme.colors.foreground,
             padx=10,
             pady=10,
         )
         return frame
+
+    def apply_theme(self) -> None:
+        """Apply current theme to all widgets."""
+        self.current_theme = self.theme_manager.get_current_theme()
+        self._setup_window()
+        self.update_display()
+
+    def set_theme(self, theme_name: str) -> bool:
+        """Change the current theme.
+
+        Args:
+            theme_name: Name of theme to apply.
+
+        Returns:
+            True if theme was applied successfully.
+        """
+        if self.theme_manager.set_current_theme(theme_name):
+            self.apply_theme()
+            return True
+        return False
+
+    def play_sound(self, sound_type: str, volume: Optional[float] = None) -> None:
+        """Play a sound effect.
+
+        Args:
+            sound_type: Type of sound to play.
+            volume: Optional volume override.
+        """
+        if self.sound_manager:
+            self.sound_manager.play(sound_type, volume)
+
+    def set_volume(self, volume: float) -> None:
+        """Set master sound volume.
+
+        Args:
+            volume: Volume level (0.0 to 1.0).
+        """
+        if self.sound_manager:
+            self.sound_manager.set_volume(volume)
+
+    def toggle_sounds(self) -> None:
+        """Toggle sound effects on/off."""
+        if self.sound_manager:
+            enabled = self.sound_manager.is_available()
+            self.sound_manager.set_enabled(not enabled)
+
+    def register_shortcut(self, key: str, callback: Callable[[], Any], description: str = "") -> None:
+        """Register a keyboard shortcut.
+
+        Args:
+            key: Key combination.
+            callback: Function to call.
+            description: Description of shortcut.
+        """
+        self.shortcut_manager.register(key, callback, description)
+
+    def show_shortcuts_help(self) -> None:
+        """Display keyboard shortcuts help."""
+        help_text = self.shortcut_manager.get_shortcuts_help()
+        if TKINTER_AVAILABLE:
+            from tkinter import messagebox
+
+            messagebox.showinfo(_("keyboard_shortcuts"), help_text)
