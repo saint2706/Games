@@ -83,7 +83,6 @@ def demo_elo_rating() -> None:
 
     # Simulate tournament
     print("Simulating tournament matches...")
-    players = ["Alice", "Bob", "Charlie", "Diana"]
 
     # Round 1
     elo.update_ratings("Alice", "Bob", 1.0)  # Alice wins
