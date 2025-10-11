@@ -8,6 +8,7 @@ This package provides shared functionality including:
 - Replay/undo system
 - Observer pattern for GUI synchronization
 - Game engine abstractions
+- GUI enhancements (themes, sounds, animations, accessibility, i18n, shortcuts)
 """
 
 from .ai_strategy import AIStrategy, HeuristicStrategy, MinimaxStrategy, RandomStrategy
@@ -23,6 +24,18 @@ from .architecture.persistence import (
 from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
 from .architecture.replay import ReplayAction, ReplayManager, ReplayRecorder
 from .architecture.settings import Settings, SettingsManager
+
+# GUI enhancement imports (optional, only if tkinter available)
+try:
+    from .themes import ThemeConfig, ThemeManager, get_theme_manager
+    from .sound_manager import SoundManager, create_sound_manager
+    from .accessibility import AccessibilityManager, get_accessibility_manager
+    from .i18n import TranslationManager, get_translation_manager, _, set_language
+    from .keyboard_shortcuts import KeyboardShortcut, ShortcutManager, get_shortcut_manager
+
+    GUI_ENHANCEMENTS_AVAILABLE = True
+except ImportError:
+    GUI_ENHANCEMENTS_AVAILABLE = False
 
 __all__ = [
     # Core abstractions
@@ -60,3 +73,24 @@ __all__ = [
     "Settings",
     "SettingsManager",
 ]
+
+# Add GUI enhancements to __all__ if available
+if GUI_ENHANCEMENTS_AVAILABLE:
+    __all__.extend(
+        [
+            "ThemeConfig",
+            "ThemeManager",
+            "get_theme_manager",
+            "SoundManager",
+            "create_sound_manager",
+            "AccessibilityManager",
+            "get_accessibility_manager",
+            "TranslationManager",
+            "get_translation_manager",
+            "_",
+            "set_language",
+            "KeyboardShortcut",
+            "ShortcutManager",
+            "get_shortcut_manager",
+        ]
+    )
