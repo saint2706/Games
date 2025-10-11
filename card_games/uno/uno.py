@@ -263,6 +263,9 @@ class HouseRules:
     Attributes:
         stacking: Allow stacking +2 and +4 cards to increase penalty.
         jump_in: Allow players to play identical cards out of turn.
+                 TODO: Jump-in logic not yet implemented in game flow.
+                 This requires checking all players after each card play and
+                 allowing them to interrupt the turn order with identical cards.
         seven_zero_swap: Playing 7 swaps hands with another player, playing 0 rotates all hands.
     """
     stacking: bool = False

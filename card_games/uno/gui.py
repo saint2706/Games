@@ -16,6 +16,7 @@ from typing import List, Optional, Sequence
 
 from colorama import Fore, Style
 
+from .sound_manager import create_sound_manager
 from .uno import (
     COLORS,
     HouseRules,
@@ -83,6 +84,7 @@ class TkUnoInterface(UnoInterface):
         self.uno_var = tk.BooleanVar(value=False)
         self.enable_animations = enable_animations
         self.enable_sounds = enable_sounds
+        self.sound_manager = create_sound_manager(enabled=enable_sounds)
         self._build_layout()
         self._build_scoreboard()
 
@@ -440,41 +442,44 @@ class TkUnoInterface(UnoInterface):
         self.decision_ready.set(True)
 
     def _animate_card_play(self, card_index: int) -> None:
-        """Animate a card being played (placeholder for future animation).
+        """Animate a card being played with highlight and scale effects.
         
-        This method can be extended to show:
-        - Card sliding from hand to center
-        - Fade-in/fade-out effects
-        - Rotation or flip animations
+        This method shows a visual animation when a card is played:
+        - Highlights the card with a bright color
+        - Creates a pulsing effect
+        - Can be extended with more sophisticated animations in the future
         """
         if not self.enable_animations:
             return
         
-        # Placeholder: Flash the button to indicate the card being played
+        # Animate the button to indicate the card being played
         if 0 <= card_index < len(self.card_buttons):
             btn = self.card_buttons[card_index]
             original_bg = btn.cget("background")
+            original_relief = btn.cget("relief")
             
-            def flash(count: int = 0) -> None:
-                if count < 3:
-                    btn.configure(bg="yellow" if count % 2 == 0 else original_bg)
-                    self.root.after(100, lambda: flash(count + 1))
+            def animate(step: int = 0) -> None:
+                if step < 6:
+                    # Alternate between highlighted and normal state
+                    if step % 2 == 0:
+                        btn.configure(bg="#FFD700", relief="raised")  # Gold highlight
+                    else:
+                        btn.configure(bg=original_bg, relief=original_relief)
+                    # Schedule next animation step
+                    self.root.after(80, lambda: animate(step + 1))
+                else:
+                    # Restore original appearance
+                    btn.configure(bg=original_bg, relief=original_relief)
             
-            flash()
+            animate()
 
     def play_sound(self, sound_type: str) -> None:
-        """Play a sound effect (placeholder for future sound implementation).
+        """Play a sound effect using the sound manager.
         
         Args:
             sound_type: Type of sound to play ('card_play', 'draw', 'uno', 'win', etc.)
         
-        To implement sounds, you can use libraries like:
-        - pygame.mixer for cross-platform sound
-        - winsound on Windows
-        - ossaudiodev on Linux
-        - sounddevice for advanced audio
-        
-        Example sound types:
+        Sound types:
         - 'card_play': When a card is played
         - 'draw': When drawing cards
         - 'uno': When UNO is called
@@ -486,14 +491,10 @@ class TkUnoInterface(UnoInterface):
         - 'wild': When a wild card is played
         - 'draw_penalty': When +2 or +4 is played
         """
-        if not self.enable_sounds:
+        if not self.enable_sounds or self.sound_manager is None:
             return
         
-        # Placeholder for sound implementation
-        # Example implementation with pygame:
-        # if sound_type in self.sounds:
-        #     self.sounds[sound_type].play()
-        pass
+        self.sound_manager.play(sound_type)
 
     def _accept_penalty(self) -> None:
         """Set the pending decision to 'accept_penalty'."""
