@@ -85,10 +85,9 @@ run_gui(size=8, fleet="small", difficulty="hard", salvo=True)
    - Interactive ship placement with visual feedback
    - Support for all game modes and configurations
 
-2. **`paper_games/battleship/GUI_README.md`**
-   - Detailed documentation for the GUI
-   - Usage instructions and examples
-   - Fleet configurations and AI difficulty explanations
+2. **Updated `paper_games/battleship/README.md`**
+   - Added GUI mode section with usage instructions
+   - Includes examples and configuration options
 
 3. **Updated `paper_games/battleship/__init__.py`**
    - Added `run_gui` export for easy access

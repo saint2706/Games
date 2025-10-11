@@ -189,3 +189,42 @@ All tests validate:
 - AI difficulty behaviors
 - Game mode flags
 - Salvo shot counting
+
+## GUI Mode
+
+The game includes a graphical user interface with drag-and-drop ship placement.
+
+### Features
+
+- **Interactive ship placement**: Click on the board to place ships or use the "Place Randomly" button
+- **Visual feedback**: Clear display of hits, misses, and sunk ships
+- **Orientation toggle**: Switch between horizontal and vertical ship placement
+- All game modes supported: multiple board sizes, fleet configurations, AI difficulties, 2-player mode, and salvo mode
+
+### Usage
+
+Run the GUI with default settings (10x10 board, default fleet, medium AI):
+
+```bash
+python -m paper_games.battleship.gui
+```
+
+Or with custom options:
+
+```bash
+python -m paper_games.battleship.gui --size 8 --fleet small --difficulty hard --salvo
+```
+
+### From Python Code
+
+```python
+from paper_games.battleship import run_gui
+
+# Run with default settings
+run_gui()
+
+# Run with custom settings
+run_gui(size=8, fleet="small", difficulty="hard", salvo=True)
+```
+
+See [GUI_FEATURES.md](GUI_FEATURES.md) for detailed information about the GUI implementation.
