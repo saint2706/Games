@@ -27,9 +27,7 @@ class GameStats:
     total_time_spent: float = 0.0
     fastest_solve: Optional[float] = None
 
-    def record_word(
-        self, solved: bool, difficulty: Optional[str] = None, theme: Optional[str] = None, time_taken: Optional[float] = None
-    ) -> None:
+    def record_word(self, solved: bool, difficulty: Optional[str] = None, theme: Optional[str] = None, time_taken: Optional[float] = None) -> None:
         """Record the outcome of a word.
 
         Args:
@@ -45,7 +43,7 @@ class GameStats:
             self.current_streak += 1
             if self.current_streak > self.longest_streak:
                 self.longest_streak = self.current_streak
-            
+
             # Track fastest solve
             if time_taken is not None:
                 if self.fastest_solve is None or time_taken < self.fastest_solve:
@@ -138,7 +136,7 @@ class GameStats:
 
         if self.fastest_solve is not None:
             lines.append(f"Fastest Solve: {self.fastest_solve:.2f}s")
-        
+
         if self.words_solved > 0:
             lines.append(f"Average Time: {self.average_solve_time():.2f}s")
 

@@ -1,6 +1,5 @@
 """Tests for new Unscramble features: difficulty, themes, stats, and timed mode."""
 
-import json
 import tempfile
 from pathlib import Path
 
@@ -183,12 +182,12 @@ def test_game_stats_streak_tracking():
     stats.record_word(solved=True)
     assert stats.current_streak == 3
     assert stats.longest_streak == 3
-    
+
     # Break the streak
     stats.record_word(solved=False)
     assert stats.current_streak == 0
     assert stats.longest_streak == 3  # Longest should remain
-    
+
     # Start new streak
     stats.record_word(solved=True)
     stats.record_word(solved=True)
@@ -203,7 +202,7 @@ def test_game_stats_by_difficulty():
     stats.record_word(solved=True, difficulty="easy")
     stats.record_word(solved=False, difficulty="easy")
     stats.record_word(solved=True, difficulty="hard")
-    
+
     assert "easy" in stats.stats_by_difficulty
     assert stats.stats_by_difficulty["easy"]["total"] == 3
     assert stats.stats_by_difficulty["easy"]["solved"] == 2
@@ -218,7 +217,7 @@ def test_game_stats_by_theme():
     stats.record_word(solved=True, theme="technical")
     stats.record_word(solved=False, theme="technical")
     stats.record_word(solved=True, theme="literature")
-    
+
     assert "technical" in stats.stats_by_theme
     assert stats.stats_by_theme["technical"]["total"] == 2
     assert stats.stats_by_theme["technical"]["solved"] == 1
@@ -233,7 +232,7 @@ def test_game_stats_time_tracking():
     stats.record_word(solved=True, time_taken=5.0)
     stats.record_word(solved=True, time_taken=3.0)
     stats.record_word(solved=True, time_taken=7.0)
-    
+
     assert stats.total_time_spent == 15.0
     assert stats.fastest_solve == 3.0
     assert stats.average_solve_time() == 5.0
@@ -246,20 +245,20 @@ def test_game_stats_solve_rate():
     stats.record_word(solved=True)
     stats.record_word(solved=False)
     stats.record_word(solved=True)
-    
+
     assert stats.solve_rate() == 75.0  # 3 out of 4
 
 
 def test_game_stats_achievements():
     """Test achievement unlocking."""
     stats = GameStats()
-    
+
     # First solve achievement
     stats.record_word(solved=True)
     achievements = stats.check_achievements()
     assert "First Solve" in achievements
     assert "First Solve" in stats.achievements
-    
+
     # Same achievement shouldn't unlock again
     achievements = stats.check_achievements()
     assert "First Solve" not in achievements
@@ -268,11 +267,11 @@ def test_game_stats_achievements():
 def test_game_stats_streak_achievements():
     """Test streak-based achievements."""
     stats = GameStats()
-    
+
     # Build streak to 3
     for _ in range(3):
         stats.record_word(solved=True)
-    
+
     achievements = stats.check_achievements()
     assert "Streak Starter" in achievements
 
@@ -281,7 +280,7 @@ def test_game_stats_save_and_load():
     """Test saving and loading statistics."""
     with tempfile.TemporaryDirectory() as tmpdir:
         filepath = Path(tmpdir) / "test_stats.json"
-        
+
         # Create and save stats
         stats = GameStats()
         stats.record_word(solved=True, difficulty="easy", time_taken=5.0)
@@ -291,7 +290,7 @@ def test_game_stats_save_and_load():
         stats.games_played = 1
         stats.achievements = ["First Solve"]
         stats.save(filepath)
-        
+
         # Load stats
         loaded_stats = GameStats.load(filepath)
         assert loaded_stats.total_words == 2
@@ -317,7 +316,7 @@ def test_game_stats_summary():
     stats.record_word(solved=True, difficulty="easy", time_taken=3.0)
     stats.record_word(solved=False, difficulty="hard")
     stats.games_played = 1
-    
+
     summary = stats.summary()
     assert "UNSCRAMBLE STATISTICS" in summary
     assert "Total Words: 3" in summary

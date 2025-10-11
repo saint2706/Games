@@ -138,11 +138,11 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Implement custom rule variations
 
 ### Unscramble
-- [ ] Add timed mode with countdown for each word
-- [ ] Implement difficulty-based word selection
-- [ ] Add multiplayer competitive mode
-- [ ] Create themed word packs (technical terms, literature, etc.)
-- [ ] Add streak tracking and achievement system
+- [x] Add timed mode with countdown for each word
+- [x] Implement difficulty-based word selection
+- [x] Add multiplayer competitive mode
+- [x] Create themed word packs (technical terms, literature, etc.)
+- [x] Add streak tracking and achievement system
 
 ## 🏗️ Technical Improvements
 

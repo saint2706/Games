@@ -28,7 +28,7 @@ def _load_words_from_disk() -> List[str]:
     if not WORDLIST_PATH.exists():
         # Fallback to hangman words if wordlist doesn't exist
         return load_default_words()
-    
+
     data = json.loads(WORDLIST_PATH.read_text(encoding="utf-8"))
     collected: Set[str] = set()
     # Collect words from all difficulty levels
@@ -67,7 +67,7 @@ def load_words_by_difficulty(difficulty: str = "all") -> List[str]:
             return [w for w in words if len(w) == 3]
         else:
             return words
-    
+
     data = json.loads(WORDLIST_PATH.read_text(encoding="utf-8"))
     if difficulty == "all":
         collected: Set[str] = set()
@@ -98,10 +98,10 @@ def load_themed_words(theme: Optional[str] = None) -> List[str] | Dict[str, List
 
     if theme is None:
         return dict(_THEMED_WORD_CACHE)
-    
+
     if theme not in _THEMED_WORD_CACHE:
         raise ValueError(f"Theme '{theme}' not found. Available themes: {list(_THEMED_WORD_CACHE.keys())}")
-    
+
     return list(_THEMED_WORD_CACHE[theme])
 
 
@@ -114,7 +114,7 @@ def list_themes() -> str:
     themes = load_themed_words()
     if not themes:
         return "No themes available."
-    
+
     lines = ["Available themes:"]
     for theme_name, words in sorted(themes.items()):
         lines.append(f"  - {theme_name}: {len(words)} words")
