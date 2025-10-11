@@ -161,7 +161,11 @@ class PluginManager:
                     if spec and spec.loader:
                         module = importlib.util.module_from_spec(spec)
                         sys.modules[plugin_name] = module
-                        spec.loader.exec_module(module)
+                        try:
+                            spec.loader.exec_module(module)
+                        except Exception:
+                            sys.modules.pop(plugin_name, None)
+                            raise
 
                         # Look for plugin class
                         plugin_instance = self._find_plugin_instance(module)
@@ -175,11 +179,19 @@ class PluginManager:
             # Try loading as a package
             elif plugin_package.exists() and (plugin_package / "__init__.py").exists():
                 try:
-                    spec = importlib.util.spec_from_file_location(plugin_name, plugin_package / "__init__.py")
+                    spec = importlib.util.spec_from_file_location(
+                        plugin_name,
+                        plugin_package / "__init__.py",
+                        submodule_search_locations=[str(plugin_package)],
+                    )
                     if spec and spec.loader:
                         module = importlib.util.module_from_spec(spec)
                         sys.modules[plugin_name] = module
-                        spec.loader.exec_module(module)
+                        try:
+                            spec.loader.exec_module(module)
+                        except Exception:
+                            sys.modules.pop(plugin_name, None)
+                            raise
 
                         # Look for plugin class
                         plugin_instance = self._find_plugin_instance(module)

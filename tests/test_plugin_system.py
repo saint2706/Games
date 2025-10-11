@@ -148,6 +148,48 @@ plugin = RealPlugin()
         assert "real_plugin" in manager.list_plugins()
 
 
+def test_plugin_manager_load_plugin_package_with_relative_import():
+    """Test loading a plugin package that uses relative imports."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        plugin_dir = Path(tmpdir)
+        manager = PluginManager(plugin_dirs=[plugin_dir])
+
+        package_dir = plugin_dir / "relative_plugin"
+        package_dir.mkdir()
+
+        init_code = """
+from .module import RelativePlugin
+
+plugin = RelativePlugin()
+"""
+        (package_dir / "__init__.py").write_text(init_code.strip() + "\n")
+
+        module_code = """
+from common.architecture import GamePlugin, PluginMetadata
+
+
+class RelativePlugin(GamePlugin):
+    def get_metadata(self):
+        return PluginMetadata(name="relative_plugin", version="1.0")
+
+    def initialize(self, **kwargs):
+        pass
+
+    def shutdown(self):
+        pass
+
+    def get_game_class(self):
+        return object
+"""
+        (package_dir / "module.py").write_text(module_code.strip() + "\n")
+
+        success = manager.load_plugin("relative_plugin")
+        assert success
+        plugin = manager.get_plugin("relative_plugin")
+        assert plugin is not None
+        assert plugin.get_metadata().name == "relative_plugin"
+
+
 def test_plugin_manager_unload_all():
     """Test unloading all plugins."""
     manager = PluginManager()
