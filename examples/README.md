@@ -20,6 +20,38 @@ python -m examples.architecture_demo
 
 ## Available Examples
 
+### cli_utils_demo.py
+
+Comprehensive demonstration of CLI enhancement features:
+
+- **ASCII Art** - Banners, boxes, victory/defeat art
+- **Rich Text** - Headers, status messages, highlighting
+- **Progress Indicators** - Progress bars and spinners
+- **Interactive Menus** - Arrow key navigation with fallback
+- **Command History** - History navigation and autocomplete
+- **Themes** - Predefined and custom color schemes
+
+Run with:
+```bash
+python examples/cli_utils_demo.py
+```
+
+### cli_enhanced_game.py
+
+Complete working game using all CLI utilities - a number guessing game with:
+
+- Interactive menu system
+- Difficulty selection
+- Progress bars and spinners
+- Command history and autocomplete
+- Themed UI elements
+- Status messages and ASCII art
+
+Run with:
+```bash
+python examples/cli_enhanced_game.py
+```
+
 ### architecture_demo.py
 
 A comprehensive demonstration of all architecture components:
