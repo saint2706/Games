@@ -39,3 +39,4 @@ poker_history*.json
 card_games/uno/sounds/*.wav
 card_games/uno/sounds/*.mp3
 card_games/uno/sounds/*.ogg
+node_modules/
