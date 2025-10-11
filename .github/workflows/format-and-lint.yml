@@ -7,6 +7,12 @@ name: Format and Lint (Auto-fix)
 on:
   workflow_dispatch:  # Manual trigger only
 
+permissions:
+  contents: write
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
 jobs:
   format-and-lint:
     runs-on: ubuntu-latest
@@ -19,11 +25,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements-dev.txt
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
 
       - name: Install tooling
-        run: |
-          python -m pip install --upgrade pip
-          pip install black mdformat ruff
+        run: pip install -r requirements-dev.txt
 
       - name: Run formatters
         run: |
@@ -31,8 +41,7 @@ jobs:
           mdformat .
 
       - name: Fix lint warnings
-        run: |
-          ruff check . --fix
+        run: ruff check . --fix
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
