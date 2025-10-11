@@ -131,11 +131,11 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] Create tournament mode with multiple games
 
 ### Nim
-- [ ] Add more variants (Nim-like games: Northcott, Wythoff)
-- [ ] Implement graphical heap representation
-- [ ] Add educational mode explaining optimal strategy
-- [ ] Create multiplayer mode for 3+ players
-- [ ] Implement custom rule variations
+- [x] Add more variants (Nim-like games: Northcott, Wythoff)
+- [x] Implement graphical heap representation
+- [x] Add educational mode explaining optimal strategy
+- [x] Create multiplayer mode for 3+ players
+- [x] Implement custom rule variations
 
 ### Unscramble
 - [ ] Add timed mode with countdown for each word
