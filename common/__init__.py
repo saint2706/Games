@@ -8,6 +8,7 @@ This package provides shared functionality including:
 - Replay/undo system
 - Observer pattern for GUI synchronization
 - Game engine abstractions
+- Enhanced CLI utilities
 - GUI enhancements (themes, sounds, animations, accessibility, i18n, shortcuts)
 """
 
@@ -24,6 +25,20 @@ from .architecture.persistence import (
 from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
 from .architecture.replay import ReplayAction, ReplayManager, ReplayRecorder
 from .architecture.settings import Settings, SettingsManager
+from .cli_utils import (
+    ASCIIArt,
+    Color,
+    CommandHistory,
+    InteractiveMenu,
+    ProgressBar,
+    RichText,
+    Spinner,
+    THEMES,
+    TextStyle,
+    Theme,
+    clear_screen,
+    get_terminal_size,
+)
 
 # GUI enhancement imports (optional, only if tkinter available)
 try:
@@ -72,6 +87,19 @@ __all__ = [
     # Settings
     "Settings",
     "SettingsManager",
+    # CLI utilities
+    "Color",
+    "TextStyle",
+    "Theme",
+    "THEMES",
+    "ASCIIArt",
+    "RichText",
+    "ProgressBar",
+    "Spinner",
+    "InteractiveMenu",
+    "CommandHistory",
+    "clear_screen",
+    "get_terminal_size",
 ]
 
 # Add GUI enhancements to __all__ if available
