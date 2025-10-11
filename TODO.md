@@ -86,12 +86,12 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Create casino mode with multiple table options
 
 ### Bluff
-- [ ] Add replay system to review previous games
-- [ ] Implement variable deck types (specialized decks, custom cards)
-- [ ] Add tournament mode with elimination rounds
-- [ ] Implement team play variant
-- [ ] Add animation for challenge reveals in GUI
-- [ ] Create advanced AI that learns from player patterns
+- [x] Add replay system to review previous games
+- [x] Implement variable deck types (specialized decks, custom cards)
+- [x] Add tournament mode with elimination rounds
+- [x] Implement team play variant
+- [x] Add animation for challenge reveals in GUI
+- [x] Create advanced AI that learns from player patterns
 
 ### Uno
 - [ ] Add house rules options (stacking, jump-in, 7-0 swapping)
