@@ -1,25 +1,56 @@
-"""Common utilities and base classes for all games.
+"""Common utilities and architecture components for all games.
 
-This module provides reusable components, abstract base classes, and shared
-functionality across different game implementations.
+This package provides shared functionality including:
+- Event-driven architecture
+- Plugin system
+- Save/load functionality
+- Settings management
+- Replay/undo system
+- Observer pattern for GUI synchronization
+- Game engine abstractions
 """
 
-from .ai_strategy import AIStrategy, HeuristicStrategy, MinimaxStrategy, RandomStrategy
-from .game_engine import GameEngine, GameState
+from .architecture.engine import GameEngine, GamePhase, GameState
+from .architecture.events import Event, EventBus, EventHandler, FunctionEventHandler
+from .architecture.observer import Observable, Observer, PropertyObservable
+from .architecture.persistence import (
+    GameStateSerializer,
+    JSONSerializer,
+    PickleSerializer,
+    SaveLoadManager,
+)
+from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
+from .architecture.replay import ReplayAction, ReplayManager, ReplayRecorder
+from .architecture.settings import Settings, SettingsManager
 
 __all__ = [
+    # Core abstractions
     "GameEngine",
     "GameState",
-    "AIStrategy",
-    "RandomStrategy",
-    "MinimaxStrategy",
-    "HeuristicStrategy",
+    "GamePhase",
+    # Event system
+    "Event",
+    "EventBus",
+    "EventHandler",
+    "FunctionEventHandler",
+    # Observer pattern
+    "Observable",
+    "Observer",
+    "PropertyObservable",
+    # Persistence
+    "GameStateSerializer",
+    "SaveLoadManager",
+    "JSONSerializer",
+    "PickleSerializer",
+    # Plugin system
+    "GamePlugin",
+    "PluginManager",
+    "PluginMetadata",
+    # Replay system
+    "ReplayManager",
+    "ReplayRecorder",
+    "ReplayAction",
+    # Settings
+    "Settings",
+    "SettingsManager",
 ]
-
-# Import GUI components only if tkinter is available
-try:
-    from .gui_base import BaseGUI, GUIConfig
-
-    __all__.extend(["BaseGUI", "GUIConfig"])
-except ImportError:
-    pass

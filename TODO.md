@@ -168,19 +168,19 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [x] Refactor common GUI code into reusable components
 - [x] Extract shared AI logic into strategy pattern implementations
 - [ ] Implement type hints throughout entire codebase
-- [x] Add pre-commit hooks for linting and formatting
+- [ ] Add pre-commit hooks for linting and formatting
 - [x] Create abstract base classes for game engines
 - [ ] Implement dependency injection for better testability
 - [x] Add code complexity analysis and reduce high-complexity methods
 
 ### Architecture
-- [ ] Create plugin system for third-party game additions
-- [ ] Implement event-driven architecture for game state changes
-- [ ] Add save/load game state functionality across all games
-- [ ] Create unified settings/preferences system
-- [ ] Implement replay/undo system as a common utility
-- [ ] Add observer pattern for GUI synchronization
-- [ ] Create game engine abstraction layer
+- [x] Create plugin system for third-party game additions
+- [x] Implement event-driven architecture for game state changes
+- [x] Add save/load game state functionality across all games
+- [x] Create unified settings/preferences system
+- [x] Implement replay/undo system as a common utility
+- [x] Add observer pattern for GUI synchronization
+- [x] Create game engine abstraction layer
 
 ## 🎨 User Interface Improvements
 

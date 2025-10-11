@@ -1,124 +1,92 @@
-# Examples
+# Architecture Examples
 
-This directory contains example implementations demonstrating how to use the base classes and utilities provided by the
-`common` module.
+This directory contains example scripts demonstrating the architecture components.
+
+## Running Examples
+
+All examples should be run from the repository root with the correct PYTHONPATH:
+
+```bash
+cd /home/runner/work/Games/Games
+PYTHONPATH=/home/runner/work/Games/Games python examples/architecture_demo.py
+```
+
+Or use the Python module approach:
+
+```bash
+cd /home/runner/work/Games/Games
+python -m examples.architecture_demo
+```
 
 ## Available Examples
 
-### simple_game_example.py
+### architecture_demo.py
 
-A complete implementation of a number guessing game that demonstrates:
+A comprehensive demonstration of all architecture components:
 
-- Implementing the `GameEngine` abstract base class
-- Using the `RandomStrategy` for easy AI
-- Using the `HeuristicStrategy` for intelligent AI
-- Proper type hints throughout
-- Interactive gameplay
+1. **Plugin System** - Loading and managing plugins
+2. **Game Engine** - Creating game instances
+3. **Event System** - Event-driven architecture
+4. **Observer Pattern** - State change notifications
+5. **Settings System** - Configuration management
+6. **Replay System** - Action recording
+7. **Save/Load System** - Game state persistence
+8. **Replay Analysis** - Reviewing recorded actions
+9. **Undo System** - Undoing/redoing actions
+10. **Event History** - Analyzing event patterns
 
-**Run it:**
+The demo uses the example number guessing game plugin to demonstrate all features in action.
 
-```bash
-python examples/simple_game_example.py
+### Expected Output
+
+When you run the demo, you'll see:
+- Plugin discovery and loading
+- Event notifications as game progresses
+- State change observations
+- Settings loading and usage
+- Game being played with 4 guesses
+- Save/load operations
+- Replay analysis showing all actions
+- Undo/redo functionality
+- Event statistics
+
+## Creating Your Own Examples
+
+To create a new example:
+
+1. Create a Python file in this directory
+2. Import the architecture components you need
+3. Use the example_plugin or create your own test plugin
+4. Make the file executable: `chmod +x your_example.py`
+5. Add documentation to this README
+
+Example template:
+
+```python
+#!/usr/bin/env python
+"""Your example description."""
+
+from pathlib import Path
+from common.architecture import PluginManager
+
+def main():
+    # Your example code here
+    pass
+
+if __name__ == "__main__":
+    main()
 ```
-
-**What you'll learn:**
-
-- How to create a game by extending `GameEngine`
-- How to implement required methods (`reset`, `make_move`, `is_game_over`, etc.)
-- How to use AI strategies for computer opponents
-- How to create heuristic functions for intelligent play
-
-## Creating Your Own Game
-
-To create a new game using the base classes:
-
-1. **Define your game class:**
-
-   ```python
-   from common import GameEngine, GameState
-   from typing import List, Optional
-
-   class MyGame(GameEngine[MoveType, PlayerType]):
-       def __init__(self):
-           # Initialize game state
-           pass
-
-       def reset(self) -> None:
-           # Reset to initial state
-           pass
-
-       def is_game_over(self) -> bool:
-           # Check if game is finished
-           pass
-
-       def get_current_player(self) -> PlayerType:
-           # Return current player
-           pass
-
-       def get_valid_moves(self) -> List[MoveType]:
-           # Return list of valid moves
-           pass
-
-       def make_move(self, move: MoveType) -> bool:
-           # Apply the move
-           pass
-
-       def get_winner(self) -> Optional[PlayerType]:
-           # Return winner or None
-           pass
-
-       def get_game_state(self) -> GameState:
-           # Return current state
-           pass
-   ```
-
-2. **Add AI opponents:**
-
-   ```python
-   from common import RandomStrategy, HeuristicStrategy
-
-   # Easy AI
-   easy_ai = RandomStrategy()
-
-   # Smart AI with custom heuristic
-   def evaluate_move(move, state):
-       # Score the move
-       return score
-
-   smart_ai = HeuristicStrategy(heuristic_fn=evaluate_move)
-   ```
-
-3. **Create a GUI (optional):**
-
-   ```python
-   from common import BaseGUI, GUIConfig
-
-   class MyGameGUI(BaseGUI):
-       def __init__(self, root, game):
-           config = GUIConfig(window_title="My Game")
-           super().__init__(root, config)
-           self.game = game
-           self.build_layout()
-
-       def build_layout(self):
-           # Use helper methods
-           header = self.create_header(self.root, "My Game")
-           log = self.create_log_widget(self.root)
-           # ...
-
-       def update_display(self):
-           # Update UI based on game state
-           pass
-   ```
 
 ## Tips
 
-- Use type hints for better IDE support
-- Keep complexity low (≤10 per method)
-- Add tests for your game
-- Run `pre-commit` before committing
-- Check complexity with `./scripts/check_complexity.sh`
+- Always run examples from the repository root
+- Use `PYTHONPATH` to ensure imports work correctly
+- Check the plugin system is working with `discover_plugins()`
+- Use temporary directories for save/settings to avoid cluttering the repo
+- Add descriptive output so others can follow what's happening
 
-## More Information
+## Further Reading
 
-See `ARCHITECTURE.md` for detailed documentation on the base classes and patterns.
+- See `ARCHITECTURE.md` for detailed component documentation
+- Check `plugins/README.md` for plugin development guide
+- Review `tests/test_architecture.py` for usage patterns

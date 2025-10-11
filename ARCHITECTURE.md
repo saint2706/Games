@@ -1,356 +1,393 @@
-# Architecture and Code Quality Improvements
+# Games Repository Architecture
 
-This document describes the architectural patterns and code quality improvements implemented in this project.
+This document describes the architecture components available in the Games repository for building consistent, extensible game implementations.
 
 ## Overview
 
-The Games repository has been enhanced with reusable components, standardized patterns, and code quality tools to
-improve maintainability, consistency, and testability.
+The `common/architecture` module provides a comprehensive set of architectural patterns and utilities to support game development:
 
-## Base Classes and Abstract Interfaces
+1. **Plugin System** - Add third-party games without modifying core code
+2. **Event-Driven Architecture** - Decouple components using events
+3. **Save/Load System** - Persist and restore game state
+4. **Unified Settings** - Centralized configuration management
+5. **Replay/Undo System** - Record and replay game actions
+6. **Observer Pattern** - Synchronize GUIs with game state
+7. **Game Engine Abstraction** - Common interface for all games
 
-### GameEngine Base Class
+## Components
 
-All game engines can implement the `GameEngine` abstract base class, which provides a consistent interface for:
+### 1. Plugin System
 
-- Game state management
-- Move validation
-- Turn management
-- Win/loss detection
+Located in `common/architecture/plugin.py`
 
-**Location:** `common/game_engine.py`
+The plugin system allows third-party developers to add new games without modifying the core codebase.
 
-**Benefits:**
-
-- Consistent API across all games
-- Easier to understand and maintain
-- Better testability through standard interfaces
-- Simplified integration with GUIs and other components
-
-**Example:**
+#### Basic Usage
 
 ```python
-from common import GameEngine, GameState
-from typing import List, Optional
+from common.architecture import GamePlugin, PluginManager, PluginMetadata
 
-class MyCustomGame(GameEngine[int, str]):
-    """A custom game implementation."""
+class MyGamePlugin(GamePlugin):
+    def get_metadata(self):
+        return PluginMetadata(
+            name="my_game",
+            version="1.0.0",
+            author="Your Name",
+            description="A custom game"
+        )
+    
+    def initialize(self, **kwargs):
+        # Plugin initialization code
+        pass
+    
+    def shutdown(self):
+        # Cleanup code
+        pass
+    
+    def get_game_class(self):
+        return MyGameEngine
 
+# Load plugins
+manager = PluginManager(plugin_dirs=[Path("./plugins")])
+manager.load_plugin("my_game")
+```
+
+#### Creating a Plugin
+
+1. Create a Python file or package in the `plugins` directory
+2. Implement the `GamePlugin` interface
+3. Define your game engine class
+4. Export a `plugin` variable with your plugin instance
+
+### 2. Event-Driven Architecture
+
+Located in `common/architecture/events.py`
+
+The event system enables loose coupling between game components.
+
+#### Basic Usage
+
+```python
+from common.architecture import EventBus, EventHandler, Event
+
+class GameEventHandler(EventHandler):
+    def handle(self, event: Event):
+        print(f"Received: {event.type}")
+
+bus = EventBus()
+handler = GameEventHandler()
+
+# Subscribe to specific events
+bus.subscribe("PLAYER_MOVE", handler)
+
+# Or subscribe to all events
+bus.subscribe_all(handler)
+
+# Emit events
+bus.emit("PLAYER_MOVE", data={"player": "Alice", "position": "A1"})
+
+# View event history
+history = bus.get_history("PLAYER_MOVE")
+```
+
+#### Common Event Types
+
+- `GAME_START` - Game initialization complete
+- `GAME_END` - Game finished
+- `PLAYER_MOVE` - Player action executed
+- `STATE_CHANGE` - Game state updated
+- `ERROR` - Error occurred
+
+### 3. Observer Pattern
+
+Located in `common/architecture/observer.py`
+
+The observer pattern allows GUIs to stay synchronized with game state changes.
+
+#### Basic Usage
+
+```python
+from common.architecture import Observable, Observer
+
+class GameStateObserver(Observer):
+    def update(self, observable, **kwargs):
+        print(f"State changed: {kwargs}")
+
+class GameModel(Observable):
     def __init__(self):
-        self.board = [" "] * 9
-        self.current = "X"
+        super().__init__()
+        self._score = 0
+    
+    def set_score(self, score):
+        old_score = self._score
+        self._score = score
+        self.notify(property="score", old_value=old_score, new_value=score)
 
-    def reset(self) -> None:
-        self.board = [" "] * 9
-        self.current = "X"
+model = GameModel()
+observer = GameStateObserver()
+model.attach(observer)
 
-    def is_game_over(self) -> bool:
-        return self.get_winner() is not None or not self.get_valid_moves()
+model.set_score(100)  # Observer will be notified
+```
 
-    def get_current_player(self) -> str:
-        return self.current
+### 4. Save/Load System
 
-    def get_valid_moves(self) -> List[int]:
-        return [i for i, cell in enumerate(self.board) if cell == " "]
+Located in `common/architecture/persistence.py`
 
-    def make_move(self, move: int) -> bool:
-        if move not in self.get_valid_moves():
-            return False
-        self.board[move] = self.current
-        self.current = "O" if self.current == "X" else "X"
+Provides consistent save/load functionality across all games.
+
+#### Basic Usage
+
+```python
+from common.architecture import SaveLoadManager
+from pathlib import Path
+
+manager = SaveLoadManager(save_dir=Path("./saves"))
+
+# Save game state
+state = {
+    "score": 100,
+    "level": 5,
+    "players": ["Alice", "Bob"]
+}
+filepath = manager.save("my_game", state, save_name="quicksave")
+
+# Load game state
+loaded = manager.load(filepath)
+game_state = loaded["state"]
+
+# List all saves
+saves = manager.list_saves("my_game")
+
+# Get save metadata
+info = manager.get_save_info(filepath)
+```
+
+#### Supported Formats
+
+- **JSON** (default) - Human-readable, good for debugging
+- **Pickle** - Binary format, more efficient for complex objects
+
+### 5. Replay/Undo System
+
+Located in `common/architecture/replay.py`
+
+Record game actions for replay functionality and implement undo/redo.
+
+#### Basic Usage
+
+```python
+from common.architecture import ReplayManager
+import time
+
+manager = ReplayManager(max_history=100)
+
+# Record actions
+manager.record_action(
+    timestamp=time.time(),
+    actor="Player1",
+    action_type="MOVE",
+    data={"from": "A1", "to": "B2"}
+)
+
+# Undo last action
+if manager.can_undo():
+    action = manager.undo()
+    # Revert the action's effects
+
+# Redo undone action
+if manager.can_redo():
+    action = manager.redo()
+    # Reapply the action
+```
+
+### 6. Unified Settings System
+
+Located in `common/architecture/settings.py`
+
+Centralized configuration management for all games.
+
+#### Basic Usage
+
+```python
+from common.architecture import SettingsManager
+from pathlib import Path
+
+manager = SettingsManager(config_dir=Path("./config"))
+
+# Load game settings
+settings = manager.load_settings("my_game", defaults={
+    "difficulty": "medium",
+    "sound": True,
+    "theme": "dark"
+})
+
+# Access settings
+difficulty = settings.get("difficulty")
+settings.set("difficulty", "hard")
+
+# Save settings
+manager.save_settings("my_game", settings)
+
+# Global settings (shared across all games)
+global_settings = manager.get_global_settings()
+```
+
+### 7. Game Engine Abstraction
+
+Located in `common/architecture/engine.py`
+
+Provides a common interface for all game engines.
+
+#### Basic Usage
+
+```python
+from common.architecture import GameEngine, GameState, GamePhase
+
+class MyGameEngine(GameEngine):
+    def initialize(self, **kwargs):
+        self._state = GameState(phase=GamePhase.RUNNING)
+        self.emit_event("GAME_START")
+    
+    def reset(self):
+        self._state = GameState(phase=GamePhase.SETUP)
+        self.emit_event("GAME_RESET")
+    
+    def is_finished(self):
+        return self._state.phase == GamePhase.FINISHED
+    
+    def get_current_player(self):
+        return self.players[self.current_player_index]
+    
+    def get_valid_actions(self):
+        # Return list of valid actions
+        return []
+    
+    def execute_action(self, action):
+        # Execute the action
+        self.emit_event("PLAYER_MOVE", data={"action": action})
         return True
 
-    def get_winner(self) -> Optional[str]:
-        # Implement win detection
+# Use the engine
+engine = MyGameEngine()
+engine.initialize()
+```
+
+## Integration Example
+
+Here's a complete example integrating multiple architecture components:
+
+```python
+from common.architecture import (
+    GameEngine, GameState, GamePhase,
+    EventBus, SaveLoadManager, ReplayManager,
+    Observable, SettingsManager
+)
+from pathlib import Path
+import time
+
+class MyGame(GameEngine):
+    def __init__(self):
+        super().__init__()
+        self.save_manager = SaveLoadManager()
+        self.replay_manager = ReplayManager()
+        self.settings_manager = SettingsManager()
+        
+        # Subscribe to own events
+        self.event_bus.subscribe("PLAYER_MOVE", self._on_player_move)
+    
+    def initialize(self, **kwargs):
+        self._state = GameState(phase=GamePhase.RUNNING)
+        settings = self.settings_manager.load_settings("my_game")
+        self.emit_event("GAME_START")
+    
+    def reset(self):
+        self._state = GameState(phase=GamePhase.SETUP)
+        self.replay_manager.clear()
+        self.emit_event("GAME_RESET")
+    
+    def is_finished(self):
+        return self._state.phase == GamePhase.FINISHED
+    
+    def get_current_player(self):
         return None
-
-    def get_game_state(self) -> GameState:
-        return GameState.FINISHED if self.is_game_over() else GameState.IN_PROGRESS
-```
-
-### BaseGUI Class
-
-GUI implementations can extend `BaseGUI` to use standardized widget creation and layout patterns.
-
-**Location:** `common/gui_base.py`
-
-**Benefits:**
-
-- Consistent look and feel across games
-- Reusable widget creation methods
-- Simplified logging and status updates
-- Standard configuration options
-
-**Example:**
-
-```python
-import tkinter as tk
-from common import BaseGUI, GUIConfig
-
-class MyGameGUI(BaseGUI):
-    def __init__(self, root: tk.Tk, game):
-        config = GUIConfig(
-            window_title="My Game",
-            window_width=800,
-            window_height=600,
+    
+    def get_valid_actions(self):
+        return []
+    
+    def execute_action(self, action):
+        # Record for replay/undo
+        self.replay_manager.record_action(
+            timestamp=time.time(),
+            actor="player",
+            action_type="MOVE",
+            data=action,
+            state_before=self.save_state()
         )
-        super().__init__(root, config)
-        self.game = game
-        self.build_layout()
-
-    def build_layout(self) -> None:
-        # Use helper methods from BaseGUI
-        header = self.create_header(self.root, "Welcome!")
-        header.pack()
-
-        # Create a log widget
-        self.log = self.create_log_widget(self.root)
-        self.log.pack()
-
-        # Create a status label
-        self.status = self.create_status_label(self.root, "Ready to play")
-        self.status.pack()
-
-    def update_display(self) -> None:
-        # Update based on game state
-        self.log_message(self.log, "Turn completed")
+        
+        # Emit event
+        self.emit_event("PLAYER_MOVE", data=action)
+        
+        # Notify observers
+        self.notify(action=action)
+        
+        return True
+    
+    def _on_player_move(self, event):
+        # Handle player move event
+        pass
+    
+    def save_game(self, name="quicksave"):
+        """Save the current game state."""
+        return self.save_manager.save("my_game", self.save_state(), save_name=name)
+    
+    def load_game(self, filepath):
+        """Load a saved game state."""
+        data = self.save_manager.load(filepath)
+        self.load_state(data["state"])
 ```
 
-### AI Strategy Pattern
+## Best Practices
 
-AI opponents are implemented using the Strategy pattern, allowing different algorithms to be plugged in.
-
-**Location:** `common/ai_strategy.py`
-
-**Available Strategies:**
-
-1. **RandomStrategy**: Random move selection (easy difficulty)
-2. **HeuristicStrategy**: Move selection based on a heuristic function (medium difficulty)
-3. **MinimaxStrategy**: Optimal play using minimax (hard difficulty - requires game-specific implementation)
-
-**Example:**
-
-```python
-from common import RandomStrategy, HeuristicStrategy
-
-# Easy AI - random moves
-easy_ai = RandomStrategy()
-move = easy_ai.select_move(game.get_valid_moves(), game)
-
-# Medium AI - heuristic-based
-def my_heuristic(move, state):
-    # Evaluate move quality
-    return score
-
-medium_ai = HeuristicStrategy(heuristic_fn=my_heuristic)
-move = medium_ai.select_move(game.get_valid_moves(), game)
-```
-
-## Code Quality Tools
-
-### Pre-commit Hooks
-
-Pre-commit hooks automatically enforce code quality standards before commits.
-
-**Setup:**
-
-```bash
-pip install pre-commit
-pre-commit install
-```
-
-**What's checked:**
-
-- **Black**: Code formatting (line length: 160)
-- **Ruff**: Linting and import sorting
-- **isort**: Import organization
-- **mypy**: Static type checking
-- **Standard hooks**: Trailing whitespace, YAML validation, etc.
-
-**Configuration:** `.pre-commit-config.yaml`
-
-**Usage:**
-
-```bash
-# Run on all files
-pre-commit run --all-files
-
-# Automatic on commit
-git commit -m "message"
-```
-
-### Code Complexity Analysis
-
-Radon is configured to analyze code complexity and maintainability.
-
-**Script:** `scripts/check_complexity.sh`
-
-**Usage:**
-
-```bash
-./scripts/check_complexity.sh
-```
-
-**What's analyzed:**
-
-- **Cyclomatic Complexity**: Measures code complexity (target: ≤10)
-- **Maintainability Index**: Measures code maintainability (target: ≥20)
-
-**Ruff configuration** also includes McCabe complexity checks (max: 10).
-
-### Type Hints
-
-The codebase uses type hints throughout for better IDE support and type safety.
-
-**Standard:**
-
-- All functions have return type annotations
-- All function parameters have type annotations
-- `from __future__ import annotations` is used for forward references
-
-**Example:**
-
-```python
-from __future__ import annotations
-from typing import List, Optional
-
-def get_valid_moves(board: List[str]) -> List[int]:
-    """Get valid moves from the board."""
-    return [i for i, cell in enumerate(board) if cell == " "]
-```
-
-## Project Configuration
-
-### pyproject.toml
-
-Enhanced configuration includes:
-
-- **Build system** configuration
-- **Project metadata** and dependencies
-- **Tool configurations** for Black, Ruff, mypy, pytest
-- **Complexity limits** (max complexity: 10)
-
-### Requirements
-
-**Core:**
-
-- `colorama>=0.4.6` - Terminal colors
-
-**Development:**
-
-- `pytest>=7.0` - Testing
-- `black>=24.0` - Code formatting
-- `ruff>=0.8` - Linting
-- `mypy>=1.0` - Type checking
-- `pre-commit>=3.0` - Git hooks
-- `radon>=6.0` - Complexity analysis
-
-**Optional (GUI):**
-
-- `pygame>=2.0` - Sound effects
+1. **Use Events for Decoupling**: Emit events when state changes rather than directly calling methods
+2. **Implement Observable**: Make game state observable so GUIs can react to changes
+3. **Support Save/Load**: Implement `save_state()` and `load_state()` methods
+4. **Record Actions**: Use ReplayManager to enable undo/redo functionality
+5. **Centralize Settings**: Use SettingsManager for all configuration
+6. **Follow the Interface**: Implement GameEngine interface for consistency
 
 ## Testing
 
-### Test Structure
+The architecture components include comprehensive tests in:
+- `tests/test_architecture.py` - Core architecture tests
+- `tests/test_plugin_system.py` - Plugin system tests
 
-Tests are organized by module in the `tests/` directory.
-
-**Running tests:**
-
+Run tests with:
 ```bash
-# All tests
-pytest
-
-# Specific module
-pytest tests/test_common_base_classes.py
-
-# With coverage
-pytest --cov=. --cov-report=html
+pytest tests/test_architecture.py tests/test_plugin_system.py -v
 ```
-
-### Test Coverage
-
-The new `common` module has 100% test coverage with 12 tests covering:
-
-- GameEngine interface implementation
-- AI strategy selection algorithms
-- Move validation logic
-
-## Migration Guide
-
-Existing games can gradually adopt these patterns:
-
-### Step 1: Implement GameEngine (Optional)
-
-```python
-class ExistingGame(GameEngine[MoveType, PlayerType]):
-    # Implement required methods
-    pass
-```
-
-### Step 2: Use BaseGUI for new GUIs
-
-```python
-class ExistingGameGUI(BaseGUI):
-    # Use helper methods
-    pass
-```
-
-### Step 3: Replace AI logic with strategies
-
-```python
-# Old: Custom AI logic
-def computer_move():
-    # Complex logic here
-    pass
-
-# New: Strategy pattern
-ai = HeuristicStrategy(heuristic_fn=my_heuristic)
-move = ai.select_move(valid_moves, game_state)
-```
-
-### Step 4: Add type hints (if missing)
-
-```python
-# Add to top of file
-from __future__ import annotations
-
-# Add to functions
-def my_function(param: str) -> int:
-    return len(param)
-```
-
-## Benefits Summary
-
-1. **Code Reusability**: Shared components reduce duplication
-2. **Consistency**: Standardized patterns across all games
-3. **Maintainability**: Easier to understand and modify
-4. **Quality**: Automated checks ensure standards
-5. **Testability**: Abstract interfaces simplify testing
-6. **Extensibility**: New features easier to add
-7. **Developer Experience**: Better IDE support with type hints
 
 ## Future Enhancements
 
-Potential improvements building on this foundation:
+Planned improvements to the architecture:
 
-- Dependency injection container
-- Event-driven architecture
-- Save/load game state system
-- Plugin system for third-party games
-- Unified settings/preferences system
-- Observer pattern for GUI synchronization
+- [ ] Network multiplayer support in event system
+- [ ] Database backend for save/load system
+- [ ] Hot-reloading for plugins during development
+- [ ] Performance monitoring and profiling
+- [ ] State machine framework for game phases
+- [ ] Command pattern for action execution
+- [ ] Dependency injection container
 
 ## Contributing
 
-When adding new games or features:
+When adding new games:
 
-1. Consider extending `GameEngine` for game logic
-2. Extend `BaseGUI` for graphical interfaces
-3. Use AI strategies for computer opponents
-4. Run pre-commit hooks before committing
-5. Add tests for new functionality
-6. Keep complexity under 10 (use `scripts/check_complexity.sh`)
-7. Add type hints to all new code
+1. Extend `GameEngine` for your game logic
+2. Use the event system for state changes
+3. Implement save/load functionality
+4. Add settings support
+5. Make state observable for GUI integration
+6. Include comprehensive tests
 
-For questions or suggestions, please open an issue.
+See `CONTRIBUTING.md` for detailed guidelines.
