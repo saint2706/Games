@@ -288,13 +288,13 @@ This document outlines planned expansions and future upgrades for the Games repo
 
 ## 🎓 Educational Features
 
-- [ ] Add tutorial mode for each game with step-by-step guidance
-- [ ] Implement strategy tips and hints during gameplay
-- [ ] Create "AI opponent explains its moves" mode
-- [ ] Add probability calculator for poker/blackjack
-- [ ] Implement game theory explanations (minimax, Monte Carlo)
-- [ ] Create strategy guides and best practices documentation
-- [ ] Add educational challenges and puzzle packs
+- [x] Add tutorial mode for each game with step-by-step guidance
+- [x] Implement strategy tips and hints during gameplay
+- [x] Create "AI opponent explains its moves" mode
+- [x] Add probability calculator for poker/blackjack
+- [x] Implement game theory explanations (minimax, Monte Carlo)
+- [x] Create strategy guides and best practices documentation
+- [x] Add educational challenges and puzzle packs
 
 ## 🔒 Security & Privacy
 
