@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from card_games.common.cards import format_cards
-from card_games.solitaire.game import PileType, SolitaireGame
+from card_games.solitaire.game import SolitaireGame
 
 
 def display_game(game: SolitaireGame) -> None:
@@ -53,7 +52,7 @@ def display_game(game: SolitaireGame) -> None:
                     line += "      "
         print(f"  {line}")
 
-    print(f"\n  0     1     2     3     4     5     6")
+    print("\n  0     1     2     3     4     5     6")
 
 
 def parse_move(user_input: str, game: SolitaireGame) -> bool:
@@ -122,7 +121,7 @@ def parse_move(user_input: str, game: SolitaireGame) -> bool:
         if dest == "f":
             for i in range(4):
                 if game.move_to_foundation(source_pile, i):
-                    print(f"Moved card to foundation.")
+                    print("Moved card to foundation.")
                     return True
             print("Cannot move to any foundation.")
             return False

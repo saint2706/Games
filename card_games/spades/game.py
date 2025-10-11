@@ -81,7 +81,7 @@ class SpadesGame:
     def play_card(self, player: SpadesPlayer, card: Card) -> None:
         """Play a card to the current trick."""
         if not self.is_valid_play(player, card):
-            raise ValueError(f"Invalid play")
+            raise ValueError("Invalid play")
         player.hand.remove(card)
         self.current_trick.append((player, card))
         if len(self.current_trick) == 1:

@@ -38,11 +38,11 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 ### High Priority
 
-- [ ] **Bridge** - Implement classic contract bridge with bidding system, partnership play, and scoring
-- [ ] **Hearts** - Add pass-the-cards mechanic, shooting-the-moon strategy, and AI that avoids hearts
-- [ ] **Spades** - Bidding-based trick-taking game with nil bids and partnership mechanics
-- [ ] **Gin Rummy** - Implement knock/gin detection, deadwood counting, and multi-round scoring
-- [ ] **Solitaire (Klondike)** - Single-player patience game with drag-and-drop GUI support
+- [x] **Bridge** - Implement classic contract bridge with bidding system, partnership play, and scoring
+- [x] **Hearts** - Add pass-the-cards mechanic, shooting-the-moon strategy, and AI that avoids hearts
+- [x] **Spades** - Bidding-based trick-taking game with nil bids and partnership mechanics
+- [x] **Gin Rummy** - Implement knock/gin detection, deadwood counting, and multi-round scoring
+- [x] **Solitaire (Klondike)** - Single-player patience game with drag-and-drop GUI support
 
 ### Medium Priority
 

@@ -83,7 +83,6 @@ class Pile:
     def _is_opposite_color(card1: Card, card2: Card) -> bool:
         """Check if two cards are opposite colors."""
         red_suits = {Suit.HEARTS, Suit.DIAMONDS}
-        black_suits = {Suit.CLUBS, Suit.SPADES}
         card1_red = card1.suit in red_suits
         card2_red = card2.suit in red_suits
         return card1_red != card2_red

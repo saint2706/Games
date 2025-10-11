@@ -168,15 +168,16 @@ def play_round(game: HeartsGame) -> None:
     round_scores = game.calculate_scores()
 
     for player in game.players:
-        points = round_scores[player]
+        points = round_scores[player.name]
         if points == 26:
-            print(f"  {player.name:20} SHOT THE MOON! (0 points)")
+            print(f"  {player.name:20} {points:3} points (others shot the moon)")
         elif points == 0:
-            # Either shot the moon or avoided all points
-            took_cards = len(player.tricks_won) > 0
-            if took_cards and round_scores[player] == 0:
-                continue  # Someone else shot the moon
-            print(f"  {player.name:20} {points:3} points")
+            # Check if this player shot the moon
+            actual_points = player.calculate_round_points()
+            if actual_points == 26:
+                print(f"  {player.name:20} SHOT THE MOON! (0 points)")
+            else:
+                print(f"  {player.name:20} {points:3} points")
         else:
             print(f"  {player.name:20} {points:3} points")
 

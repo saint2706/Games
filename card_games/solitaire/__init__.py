@@ -1,5 +1,5 @@
 """Solitaire (Klondike) game package."""
 
-from .game import SolitaireGame, Pile, PileType
+from .game import Pile, PileType, SolitaireGame
 
 __all__ = ["SolitaireGame", "Pile", "PileType"]

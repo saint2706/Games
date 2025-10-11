@@ -265,27 +265,37 @@ class HeartsGame:
 
         return winner
 
-    def calculate_scores(self) -> dict[HeartsPlayer, int]:
+    def calculate_scores(self) -> dict[str, int]:
         """Calculate scores for the round and check for shooting the moon.
 
         Returns:
-            Dictionary mapping players to their points for this round.
+            Dictionary mapping player names to their points for this round.
         """
         round_scores = {}
         for player in self.players:
-            round_scores[player] = player.calculate_round_points()
+            round_scores[player.name] = player.calculate_round_points()
 
         # Check for shooting the moon
-        for player, points in round_scores.items():
-            if points == 26:
-                # This player shot the moon!
-                # Give 26 points to everyone else, 0 to shooter
-                round_scores = {p: 26 if p != player else 0 for p in self.players}
+        shooter = None
+        for player in self.players:
+            if round_scores[player.name] == 26:
+                shooter = player
                 break
 
-        # Update total scores
-        for player, points in round_scores.items():
-            player.score += points
+        if shooter:
+            # This player shot the moon!
+            # Give 26 points to everyone else, 0 to shooter
+            for player in self.players:
+                if player == shooter:
+                    round_scores[player.name] = 0
+                    player.score += 0
+                else:
+                    round_scores[player.name] = 26
+                    player.score += 26
+        else:
+            # Normal scoring
+            for player in self.players:
+                player.score += round_scores[player.name]
 
         return round_scores
 
