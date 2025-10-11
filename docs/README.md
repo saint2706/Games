@@ -2,6 +2,47 @@
 
 This directory contains the Sphinx documentation for the Card & Paper Games project.
 
+## Quick Start
+
+Welcome to the Games documentation! This guide will help you navigate the comprehensive documentation.
+
+### 📚 What's Available
+
+#### For Players and Users
+
+1. **[Tutorial Series](source/tutorials/index.rst)** - Learn how to play each game
+   - 🎮 [Poker Tutorial](source/tutorials/poker_tutorial.rst) - Texas Hold'em and Omaha
+   - 🃏 [Bluff Tutorial](source/tutorials/bluff_tutorial.rst) - Master the art of deception
+   - 🎰 [Blackjack Tutorial](source/tutorials/blackjack_tutorial.rst) - Beat the dealer
+   - 🎴 [Uno Tutorial](source/tutorials/uno_tutorial.rst) - Classic card game
+   - ✏️ [Paper Games Tutorial](source/tutorials/paper_games_tutorial.rst) - Tic-Tac-Toe, Battleship, and more
+
+#### For Developers
+
+2. **[Architecture Documentation](source/architecture/index.rst)** - Understand how games are built
+   - 🏗️ [Architecture Overview](source/architecture/index.rst) - Design patterns and principles
+   - ♠️ [Poker Architecture](source/architecture/poker_architecture.rst) - Deep dive with diagrams
+   - 🎭 [Bluff Architecture](source/architecture/bluff_architecture.rst) - Game mechanics and AI
+   - 🤖 [AI Strategies](source/architecture/ai_strategies.rst) - Algorithms explained (Minimax, Monte Carlo, etc.)
+
+3. **[Code Examples](source/examples/index.rst)** - Learn by doing
+   - 30+ practical code examples
+   - Common patterns and best practices
+   - Custom game creation
+   - AI integration
+
+4. **[API Reference](source/api/)** - Complete module documentation
+   - [Card Games API](source/api/card_games.rst)
+   - [Paper Games API](source/api/paper_games.rst)
+
+#### For Contributors
+
+5. **[Contributing Guidelines](../CONTRIBUTING.md)** - Join the project
+   - Code style guide
+   - How to add new games
+   - Testing requirements
+   - Pull request process
+
 ## Building the Documentation
 
 ### Prerequisites
