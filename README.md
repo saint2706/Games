@@ -217,3 +217,42 @@ Highlights:
 - Launch `python -m card_games.uno --gui` to enjoy a Tkinter interface with
   colour-coded cards, UNO toggles, penalty prompts, and a scrolling event log
   that mirrors each turn.
+
+## Development and Code Quality
+
+This project follows high code quality standards with automated tooling:
+
+### For Contributors
+
+- **Base Classes:** Common game engine and GUI interfaces in `common/` module
+- **AI Strategies:** Reusable AI patterns for computer opponents
+- **Pre-commit Hooks:** Automated code formatting and linting
+- **Type Hints:** Comprehensive type annotations throughout
+- **Testing:** 90%+ test coverage target with pytest
+- **Complexity Analysis:** Code complexity monitoring and enforcement
+
+### Documentation
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Architecture patterns and base class usage
+- **[CODE_QUALITY.md](CODE_QUALITY.md)** - Code standards, tools, and guidelines
+- **[common/README.md](common/README.md)** - Common module documentation
+- **[examples/](examples/)** - Example implementations using base classes
+
+### Quick Start for Development
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests
+pytest
+
+# Check code quality
+pre-commit run --all-files
+./scripts/check_complexity.sh
+```
+
+See [CODE_QUALITY.md](CODE_QUALITY.md) for detailed guidelines.
