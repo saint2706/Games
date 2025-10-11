@@ -19,8 +19,24 @@ try:
 
     colorama.init(autoreset=True)
 except ImportError:
-    # Fallback to ANSI codes if colorama is not available
-    from colorama import Fore, Style  # type: ignore[no-redef]
+    # Fallback to minimal ANSI code shims if colorama is not available
+    class _FallbackFore:
+        BLACK = "\033[30m"
+        RED = "\033[31m"
+        GREEN = "\033[32m"
+        YELLOW = "\033[33m"
+        BLUE = "\033[34m"
+        MAGENTA = "\033[35m"
+        CYAN = "\033[36m"
+        WHITE = "\033[37m"
+
+    class _FallbackStyle:
+        RESET_ALL = "\033[0m"
+        BRIGHT = "\033[1m"
+        NORMAL = "\033[22m"
+
+    Fore = _FallbackFore()  # type: ignore[assignment]
+    Style = _FallbackStyle()  # type: ignore[assignment]
 
 
 # Platform-specific imports for arrow key navigation
