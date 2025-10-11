@@ -102,11 +102,11 @@ This document outlines planned expansions and future upgrades for the Games repo
 - [ ] Create custom deck designer
 
 ### Hangman
-- [ ] Add themed word lists (movies, countries, sports, etc.)
-- [ ] Implement difficulty selector based on word length/obscurity
-- [ ] Add multiplayer mode where players take turns choosing words
-- [ ] Implement hint system (reveal letter, show category)
-- [ ] Add ASCII art variations and customization
+- [x] Add themed word lists (movies, countries, sports, etc.)
+- [x] Implement difficulty selector based on word length/obscurity
+- [x] Add multiplayer mode where players take turns choosing words
+- [x] Implement hint system (reveal letter, show category)
+- [x] Add ASCII art variations and customization
 
 ### Tic-Tac-Toe
 - [ ] Implement larger board sizes (4x4, 5x5) with variable win conditions
