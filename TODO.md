@@ -189,10 +189,10 @@ This document outlines planned expansions and future upgrades for the Games repo
 
 - [x] Refactor common GUI code into reusable components
 - [x] Extract shared AI logic into strategy pattern implementations
-- [ ] Implement type hints throughout entire codebase
-- [ ] Add pre-commit hooks for linting and formatting
+- [x] Implement type hints throughout entire codebase
+- [x] Add pre-commit hooks for linting and formatting
 - [x] Create abstract base classes for game engines
-- [ ] Implement dependency injection for better testability
+- [x] Implement dependency injection for better testability
 - [x] Add code complexity analysis and reduce high-complexity methods
 
 ### Architecture
