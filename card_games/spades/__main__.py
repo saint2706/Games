@@ -6,6 +6,13 @@ import argparse
 import sys
 from typing import Sequence
 
+try:
+    from tkinter import TclError
+except Exception:  # pragma: no cover - Tkinter may be unavailable in some environments.
+    _GUI_ERRORS: tuple[type[BaseException], ...] = (RuntimeError,)
+else:
+    _GUI_ERRORS = (RuntimeError, TclError)
+
 from card_games.spades.cli import game_loop
 from card_games.spades.gui import run_app
 
@@ -24,7 +31,7 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     try:
         run_app(player_name=args.name)
-    except RuntimeError as exc:
+    except _GUI_ERRORS as exc:
         print(f"{exc}\nFalling back to the command-line interface...", file=sys.stderr)
         game_loop()
 
