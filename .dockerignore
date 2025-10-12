@@ -1,0 +1,72 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mutmut-cache/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation build
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Build artifacts
+build_configs/
+scripts/build_executable.sh
+
+# Development
+requirements-dev.txt
+.pre-commit-config.yaml
+pyproject.toml
+
+# Examples and tests
+examples/
+tests/
+scripts/test_*.py
+scripts/validate_*.py
+
+# Temporary files
+*.log
+*.tmp
+tmp/
