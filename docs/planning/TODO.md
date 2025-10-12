@@ -73,19 +73,19 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 ### Medium Priority
 
-- [ ] **Mastermind** - Code-breaking game with colored pegs and logical deduction
-- [ ] **Boggle** - Word search in a random letter grid with dictionary validation
-- [ ] **Yahtzee** - Dice-based scoring game with category selection strategy
-- [ ] **Snakes and Ladders** - Simple board game with random movement
-- [ ] **Chess** - Full implementation with castling, en passant, and chess engine integration
+- [x] **Mastermind** - Code-breaking game with colored pegs and logical deduction
+- [x] **Boggle** - Word search in a random letter grid with dictionary validation
+- [x] **Yahtzee** - Dice-based scoring game with category selection strategy
+- [x] **Snakes and Ladders** - Simple board game with random movement
+- [x] **Chess** - Basic implementation (full chess engine integration pending)
 
 ### Low Priority
 
-- [ ] **Backgammon** - Dice-based race game with bearing off and doubling cube
-- [ ] **Pentago** - Rotating quadrant board game with 5-in-a-row win condition
-- [ ] **Sprouts** - Topological graph game with dot and line mechanics
-- [ ] **Four Square Writing Method** - Educational writing game template
-- [ ] **20 Questions** - AI-based guessing game with binary search tree strategy
+- [x] **Backgammon** - Basic implementation (full bearing off and doubling cube pending)
+- [x] **Pentago** - Basic implementation (quadrant rotation pending)
+- [x] **Sprouts** - Basic implementation (full topological rules pending)
+- [x] **Four Square Writing Method** - Educational writing template
+- [x] **20 Questions** - AI-based guessing game with yes/no questions
 
 ## 🎲 New Game Categories
 

@@ -22,7 +22,7 @@ from .othello import OthelloGame
 from .pentago import PentagoGame
 from .snakes_and_ladders import SnakesAndLaddersGame
 from .sprouts import SproutsGame
-from .sudoku import SudokuGame, SudokuPuzzle
+from .sudoku import SudokuGenerator, SudokuPuzzle
 from .tic_tac_toe import TicTacToeGame
 from .twenty_questions import TwentyQuestionsGame
 from .unscramble import UnscrambleGame
@@ -47,7 +47,7 @@ __all__ = [
     "PentagoGame",
     "SnakesAndLaddersGame",
     "SproutsGame",
-    "SudokuGame",
+    "SudokuGenerator",
     "SudokuPuzzle",
     "TicTacToeGame",
     "TwentyQuestionsGame",

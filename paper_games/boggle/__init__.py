@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from .boggle import BoggleGame
+from .boggle import BoggleGame, BoggleMove
 
-__all__ = ["BoggleGame"]
+__all__ = ["BoggleGame", "BoggleMove"]

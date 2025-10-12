@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from .snakes_and_ladders import SnakesAndLaddersGame
+from .snakes_and_ladders import SnakesAndLaddersGame, SnakesAndLaddersMove
 
-__all__ = ["SnakesAndLaddersGame"]
+__all__ = ["SnakesAndLaddersGame", "SnakesAndLaddersMove"]

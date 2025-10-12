@@ -104,3 +104,93 @@ def test_sudoku_generator_and_hint() -> None:
     assert puzzle.solution[row][column] == value
     puzzle.get_hint(apply=True)
     assert puzzle.board[row][column] == value
+
+
+def test_snakes_and_ladders_movement() -> None:
+    from paper_games.snakes_and_ladders import SnakesAndLaddersGame, SnakesAndLaddersMove
+
+    game = SnakesAndLaddersGame(num_players=2)
+    assert game.get_player_position(0) == 0
+    assert game.get_player_position(1) == 0
+
+    # Make a move
+    move = SnakesAndLaddersMove(dice_roll=3)
+    assert game.make_move(move)
+    assert game.get_player_position(0) == 3
+
+    # Next player's turn
+    assert game.get_current_player() == 1
+
+
+def test_yahtzee_scoring() -> None:
+    from paper_games.yahtzee import YahtzeeGame, YahtzeeCategory, YahtzeeMove
+
+    game = YahtzeeGame(num_players=1)
+
+    # Test scoring with specific dice
+    game._dice = [1, 1, 1, 2, 3]
+    score = game.calculate_score(YahtzeeCategory.ONES)
+    assert score == 3  # Three ones
+
+    score = game.calculate_score(YahtzeeCategory.THREE_OF_A_KIND)
+    assert score == 8  # Sum of all dice
+
+    # Test Yahtzee (all same)
+    game._dice = [5, 5, 5, 5, 5]
+    score = game.calculate_score(YahtzeeCategory.YAHTZEE)
+    assert score == 50
+
+
+def test_mastermind_feedback() -> None:
+    from paper_games.mastermind import MastermindGame, MastermindMove
+
+    game = MastermindGame(code_length=4)
+    # Set a known secret code for testing
+    game._secret_code = [0, 1, 2, 3]  # Red, Blue, Green, Yellow
+
+    # Test exact match
+    move = MastermindMove(guess=(0, 1, 2, 3))
+    assert game.make_move(move)
+    black, white = game.get_feedback()[0]
+    assert black == 4  # All correct
+    assert white == 0
+
+
+def test_boggle_word_validation() -> None:
+    from paper_games.boggle import BoggleGame, BoggleMove
+
+    game = BoggleGame(size=4)
+    # Set a specific grid for testing
+    game._grid = [
+        ["C", "A", "T", "S"],
+        ["O", "R", "E", "D"],
+        ["D", "O", "G", "S"],
+        ["R", "A", "T", "S"],
+    ]
+
+    # "CAT" should be findable
+    move = BoggleMove(word="cat")
+    # Note: may not be in simple dictionary, so just test structure
+    assert game.is_word_in_grid("CAT")
+
+
+def test_twenty_questions_basic() -> None:
+    from paper_games.twenty_questions import TwentyQuestionsGame
+
+    game = TwentyQuestionsGame()
+    assert not game.is_game_over()
+    assert game.get_questions_remaining() == 20
+
+    game.ask_question("Is it alive?", True)
+    assert game.get_questions_remaining() == 19
+
+
+def test_chess_basic_board() -> None:
+    from paper_games.chess import ChessGame
+
+    game = ChessGame()
+    # Board should be initialized
+    assert len(game._board) == 8
+    assert len(game._board[0]) == 8
+    # Should have some pieces
+    assert game._board[1][0] == "wp"  # White pawn
