@@ -35,25 +35,37 @@ def main() -> None:
         use_gui = False
 
     if use_gui:
-        launch_gui(game)
-    else:
-        game_loop(game)
+        if launch_gui(game):
+            return
+        print("Falling back to the CLI interface.")
+
+    game_loop(game)
 
 
-def launch_gui(game: GoFishGame) -> None:
-    """Launch the Tkinter GUI for Go Fish.
+def launch_gui(game: GoFishGame) -> bool:
+    """Launch the Tkinter GUI for Go Fish if possible.
 
     Args:
         game: The Go Fish engine instance to visualize and control.
+
+    Returns:
+        ``True`` if the GUI was successfully launched, ``False`` when Tkinter
+        failed to initialize (for example, in headless environments).
     """
 
     import tkinter as tk
 
     from card_games.go_fish.gui import GoFishGUI
 
-    root = tk.Tk()
+    try:
+        root = tk.Tk()
+    except tk.TclError as error:
+        print(f"Unable to initialize the Tkinter GUI: {error}")
+        return False
+
     GoFishGUI(root, game)
     root.mainloop()
+    return True
 
 
 if __name__ == "__main__":
