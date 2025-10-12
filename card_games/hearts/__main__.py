@@ -12,7 +12,6 @@ import argparse
 from typing import Optional, Sequence
 
 from card_games.hearts.cli import game_loop
-from card_games.hearts.gui import run_app
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -49,6 +48,13 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     if args.cli:
         game_loop()
         return
+
+    try:
+        from card_games.hearts.gui import run_app
+    except (ImportError, RuntimeError) as exc:  # pragma: no cover - environment specific
+        raise SystemExit(
+            "The Hearts GUI requires a working Tkinter installation. Install Tkinter or pass --cli."
+        ) from exc
 
     run_app(
         player_name=args.player_name,
