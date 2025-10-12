@@ -58,7 +58,7 @@ scripts/build_executable.sh
 # Development
 requirements-dev.txt
 .pre-commit-config.yaml
-pyproject.toml
+# pyproject.toml - Needed for package installation in Docker
 
 # Examples and tests
 examples/
