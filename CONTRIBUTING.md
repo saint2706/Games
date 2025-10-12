@@ -92,7 +92,7 @@ We welcome:
 
 - Check the [Issues](https://github.com/saint2706/Games/issues) page
 - Look for issues labeled `good-first-issue` or `help-wanted`
-- Review `TODO.md` for planned features
+- Review `docs/planning/TODO.md` for planned features
 - Propose your own ideas by opening an issue first
 
 ## Adding a New Game
@@ -552,7 +552,7 @@ make html
 
 1. **Test Manually**: Play your game to ensure it works
 
-1. **Update TODO.md**: If completing a TODO item, mark it done
+1. **Update docs/planning/TODO.md**: If completing a TODO item, mark it done
 
 ### Pull Request Process
 

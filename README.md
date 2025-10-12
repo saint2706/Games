@@ -1,27 +1,40 @@
-# Card Games
+# Card & Paper Games Collection
 
-A collection of card games implemented in Python. The project currently
-includes a casino-inspired Texas hold'em experience (playable from the terminal
-or a Tkinter-powered GUI), a lighthearted bluff-calling challenge with
-adjustable AI difficulty, a richly themed blackjack table with a full graphical
-interface, and a colourful take on Uno complete with bots.
+A comprehensive collection of card and paper-and-pencil games implemented in Python. The project includes 21 playable games ranging from casino classics like Texas Hold'em and Blackjack to strategy games like Chess and Othello.
+
+**📖 See [GAMES.md](GAMES.md) for a complete catalog of all available games.**
 
 ## Repository layout
 
 ```text
 card_games/
 ├── common/           # Shared card representations
-├── poker/            # Texas hold'em simulator and utilities
-├── bluff/            # Interactive bluff game
-├── blackjack/        # Casino-style blackjack with splits, doubles, and a GUI table
-└── uno/              # Classic Uno with bots and a CLI interface
+├── poker/            # Texas Hold'em and Omaha with tournament mode
+├── blackjack/        # Casino-style blackjack with splits, doubles, and GUI
+├── bluff/            # Cheat/Bluff card game with AI personalities
+├── uno/              # Classic Uno with house rules and team mode
+├── hearts/           # Trick-taking with shooting the moon
+├── spades/           # Partnership bidding with nil bids
+├── gin_rummy/        # Two-player melding game
+├── bridge/           # Contract bridge with simplified bidding
+└── solitaire/        # Klondike patience game
 paper_games/
-├── battleship/      # Hunt hidden ships on a compact grid
-├── dots_and_boxes/  # Claim edges to capture boxes against a computer foe
-├── hangman/         # Guess the word before the gallows fills up (ASCII art + curated list)
-├── nim/             # Take on an optimal opponent in the game of Nim
-├── tic_tac_toe/     # Minimax-powered noughts and crosses with coordinate input
-└── unscramble/      # Race to rebuild scrambled vocabulary words
+├── tic_tac_toe/      # Minimax AI with ultimate variant
+├── battleship/       # Naval combat with strategic AI
+├── hangman/          # Word guessing with themed categories
+├── dots_and_boxes/   # Connect edges to capture boxes
+├── nim/              # Mathematical strategy with variants
+├── unscramble/       # Word unscrambling with timed mode
+├── connect_four/     # Vertical grid with gravity mechanics
+├── checkers/         # Jump mechanics with king promotion
+├── mancala/          # Stone distribution game
+├── othello/          # Disc flipping with positional strategy
+└── sudoku/           # Number puzzle with difficulty levels
+common/
+├── architecture/     # Architectural patterns (plugin, events, persistence)
+├── analytics/        # Game analytics and statistics
+├── cli_utils.py      # Enhanced CLI utilities
+└── gui_base.py       # Common GUI components
 ```
 
 ## Documentation roadmap
@@ -233,8 +246,12 @@ This project follows high code quality standards with automated tooling:
 
 ### Documentation
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Architecture patterns and base class usage
-- **[CODE_QUALITY.md](CODE_QUALITY.md)** - Code standards, tools, and guidelines
+- **[GAMES.md](GAMES.md)** - Complete catalog of all available games
+- **[docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)** - Architecture patterns and base class usage
+- **[docs/development/CODE_QUALITY.md](docs/development/CODE_QUALITY.md)** - Code standards, tools, and guidelines
+- **[docs/development/TESTING.md](docs/development/TESTING.md)** - Testing guide and best practices
+- **[docs/development/IMPLEMENTATION_NOTES.md](docs/development/IMPLEMENTATION_NOTES.md)** - Detailed implementation notes
+- **[docs/planning/TODO.md](docs/planning/TODO.md)** - Roadmap and future plans
 - **[common/README.md](common/README.md)** - Common module documentation
 - **[examples/](examples/)** - Example implementations using base classes
 
@@ -255,4 +272,4 @@ pre-commit run --all-files
 ./scripts/check_complexity.sh
 ```
 
-See [CODE_QUALITY.md](CODE_QUALITY.md) for detailed guidelines.
+See [docs/development/CODE_QUALITY.md](docs/development/CODE_QUALITY.md) for detailed guidelines.
