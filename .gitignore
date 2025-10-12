@@ -43,3 +43,7 @@ node_modules/
 
 # Local fallback modules (use installed packages instead)
 colorama/
+
+# Act (GitHub Actions local runner)
+.secrets
+.env

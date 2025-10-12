@@ -284,6 +284,39 @@ pytest -m "not performance"
 # Check code quality
 pre-commit run --all-files
 ./scripts/check_complexity.sh
+
+# Run GitHub Actions workflows locally (requires Docker)
+make setup-act          # Install act for local workflow testing
+make workflow-ci        # Test CI workflow locally
+make workflow-list      # List all workflows
 ```
 
 See [docs/development/CODE_QUALITY.md](docs/development/CODE_QUALITY.md) for detailed guidelines.
+
+### Testing Workflows Locally
+
+You can run and debug GitHub Actions workflows locally before pushing to GitHub:
+
+```bash
+# Install act (GitHub Actions local runner)
+./scripts/setup_act.sh
+
+# Run the CI workflow locally
+./scripts/run_workflow.sh ci
+
+# Run specific jobs
+./scripts/run_workflow.sh ci --job lint
+./scripts/run_workflow.sh ci --job test
+
+# List all available workflows
+./scripts/run_workflow.sh all
+```
+
+This allows you to:
+
+- Test workflow changes without pushing to GitHub
+- Debug failed jobs locally with faster iteration
+- Save CI/CD minutes by testing locally first
+- Work offline while developing workflows
+
+See [docs/development/LOCAL_WORKFLOWS.md](docs/development/LOCAL_WORKFLOWS.md) for complete documentation.

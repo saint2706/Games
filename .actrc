@@ -1,0 +1,40 @@
+# act configuration file
+# This file configures the behavior of act (GitHub Actions local runner)
+
+# Use medium-sized Docker images by default (good balance of speed and compatibility)
+# Options: micro, medium, large
+# - micro: Very small images, may be missing tools
+# - medium: Recommended for most projects
+# - large: Full GitHub Actions environment, slower to download
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+-P ubuntu-22.04=catthehacker/ubuntu:act-22.04
+-P ubuntu-20.04=catthehacker/ubuntu:act-20.04
+
+# Reuse containers to speed up subsequent runs
+--reuse
+
+# Bind the project directory to the container
+--bind
+
+# Use .env file for environment variables (if it exists)
+--env-file .env
+
+# Enable verbose output for better debugging (comment out for less noise)
+# --verbose
+
+# Set container architecture (uncomment if needed)
+# --container-architecture linux/amd64
+# --container-architecture linux/arm64
+
+# Set container options (uncomment if needed)
+# --container-options "--cpus 2"
+# --container-options "--memory 4g"
+
+# Network mode (uncomment if workflows need network access)
+--container-options "--network host"
+
+# Use artifact server for faster artifact uploads/downloads
+--artifact-server-path /tmp/artifacts
+
+# Insecure secrets (for local testing only - DO NOT use in production)
+# Add your secrets to .secrets file instead (see .secrets.example)

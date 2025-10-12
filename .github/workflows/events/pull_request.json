@@ -1,0 +1,26 @@
+{
+  "action": "opened",
+  "number": 1,
+  "pull_request": {
+    "number": 1,
+    "title": "Test PR for local workflow",
+    "head": {
+      "ref": "feature-branch",
+      "sha": "abcdef1234567890"
+    },
+    "base": {
+      "ref": "master",
+      "sha": "0987654321fedcba"
+    },
+    "user": {
+      "login": "developer"
+    }
+  },
+  "repository": {
+    "name": "Games",
+    "full_name": "saint2706/Games",
+    "owner": {
+      "login": "saint2706"
+    }
+  }
+}
