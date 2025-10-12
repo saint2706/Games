@@ -256,9 +256,9 @@ class SolitaireGUI(BaseGUI):
             font=(self.config.font_family, self.config.font_size - 1),
         ).pack(fill="x")
 
-        self.register_shortcut("space", self.handle_draw, "Draw from stock")
-        self.register_shortcut("a", self.handle_auto, "Auto move to foundation")
-        self.register_shortcut("r", self.handle_reset, "Recycle waste onto stock")
+        self.register_shortcut("<space>", self.handle_draw, "Draw from stock")
+        self.register_shortcut("<KeyPress-a>", self.handle_auto, "Auto move to foundation")
+        self.register_shortcut("<KeyPress-r>", self.handle_reset, "Recycle waste onto stock")
 
     def update_display(self) -> None:
         """Refresh the GUI components based on the current game state."""
