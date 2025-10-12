@@ -474,12 +474,17 @@ class GinRummyGame:
         )
         return summary
 
-    def calculate_round_score(self, knocker: GinRummyPlayer, opponent: GinRummyPlayer) -> RoundSummary:
-        """Calculate scores for the round and record the summary."""
+    def calculate_round_summary(self, knocker: GinRummyPlayer, opponent: GinRummyPlayer) -> RoundSummary:
+        """Return a :class:`RoundSummary` for the finished round."""
 
         summary = self._score_round(knocker, opponent)
         self.round_history.append(summary)
         return summary
+
+    def calculate_round_score(self, knocker: GinRummyPlayer, opponent: GinRummyPlayer) -> RoundSummary:
+        """Calculate scores for the round and record the summary."""
+
+        return self.calculate_round_summary(knocker, opponent)
 
     def record_points(self, summary: RoundSummary) -> None:
         """Apply ``summary`` scores to the running totals."""
