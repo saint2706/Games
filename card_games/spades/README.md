@@ -2,11 +2,37 @@
 
 Partnership trick-taking game where spades are always trump. Players bid on tricks and partnerships work together to make their combined bid.
 
-## How to Play
+## Launching the Game
 
-```bash
-python -m card_games.spades
-```
+- **Graphical interface (default):**
+
+  ```bash
+  python -m card_games.spades [--name "Your Name"]
+  ```
+
+  The GUI opens with a dark theme and high-contrast accessibility aids enabled. Use the spinner in the bidding panel to
+  enter your bid, click **Submit bid**, and then play highlighted cards from your hand when it is your turn. Keyboard
+  shortcuts are available for quick navigation:
+
+  - `Ctrl+N`: Start the next round after reviewing the breakdown screen.
+  - `Ctrl+L`: Move keyboard focus to the round log for screen readers.
+  - `F1`: Display an overview of all shortcuts managed by the shared GUI framework.
+
+  The layout includes:
+
+  - A bidding panel that records human and AI bids in order and disables invalid actions automatically.
+  - Partnership score and bag trackers that update as soon as a round finishes.
+  - A trick display that lists the cards currently on the table so you can track suit order and trump plays.
+  - A detailed round log plus a breakdown pane summarising bids, tricks, and scoring once a hand is complete.
+
+- **Command-line interface:**
+
+  ```bash
+  python -m card_games.spades --cli
+  ```
+
+  The CLI is also selected automatically if Tkinter is unavailable. It provides the same AI behaviour but requires you to
+  type bids and card codes directly.
 
 ## Game Rules
 
