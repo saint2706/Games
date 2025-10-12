@@ -177,10 +177,10 @@ Workflows can be triggered by different events (push, pull_request, workflow_dis
 script automatically detects the primary event type from the workflow file, prioritizing in this order:
 
 1. `release` - For release/publish workflows
-2. `schedule` - For scheduled/cron workflows
-3. `pull_request` - For PR-triggered workflows
-4. `workflow_dispatch` - For manually triggered workflows
-5. `push` - Default fallback
+1. `schedule` - For scheduled/cron workflows
+1. `pull_request` - For PR-triggered workflows
+1. `workflow_dispatch` - For manually triggered workflows
+1. `push` - Default fallback
 
 You can also provide custom event payloads:
 

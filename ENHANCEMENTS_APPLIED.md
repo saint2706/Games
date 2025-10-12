@@ -7,19 +7,21 @@ This document summarizes the infrastructure enhancements that have been applied 
 Three games have been enhanced to demonstrate different infrastructure capabilities:
 
 1. **War (Card Game)** - Save/Load Functionality
-2. **Tic-Tac-Toe (Paper Game)** - Replay/Undo Functionality
-3. **Hangman (Paper Game)** - CLI Enhancements
+1. **Tic-Tac-Toe (Paper Game)** - Replay/Undo Functionality
+1. **Hangman (Paper Game)** - CLI Enhancements
 
 ## 1. War Game - Save/Load Functionality
 
 ### Changes Made
 
 **File: `card_games/war/game.py`**
+
 - Added `to_dict()` method to serialize game state
 - Added `from_dict()` class method to deserialize and restore game state
 - Serializes all game components: player decks, pile, state, rounds, wars, winner
 
 **File: `card_games/war/gui.py`**
+
 - Integrated `SaveLoadManager` from `common.architecture.persistence`
 - Added "Save Game" button to GUI
 - Added "Load Game" button to GUI
@@ -29,6 +31,7 @@ Three games have been enhanced to demonstrate different infrastructure capabilit
 ### Usage
 
 Players can now:
+
 - Save their game progress at any time during play
 - Load previously saved games to continue from where they left off
 - Games are saved with metadata (timestamp, game type)
@@ -47,6 +50,7 @@ python -m card_games.war --gui
 ### Changes Made
 
 **File: `paper_games/tic_tac_toe/tic_tac_toe.py`**
+
 - Integrated `ReplayManager` from `common.architecture.replay`
 - Added replay manager initialization in `__post_init__()`
 - Modified `make_move()` to record actions with state snapshots
@@ -54,6 +58,7 @@ python -m card_games.war --gui
 - Added `can_undo()` method to check if undo is available
 
 **File: `paper_games/tic_tac_toe/cli.py`**
+
 - Added 'undo' command support in the game loop
 - Undoing reverts both the human's last move and the computer's previous move
 - Automatically switches turn back after undo
@@ -61,6 +66,7 @@ python -m card_games.war --gui
 ### Usage
 
 During gameplay:
+
 - Type `undo` instead of a move coordinate
 - The game will undo your last move and the computer's previous move
 - The board state is fully restored from the snapshot
@@ -79,6 +85,7 @@ python -m paper_games.tic_tac_toe
 ### Changes Made
 
 **File: `paper_games/hangman/cli.py`**
+
 - Integrated `ASCIIArt`, `InteractiveMenu`, `RichText`, `Theme` from `common.cli_utils`
 - Created `CLI_THEME` for consistent color scheme
 - Replaced plain text menus with `InteractiveMenu` (supports arrow key navigation)
@@ -95,6 +102,7 @@ python -m paper_games.tic_tac_toe
 ### Usage
 
 Enhanced user experience:
+
 - **Interactive Menus**: Use arrow keys (↑↓) and Enter to select options
 - **Colored Output**: Success, error, info, and warning messages are color-coded
 - **ASCII Art**: Welcome banner and section headers
@@ -150,6 +158,7 @@ python -m paper_games.hangman
 ## Code Quality
 
 All changes have been validated:
+
 - ✓ All tests pass (73 passed, 1 skipped)
 - ✓ Linting passes (ruff check)
 - ✓ Code formatted (black)
@@ -161,16 +170,19 @@ All changes have been validated:
 These patterns can be easily applied to other games:
 
 ### Save/Load
+
 - Any card game (Poker, Blackjack, Hearts, Spades, etc.)
 - Any strategy game (Chess, Checkers, Othello, etc.)
 - Any game with long sessions
 
 ### Replay/Undo
+
 - All strategy games benefit from undo
 - Puzzle games (Sudoku, Minesweeper, etc.)
 - Educational games for learning
 
 ### CLI Enhancements
+
 - All games with CLI interfaces can benefit
 - Especially games with complex menus
 - Games targeting terminal enthusiasts
