@@ -173,8 +173,16 @@ Most workflows have multiple jobs. To run only a specific job:
 
 ### Using Custom Event Payloads
 
-Workflows can be triggered by different events (push, pull_request, workflow_dispatch, etc.). You can provide custom
-event payloads:
+Workflows can be triggered by different events (push, pull_request, workflow_dispatch, release, schedule, etc.). The
+script automatically detects the primary event type from the workflow file, prioritizing in this order:
+
+1. `release` - For release/publish workflows
+2. `schedule` - For scheduled/cron workflows
+3. `pull_request` - For PR-triggered workflows
+4. `workflow_dispatch` - For manually triggered workflows
+5. `push` - Default fallback
+
+You can also provide custom event payloads:
 
 ```bash
 # Run with a custom push event
@@ -185,6 +193,9 @@ event payloads:
 
 # Run a workflow_dispatch workflow with inputs
 ./scripts/run_workflow.sh test --event .github/workflows/events/workflow_dispatch.json
+
+# Run a release workflow (automatically detected for publish workflow)
+./scripts/run_workflow.sh publish
 ```
 
 ## Advanced Usage
