@@ -58,7 +58,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Automated releases on tags
 
 #### Documentation
-- **Deployment Guide** (docs/DEPLOYMENT.md): Complete deployment reference
+- **Deployment Guide** (docs/deployment/DEPLOYMENT.md): Complete deployment reference
   - PyPI installation instructions
   - Standalone executable usage
   - Docker deployment guide

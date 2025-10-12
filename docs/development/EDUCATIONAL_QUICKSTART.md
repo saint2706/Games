@@ -166,7 +166,7 @@ open build/html/guides/index.html
 
 ## Next Steps
 
-1. **Complete Documentation**: Read `docs/EDUCATIONAL_FEATURES.md`
+1. **Complete Documentation**: Read `EDUCATIONAL_FEATURES.md` (same directory)
 1. **Code Examples**: Check `tests/test_educational_features.py`
 1. **Strategy Guides**: Study `docs/source/guides/`
 1. **Practice**: Try the challenge packs
@@ -188,7 +188,7 @@ open build/html/guides/index.html
 
 ## Help
 
-- Questions? Check `docs/EDUCATIONAL_FEATURES.md`
+- Questions? Check `EDUCATIONAL_FEATURES.md` (same directory)
 - Bugs? Open an issue on GitHub
 - Contributions? See `CONTRIBUTING.md`
 
