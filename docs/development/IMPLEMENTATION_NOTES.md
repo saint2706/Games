@@ -321,8 +321,9 @@ Games benchmarked: Nim, Tic-Tac-Toe, Battleship, Dots and Boxes, Blackjack, UNO,
 ./scripts/run_tests.sh coverage     # Generate coverage report
 ```
 
-#### 8. Mutation Testing (`.mutmut.toml`)
+#### 8. Mutation Testing (`pyproject.toml`)
 
+- Configuration in `[tool.mutmut]` section of `pyproject.toml`
 - Validates test quality by introducing bugs
 - Excludes GUI and demo files
 - Uses coverage data to target tested code
@@ -566,7 +567,7 @@ ______________________________________________________________________
 - **pytest.ini** - Test configuration
 - **conftest.py** - Shared fixtures
 - **requirements-dev.txt** - Development dependencies
-- **.mutmut.toml** - Mutation testing config
+- **pyproject.toml** - Mutation testing config under `[tool.mutmut]`
 - **scripts/run_tests.sh** - Test runner script
 
 ### Architecture
