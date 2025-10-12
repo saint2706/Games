@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-from typing import Optional
 
 from card_games.cribbage.cli import game_loop
 from card_games.cribbage.game import CribbageGame

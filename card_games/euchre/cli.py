@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from card_games.common.cards import Card, Suit
 from card_games.euchre.game import EuchreGame, GamePhase
 
 

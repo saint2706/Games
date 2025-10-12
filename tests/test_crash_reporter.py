@@ -7,8 +7,6 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from common.crash_reporter import CrashReporter, install_global_exception_handler
 
 
