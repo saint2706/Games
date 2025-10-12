@@ -52,14 +52,14 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 - [ ] **Cribbage** - Implement the pegging board, 15s counting, and strategic discarding to the crib
 - [ ] **Euchre** - Trump-based trick-taking game with "going alone" and unique deck structure
 - [ ] **Rummy 500** - Variant with melding, laying off, and negative scoring for cards in hand
-- [ ] **War** - Simple comparison game suitable for demonstrating basic card mechanics
-- [ ] **Go Fish** - Family-friendly card game with set collection mechanics
+- [x] **War** - Simple comparison game suitable for demonstrating basic card mechanics ✅ **NEW**
+- [x] **Go Fish** - Family-friendly card game with set collection mechanics ✅ **NEW**
 
 ### Low Priority
 
 - [ ] **Canasta** - Implement melding with wild cards, minimum point requirements, and partnership scoring
 - [ ] **Pinochle** - Double-deck trick-taking game with complex bidding and melding phases
-- [ ] **Crazy Eights** - Shedding game similar to Uno but with standard deck mechanics
+- [x] **Crazy Eights** - Shedding game similar to Uno but with standard deck mechanics ✅ **NEW**
 
 ## 📝 New Paper & Pencil Games
 
@@ -122,6 +122,7 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [ ] Add replay/undo functionality to strategy games using the replay system
 - [ ] Apply event-driven architecture to remaining games for better state management
 - [ ] Integrate CLI enhancements (ASCII art, rich text, menus) into all CLI interfaces
+- [x] **Universal statistics system for card games** ✅ **NEW** - `card_games/common/stats.py` wrapper created and integrated into War game
 
 ### Uno (Partial Implementation)
 
@@ -134,7 +135,7 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 
 ### Cross-Game Features
 
-- [ ] Implement universal statistics tracking system
+- [x] **Implement universal statistics tracking system** ✅ **PARTIAL** - Created `card_games/common/stats.py` wrapper, integrated into War game as example
 - [ ] Add achievement system across all games
 - [ ] Create unified profile and progression system
 - [ ] Implement cross-game tutorial system using existing documentation

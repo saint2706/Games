@@ -1,0 +1,31 @@
+"""Entry point for Crazy Eights card game."""
+
+from __future__ import annotations
+
+import argparse
+import random
+
+from card_games.crazy_eights.cli import game_loop
+from card_games.crazy_eights.game import CrazyEightsGame
+
+
+def main() -> None:
+    """Main entry point for the Crazy Eights game."""
+    parser = argparse.ArgumentParser(description="Play the card game Crazy Eights")
+    parser.add_argument("--players", type=int, default=2, choices=range(2, 7), help="Number of players (2-6)")
+    parser.add_argument("--seed", type=int, help="Random seed for reproducible games")
+    parser.add_argument("--names", nargs="+", help="Player names")
+    parser.add_argument("--draw-limit", type=int, default=3, help="Max cards to draw when unable to play (0 = unlimited)")
+    args = parser.parse_args()
+
+    rng = None
+    if args.seed is not None:
+        rng = random.Random(args.seed)
+
+    player_names = args.names if args.names else None
+    game = CrazyEightsGame(num_players=args.players, player_names=player_names, draw_limit=args.draw_limit, rng=rng)
+    game_loop(game)
+
+
+if __name__ == "__main__":
+    main()
