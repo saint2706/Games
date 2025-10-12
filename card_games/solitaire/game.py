@@ -326,7 +326,7 @@ class SolitaireGame:
             candidates.append(self.waste)
 
         for tableau_pile in self.tableau:
-            if tableau_pile.cards and tableau_pile.face_up_count > 1:
+            if tableau_pile.cards and tableau_pile.face_up_count > 0:
                 candidates.append(tableau_pile)
 
         while candidates:
@@ -345,7 +345,7 @@ class SolitaireGame:
             if source is self.waste and self.waste.cards:
                 if self.waste not in candidates:
                     candidates.insert(0, self.waste)
-            elif source is not self.waste and source.cards and source.face_up_count > 1:
+            elif source is not self.waste and source.cards and source.face_up_count > 0:
                 if source not in candidates:
                     candidates.insert(0, source)
 
