@@ -26,11 +26,11 @@ FROM python:3.11-slim
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libncurses5 \
+    libncurses6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
-RUN useradd -m -u 1000 games && \
+# Create non-root user if it doesn't exist
+RUN id -u games &>/dev/null || useradd -m -u 1000 games && \
     mkdir -p /home/games/.game_stats && \
     chown -R games:games /home/games
 

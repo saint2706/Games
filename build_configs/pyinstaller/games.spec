@@ -11,7 +11,8 @@ import sys
 from pathlib import Path
 
 # Add project root to path
-project_root = Path(__file__).parent.parent.parent
+# Note: SPECPATH is a PyInstaller builtin variable pointing to the spec file's directory
+project_root = Path(SPECPATH).parent.parent
 sys.path.insert(0, str(project_root))
 
 block_cipher = None
