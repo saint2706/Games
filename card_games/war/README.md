@@ -42,11 +42,31 @@ Use a specific seed for reproducible games:
 python -m card_games.war --seed 42
 ```
 
+View leaderboard:
+
+```bash
+python -m card_games.war --leaderboard
+```
+
+View player statistics:
+
+```bash
+python -m card_games.war --show-stats --player "Player 1"
+```
+
+Disable statistics tracking:
+
+```bash
+python -m card_games.war --no-stats
+```
+
 ## Features
 
 - Full implementation of War rules including recursive wars
 - Automatic detection of insufficient cards during war
 - Game statistics tracking (rounds played, wars fought)
+- **Win/loss statistics** - Tracks player performance across games
+- **Leaderboards** - View top players by wins
 - Interactive CLI with round-by-round play
 - Auto-play mode for quick simulation
 - Deterministic games with seed support
