@@ -16,10 +16,22 @@ Go Fish is a card game where players try to collect sets of four cards of the sa
 
 ## Running the Game
 
-Play with 2 players:
+Launch the animated GUI (default):
 
 ```bash
 python -m card_games.go_fish
+```
+
+Use the classic CLI instead:
+
+```bash
+python -m card_games.go_fish --cli
+```
+
+Explicitly request the GUI (useful after testing the CLI):
+
+```bash
+python -m card_games.go_fish --gui
 ```
 
 Play with more players:
@@ -48,6 +60,7 @@ python -m card_games.go_fish --seed 42
 - Turn continuation on successful asks and lucky draws
 - Comprehensive game state tracking
 - Interactive CLI with clear prompts
+- Polished GUI with scoreboard, grouped-hand view, and celebratory book animations
 - Custom player names support
 - Deterministic games with seed support
 
@@ -64,13 +77,13 @@ The implementation follows the repository's architecture patterns:
 
 - `game.py` - Core game engine with player and game state management
 - `cli.py` - Command-line interface with hand display and input handling
-- `__main__.py` - Entry point with argument parsing
+- `gui.py` - Tkinter GUI with scoreboard, controls, and animated book celebrations
+- `__main__.py` - Entry point with argument parsing and CLI/GUI launcher
 
 ## Future Enhancements
 
 Potential additions:
 
-- GUI implementation with drag-and-drop
 - AI opponent with memory and strategy
 - Statistics tracking (win rates, average books per game)
 - Multiplayer network play
