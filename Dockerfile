@@ -1,7 +1,7 @@
 # Dockerfile for Games Collection
 # Multi-stage build for smaller final image
 
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 # Set working directory
 WORKDIR /app
