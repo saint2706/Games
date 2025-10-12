@@ -21,7 +21,7 @@ from enum import Enum, auto
 from random import Random
 from typing import Optional
 
-from card_games.common.cards import Card, Deck, RANK_TO_VALUE
+from card_games.common.cards import RANK_TO_VALUE, Card, Deck
 
 
 class GamePhase(Enum):

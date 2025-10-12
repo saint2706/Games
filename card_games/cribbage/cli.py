@@ -104,7 +104,7 @@ def game_loop(game: CribbageGame) -> None:
 
                 p2_discards = random.sample(game.player2_hand, 2)
                 game.discard_to_crib(2, p2_discards)
-                print(f"\nPlayer 2 discards to crib.")
+                print("\nPlayer 2 discards to crib.")
 
         elif game.phase == GamePhase.PLAY:
             if game.current_player == 1:

@@ -145,16 +145,16 @@ Use the convenience script to run workflows:
 
 The project includes several workflows you can run locally:
 
-| Workflow        | Command                            | Description                       |
+| Workflow | Command | Description |
 | --------------- | ---------------------------------- | --------------------------------- |
-| CI              | `./scripts/run_workflow.sh ci`     | Lint and test (main workflow)     |
-| Lint            | `./scripts/run_workflow.sh lint`   | Format and lint code              |
-| Tests           | `./scripts/run_workflow.sh test`   | Run test suite                    |
-| Coverage        | `./scripts/run_workflow.sh coverage` | Generate coverage reports       |
-| Mutation        | `./scripts/run_workflow.sh mutation` | Run mutation tests              |
-| Build           | `./scripts/run_workflow.sh build`  | Build executables                 |
-| CodeQL          | `./scripts/run_workflow.sh codeql` | Security analysis                 |
-| PyPI Publishing | `./scripts/run_workflow.sh publish` | Test PyPI publishing (dry run)  |
+| CI | `./scripts/run_workflow.sh ci` | Lint and test (main workflow) |
+| Lint | `./scripts/run_workflow.sh lint` | Format and lint code |
+| Tests | `./scripts/run_workflow.sh test` | Run test suite |
+| Coverage | `./scripts/run_workflow.sh coverage` | Generate coverage reports |
+| Mutation | `./scripts/run_workflow.sh mutation` | Run mutation tests |
+| Build | `./scripts/run_workflow.sh build` | Build executables |
+| CodeQL | `./scripts/run_workflow.sh codeql` | Security analysis |
+| PyPI Publishing | `./scripts/run_workflow.sh publish` | Test PyPI publishing (dry run) |
 
 ### Running Specific Jobs
 
@@ -246,8 +246,8 @@ You can override these defaults with command-line flags.
 For workflows that require secrets (like publishing to PyPI):
 
 1. Copy the example file: `cp .secrets.example .secrets`
-2. Add your secrets to `.secrets`
-3. **Never commit `.secrets`** (it's in `.gitignore`)
+1. Add your secrets to `.secrets`
+1. **Never commit `.secrets`** (it's in `.gitignore`)
 
 Example `.secrets` file:
 
@@ -334,24 +334,24 @@ docker logs <container_id>
 This usually means:
 
 1. **Docker image differences**: Try using the large image: `-P ubuntu-latest=catthehacker/ubuntu:full-latest`
-2. **Missing secrets**: Ensure all required secrets are in `.secrets`
-3. **Environment differences**: Check if the workflow depends on GitHub-specific features
+1. **Missing secrets**: Ensure all required secrets are in `.secrets`
+1. **Environment differences**: Check if the workflow depends on GitHub-specific features
 
 #### Workflow Works on GitHub But Fails Locally
 
 Check for:
 
 1. **Local environment issues**: Ensure Docker is running and has enough resources
-2. **Network restrictions**: Some workflows need network access (use `--container-options "--network host"`)
-3. **Docker image compatibility**: Try different image sizes
+1. **Network restrictions**: Some workflows need network access (use `--container-options "--network host"`)
+1. **Docker image compatibility**: Try different image sizes
 
 #### Workflow Hangs or Times Out
 
 Try:
 
 1. **Increase Docker resources**: Give Docker more CPU/memory
-2. **Use faster image**: Switch to medium or micro image
-3. **Run specific jobs**: Use `--job` to isolate the problem
+1. **Use faster image**: Switch to medium or micro image
+1. **Run specific jobs**: Use `--job` to isolate the problem
 
 ## Troubleshooting
 
@@ -409,16 +409,16 @@ docker ps
 The workflow may not be installing dependencies correctly. Check:
 
 1. The workflow's installation steps
-2. The Python version matches your requirements
-3. All dependencies are in `requirements.txt` and `requirements-dev.txt`
+1. The Python version matches your requirements
+1. All dependencies are in `requirements.txt` and `requirements-dev.txt`
 
 #### Secrets not working
 
 Ensure:
 
 1. `.secrets` file exists and has correct format: `KEY=value`
-2. Secret names match exactly (case-sensitive)
-3. No extra spaces around `=`
+1. Secret names match exactly (case-sensitive)
+1. No extra spaces around `=`
 
 ## Best Practices
 
@@ -454,9 +454,9 @@ Always test workflow changes locally before pushing:
 When a workflow fails:
 
 1. Run with `--verbose` to see detailed output
-2. Run specific jobs with `--job` to isolate issues
-3. Use `--dryrun` to see what would execute
-4. Compare with GitHub Actions logs
+1. Run specific jobs with `--job` to isolate issues
+1. Use `--dryrun` to see what would execute
+1. Compare with GitHub Actions logs
 
 ### 6. Monitor Resource Usage
 
@@ -536,9 +536,9 @@ Add a pre-commit hook to automatically test workflows:
 ### CI/CD Pipeline
 
 1. **Local testing**: Run workflows locally during development
-2. **Pre-commit**: Quick lint check before committing
-3. **Pre-push**: Full CI check before pushing
-4. **GitHub Actions**: Final validation on all platforms
+1. **Pre-commit**: Quick lint check before committing
+1. **Pre-push**: Full CI check before pushing
+1. **GitHub Actions**: Final validation on all platforms
 
 ## Additional Resources
 
@@ -552,9 +552,9 @@ Add a pre-commit hook to automatically test workflows:
 If you encounter issues:
 
 1. Check the [Troubleshooting](#troubleshooting) section
-2. Review workflow logs with `--verbose`
-3. Search [act issues](https://github.com/nektos/act/issues)
-4. Review [GitHub Actions logs](https://github.com/saint2706/Games/actions)
+1. Review workflow logs with `--verbose`
+1. Search [act issues](https://github.com/nektos/act/issues)
+1. Review [GitHub Actions logs](https://github.com/saint2706/Games/actions)
 
 ## Summary
 

@@ -7,12 +7,12 @@ It's used as the entry point for standalone executables.
 
 from __future__ import annotations
 
-import sys
 from typing import Callable
 
 # Try to use colorama if available, fall back to plain text
 try:
-    from colorama import Fore, Style, init as colorama_init
+    from colorama import Fore, Style
+    from colorama import init as colorama_init
 
     colorama_init(autoreset=True)
     HAS_COLORAMA = True

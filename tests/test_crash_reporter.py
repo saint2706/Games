@@ -7,8 +7,6 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from common.crash_reporter import CrashReporter, install_global_exception_handler
 
 
@@ -124,7 +122,7 @@ def test_global_exception_handler_keyboard_interrupt(tmp_path: Path) -> None:
     sys.__excepthook__ = mock_excepthook
 
     with patch("pathlib.Path.home", return_value=tmp_path):
-        reporter = install_global_exception_handler("test_game")
+        install_global_exception_handler("test_game")
 
         # Simulate KeyboardInterrupt
         try:

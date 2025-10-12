@@ -4,16 +4,16 @@ This directory contains utility scripts for development, testing, building, and 
 
 ## Overview
 
-| Script                  | Purpose                                      | Usage                      |
+| Script | Purpose | Usage |
 | ----------------------- | -------------------------------------------- | -------------------------- |
-| `setup_act.sh`          | Install act for local workflow testing       | `./setup_act.sh`           |
-| `run_workflow.sh`       | Run GitHub Actions workflows locally         | `./run_workflow.sh ci`     |
-| `run_tests.sh`          | Run test suite with various options          | `./run_tests.sh all`       |
-| `check_complexity.sh`   | Check code complexity with Radon             | `./check_complexity.sh`    |
-| `build_executable.sh`   | Build standalone executables                 | `./build_executable.sh`    |
-| `launcher.py`           | Launch games from command line               | `python launcher.py`       |
-| `test_mcp_servers.py`   | Test MCP server configurations               | `python test_mcp_servers.py` |
-| `validate_mcp_config.py` | Validate MCP configuration files            | `python validate_mcp_config.py` |
+| `setup_act.sh` | Install act for local workflow testing | `./setup_act.sh` |
+| `run_workflow.sh` | Run GitHub Actions workflows locally | `./run_workflow.sh ci` |
+| `run_tests.sh` | Run test suite with various options | `./run_tests.sh all` |
+| `check_complexity.sh` | Check code complexity with Radon | `./check_complexity.sh` |
+| `build_executable.sh` | Build standalone executables | `./build_executable.sh` |
+| `launcher.py` | Launch games from command line | `python launcher.py` |
+| `test_mcp_servers.py` | Test MCP server configurations | `python test_mcp_servers.py` |
+| `validate_mcp_config.py` | Validate MCP configuration files | `python validate_mcp_config.py` |
 
 ## Workflow Testing Scripts
 
@@ -317,10 +317,10 @@ Additional requirements:
 When adding new scripts:
 
 1. Make scripts executable: `chmod +x script.sh`
-2. Add a help message (`--help` flag)
-3. Include error handling and validation
-4. Document in this README
-5. Add corresponding Makefile targets if appropriate
+1. Add a help message (`--help` flag)
+1. Include error handling and validation
+1. Document in this README
+1. Add corresponding Makefile targets if appropriate
 
 ## Troubleshooting
 

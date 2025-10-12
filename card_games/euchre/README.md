@@ -30,12 +30,12 @@ reach 10 points by winning tricks.
 In trump suit (high to low):
 
 1. Right Bower (Jack of trump)
-2. Left Bower (Jack of same color)
-3. Ace
-4. King
-5. Queen
-6. 10
-7. 9
+1. Left Bower (Jack of same color)
+1. Ace
+1. King
+1. Queen
+1. 10
+1. 9
 
 Non-trump suits follow standard ranking.
 
@@ -81,9 +81,9 @@ python -m card_games.euchre --seed 42
 ## Strategy Tips
 
 1. **Trump Selection**: Choose trump when you have strong cards
-2. **Leading**: Lead trump early to draw out opponents' trump
-3. **Going Alone**: Only go alone with very strong hands
-4. **Following Suit**: Track which suits are exhausted
+1. **Leading**: Lead trump early to draw out opponents' trump
+1. **Going Alone**: Only go alone with very strong hands
+1. **Following Suit**: Track which suits are exhausted
 
 ## Implementation Notes
 

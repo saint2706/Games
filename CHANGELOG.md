@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added - Q4 2025 Consolidation & Deployment
 
 #### New Card Games (3)
+
 - **Cribbage**: Full implementation with pegging, The Show, and crib scoring
   - Complete hand evaluation (15s, pairs, runs, flush, nobs)
   - Interactive CLI with strategic discarding
@@ -24,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Negative scoring for cards in hand
 
 #### Deployment Infrastructure
+
 - **PyInstaller Build Configuration**: Create standalone executables
   - Single-file executables for Windows, macOS, and Linux
   - UPX compression enabled
@@ -43,6 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Error handling and graceful exits
 
 #### Crash Reporting & Error Analytics
+
 - **Crash Reporter Module**: Comprehensive error tracking
   - Local crash report storage (~/.game_logs/crashes/)
   - System information collection
@@ -51,6 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - 11 unit tests (100% passing)
 
 #### Cross-Platform Testing
+
 - **GitHub Actions Workflow**: Multi-platform CI/CD
   - Build executables for Windows, macOS, Linux
   - Test on Python 3.9, 3.10, 3.11, 3.12
@@ -58,6 +62,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Automated releases on tags
 
 #### Documentation
+
 - **Deployment Guide** (docs/deployment/DEPLOYMENT.md): Complete deployment reference
   - PyPI installation instructions
   - Standalone executable usage
@@ -68,11 +73,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Game READMEs**: Detailed rules for new games
 
 ### Changed
+
 - Updated TODO.md: All Q4 2025 items marked complete (10/10)
 - Updated pyproject.toml: Added entry points for new games
 - Updated launcher: Integrated Cribbage, Euchre, and Rummy 500
 
 ### Fixed
+
 - Launcher imports now use __main__ modules correctly
 - Docker image uses non-root user for security
 - Cross-platform compatibility issues addressed
