@@ -2,14 +2,74 @@
 requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = [
+    "tests*",
+    "docs*",
+    "examples*",
+    "scripts*",
+    "build*",
+    "dist*",
+    "*.egg-info",
+    "colorama*",  # Exclude vendored colorama
+]
+
+[tool.setuptools.package-data]
+"*" = ["*.md", "*.txt", "*.rst"]
+
 [project]
-name = "games"
+name = "games-collection"
 version = "1.0.0"
-description = "A collection of classic games with AI opponents and GUIs"
+description = "A comprehensive collection of classic card, paper, dice, logic, and word games with AI opponents and both CLI and GUI interfaces"
+readme = "README.md"
 requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "saint2706", email = "45678566+saint2706@users.noreply.github.com"},
+]
+maintainers = [
+    {name = "saint2706", email = "45678566+saint2706@users.noreply.github.com"},
+]
+keywords = [
+    "games",
+    "card-games",
+    "board-games",
+    "uno",
+    "poker",
+    "blackjack",
+    "tic-tac-toe",
+    "chess",
+    "ai",
+    "gui",
+    "cli",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment",
+    "Topic :: Games/Entertainment :: Board Games",
+    "Topic :: Games/Entertainment :: Puzzle Games",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "colorama>=0.4.6",
 ]
+
+[project.urls]
+Homepage = "https://github.com/saint2706/Games"
+Documentation = "https://github.com/saint2706/Games#readme"
+Repository = "https://github.com/saint2706/Games"
+Issues = "https://github.com/saint2706/Games/issues"
+Changelog = "https://github.com/saint2706/Games/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
@@ -23,6 +83,46 @@ dev = [
 gui = [
     "pygame>=2.0",
 ]
+
+[project.scripts]
+# Card Games
+games-uno = "card_games.uno.uno:main"
+games-poker = "card_games.poker.poker:main"
+games-blackjack = "card_games.blackjack.blackjack:main"
+games-hearts = "card_games.hearts.hearts:main"
+games-spades = "card_games.spades.spades:main"
+games-bridge = "card_games.bridge.bridge:main"
+games-gin-rummy = "card_games.gin_rummy.gin_rummy:main"
+games-go-fish = "card_games.go_fish.go_fish:main"
+games-crazy-eights = "card_games.crazy_eights.crazy_eights:main"
+games-war = "card_games.war.war:main"
+games-solitaire = "card_games.solitaire.solitaire:main"
+games-bluff = "card_games.bluff.bluff:main"
+
+# Paper Games  
+games-tic-tac-toe = "paper_games.tic_tac_toe.tic_tac_toe:main"
+games-battleship = "paper_games.battleship.battleship:main"
+games-checkers = "paper_games.checkers.checkers:main"
+games-connect-four = "paper_games.connect_four.connect_four:main"
+games-othello = "paper_games.othello.othello:main"
+games-dots-and-boxes = "paper_games.dots_and_boxes.dots_and_boxes:main"
+games-hangman = "paper_games.hangman.hangman:main"
+games-nim = "paper_games.nim.nim:main"
+games-sudoku = "paper_games.sudoku.sudoku:main"
+games-mancala = "paper_games.mancala.mancala:main"
+
+# Dice Games
+games-craps = "dice_games.craps.craps:main"
+games-bunco = "dice_games.bunco.bunco:main"
+games-liars-dice = "dice_games.liars_dice.liars_dice:main"
+
+# Word Games
+games-unscramble = "word_games.unscramble.unscramble:main"
+games-wordle = "word_games.wordle.wordle:main"
+
+# Logic Games
+games-mastermind = "logic_games.mastermind.mastermind:main"
+games-codebreaker = "logic_games.codebreaker.codebreaker:main"
 
 [tool.black]
 line-length = 160

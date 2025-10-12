@@ -448,6 +448,28 @@ class TkUnoInterface(UnoInterface):
 
         self.sound_manager.play(sound_type)
 
+    def prompt_jump_in(self, player: UnoPlayer, card: UnoCard) -> bool:
+        """Ask if player wants to jump in with an identical card.
+
+        Args:
+            player: The player being asked.
+            card: The card that was just played.
+
+        Returns:
+            True if player wants to jump in, False otherwise.
+        """
+        import tkinter.messagebox as messagebox
+
+        if not player.is_human:
+            return False
+
+        # Show jump-in prompt
+        result = messagebox.askyesno(
+            "Jump In?", f"{player.name}, someone just played {card.color} {card.value}!\n\nDo you want to JUMP IN with an identical card?", icon="question"
+        )
+
+        return result
+
     def _accept_penalty(self) -> None:
         """Set the pending decision to 'accept_penalty'."""
         self.pending_decision = PlayerDecision(action="accept_penalty")
