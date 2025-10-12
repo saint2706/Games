@@ -39,13 +39,15 @@ This simulates manually running a workflow with specific input parameters.
 You can create your own event files based on these examples:
 
 1. Copy an existing event file:
+
    ```bash
    cp .github/workflows/events/push.json .github/workflows/events/my-push.json
    ```
 
-2. Modify the JSON to match your test scenario
+1. Modify the JSON to match your test scenario
 
-3. Use it with act:
+1. Use it with act:
+
    ```bash
    ./scripts/run_workflow.sh ci --event .github/workflows/events/my-push.json
    ```

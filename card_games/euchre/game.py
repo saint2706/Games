@@ -242,9 +242,6 @@ class EuchreGame:
         if not self.current_trick:
             return 0
 
-        # Lead suit
-        lead_suit = self.current_trick[0][1].suit
-
         # Find highest card
         best_player = self.current_trick[0][0]
         best_power = self._get_card_power(self.current_trick[0][1])
@@ -265,7 +262,6 @@ class EuchreGame:
 
         defending_team = 2 if making_team == 1 else 1
         making_tricks = self.tricks_won[making_team - 1]
-        defending_tricks = self.tricks_won[defending_team - 1]
 
         if making_tricks >= 3:
             # Makers won

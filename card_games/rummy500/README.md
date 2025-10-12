@@ -18,9 +18,9 @@ Rummy 500 is a card game where players try to form melds (sets and runs) and be 
 ### Gameplay
 
 1. **Draw**: Take a card from deck or discard pile
-2. **Meld**: Lay down sets (3+ same rank) or runs (3+ consecutive same suit)
-3. **Lay Off**: Add cards to existing melds
-4. **Discard**: Discard one card to end turn
+1. **Meld**: Lay down sets (3+ same rank) or runs (3+ consecutive same suit)
+1. **Lay Off**: Add cards to existing melds
+1. **Discard**: Discard one card to end turn
 
 ### Scoring
 
@@ -69,9 +69,9 @@ python -m card_games.rummy500 --seed 42
 ## Strategy Tips
 
 1. **Melding**: Form melds early to reduce hand penalty
-2. **Discard Pile**: Watch what others take
-3. **Card Values**: Keep low-value cards if can't meld
-4. **Going Out**: Time your going out to maximize points
+1. **Discard Pile**: Watch what others take
+1. **Card Values**: Keep low-value cards if can't meld
+1. **Going Out**: Time your going out to maximize points
 
 ## Examples
 

@@ -168,9 +168,9 @@ docker system prune -a
 ## Next Steps
 
 1. ✅ You've tested your first workflow!
-2. Read the full guide: [LOCAL_WORKFLOWS.md](LOCAL_WORKFLOWS.md)
-3. Customize `.actrc` for your needs
-4. Add secrets to `.secrets` (copy from `.secrets.example`)
+1. Read the full guide: [LOCAL_WORKFLOWS.md](LOCAL_WORKFLOWS.md)
+1. Customize `.actrc` for your needs
+1. Add secrets to `.secrets` (copy from `.secrets.example`)
 
 ## Example Workflow
 

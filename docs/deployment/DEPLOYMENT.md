@@ -29,11 +29,13 @@ This guide covers different deployment methods for the Games Collection.
 ### Platform Support
 
 ✅ **Fully Supported:**
+
 - Linux (Ubuntu 20.04+, Debian 11+, Fedora 35+)
 - macOS (10.15 Catalina or later)
 - Windows (10/11)
 
 ✅ **Tested Python Versions:**
+
 - Python 3.9
 - Python 3.10
 - Python 3.11
@@ -90,7 +92,7 @@ Standalone executables bundle all dependencies, requiring no Python installation
 ### Downloading Pre-built Executables
 
 1. Go to the [Releases page](https://github.com/saint2706/Games/releases)
-2. Download the executable for your platform:
+1. Download the executable for your platform:
    - **Linux**: `games-collection-linux`
    - **macOS**: `games-collection-macos`
    - **Windows**: `games-collection-windows.exe`
@@ -233,25 +235,29 @@ python scripts/launcher.py
 #### Linux
 
 - **GUI Games**: Requires Tkinter (usually pre-installed)
+
   ```bash
   # Ubuntu/Debian
   sudo apt-get install python3-tk
-  
+
   # Fedora
   sudo dnf install python3-tkinter
   ```
 
 - **Terminal**: Most games work in any terminal
+
 - **Colors**: Requires terminal with ANSI color support
 
 #### macOS
 
 - **Python**: Use Python from python.org or Homebrew
+
   ```bash
   brew install python@3.11
   ```
 
 - **Tkinter**: Included with official Python installers
+
 - **Terminal**: Use Terminal.app or iTerm2
 
 #### Windows
@@ -301,16 +307,16 @@ file games-collection-linux
 #### Windows Defender Blocks Executable
 
 1. This is common with PyInstaller executables
-2. Right-click → Properties → Unblock
-3. Or add exception in Windows Defender
+1. Right-click → Properties → Unblock
+1. Or add exception in Windows Defender
 
 ### Error Reporting
 
 If you encounter errors:
 
 1. **Check Logs**: Located in `~/.game_logs/`
-2. **Crash Reports**: Located in `~/.game_logs/crashes/`
-3. **Report Issues**: [GitHub Issues](https://github.com/saint2706/Games/issues)
+1. **Crash Reports**: Located in `~/.game_logs/crashes/`
+1. **Report Issues**: [GitHub Issues](https://github.com/saint2706/Games/issues)
 
 ### Getting Help
 
@@ -338,6 +344,7 @@ export GAMES_STATS_DIR=/custom/path
 #### PyInstaller
 
 Edit `build_configs/pyinstaller/games.spec` to customize:
+
 - Icon
 - Console vs. windowed mode
 - Additional data files
@@ -346,6 +353,7 @@ Edit `build_configs/pyinstaller/games.spec` to customize:
 #### Nuitka
 
 Edit `build_configs/nuitka/build.py` to customize:
+
 - Output filename
 - Optimization level
 - Plugin options

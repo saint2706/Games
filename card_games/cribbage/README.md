@@ -20,11 +20,12 @@ combinations of cards played during "The Play" (pegging) phase and scored in "Th
 
 1. **The Deal**: Each player receives 6 cards
 
-2. **The Discard**: Each player discards 2 cards to the "crib" (dealer's extra hand)
+1. **The Discard**: Each player discards 2 cards to the "crib" (dealer's extra hand)
 
-3. **The Cut**: Top card is cut as the "starter"
+1. **The Cut**: Top card is cut as the "starter"
 
-4. **The Play (Pegging)**:
+1. **The Play (Pegging)**:
+
    - Players alternate playing cards
    - Running count must not exceed 31
    - Score points for:
@@ -34,7 +35,8 @@ combinations of cards played during "The Play" (pegging) phase and scored in "Th
      - Reaching exactly 31: 2 points
      - Last card: 1 point
 
-5. **The Show (Scoring Hands)**:
+1. **The Show (Scoring Hands)**:
+
    - Non-dealer scores their hand first
    - Dealer scores their hand
    - Dealer scores the crib
@@ -73,9 +75,9 @@ python -m card_games.cribbage --seed 42
 ## Strategy Tips
 
 1. **Discarding**: Keep cards that work well together (pairs, 15s, runs)
-2. **The Play**: Try to avoid giving your opponent easy scoring opportunities
-3. **Pegging**: Remember cards played to anticipate runs and pairs
-4. **The Crib**: If you're the dealer, discard cards that might score well together
+1. **The Play**: Try to avoid giving your opponent easy scoring opportunities
+1. **Pegging**: Remember cards played to anticipate runs and pairs
+1. **The Crib**: If you're the dealer, discard cards that might score well together
 
 ## Scoring Examples
 
