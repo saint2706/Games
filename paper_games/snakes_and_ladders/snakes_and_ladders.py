@@ -204,9 +204,7 @@ class SnakesAndLaddersCLI:
             print(f"Current position: {current_pos}")
 
             # Show all positions
-            positions_str = " | ".join(
-                f"P{i+1}: {self.game.get_player_position(i)}" for i in range(self.game.num_players)
-            )
+            positions_str = " | ".join(f"P{i+1}: {self.game.get_player_position(i)}" for i in range(self.game.num_players))
             print(f"All positions: {positions_str}")
 
             input("\nPress Enter to roll the dice...")

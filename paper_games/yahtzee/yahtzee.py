@@ -10,7 +10,7 @@ import random
 from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set
 
 from common.game_engine import GameEngine, GameState
 
@@ -84,9 +84,7 @@ class YahtzeeGame(GameEngine[YahtzeeMove, int]):
         self._current_player = 0
         self._dice = [1, 1, 1, 1, 1]
         self._rolls_left = 3
-        self._scores = [
-            {category: None for category in YahtzeeCategory} for _ in range(self.num_players)
-        ]
+        self._scores = [{category: None for category in YahtzeeCategory} for _ in range(self.num_players)]
         self._used_categories = [set() for _ in range(self.num_players)]
         self._turns_played = [0] * self.num_players
         self._state = GameState.IN_PROGRESS
@@ -245,10 +243,7 @@ class YahtzeeGame(GameEngine[YahtzeeMove, int]):
             "dice": tuple(self._dice),
             "rolls_left": self._rolls_left,
             "current_player": self._current_player,
-            "scores": [
-                {cat.value: score for cat, score in player_scores.items()}
-                for player_scores in self._scores
-            ],
+            "scores": [{cat.value: score for cat, score in player_scores.items()} for player_scores in self._scores],
         }
 
     def get_total_score(self, player: int) -> int:
@@ -379,7 +374,7 @@ class YahtzeeCLI:
             # Show dice
             dice = self.game.get_dice()
             print(f"\n🎲 Dice: {' '.join(str(d) for d in dice)}")
-            print(f"   Positions: 1  2  3  4  5")
+            print("   Positions: 1  2  3  4  5")
             print(f"Rolls left: {self.game.get_rolls_left()}")
 
             if self.game.get_rolls_left() > 0:

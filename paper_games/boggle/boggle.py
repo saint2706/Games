@@ -28,11 +28,66 @@ class BoggleGame(GameEngine[BoggleMove, int]):
 
     # Basic English word list - in real implementation would use full dictionary
     DICTIONARY = {
-        "the", "and", "for", "are", "but", "not", "you", "all", "can", "her", "was", "one",
-        "our", "out", "day", "get", "has", "him", "his", "how", "man", "new", "now", "old",
-        "see", "two", "way", "who", "boy", "did", "its", "let", "put", "say", "she", "too",
-        "use", "cat", "dog", "hat", "rat", "bat", "mat", "sat", "fat", "pat", "run", "sun",
-        "fun", "gun", "bun", "pun", "top", "pot", "hot", "got", "lot", "dot", "not", "cot",
+        "the",
+        "and",
+        "for",
+        "are",
+        "but",
+        "not",
+        "you",
+        "all",
+        "can",
+        "her",
+        "was",
+        "one",
+        "our",
+        "out",
+        "day",
+        "get",
+        "has",
+        "him",
+        "his",
+        "how",
+        "man",
+        "new",
+        "now",
+        "old",
+        "see",
+        "two",
+        "way",
+        "who",
+        "boy",
+        "did",
+        "its",
+        "let",
+        "put",
+        "say",
+        "she",
+        "too",
+        "use",
+        "cat",
+        "dog",
+        "hat",
+        "rat",
+        "bat",
+        "mat",
+        "sat",
+        "fat",
+        "pat",
+        "run",
+        "sun",
+        "fun",
+        "gun",
+        "bun",
+        "pun",
+        "top",
+        "pot",
+        "hot",
+        "got",
+        "lot",
+        "dot",
+        "not",
+        "cot",
     }
 
     def __init__(self, size: int = 4, time_limit: int = 180) -> None:
@@ -91,7 +146,7 @@ class BoggleGame(GameEngine[BoggleMove, int]):
             True if word can be formed by adjacent letters
         """
         word = word.upper()
-        
+
         # Try starting from each position
         for row in range(self.size):
             for col in range(self.size):

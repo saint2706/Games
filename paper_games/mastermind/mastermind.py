@@ -1,7 +1,7 @@
 """Core logic and CLI for Mastermind.
 
 Code-breaking game where player guesses a secret code of colored pegs.
-Feedback given as black pegs (correct color and position) and white pegs 
+Feedback given as black pegs (correct color and position) and white pegs
 (correct color, wrong position).
 """
 

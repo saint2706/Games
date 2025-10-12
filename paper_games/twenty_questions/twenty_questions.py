@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 
 from common.game_engine import GameEngine, GameState
 
@@ -250,5 +250,5 @@ class TwentyQuestionsCLI:
         # Failed to guess
         print("\nI give up! What was it?")
         answer = input("What were you thinking of? ")
-        print(f"\nInteresting! I'll remember that for next time.")
+        print("\nInteresting! I'll remember that for next time.")
         print("Thanks for playing!")
