@@ -394,6 +394,182 @@ Features:
 
 ---
 
+### Snakes and Ladders
+
+**Location**: `paper_games/snakes_and_ladders/`  
+**Description**: Classic board game with dice rolling, ladders, and snakes  
+**Players**: 2-4  
+**Run**: `python -m paper_games.snakes_and_ladders`
+
+Features:
+- Standard 100-square board
+- Configurable snakes and ladders
+- Dice rolling mechanics
+- Turn-based gameplay
+- Multiple player support
+
+**Documentation**: [snakes_and_ladders/README.md](paper_games/snakes_and_ladders/README.md)
+
+---
+
+### Yahtzee
+
+**Location**: `paper_games/yahtzee/`  
+**Description**: Dice scoring game with category selection  
+**Players**: 1-4  
+**Run**: `python -m paper_games.yahtzee`
+
+Features:
+- 5 dice rolling (up to 3 rolls per turn)
+- 13 scoring categories
+- Upper section bonus
+- Strategic dice keeping
+- Score tracking and display
+- Multiplayer support
+
+**Documentation**: [yahtzee/README.md](paper_games/yahtzee/README.md)
+
+---
+
+### Mastermind
+
+**Location**: `paper_games/mastermind/`  
+**Description**: Code-breaking game with colored pegs  
+**Players**: 1 vs computer  
+**Run**: `python -m paper_games.mastermind`
+
+Features:
+- 6 colored pegs
+- Configurable code length (2-8)
+- Black and white peg feedback system
+- 10 guess limit
+- Logical deduction gameplay
+- Guess history tracking
+
+**Documentation**: [mastermind/README.md](paper_games/mastermind/README.md)
+
+---
+
+### 20 Questions
+
+**Location**: `paper_games/twenty_questions/`  
+**Description**: AI guessing game with yes/no questions  
+**Players**: 1 vs AI  
+**Run**: `python -m paper_games.twenty_questions`
+
+Features:
+- Binary search strategy
+- Multiple object categories
+- 20 question limit
+- Question history tracking
+- Interactive gameplay
+
+**Documentation**: [twenty_questions/README.md](paper_games/twenty_questions/README.md)
+
+---
+
+### Boggle
+
+**Location**: `paper_games/boggle/`  
+**Description**: Word search in random letter grid  
+**Players**: 1  
+**Run**: `python -m paper_games.boggle`
+
+Features:
+- Random 4x4 letter grid
+- Adjacent letter word formation
+- Dictionary validation
+- Word length scoring
+- Found word tracking
+
+**Documentation**: [boggle/README.md](paper_games/boggle/README.md)
+
+---
+
+### Four Square Writing
+
+**Location**: `paper_games/four_square_writing/`  
+**Description**: Educational essay structure template  
+**Players**: 1  
+**Run**: `python -m paper_games.four_square_writing`
+
+Features:
+- Four-quadrant writing method
+- Interactive template filling
+- Essay organization tool
+- Educational focus
+
+**Documentation**: [four_square_writing/README.md](paper_games/four_square_writing/README.md)
+
+---
+
+### Pentago
+
+**Location**: `paper_games/pentago/`  
+**Description**: Board game with rotating quadrants  
+**Players**: 2  
+**Run**: `python -m paper_games.pentago`
+
+Features:
+- 6x6 board with four 3x3 quadrants
+- Basic placement mechanics
+- 5-in-a-row win condition
+- *Note: Quadrant rotation to be enhanced*
+
+**Documentation**: [pentago/README.md](paper_games/pentago/README.md)
+
+---
+
+### Backgammon
+
+**Location**: `paper_games/backgammon/`  
+**Description**: Dice-based race game  
+**Players**: 2  
+**Run**: `python -m paper_games.backgammon`
+
+Features:
+- Traditional board layout
+- Dice rolling mechanics
+- Basic movement rules
+- *Note: Full rules and bearing off to be enhanced*
+
+**Documentation**: [backgammon/README.md](paper_games/backgammon/README.md)
+
+---
+
+### Sprouts
+
+**Location**: `paper_games/sprouts/`  
+**Description**: Topological graph game  
+**Players**: 2  
+**Run**: `python -m paper_games.sprouts`
+
+Features:
+- Dot and line mechanics
+- Graph-based gameplay
+- Turn-based strategy
+- *Note: Full topological rules to be enhanced*
+
+**Documentation**: [sprouts/README.md](paper_games/sprouts/README.md)
+
+---
+
+### Chess
+
+**Location**: `paper_games/chess/`  
+**Description**: Classic chess game  
+**Players**: 2  
+**Run**: `python -m paper_games.chess`
+
+Features:
+- 8x8 chess board
+- Basic piece movement
+- *Note: Full chess rules (castling, en passant, check/checkmate) and engine to be enhanced*
+
+**Documentation**: [chess/README.md](paper_games/chess/README.md)
+
+---
+
 ## 🎲 Dice Games
 
 Dice-based games with random elements and strategic decisions. This is a new category with games planned for future implementation.
