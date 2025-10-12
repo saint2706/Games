@@ -49,18 +49,18 @@ class TestMinesweeper:
         game.state = GameState.IN_PROGRESS
 
         assert game.make_move((0, 0, "question"))
-        assert game.cell_states[0][0] == CellState.QUESTION
+        assert game.cell_states[0][0] == MinesweeperCellState.QUESTION
 
         assert game.make_move((0, 0, "flag"))
-        assert game.cell_states[0][0] == CellState.FLAGGED
+        assert game.cell_states[0][0] == MinesweeperCellState.FLAGGED
         assert (0, 0) in game.flagged_positions
 
         assert game.make_move((0, 0, "question"))
-        assert game.cell_states[0][0] == CellState.QUESTION
+        assert game.cell_states[0][0] == MinesweeperCellState.QUESTION
         assert (0, 0) not in game.flagged_positions
 
         assert game.make_move((0, 0, "unflag"))
-        assert game.cell_states[0][0] == CellState.HIDDEN
+        assert game.cell_states[0][0] == MinesweeperCellState.HIDDEN
 
     def test_chord_reveals_neighbors(self) -> None:
         """Chord action should reveal adjacent hidden cells when flags match numbers."""
@@ -68,7 +68,7 @@ class TestMinesweeper:
         game = MinesweeperGame()
         game.state = GameState.IN_PROGRESS
         game.board = [[False] * game.cols for _ in range(game.rows)]
-        game.cell_states = [[CellState.HIDDEN] * game.cols for _ in range(game.rows)]
+        game.cell_states = [[MinesweeperCellState.HIDDEN] * game.cols for _ in range(game.rows)]
         game.numbers = [[0] * game.cols for _ in range(game.rows)]
 
         game.board[0][0] = True
@@ -79,11 +79,11 @@ class TestMinesweeper:
 
         assert game.make_move((1, 1, "reveal"))
         assert game.numbers[1][1] == 1
-        assert game.cell_states[1][1] == CellState.REVEALED
+        assert game.cell_states[1][1] == MinesweeperCellState.REVEALED
 
         assert game.make_move((0, 0, "flag"))
         assert game.make_move((1, 1, "chord"))
-        assert game.cell_states[2][2] == CellState.REVEALED
+        assert game.cell_states[2][2] == MinesweeperCellState.REVEALED
 
     def test_misflag_display_after_loss(self) -> None:
         """Misflagged cells should be indicated when the player loses."""
@@ -91,7 +91,7 @@ class TestMinesweeper:
         game = MinesweeperGame()
         game.state = GameState.IN_PROGRESS
         game.board = [[False] * game.cols for _ in range(game.rows)]
-        game.cell_states = [[CellState.HIDDEN] * game.cols for _ in range(game.rows)]
+        game.cell_states = [[MinesweeperCellState.HIDDEN] * game.cols for _ in range(game.rows)]
         game.numbers = [[0] * game.cols for _ in range(game.rows)]
 
         game.board[0][0] = True
@@ -253,7 +253,7 @@ class TestPicross:
         assert game.size == 10
         assert len(game.row_hints) == 10
         assert len(game.col_hints) == 10
-        assert all(cell == CellState.UNKNOWN for row in game.grid for cell in row)
+        assert all(cell == PicrossCellState.UNKNOWN for row in game.grid for cell in row)
         assert game.total_mistakes == 0
 
     def test_hints_generation(self) -> None:
@@ -269,17 +269,17 @@ class TestPicross:
         """Test filling, toggling and clearing cells."""
         game = PicrossGame()
         assert game.make_move((0, 2, "fill"))
-        assert game.grid[0][2] == CellState.FILLED
+        assert game.grid[0][2] == PicrossCellState.FILLED
         assert game.is_cell_correct(0, 2)
 
         assert game.make_move((0, 2, "toggle"))
-        assert game.grid[0][2] == CellState.EMPTY
+        assert game.grid[0][2] == PicrossCellState.EMPTY
         assert not game.is_cell_correct(0, 2)
         assert game.total_mistakes == 1
         assert (0, 2) in game.incorrect_cells
 
         assert game.make_move((0, 2, "clear"))
-        assert game.grid[0][2] == CellState.UNKNOWN
+        assert game.grid[0][2] == PicrossCellState.UNKNOWN
         assert (0, 2) not in game.incorrect_cells
 
     def test_line_progress_tracks_segments(self) -> None:

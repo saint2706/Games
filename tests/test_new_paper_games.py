@@ -13,6 +13,7 @@ from paper_games.connect_four import ConnectFourGame, ConnectFourMove
 from paper_games.mancala import MancalaAI, MancalaGame, MancalaMove
 from paper_games.mastermind import MastermindGame, MastermindMove
 from paper_games.othello import OthelloAI, OthelloGame, OthelloMove
+from paper_games.snakes_and_ladders import SnakesAndLaddersGame, SnakesAndLaddersMove
 from paper_games.sudoku import SudokuGenerator
 from paper_games.twenty_questions import TwentyQuestionsGame
 from paper_games.yahtzee import YahtzeeCategory, YahtzeeGame
@@ -114,8 +115,6 @@ def test_sudoku_generator_and_hint() -> None:
 
 
 def test_snakes_and_ladders_movement() -> None:
-    from paper_games.snakes_and_ladders import SnakesAndLaddersGame, SnakesAndLaddersMove
-
     game = SnakesAndLaddersGame(num_players=2)
     assert game.get_player_position(0) == 0
     assert game.get_player_position(1) == 0

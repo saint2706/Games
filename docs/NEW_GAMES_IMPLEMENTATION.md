@@ -5,10 +5,10 @@ complete all games listed in `docs/planning/TODO.md`.
 
 ## Overview
 
-**Implementation Date**: October 2025  
-**Total Games Added**: 13  
-**Total Files Created**: 65+ (game engines, CLIs, READMEs, tests)  
-**Lines of Code**: ~3,000+  
+**Implementation Date**: October 2025\
+**Total Games Added**: 13\
+**Total Files Created**: 65+ (game engines, CLIs, READMEs, tests)\
+**Lines of Code**: ~3,000+\
 **Test Coverage**: 39 tests, all passing
 
 ## Games Implemented
@@ -16,6 +16,7 @@ complete all games listed in `docs/planning/TODO.md`.
 ### 🎲 Dice Games (4 games)
 
 #### 1. Farkle
+
 - **Description**: Risk-based dice scoring game with push-your-luck mechanics
 - **Location**: `dice_games/farkle/`
 - **Run**: `python -m dice_games.farkle`
@@ -27,6 +28,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - 2-6 player support
 
 #### 2. Craps
+
 - **Description**: Classic casino dice game with betting mechanics
 - **Location**: `dice_games/craps/`
 - **Run**: `python -m dice_games.craps`
@@ -37,6 +39,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - Bankroll management
 
 #### 3. Liar's Dice
+
 - **Description**: Bluffing game with hidden dice and bidding
 - **Location**: `dice_games/liars_dice/`
 - **Run**: `python -m dice_games.liars_dice`
@@ -47,6 +50,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - Player elimination system
 
 #### 4. Bunco
+
 - **Description**: Fast-paced party dice game with rounds
 - **Location**: `dice_games/bunco/`
 - **Run**: `python -m dice_games.bunco`
@@ -59,6 +63,7 @@ complete all games listed in `docs/planning/TODO.md`.
 ### 📚 Word & Trivia Games (4 games)
 
 #### 5. Trivia Quiz
+
 - **Description**: Multiple choice trivia questions
 - **Location**: `word_games/trivia/`
 - **Run**: `python -m word_games.trivia`
@@ -69,6 +74,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - Expandable question database
 
 #### 6. Crossword
+
 - **Description**: Crossword puzzle solving with clues
 - **Location**: `word_games/crossword/`
 - **Run**: `python -m word_games.crossword`
@@ -79,6 +85,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - Clue tracking system
 
 #### 7. Anagrams
+
 - **Description**: Word rearrangement game
 - **Location**: `word_games/anagrams/`
 - **Run**: `python -m word_games.anagrams`
@@ -89,6 +96,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - Timed gameplay option
 
 #### 8. WordBuilder
+
 - **Description**: Tile-based word building (Scrabble-like)
 - **Location**: `word_games/wordbuilder/`
 - **Run**: `python -m word_games.wordbuilder`
@@ -101,6 +109,7 @@ complete all games listed in `docs/planning/TODO.md`.
 ### 🧩 Logic & Puzzle Games (5 games)
 
 #### 9. Minesweeper
+
 - **Description**: Classic mine detection puzzle
 - **Location**: `logic_games/minesweeper/`
 - **Run**: `python -m logic_games.minesweeper`
@@ -112,6 +121,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - Number hints for adjacent mines
 
 #### 10. Sokoban
+
 - **Description**: Warehouse box-pushing puzzle
 - **Location**: `logic_games/sokoban/`
 - **Run**: `python -m logic_games.sokoban`
@@ -123,6 +133,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - Undo support
 
 #### 11. Sliding Puzzle (15-puzzle)
+
 - **Description**: Number tile sliding game
 - **Location**: `logic_games/sliding_puzzle/`
 - **Run**: `python -m logic_games.sliding_puzzle`
@@ -133,6 +144,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - Win detection
 
 #### 12. Lights Out
+
 - **Description**: Toggle-based light puzzle
 - **Location**: `logic_games/lights_out/`
 - **Run**: `python -m logic_games.lights_out`
@@ -143,6 +155,7 @@ complete all games listed in `docs/planning/TODO.md`.
   - Pattern recognition gameplay
 
 #### 13. Picross/Nonograms
+
 - **Description**: Picture logic puzzle with number hints
 - **Location**: `logic_games/picross/`
 - **Run**: `python -m logic_games.picross`
@@ -205,15 +218,18 @@ game_name/
 ### Updated Files
 
 1. **docs/planning/TODO.md**
+
    - Marked all 13 games as completed with [x]
    - Updated from planned to implemented status
 
-2. **GAMES.md**
+1. **GAMES.md**
+
    - Added detailed descriptions for all new games
    - Updated game statistics (21 → 34 playable games)
    - Added running instructions for each game
 
-3. **Category Package Files**
+1. **Category Package Files**
+
    - `dice_games/__init__.py` - Added exports for all dice games
    - `word_games/__init__.py` - Added exports for all word games
    - `logic_games/__init__.py` - Added exports for all logic games
@@ -267,11 +283,13 @@ farkle.make_move(([], True))  # Roll dice
 ## Repository Impact
 
 ### Before Implementation
+
 - Total Games: 21 (10 card + 11 paper)
-- Categories: 5 (Card, Paper, Dice*, Word*, Logic*)
-  - *Categories existed but had no games
+- Categories: 5 (Card, Paper, Dice\*, Word\*, Logic\*)
+  - \*Categories existed but had no games
 
 ### After Implementation
+
 - Total Games: 34 (10 card + 11 paper + 4 dice + 4 word + 5 logic)
 - Categories: 5 (all fully populated)
 - Total Lines of Code: ~20,000+ (from ~15,000)
@@ -282,17 +300,20 @@ farkle.make_move(([], True))  # Roll dice
 While all core games are now implemented, potential future enhancements include:
 
 ### Dice Games
+
 - AI opponents for Farkle and Liar's Dice
 - Tournament mode for Bunco
 - Advanced betting options for Craps
 
 ### Word Games
+
 - External API integration for Trivia questions
 - User-generated crossword puzzles
 - Dictionary validation for WordBuilder
 - Online multiplayer for word games
 
 ### Logic Games
+
 - GUI implementations using tkinter
 - Level progression systems
 - Hint systems for puzzles
@@ -300,6 +321,7 @@ While all core games are now implemented, potential future enhancements include:
 - Puzzle generators for larger/custom grids
 
 ### Cross-Game Features
+
 - Save/load functionality using persistence system
 - Replay/undo using replay system
 - Statistics tracking

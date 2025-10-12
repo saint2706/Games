@@ -24,7 +24,7 @@ from typing import Any, Dict, List, Optional
 
 from card_games.common.cards import RANKS
 from card_games.go_fish.game import GoFishGame, Player
-from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
+from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, tk, ttk
 
 if not TKINTER_AVAILABLE:  # pragma: no cover - import guard for optional GUI
     raise RuntimeError("Tkinter is required to use the Go Fish GUI.")

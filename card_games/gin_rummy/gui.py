@@ -645,6 +645,7 @@ class GinRummyGUI(BaseGUI):
             f"{summary.opponent}: {summary.opponent_deadwood} "
             f"(was {summary.opponent_initial_deadwood}).",
         )
+        self.log_message(self.log_widget, deadwood_message)
 
         if summary.melds_shown:
             self.log_message(self.log_widget, "Melds shown:")

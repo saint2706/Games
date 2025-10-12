@@ -26,6 +26,7 @@ Welcome to the Games documentation! This guide will help you navigate all availa
 #### 💻 Development Resources
 
 - **[development/CODE_QUALITY.md](development/CODE_QUALITY.md)** - Code quality standards
+
   - Pre-commit hooks configuration
   - Linting and formatting (Black, Ruff)
   - Type checking (mypy)
@@ -33,6 +34,7 @@ Welcome to the Games documentation! This guide will help you navigate all availa
   - Best practices
 
 - **[development/TESTING.md](development/TESTING.md)** - Testing guide
+
   - Running tests (pytest)
   - Coverage requirements (90%+)
   - Writing tests
@@ -41,6 +43,7 @@ Welcome to the Games documentation! This guide will help you navigate all availa
   - Mutation testing
 
 - **[development/IMPLEMENTATION_NOTES.md](development/IMPLEMENTATION_NOTES.md)** - Implementation details
+
   - Code quality improvements
   - Documentation system
   - Testing infrastructure
@@ -69,18 +72,21 @@ Welcome to the Games documentation! This guide will help you navigate all availa
 **For Developers:**
 
 2. **[Architecture Documentation](source/architecture/index.rst)** - Detailed design documentation
+
    - 🏗️ [Architecture Overview](source/architecture/index.rst) - Design patterns and principles
    - ♠️ [Poker Architecture](source/architecture/poker_architecture.rst) - Deep dive with diagrams
    - 🎭 [Bluff Architecture](source/architecture/bluff_architecture.rst) - Game mechanics and AI
    - 🤖 [AI Strategies](source/architecture/ai_strategies.rst) - Algorithms explained
 
-3. **[Code Examples](source/examples/index.rst)** - Learn by doing
+1. **[Code Examples](source/examples/index.rst)** - Learn by doing
+
    - 30+ practical code examples
    - Common patterns and best practices
    - Custom game creation
    - AI integration
 
-4. **[API Reference](source/api/)** - Complete module documentation
+1. **[API Reference](source/api/)** - Complete module documentation
+
    - [Card Games API](source/api/card_games.rst)
    - [Paper Games API](source/api/paper_games.rst)
 
