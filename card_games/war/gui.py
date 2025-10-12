@@ -11,9 +11,11 @@ event.
 from __future__ import annotations
 
 import time
+from pathlib import Path
 from typing import Optional
 
 from card_games.war.game import WarGame
+from common.architecture.persistence import SaveLoadManager
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 
 try:  # pragma: no cover - optional dependency
@@ -77,6 +79,7 @@ class WarGUI(BaseGUI):
 
         self._last_result: Optional[dict[str, object]] = None
         self._auto_running = False
+        self._save_load_manager = SaveLoadManager()
 
         self.build_layout()
         self.update_display()
@@ -259,6 +262,9 @@ class WarGUI(BaseGUI):
 
         self.auto_button = tk.Button(button_bar, textvariable=self.auto_button_text, command=self._toggle_auto_play)
         self.auto_button.pack(side=tk.LEFT, padx=(0, 8))
+
+        ttk.Button(button_bar, text="Save Game", command=self._save_game).pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Button(button_bar, text="Load Game", command=self._load_game).pack(side=tk.LEFT, padx=(0, 8))
 
         ttk.Button(button_bar, text="Show Shortcuts", command=self.show_shortcuts_help).pack(side=tk.LEFT)
 
@@ -526,6 +532,76 @@ class WarGUI(BaseGUI):
             self.status_var.set("Game statistics saved successfully.")
         except Exception as exc:  # pragma: no cover - user specific environments
             self.status_var.set(f"Could not save statistics: {exc}")
+
+    def _save_game(self) -> None:
+        """Save the current game state."""
+        if self.game.is_game_over():
+            messagebox.showwarning("Cannot Save", "Game is already over. Nothing to save.")
+            return
+
+        try:
+            state = self.game.to_dict()
+            filepath = self._save_load_manager.save("war", state)
+            self.status_var.set(f"Game saved to {filepath.name}")
+            self.log_message(self.log_widget, f"Game saved successfully to {filepath}")
+            messagebox.showinfo("Save Successful", f"Game saved to:\n{filepath}")
+        except Exception as e:
+            error_msg = f"Failed to save game: {e}"
+            self.status_var.set(error_msg)
+            self.log_message(self.log_widget, error_msg)
+            messagebox.showerror("Save Failed", error_msg)
+
+    def _load_game(self) -> None:
+        """Load a saved game state."""
+        try:
+            # Get list of saves
+            saves = self._save_load_manager.list_saves("war")
+            if not saves:
+                messagebox.showinfo("No Saves", "No saved games found.")
+                return
+
+            # Show dialog to choose save file
+            from tkinter import filedialog
+
+            save_dir = Path("./saves")
+            filepath = filedialog.askopenfilename(
+                title="Load War Game",
+                initialdir=save_dir,
+                filetypes=[("Save files", "*.save"), ("All files", "*.*")],
+            )
+
+            if not filepath:
+                return
+
+            # Load the game state
+            data = self._save_load_manager.load(Path(filepath))
+            if data.get("game_type") != "war":
+                messagebox.showerror("Invalid Save", "This save file is not for War game.")
+                return
+
+            # Stop auto-play if running
+            self._stop_auto_loop()
+
+            # Restore the game
+            self.game = WarGame.from_dict(data["state"])
+            self._last_result = None
+            self._start_time = time.time()
+
+            # Re-enable buttons if they were disabled
+            self.play_button.configure(state=tk.NORMAL)
+            self.auto_button.configure(state=tk.NORMAL)
+
+            # Update display
+            self.update_display()
+            self.status_var.set(f"Game loaded from {Path(filepath).name}")
+            self.log_message(self.log_widget, f"Game loaded successfully from {filepath}")
+            messagebox.showinfo("Load Successful", "Game loaded successfully!")
+
+        except Exception as e:
+            error_msg = f"Failed to load game: {e}"
+            self.status_var.set(error_msg)
+            self.log_message(self.log_widget, error_msg)
+            messagebox.showerror("Load Failed", error_msg)
 
 
 def run_app(*, game: Optional[WarGame] = None, enable_sounds: bool = False) -> None:
