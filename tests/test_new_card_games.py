@@ -134,6 +134,10 @@ class TestSolitaire:
         game.tableau[0].face_up_count = 2
         game.tableau[1].cards = [Card("6", Suit.DIAMONDS), three_clubs]
         game.tableau[1].face_up_count = 2
+        # Clear other tableau piles to avoid interference from random initialization
+        for i in range(2, 7):
+            game.tableau[i].cards = []
+            game.tableau[i].face_up_count = 0
 
         assert game.auto_move_to_foundation() is True
         assert len(game.foundations[0].cards) == 3
