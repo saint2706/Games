@@ -42,8 +42,10 @@ Features of the GUI:
 
 Auto-play tips:
 
-- Click **Start Auto Play** to schedule rounds. The slider updates instantly, so you can slow down or speed up play mid-game.
-- The GUI automatically stops when the game ends and offers to save statistics if the optional analytics package is available.
+- Click **Start Auto Play** to schedule rounds. The slider updates instantly, so you can slow down or speed up play
+  mid-game.
+- The GUI automatically stops when the game ends and offers to save statistics if the optional analytics package is
+  available.
 
 Enable experimental sound effects (requires `pygame` for the shared sound manager):
 

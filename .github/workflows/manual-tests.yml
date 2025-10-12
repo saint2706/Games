@@ -12,14 +12,14 @@ on:
         required: false
       marker:
         description: 'Optional pytest marker expression (e.g. "not slow")'
-        default: ''
+        default: ""
         required: false
       extra-args-json:
-        description: 'JSON array of additional pytest CLI arguments'
-        default: '[]'
+        description: "JSON array of additional pytest CLI arguments"
+        default: "[]"
         required: false
       collect-coverage:
-        description: 'Collect coverage data during the run'
+        description: "Collect coverage data during the run"
         type: boolean
         default: true
 
@@ -45,7 +45,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          cache: "pip"
           cache-dependency-path: |
             requirements.txt
             requirements-dev.txt

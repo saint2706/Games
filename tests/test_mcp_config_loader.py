@@ -11,12 +11,7 @@ import tempfile
 
 import pytest
 
-from common.mcp_config_loader import (
-    MCPConfig,
-    MCPServerConfig,
-    load_default_mcp_config,
-    validate_mcp_config_file,
-)
+from common.mcp_config_loader import MCPConfig, MCPServerConfig, load_default_mcp_config, validate_mcp_config_file
 
 
 class TestMCPServerConfig:

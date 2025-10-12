@@ -1,6 +1,7 @@
 # TODO: Future Expansions and Upgrades
 
-This document outlines planned expansions and future upgrades for the Games repository. Items are organized by category and priority.
+This document outlines planned expansions and future upgrades for the Games repository. Items are organized by category
+and priority.
 
 ## 🎉 Recently Completed (2025)
 
@@ -122,7 +123,8 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [ ] Add replay/undo functionality to strategy games using the replay system
 - [ ] Apply event-driven architecture to remaining games for better state management
 - [ ] Integrate CLI enhancements (ASCII art, rich text, menus) into all CLI interfaces
-- [x] **Universal statistics system for card games** ✅ **NEW** - `card_games/common/stats.py` wrapper created and integrated into War game
+- [x] **Universal statistics system for card games** ✅ **NEW** - `card_games/common/stats.py` wrapper created and
+      integrated into War game
 
 ### Uno (Partial Implementation)
 
@@ -135,7 +137,8 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 
 ### Cross-Game Features
 
-- [x] **Implement universal statistics tracking system** ✅ **PARTIAL** - Created `card_games/common/stats.py` wrapper, integrated into War game as example
+- [x] **Implement universal statistics tracking system** ✅ **PARTIAL** - Created `card_games/common/stats.py` wrapper,
+      integrated into War game as example
 - [ ] Add achievement system across all games
 - [ ] Create unified profile and progression system
 - [ ] Implement cross-game tutorial system using existing documentation
@@ -289,7 +292,7 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [ ] Organize coding competitions and game jams
 - [ ] Establish code review and mentorship program
 
-______________________________________________________________________
+---
 
 ## Priority Legend
 

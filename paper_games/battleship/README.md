@@ -132,7 +132,7 @@ python -m paper_games.battleship --size 10 --fleet extended --difficulty hard
 ## Command-Line Options
 
 ```
-usage: python -m paper_games.battleship [-h] [--size {8,10}] 
+usage: python -m paper_games.battleship [-h] [--size {8,10}]
                                         [--fleet {small,default,extended}]
                                         [--difficulty {easy,medium,hard}]
                                         [--two-player] [--salvo] [--seed SEED]

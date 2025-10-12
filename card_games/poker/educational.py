@@ -8,12 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List
 
-from common.educational import (
-    AIExplainer,
-    ProbabilityCalculator,
-    TutorialMode,
-    TutorialStep,
-)
+from common.educational import AIExplainer, ProbabilityCalculator, TutorialMode, TutorialStep
 
 if TYPE_CHECKING:
     from ..common.cards import Card

@@ -33,9 +33,7 @@ def _render_board(game: PicrossGame) -> None:
     # Board rows with row hints
     for row_idx, row in enumerate(game.grid):
         progress = game.get_line_progress(row_idx, is_row=True)
-        satisfied = progress.is_satisfied and progress.filled_cells == progress.expected_filled and all(
-            cell != CellState.UNKNOWN for cell in row
-        )
+        satisfied = progress.is_satisfied and progress.filled_cells == progress.expected_filled and all(cell != CellState.UNKNOWN for cell in row)
         status = "✔" if satisfied else " "
         hint_block = _format_hints(game.row_hints[row_idx]).rjust(row_hint_width)
         cell_block = "".join(f" {cell.render()} " for cell in row)
@@ -94,10 +92,7 @@ def main() -> None:
             return
 
         if raw_command in {"s", "status"}:
-            print(
-                f"Total mistakes so far: {game.total_mistakes}. \n"
-                f"Cells currently conflicting with the solution: {sorted(game.incorrect_cells)}"
-            )
+            print(f"Total mistakes so far: {game.total_mistakes}. \n" f"Cells currently conflicting with the solution: {sorted(game.incorrect_cells)}")
             continue
 
         if raw_command in {"help", "?"}:

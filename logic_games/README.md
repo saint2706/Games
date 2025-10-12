@@ -5,23 +5,29 @@ This directory contains implementations of logic puzzles and brain teasers.
 ## Planned Games
 
 ### Minesweeper
+
 Classic mine detection game with difficulty levels
 
 ### Sokoban
+
 Warehouse puzzle with box-pushing mechanics
 
 ### Sliding Puzzle (15-puzzle)
+
 Number tile sliding game with solvability check
 
 ### Lights Out
+
 Toggle-based puzzle with graph theory solution
 
 ### Picross/Nonograms
+
 Picture logic puzzles with row/column hints
 
 ## Game Structure
 
 Each game follows the standard structure:
+
 ```
 game_name/
 ├── __init__.py          # Package initialization
@@ -36,6 +42,7 @@ game_name/
 ## Running Games
 
 Once implemented, games can be run with:
+
 ```bash
 python -m logic_games.game_name
 ```

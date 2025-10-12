@@ -17,16 +17,7 @@ from typing import List, Optional, Sequence
 from colorama import Fore, Style
 
 from .sound_manager import create_sound_manager
-from .uno import (
-    COLORS,
-    HouseRules,
-    PlayerDecision,
-    UnoCard,
-    UnoGame,
-    UnoInterface,
-    UnoPlayer,
-    build_players,
-)
+from .uno import COLORS, HouseRules, PlayerDecision, UnoCard, UnoGame, UnoInterface, UnoPlayer, build_players
 
 # Emojis for representing card colors in the GUI.
 COLOR_EMOJI = {"red": "🟥", "yellow": "🟨", "green": "🟩", "blue": "🟦", None: "⬜"}

@@ -97,8 +97,8 @@ When prompted during game setup:
 
 ### Using Themed Boards
 
-When asked "Use a themed board?", enter `y` to see all available themes.
-Choose a theme like `emoji` to play with 😀 vs 😎.
+When asked "Use a themed board?", enter `y` to see all available themes. Choose a theme like `emoji` to play with 😀 vs
+😎.
 
 ### Playing Ultimate Tic-Tac-Toe
 

@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document outlines the architecture and implementation strategy for adding online multiplayer capability to the Uno game. The design follows a client-server model with support for real-time gameplay.
+This document outlines the architecture and implementation strategy for adding online multiplayer capability to the Uno
+game. The design follows a client-server model with support for real-time gameplay.
 
 ## Architecture Components
 
@@ -45,20 +46,17 @@ The multiplayer system uses a message-based protocol over WebSockets for real-ti
 #### Components
 
 1. **Game Server**
-
    - Manages multiple game instances
    - Routes messages between clients
    - Enforces game rules
    - Handles disconnections and reconnections
 
 1. **Lobby System**
-
    - Create/join game lobbies
    - Player matchmaking
    - Game configuration (house rules, player count)
 
 1. **Authentication** (optional)
-
    - User accounts
    - Session management
    - Player statistics
@@ -79,22 +77,22 @@ Create a new `NetworkUnoInterface` class that implements `UnoInterface`:
 ```python
 class NetworkUnoInterface(UnoInterface):
     """Interface for networked multiplayer games."""
-    
+
     def __init__(self, websocket_url: str, player_id: str):
         self.ws = connect_to_server(websocket_url)
         self.player_id = player_id
         self.game_state_queue = Queue()
-    
+
     def choose_action(self, game, player, playable, penalty_active):
         # Get player's decision
         decision = self._get_local_decision(game, player, playable, penalty_active)
-        
+
         # Send to server
         self._send_action(decision)
-        
+
         # Wait for server confirmation
         return self._wait_for_confirmation()
-    
+
     def update_status(self, game):
         # Receive game state from server
         state = self._receive_game_state()
@@ -172,30 +170,30 @@ class GameServer:
         self.games: Dict[str, UnoGame] = {}
         self.lobbies: Dict[str, Set[str]] = {}
         self.connections: Dict[str, websockets.WebSocketServerProtocol] = {}
-    
+
     async def handle_client(self, websocket, path):
         player_id = await self.authenticate(websocket)
         self.connections[player_id] = websocket
-        
+
         try:
             async for message in websocket:
                 await self.handle_message(player_id, json.loads(message))
         finally:
             await self.handle_disconnect(player_id)
-    
+
     async def handle_message(self, player_id: str, message: dict):
         msg_type = message["type"]
-        
+
         if msg_type == "JOIN_GAME":
             await self.join_game(player_id, message["game_id"])
         elif msg_type == "PLAY_CARD":
             await self.play_card(player_id, message)
         # ... handle other message types
-    
+
     async def broadcast_state(self, game_id: str):
         game = self.games[game_id]
         state = self.serialize_game_state(game)
-        
+
         for player_id in game.player_ids:
             if player_id in self.connections:
                 await self.connections[player_id].send(
@@ -224,19 +222,19 @@ class UnoClient:
         self.server_url = server_url
         self.ws = None
         self.player_id = None
-    
+
     async def connect(self):
         self.ws = await websockets.connect(self.server_url)
         response = await self.ws.recv()
         self.player_id = json.loads(response)["player_id"]
-    
+
     async def join_game(self, game_id: str):
         await self.ws.send(json.dumps({
             "type": "JOIN_GAME",
             "player_id": self.player_id,
             "game_id": game_id
         }))
-    
+
     async def play_card(self, card_index: int, declare_uno: bool = False):
         await self.ws.send(json.dumps({
             "type": "PLAY_CARD",
@@ -246,7 +244,7 @@ class UnoClient:
                 "declare_uno": declare_uno
             }
         }))
-    
+
     async def receive_updates(self):
         async for message in self.ws:
             data = json.loads(message)

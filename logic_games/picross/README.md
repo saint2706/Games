@@ -1,10 +1,8 @@
 # Picross / Nonogram
 
-Solve a classic picture logic puzzle using the numeric hints that run along the
-rows and columns. The Picross implementation in this repository aims to mimic a
-full handheld experience: you can fill cells, mark them as empty, cycle through
-states, and inspect detailed progress for each line while the engine tracks
-mistakes.
+Solve a classic picture logic puzzle using the numeric hints that run along the rows and columns. The Picross
+implementation in this repository aims to mimic a full handheld experience: you can fill cells, mark them as empty,
+cycle through states, and inspect detailed progress for each line while the engine tracks mistakes.
 
 ## Features
 

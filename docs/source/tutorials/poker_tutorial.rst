@@ -35,10 +35,10 @@ You can customize many aspects of the game:
 
    # Change difficulty level
    python -m card_games.poker --difficulty Hard
-   
+
    # Play more rounds
    python -m card_games.poker --rounds 10
-   
+
    # Use a specific random seed for reproducibility
    python -m card_games.poker --seed 12345
 
@@ -204,7 +204,7 @@ You can combine GUI with other options:
 
    # GUI with tournament mode
    python -m card_games.poker --gui --tournament
-   
+
    # GUI with Omaha variant
    python -m card_games.poker --gui --variant omaha --difficulty Hard
 

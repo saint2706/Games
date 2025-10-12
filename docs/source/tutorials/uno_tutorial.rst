@@ -31,7 +31,7 @@ How to Play
 1. **Starting Hand**: Each player receives 7 cards
 2. **Taking Turns**: Play a card that matches the color or number of the top card
 3. **Special Cards**:
-   
+
    * **Skip**: Next player loses their turn
    * **Reverse**: Direction of play reverses
    * **Draw Two**: Next player draws 2 cards
@@ -51,7 +51,7 @@ Number of Players
 
    # Play with 2-8 total players
    python -m card_games.uno --players 6 --bots 5
-   
+
    # Just you and one bot
    python -m card_games.uno --players 2 --bots 1
 
@@ -64,10 +64,10 @@ Choose from different bot personalities:
 
    # Easy bots
    python -m card_games.uno --bot-skill easy
-   
+
    # Balanced bots (default)
    python -m card_games.uno --bot-skill balanced
-   
+
    # Aggressive bots
    python -m card_games.uno --bot-skill aggressive
 
@@ -113,7 +113,7 @@ Combining Options
 
    # GUI with aggressive bots
    python -m card_games.uno --gui --bot-skill aggressive
-   
+
    # GUI with more players
    python -m card_games.uno --gui --players 6 --bots 5
 
@@ -261,22 +261,22 @@ Use the Uno engine in your code:
 .. code-block:: python
 
    from card_games.uno.uno import UnoGame
-   
+
    # Create a game
    game = UnoGame(
        num_players=4,
        bot_skill='balanced'
    )
-   
+
    # Start the game
    game.start()
-   
+
    # Play a card
    game.play_card(card_index=0, chosen_color='red')
-   
+
    # Draw a card
    game.draw_card()
-   
+
    # Call UNO
    game.call_uno()
 
@@ -288,12 +288,12 @@ Extend the bot AI:
 .. code-block:: python
 
    from card_games.uno.uno import UnoBot
-   
+
    class MyCustomBot(UnoBot):
        def choose_card(self, valid_cards):
            # Your custom logic here
            return self.choose_best_card(valid_cards)
-       
+
        def choose_wild_color(self):
            # Your color selection logic
            return self.count_colors_in_hand().most_common(1)[0][0]

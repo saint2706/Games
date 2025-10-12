@@ -1,6 +1,7 @@
 # Educational Features
 
-This document describes the educational features available in the games collection, designed to help players learn game strategies, understand game theory concepts, and improve their skills.
+This document describes the educational features available in the games collection, designed to help players learn game
+strategies, understand game theory concepts, and improve their skills.
 
 ## Overview
 
@@ -150,7 +151,7 @@ comparison = calc.format_pot_odds_comparison(
     win_probability=0.25
 )
 print(comparison)
-# Output: 
+# Output:
 # Pot Odds: 16.7% (need to win 16.7% of the time to break even)
 # Win Probability: 25.0%
 # ✓ PROFITABLE CALL (+8.3% edge)
@@ -241,7 +242,6 @@ Comprehensive strategy documentation is available in the `docs/source/guides/` d
 ### Available Guides
 
 1. **Poker Strategy** (`docs/source/guides/poker_strategy.rst`)
-
    - Pre-flop hand selection
    - Position strategy
    - Pot odds and EV
@@ -249,7 +249,6 @@ Comprehensive strategy documentation is available in the `docs/source/guides/` d
    - Common mistakes
 
 1. **Blackjack Strategy** (`docs/source/guides/blackjack_strategy.rst`)
-
    - Complete basic strategy
    - Card counting (Hi-Lo system)
    - Bankroll management
@@ -257,7 +256,6 @@ Comprehensive strategy documentation is available in the `docs/source/guides/` d
    - Practice drills
 
 1. **Game Theory** (`docs/source/guides/game_theory.rst`)
-
    - Minimax algorithm with code examples
    - Monte Carlo simulation
    - Nim-sum (XOR strategy)
@@ -354,7 +352,7 @@ class MyGameWithTutorial:
         self.tutorial_mode = tutorial_mode
         if tutorial_mode:
             self.tutorial = MyGameTutorial()
-    
+
     def play_turn(self):
         if self.tutorial_mode:
             step = self.tutorial.get_current_step()
@@ -363,10 +361,10 @@ class MyGameWithTutorial:
                 print(f"{step.description}")
                 if step.hint:
                     print(f"💡 Hint: {step.hint}")
-        
+
         # Regular game logic...
         self.make_move()
-        
+
         if self.tutorial_mode and self.tutorial.validate_current_step(self):
             self.tutorial.advance_step()
 ```
@@ -381,12 +379,12 @@ class PokerGameWithProbabilities:
         self.show_probabilities = show_probabilities
         if show_probabilities:
             self.calc = PokerProbabilityCalculator()
-    
+
     def display_decision(self):
         if self.show_probabilities:
             win_prob = self.calc.calculate_win_probability(self.table)
             print(f"💹 Win Probability: {self.calc.format_probability(win_prob)}")
-            
+
             if self.facing_bet:
                 analysis = self.calc.format_pot_odds_comparison(
                     self.amount_to_call,
@@ -402,14 +400,14 @@ class PokerGameWithProbabilities:
 class GameWithAIExplanations:
     def __init__(self, explain_ai=False):
         self.explain_ai = explain_ai
-    
+
     def ai_move(self):
         move = self.calculate_best_move()
-        
+
         if self.explain_ai:
             explanation = self.explain_move(self.state, move)
             print(f"\n🤖 AI Explanation: {explanation}")
-        
+
         self.apply_move(move)
 ```
 

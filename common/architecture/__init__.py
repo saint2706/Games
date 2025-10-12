@@ -3,12 +3,7 @@
 from .engine import GameEngine, GamePhase, GameState
 from .events import Event, EventBus, EventHandler, FunctionEventHandler
 from .observer import Observable, Observer, PropertyObservable
-from .persistence import (
-    GameStateSerializer,
-    JSONSerializer,
-    PickleSerializer,
-    SaveLoadManager,
-)
+from .persistence import GameStateSerializer, JSONSerializer, PickleSerializer, SaveLoadManager
 from .plugin import GamePlugin, PluginManager, PluginMetadata
 from .replay import ReplayAction, ReplayManager, ReplayRecorder
 from .settings import Settings, SettingsManager

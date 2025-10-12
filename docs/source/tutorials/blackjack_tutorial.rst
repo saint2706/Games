@@ -38,7 +38,7 @@ How to Play
 1. **Place Your Bet**: Enter bet amount (must be at least minimum bet)
 2. **Receive Cards**: You and dealer each get 2 cards (one dealer card hidden)
 3. **Make Decisions**:
-   
+
    * **Hit**: Take another card
    * **Stand**: Keep your current hand
    * **Double**: Double your bet and take exactly one more card
@@ -57,10 +57,10 @@ CLI Options
 
    # Custom starting bankroll
    python -m card_games.blackjack --cli --bankroll 500
-   
+
    # Higher minimum bet
    python -m card_games.blackjack --cli --min-bet 25
-   
+
    # More decks in shoe
    python -m card_games.blackjack --cli --decks 8
 
@@ -101,7 +101,7 @@ Basic Rules
 
 * **Goal**: Get closer to 21 than the dealer without going over
 * **Card Values**:
-  
+
   * Number cards: Face value
   * Face cards (J, Q, K): 10 points
   * Aces: 1 or 11 points (whichever is better)
@@ -204,7 +204,7 @@ Manage your money wisely:
 
    # Conservative start
    python -m card_games.blackjack --cli --bankroll 500 --min-bet 5
-   
+
    # High roller
    python -m card_games.blackjack --cli --bankroll 5000 --min-bet 100
 
@@ -299,20 +299,20 @@ Use the blackjack engine in your code:
 .. code-block:: python
 
    from card_games.blackjack.blackjack import BlackjackGame
-   
+
    # Create a game
    game = BlackjackGame(
        bankroll=1000,
        min_bet=10,
        num_decks=6
    )
-   
+
    # Place a bet
    game.place_bet(25)
-   
+
    # Deal initial cards
    game.deal()
-   
+
    # Make decisions
    game.hit()
    game.stand()

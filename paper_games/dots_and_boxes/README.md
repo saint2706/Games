@@ -1,6 +1,7 @@
 # Dots and Boxes
 
-A feature-rich implementation of the classic Dots and Boxes game with AI opponent, GUI, tournament mode, and multiplayer support.
+A feature-rich implementation of the classic Dots and Boxes game with AI opponent, GUI, tournament mode, and multiplayer
+support.
 
 ## Features
 
@@ -80,7 +81,9 @@ python -m paper_games.dots_and_boxes --join 192.168.1.100 --port 5555 --name "Bo
 
 ## Game Rules
 
-Dots and Boxes is played on a grid of dots. Players take turns drawing horizontal or vertical lines between adjacent dots. When a player completes the fourth side of a box, they claim it and get another turn. The game ends when all boxes are claimed, and the player with the most boxes wins.
+Dots and Boxes is played on a grid of dots. Players take turns drawing horizontal or vertical lines between adjacent
+dots. When a player completes the fourth side of a box, they claim it and get another turn. The game ends when all boxes
+are claimed, and the player with the most boxes wins.
 
 ## Strategy Tips
 
@@ -92,7 +95,8 @@ The GUI provides real-time feedback:
 
 ### Chain Strategy
 
-A "chain" is created when you give your opponent the opportunity to claim multiple boxes in sequence. The AI is aware of chains and tries to minimize them. You should too!
+A "chain" is created when you give your opponent the opportunity to claim multiple boxes in sequence. The AI is aware of
+chains and tries to minimize them. You should too!
 
 ## Programming Interface
 

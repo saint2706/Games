@@ -1,6 +1,7 @@
 # Card Games Implementation Summary
 
-This document summarizes the new card games and features implemented to address the comprehensive card games implementation issue.
+This document summarizes the new card games and features implemented to address the comprehensive card games
+implementation issue.
 
 ## New Card Games Implemented
 
@@ -11,6 +12,7 @@ This document summarizes the new card games and features implemented to address 
 **Description**: Classic two-player card game where players compare cards, with the higher card winning.
 
 **Features**:
+
 - Full War rules including recursive wars (when cards tie)
 - Automatic handling of insufficient cards during war
 - Round-by-round and auto-play modes
@@ -20,6 +22,7 @@ This document summarizes the new card games and features implemented to address 
 **Lines of Code**: ~230 LOC (game engine + CLI)
 
 **Usage**:
+
 ```bash
 python -m card_games.war
 python -m card_games.war --auto --seed 42
@@ -27,6 +30,7 @@ python -m card_games.war --leaderboard
 ```
 
 **Architecture**:
+
 - `game.py` - Core game engine with no UI dependencies
 - `cli.py` - Command-line interface
 - `__main__.py` - Entry point with argument parsing
@@ -38,9 +42,11 @@ python -m card_games.war --leaderboard
 
 **Location**: `card_games/go_fish/`
 
-**Description**: Classic card game for 2-6 players where players collect sets of four cards of the same rank by asking opponents.
+**Description**: Classic card game for 2-6 players where players collect sets of four cards of the same rank by asking
+opponents.
 
 **Features**:
+
 - Support for 2-6 players
 - Automatic book (set of 4) detection and scoring
 - Lucky draw mechanic (get another turn if you draw the rank you asked for)
@@ -51,6 +57,7 @@ python -m card_games.war --leaderboard
 **Lines of Code**: ~320 LOC (game engine + CLI)
 
 **Usage**:
+
 ```bash
 python -m card_games.go_fish
 python -m card_games.go_fish --players 4
@@ -59,6 +66,7 @@ python -m card_games.go_fish --seed 42
 ```
 
 **Architecture**:
+
 - `game.py` - Core game engine with Player class
 - `cli.py` - CLI with hand display and input handling
 - `__main__.py` - Entry point
@@ -70,9 +78,11 @@ python -m card_games.go_fish --seed 42
 
 **Location**: `card_games/crazy_eights/`
 
-**Description**: Classic shedding game similar to Uno but with a standard deck. Eights are wild and allow changing the suit.
+**Description**: Classic shedding game similar to Uno but with a standard deck. Eights are wild and allow changing the
+suit.
 
 **Features**:
+
 - Support for 2-6 players
 - Eights as wild cards with suit selection
 - Configurable draw limit (default 3, or unlimited)
@@ -84,6 +94,7 @@ python -m card_games.go_fish --seed 42
 **Lines of Code**: ~315 LOC (game engine + CLI)
 
 **Usage**:
+
 ```bash
 python -m card_games.crazy_eights
 python -m card_games.crazy_eights --players 4
@@ -93,6 +104,7 @@ python -m card_games.crazy_eights --seed 42
 ```
 
 **Architecture**:
+
 - `game.py` - Core game engine with Player class
 - `cli.py` - CLI with playability indicators
 - `__main__.py` - Entry point
@@ -106,9 +118,11 @@ python -m card_games.crazy_eights --seed 42
 
 **Location**: `card_games/common/stats.py`
 
-**Description**: Simplified wrapper around the existing `common/analytics/game_stats.py` system, specifically tailored for card games.
+**Description**: Simplified wrapper around the existing `common/analytics/game_stats.py` system, specifically tailored
+for card games.
 
 **Features**:
+
 - Win/loss/draw tracking per player
 - Game duration tracking
 - Win streaks and longest win streaks
@@ -118,6 +132,7 @@ python -m card_games.crazy_eights --seed 42
 - Optional score tracking
 
 **Integration Example** (War game):
+
 ```python
 from card_games.common.stats import CardGameStats
 
@@ -132,6 +147,7 @@ stats.display_leaderboard()
 ```
 
 **Command-line Integration**:
+
 ```bash
 # Play with stats tracking (enabled by default)
 python -m card_games.war
@@ -147,6 +163,7 @@ python -m card_games.war --show-stats --player "Player 1"
 ```
 
 **Benefits**:
+
 - Encourages replayability
 - Tracks player progress over time
 - Provides competitive element with leaderboards
@@ -194,6 +211,7 @@ All games have been manually tested:
 - **Statistics**: Tested persistence and retrieval
 
 Example test commands:
+
 ```bash
 # War with seed
 python -m card_games.war --auto --seed 42 --delay 0
@@ -209,19 +227,20 @@ python -m card_games.crazy_eights --players 3 --draw-limit 0 --seed 456
 
 ## Lines of Code Summary
 
-| Component | Lines |
-|-----------|-------|
-| War game | ~230 |
-| Go Fish game | ~320 |
-| Crazy Eights game | ~315 |
-| Statistics wrapper | ~230 |
-| **Total** | **~1,095** |
+| Component          | Lines      |
+| ------------------ | ---------- |
+| War game           | ~230       |
+| Go Fish game       | ~320       |
+| Crazy Eights game  | ~315       |
+| Statistics wrapper | ~230       |
+| **Total**          | **~1,095** |
 
 ---
 
 ## Future Work
 
 ### Remaining Card Games (Medium Priority)
+
 - Cribbage - Pegging board, 15s counting
 - Euchre - Trump-based trick-taking
 - Rummy 500 - Melding variant
@@ -229,11 +248,13 @@ python -m card_games.crazy_eights --players 3 --draw-limit 0 --seed 456
 - Pinochle - Double-deck, bidding (Low Priority)
 
 ### Uno Features
+
 - Jump-in rule completion (requires major refactoring)
 - Online multiplayer (out of scope per documentation)
 - Custom deck designer (out of scope per documentation)
 
 ### Additional Cross-Game Features
+
 - GUI implementations for new games (using existing BaseGUI)
 - Save/load game state integration
 - Replay/undo functionality integration
@@ -249,16 +270,19 @@ python -m card_games.crazy_eights --players 3 --draw-limit 0 --seed 456
 To add statistics tracking to a new card game:
 
 1. Import the stats module:
+
 ```python
 from card_games.common.stats import CardGameStats
 ```
 
 2. Create stats tracker:
+
 ```python
 stats = CardGameStats("your_game_name")
 ```
 
 3. Record game results:
+
 ```python
 stats.record_win("Player 1", duration=game_duration, score=final_score)
 stats.record_loss("Player 2", duration=game_duration, score=final_score)
@@ -266,6 +290,7 @@ stats.save()
 ```
 
 4. Add CLI arguments for stats display:
+
 ```python
 parser.add_argument("--show-stats", action="store_true")
 parser.add_argument("--leaderboard", action="store_true")
@@ -273,6 +298,7 @@ parser.add_argument("--no-stats", action="store_true")
 ```
 
 5. Handle stats display:
+
 ```python
 if args.show_stats:
     stats.display_player_stats(player_name)
@@ -285,10 +311,13 @@ if args.leaderboard:
 ## Conclusion
 
 This implementation provides:
+
 - **3 new playable card games** with complete rules and features
 - **Universal statistics system** that can be easily integrated into all card games
 - **Consistent patterns** that make it easy to add more games
 - **High-quality code** following repository standards
 - **Comprehensive documentation** for users and developers
 
-These games demonstrate the patterns that can be followed for implementing the remaining card games on the TODO list. Each game took approximately 300-400 lines of code and a few hours to implement, suggesting that the remaining 5 card games could be completed following the same patterns.
+These games demonstrate the patterns that can be followed for implementing the remaining card games on the TODO list.
+Each game took approximately 300-400 lines of code and a few hours to implement, suggesting that the remaining 5 card
+games could be completed following the same patterns.

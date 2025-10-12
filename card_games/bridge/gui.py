@@ -11,24 +11,9 @@ from __future__ import annotations
 import random
 from typing import Optional
 
-from card_games.bridge.game import (
-    BidSuit,
-    BridgeGame,
-    BridgePlayer,
-    Call,
-    CallType,
-    Contract,
-    Vulnerability,
-)
+from card_games.bridge.game import BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
 from card_games.common.cards import Card, Suit
-from common.gui_base import (
-    TKINTER_AVAILABLE,
-    BaseGUI,
-    GUIConfig,
-    scrolledtext,
-    tk,
-    ttk,
-)
+from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 
 SUIT_DISPLAY_ORDER = {
     Suit.SPADES: 0,
@@ -245,9 +230,7 @@ class BridgeGUI(BaseGUI):
             contract_text = self._format_contract(self.contract)
             dummy = self.players[self.contract.declarer.partner_index]
             self.contract_var.set(f"Contract: {contract_text}")
-            self.declarer_var.set(
-                f"Declarer: {self.contract.declarer.position} | Dummy: {dummy.position}"
-            )
+            self.declarer_var.set(f"Declarer: {self.contract.declarer.position} | Dummy: {dummy.position}")
         ns_tricks = sum(player.tricks_won for player in self.players if player.position in {"N", "S"})
         ew_tricks = sum(player.tricks_won for player in self.players if player.position in {"E", "W"})
         self.trick_var.set(f"Tricks - NS: {ns_tricks} | EW: {ew_tricks}")
@@ -390,9 +373,7 @@ class BridgeGUI(BaseGUI):
                 result_text = f"Contract down {required - declarer_tricks}."
         self.status_var.set(result_text)
         self._append_log(result_text)
-        self._append_log(
-            "Scores - North/South: {north_south} | East/West: {east_west}".format(**scores)
-        )
+        self._append_log("Scores - North/South: {north_south} | East/West: {east_west}".format(**scores))
         self.update_display()
 
     def _refresh_card_buttons(self) -> None:
@@ -490,9 +471,7 @@ def run_app() -> None:
     try:
         root = tk.Tk()
     except tk.TclError:
-        _fallback_to_cli(
-            "Tkinter could not open a display. Falling back to CLI interface."
-        )
+        _fallback_to_cli("Tkinter could not open a display. Falling back to CLI interface.")
         return
 
     config = GUIConfig(

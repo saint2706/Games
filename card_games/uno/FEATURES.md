@@ -10,7 +10,8 @@ This document provides an overview of the implemented features in the Uno game.
 
 **Status**: Fully Implemented
 
-Players can stack +2 and +4 cards to increase the penalty for the next player. When a +2 or +4 is played, the next player can either:
+Players can stack +2 and +4 cards to increase the penalty for the next player. When a +2 or +4 is played, the next
+player can either:
 
 - Accept the penalty and draw the accumulated cards
 - Stack another +2 or +4 to pass the penalty to the next player
@@ -23,7 +24,8 @@ Enable with: `--stacking` flag
 
 **Status**: Partially Implemented (Flag exists, logic not implemented)
 
-The jump-in rule allows players to play a card that is identical (same color AND value) to the card just played, even if it's not their turn. This interrupts the normal turn order.
+The jump-in rule allows players to play a card that is identical (same color AND value) to the card just played, even if
+it's not their turn. This interrupts the normal turn order.
 
 Enable with: `--jump-in` flag (currently has no effect)
 
@@ -55,7 +57,8 @@ Enable with: `--seven-zero` flag
 
 **Status**: Fully Implemented
 
-Players are organized into two teams (Team 0 and Team 1) in a 4-player game. Team members work together to help each other win.
+Players are organized into two teams (Team 0 and Team 1) in a 4-player game. Team members work together to help each
+other win.
 
 - Players alternate between teams (Player 0 & 2 vs Player 1 & 3)
 - Victory is achieved when any team member runs out of cards

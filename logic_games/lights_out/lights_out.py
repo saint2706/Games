@@ -117,11 +117,7 @@ class LightsOutGame(GameEngine[Tuple[int, int], int]):
                     target_brightness = self.on_brightness
                 else:
                     neighbors_on = sum(
-                        1
-                        for dr, dc in _NEIGHBOR_DELTAS[1:]
-                        if 0 <= r + dr < self.size
-                        and 0 <= c + dc < self.size
-                        and self.grid[r + dr][c + dc].is_on
+                        1 for dr, dc in _NEIGHBOR_DELTAS[1:] if 0 <= r + dr < self.size and 0 <= c + dc < self.size and self.grid[r + dr][c + dc].is_on
                     )
                     target_brightness = min(
                         self.on_brightness,
@@ -159,9 +155,7 @@ class LightsOutGame(GameEngine[Tuple[int, int], int]):
             self.state = GameState.IN_PROGRESS
 
         self.total_time_seconds += self.move_duration_seconds
-        self.total_energy_kwh += (previous_power / 1000.0) * (
-            self.move_duration_seconds / 3600.0
-        )
+        self.total_energy_kwh += (previous_power / 1000.0) * (self.move_duration_seconds / 3600.0)
         self.moves += 1
 
         self._recalculate_brightness()

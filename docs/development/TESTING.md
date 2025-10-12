@@ -42,7 +42,7 @@ pytest -m "not performance"
 
 # Run specific test category
 pytest -m integration  # Integration tests
-pytest -m gui          # GUI tests  
+pytest -m gui          # GUI tests
 pytest -m performance  # Performance tests
 ```
 
@@ -80,16 +80,16 @@ pytest
 
 ### Quick Reference
 
-| Command | What It Does |
-|---------|--------------|
-| `pytest` | Run all tests |
-| `pytest -v` | Verbose output |
-| `pytest -m integration` | Run integration tests |
-| `pytest -k "test_name"` | Run tests matching name |
-| `pytest --cov` | Run with coverage |
-| `pytest -x` | Stop on first failure |
-| `pytest --pdb` | Debug on failure |
-| `./scripts/run_tests.sh help` | Show script options |
+| Command                       | What It Does            |
+| ----------------------------- | ----------------------- |
+| `pytest`                      | Run all tests           |
+| `pytest -v`                   | Verbose output          |
+| `pytest -m integration`       | Run integration tests   |
+| `pytest -k "test_name"`       | Run tests matching name |
+| `pytest --cov`                | Run with coverage       |
+| `pytest -x`                   | Stop on first failure   |
+| `pytest --pdb`                | Debug on failure        |
+| `./scripts/run_tests.sh help` | Show script options     |
 
 ## Overview
 
@@ -162,7 +162,7 @@ start htmlcov/index.html  # Windows
 Coverage settings are in `pytest.ini`:
 
 - Minimum coverage threshold: 90%
-- Excludes: tests, demos, __main__ files
+- Excludes: tests, demos, **main** files
 - Reports: HTML, terminal, XML (for CI)
 
 ### Current Coverage by Module
@@ -207,9 +207,8 @@ Test GUI components (requires display).
 pytest -m performance
 ```
 
-Benchmark tests for game algorithms. These are intended for local validation and
-are skipped automatically in continuous integration environments to keep
-pipeline execution times reasonable.
+Benchmark tests for game algorithms. These are intended for local validation and are skipped automatically in continuous
+integration environments to keep pipeline execution times reasonable.
 
 ### Network Tests
 
@@ -234,9 +233,8 @@ Performance tests ensure game algorithms run efficiently:
 pytest tests/test_performance.py -v
 ```
 
-Because performance benchmarks can take significantly longer than functional
-tests, the CI configuration skips them by default. Run the command above (or
-`pytest -m performance`) locally to validate performance before merging.
+Because performance benchmarks can take significantly longer than functional tests, the CI configuration skips them by
+default. Run the command above (or `pytest -m performance`) locally to validate performance before merging.
 
 ### Benchmarking
 
@@ -295,7 +293,7 @@ mutmut html
 
 Mutation testing settings are in `.mutmut.toml`:
 
-- Excludes: GUI files, demos, __main__ files
+- Excludes: GUI files, demos, **main** files
 - Uses coverage data to target tested code
 - Parallel execution support
 
@@ -410,14 +408,14 @@ pytest -m "not performance" --cov=paper_games --cov=card_games --cov-report=term
 
 ### Target Coverage by Module
 
-| Module Type | Target | Priority |
-| ----------- | ------ | -------- |
-| Core game logic | 95%+ | High |
-| AI algorithms | 90%+ | High |
-| Statistics | 90%+ | Medium |
-| CLI interfaces | 80%+ | Medium |
-| GUI components | 60%+ | Low |
-| Demo scripts | 30%+ | Low |
+| Module Type     | Target | Priority |
+| --------------- | ------ | -------- |
+| Core game logic | 95%+   | High     |
+| AI algorithms   | 90%+   | High     |
+| Statistics      | 90%+   | Medium   |
+| CLI interfaces  | 80%+   | Medium   |
+| GUI components  | 60%+   | Low      |
+| Demo scripts    | 30%+   | Low      |
 
 ## Troubleshooting
 

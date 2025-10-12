@@ -26,32 +26,32 @@ case "$TEST_TYPE" in
       python -m pytest tests/ -v
     fi
     ;;
-  
+
   "unit")
     echo -e "${GREEN}Running unit tests...${NC}"
     python -m pytest tests/ -v -m unit
     ;;
-  
+
   "integration")
     echo -e "${GREEN}Running integration tests...${NC}"
     python -m pytest tests/ -v -m integration
     ;;
-  
+
   "gui")
     echo -e "${GREEN}Running GUI tests...${NC}"
     python -m pytest tests/ -v -m gui
     ;;
-  
+
   "performance")
     echo -e "${GREEN}Running performance tests...${NC}"
     python -m pytest tests/ -v -m performance
     ;;
-  
+
   "fast")
     echo -e "${GREEN}Running fast tests (excluding slow tests)...${NC}"
     python -m pytest tests/ -v -m "not slow"
     ;;
-  
+
   "coverage")
     echo -e "${GREEN}Running tests with coverage report...${NC}"
     python -m pytest tests/ -v \
@@ -63,7 +63,7 @@ case "$TEST_TYPE" in
     echo ""
     echo -e "${GREEN}Coverage report generated in htmlcov/index.html${NC}"
     ;;
-  
+
   "mutation")
     echo -e "${GREEN}Running mutation tests (this may take a while)...${NC}"
     mutmut run --paths-to-mutate paper_games/nim/,paper_games/tic_tac_toe/
@@ -71,7 +71,7 @@ case "$TEST_TYPE" in
     echo ""
     echo "Run 'mutmut html' to generate HTML report"
     ;;
-  
+
   "help"|"-h"|"--help")
     echo "Usage: $0 [test_type] [coverage]"
     echo ""
@@ -98,7 +98,7 @@ case "$TEST_TYPE" in
     echo "  $0 mutation             # Run mutation testing"
     exit 0
     ;;
-  
+
   *)
     echo -e "${RED}Unknown test type: $TEST_TYPE${NC}"
     echo "Run '$0 help' for usage information"

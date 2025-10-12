@@ -21,8 +21,8 @@ How It Works
 
 1. **Build game tree:** Explore all possible moves from current state
 2. **Evaluate leaf nodes:** Assign scores to terminal states
-3. **Propagate scores up:** 
-   
+3. **Propagate scores up:**
+
    * Max player chooses maximum score
    * Min player chooses minimum score
 
@@ -39,7 +39,7 @@ Example: Tic-Tac-Toe
        /          |          \
     Move A     Move B     Move C
    (Score 0)  (Score 1)  (Score -1)
-   
+
    X chooses Move B (highest score = 1)
 
 Python Implementation
@@ -52,7 +52,7 @@ Python Implementation
         # Base case: game over or max depth
         if state.is_terminal() or depth == 0:
             return state.evaluate()
-        
+
         if is_maximizing:
             # Maximizer: choose highest value
             best_value = float('-inf')
@@ -81,7 +81,7 @@ Optimization that prunes branches that won't affect the final decision:
         """Minimax with alpha-beta pruning."""
         if state.is_terminal() or depth == 0:
             return state.evaluate()
-        
+
         if is_maximizing:
             best_value = float('-inf')
             for move in state.get_valid_moves():
@@ -133,13 +133,13 @@ Example: Poker Hand Strength
 
    Your hand: A♠ K♠
    Board: Q♠ J♠ 2♣
-   
+
    Simulation 1: Deal random river/turn → You win
    Simulation 2: Deal random river/turn → You lose
    Simulation 3: Deal random river/turn → You win
    ...
    Simulation 1000: Deal random river/turn → You win
-   
+
    Results: Won 682/1000 = 68.2% win rate
 
 Python Implementation
@@ -150,21 +150,21 @@ Python Implementation
     def monte_carlo_estimate(state, move, simulations=1000):
         """Estimate win probability using Monte Carlo."""
         wins = 0
-        
+
         for _ in range(simulations):
             # Make a copy and apply move
             sim_state = state.copy()
             sim_state.make_move(move)
-            
+
             # Play out randomly to end
             while not sim_state.is_terminal():
                 random_move = random.choice(sim_state.get_valid_moves())
                 sim_state.make_move(random_move)
-            
+
             # Check if we won
             if sim_state.winner() == state.current_player:
                 wins += 1
-        
+
         return wins / simulations
 
 Monte Carlo Tree Search (MCTS)
@@ -205,7 +205,7 @@ How It Works
 .. code-block:: text
 
    Heaps: [3, 4, 5]
-   
+
    Binary representation:
    3 = 011
    4 = 100
@@ -221,12 +221,12 @@ To win, make a move that results in nim-sum = 0:
 .. code-block:: text
 
    Current: [3, 4, 5], nim-sum = 2
-   
+
    Try removing from heap of 5:
    - Remove 3: [3, 4, 2], nim-sum = 5 ✗
    - Remove 4: [3, 4, 1], nim-sum = 6 ✗
    - Remove 5: [3, 4, 0], nim-sum = 7 ✗
-   
+
    Winning move: Change 5 to 4 → [3, 4, 4], nim-sum = 3 ✓
 
 Python Implementation
@@ -240,21 +240,21 @@ Python Implementation
         for heap in heaps:
             nim_sum ^= heap
         return nim_sum
-    
+
     def find_winning_move(heaps):
         """Find move that results in nim-sum = 0."""
         current_nim_sum = calculate_nim_sum(heaps)
-        
+
         if current_nim_sum == 0:
             return None  # Already losing position
-        
+
         for i, heap in enumerate(heaps):
             # Calculate target heap size
             target = heap ^ current_nim_sum
             if target < heap:
                 # Remove (heap - target) objects from heap i
                 return (i, heap - target)
-        
+
         return None
 
 Used In:
@@ -278,7 +278,7 @@ Formula
 .. code-block:: text
 
    EV = Σ (Probability_i × Outcome_i)
-   
+
    Where:
    - Probability_i = chance of outcome i
    - Outcome_i = value of outcome i
@@ -291,11 +291,11 @@ Example: Poker Bet
    Pot: $100
    Bet to call: $20
    Win probability: 30%
-   
+
    EV = (0.30 × $100) - (0.70 × $20)
       = $30 - $14
       = +$16
-   
+
    Positive EV = profitable call!
 
 Example: Blackjack Insurance
@@ -306,13 +306,13 @@ Example: Blackjack Insurance
    Dealer shows Ace
    Insurance costs $10 (half original bet)
    Pays 2:1 if dealer has blackjack
-   
+
    Probability dealer has blackjack ≈ 30.8%
-   
+
    EV = (0.308 × $20) - (0.692 × $10)
       = $6.16 - $6.92
       = -$0.76
-   
+
    Negative EV = don't take insurance!
 
 Python Implementation
@@ -324,15 +324,15 @@ Python Implementation
         """Calculate expected value of a decision."""
         if len(outcomes) != len(probabilities):
             raise ValueError("Outcomes and probabilities must match")
-        
+
         ev = 0
         for outcome, prob in zip(outcomes, probabilities):
             ev += outcome * prob
-        
+
         # Subtract costs
         for cost, prob in zip(costs, probabilities):
             ev -= cost * prob
-        
+
         return ev
 
 Decision Making
@@ -363,10 +363,10 @@ Example: Rock-Paper-Scissors
 .. code-block:: text
 
    Optimal strategy: Play each move 1/3 of the time
-   
+
    If opponent plays rock 50% of time:
    - You should play paper more often
-   
+
    At equilibrium:
    - Both play each move 1/3 of time
    - No one can improve unilaterally

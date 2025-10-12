@@ -3,18 +3,13 @@
 
 [mutmut]
 # Paths to mutate
-paths_to_mutate = paper_games/,card_games/
+paths_to_mutate = "paper_games/,card_games/"
 
 # Paths to exclude from mutation
-paths_to_exclude = 
-    */tests/*,
-    */demo*.py,
-    */gui.py,
-    */__main__.py,
-    */__init__.py
+paths_to_exclude = "*/tests/*,*/demo*.py,*/gui.py,*/__main__.py,*/__init__.py"
 
 # Test runner command
-runner = python -m pytest tests/ -x --assert=plain -o log_cli=false
+runner = "python -m pytest tests/ -x --assert=plain -o log_cli=false"
 
 # Backup directory
 backup = true
@@ -33,4 +28,4 @@ test_time_base = 0.0
 swallow_output = true
 
 # Cache directory
-dict_synonyms = "Struct", "NamedStruct", "NamedTuple", "namedtuple"
+dict_synonyms = ["Struct", "NamedStruct", "NamedTuple", "namedtuple"]

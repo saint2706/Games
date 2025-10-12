@@ -75,20 +75,20 @@ Orchestrates multiple hands and manages the overall game:
 
    class PokerMatch:
        """Manages a complete poker match with multiple hands.
-       
+
        Responsibilities:
        - Track player statistics across hands
        - Manage tournament blind increases
        - Handle player elimination
        - Save hand history
        """
-       
+
        def __init__(self, variant, limit_type, tournament_mode):
            self.players = []
            self.hands_played = 0
            self.statistics = {}
            self.tournament_mode = tournament_mode
-       
+
        def play_hand(self):
            """Play a single hand."""
            table = PokerTable(self.players, self.blinds)
@@ -111,21 +111,21 @@ Manages a single hand from deal to showdown:
 
    class PokerTable:
        """Manages a single poker hand.
-       
+
        Responsibilities:
        - Deal cards (hole cards and community cards)
        - Coordinate betting rounds
        - Calculate pots and side pots
        - Determine winners
        """
-       
+
        def __init__(self, players, blinds):
            self.players = players
            self.deck = Deck()
            self.community_cards = []
            self.pot = 0
            self.current_bet = 0
-       
+
        def play(self):
            """Execute complete hand."""
            self.post_blinds()
@@ -165,27 +165,27 @@ Player state and AI decision making:
 
    class PokerBot:
        """AI opponent with configurable skill level.
-       
+
        Decision making uses:
        - Monte Carlo simulation for win rate estimation
        - Position awareness
        - Pot odds calculation
        - Opponent modeling
        """
-       
+
        def __init__(self, skill_level: BotSkill):
            self.skill = skill_level
            self.opponent_model = {}
-       
+
        def decide_action(self, game_state) -> Action:
            """Choose action based on game state."""
            win_rate = self.estimate_equity(game_state)
            pot_odds = self.calculate_pot_odds(game_state)
-           
+
            # Apply skill-based adjustments
            if self.skill.mistake_rate > random.random():
                return self.make_mistake()
-           
+
            return self.optimal_action(win_rate, pot_odds)
 
 Hand Evaluation
@@ -197,10 +197,10 @@ Fast and accurate hand ranking:
 
    def best_hand(cards: List[Card]) -> Tuple[HandRank, List[int]]:
        """Evaluate best 5-card poker hand.
-       
+
        Returns:
            (hand_rank, tiebreaker_values)
-       
+
        Example:
            best_hand([As, Ks, Qs, Js, Ts])
            -> (HandRank.STRAIGHT_FLUSH, [14])
@@ -230,44 +230,44 @@ Complete Hand Sequence
       │
       ├─> Small blind posts (e.g., $5)
       └─> Big blind posts (e.g., $10)
-   
+
    2. DEAL HOLE CARDS
       │
       ├─> Each player receives 2 cards (Texas) or 4 cards (Omaha)
       └─> Cards are private to each player
-   
+
    3. PRE-FLOP BETTING
       │
       ├─> Starts with player after big blind
       ├─> Players can: Fold, Call, Raise
       └─> Round ends when all players match the bet
-   
+
    4. DEAL FLOP (3 community cards)
       │
       └─> Burn one card, deal 3 face up
-   
+
    5. FLOP BETTING
       │
       ├─> Starts with player after dealer
       ├─> Players can: Check, Bet, Fold, Call, Raise
       └─> Round ends when all players match
-   
+
    6. DEAL TURN (1 community card)
       │
       └─> Burn one card, deal 1 face up
-   
+
    7. TURN BETTING
       │
       └─> Same as flop betting
-   
+
    8. DEAL RIVER (1 community card)
       │
       └─> Burn one card, deal 1 face up
-   
+
    9. RIVER BETTING
       │
       └─> Final betting round
-   
+
    10. SHOWDOWN
        │
        ├─> Remaining players reveal cards
@@ -282,7 +282,7 @@ Each betting round follows these rules:
 
 1. **Action Order**: Clockwise from designated starting position
 2. **Valid Actions**:
-   
+
    * **Fold**: Forfeit hand (can't win pot)
    * **Check**: Pass action if no bet (not allowed if bet exists)
    * **Call**: Match current bet
@@ -302,10 +302,10 @@ The AI estimates hand strength through simulation:
 
 .. code-block:: python
 
-   def estimate_win_rate(hole_cards, community_cards, 
+   def estimate_win_rate(hole_cards, community_cards,
                          num_opponents=3, simulations=1000):
        """Estimate probability of winning through simulation.
-       
+
        Process:
        1. Deal random opponent hands
        2. Deal remaining community cards
@@ -314,29 +314,29 @@ The AI estimates hand strength through simulation:
        5. Return win rate
        """
        wins = 0
-       
+
        for _ in range(simulations):
            # Simulate one possible outcome
            deck = Deck()
            deck.remove_cards(hole_cards + community_cards)
-           
+
            # Deal opponent hands
            opponent_hands = [deck.deal(2) for _ in range(num_opponents)]
-           
+
            # Complete community cards
            remaining = 5 - len(community_cards)
            simulated_community = community_cards + deck.deal(remaining)
-           
+
            # Evaluate hands
            my_hand = best_hand(hole_cards + simulated_community)
            opponent_best = max(
-               best_hand(opp + simulated_community) 
+               best_hand(opp + simulated_community)
                for opp in opponent_hands
            )
-           
+
            if my_hand > opponent_best:
                wins += 1
-       
+
        return wins / simulations
 
 **Parameters:**
@@ -354,7 +354,7 @@ AI adjusts strategy based on position:
 
    def position_factor(position, num_players):
        """Calculate position advantage.
-       
+
        Returns:
            float: Multiplier for hand strength
                  (1.0 = neutral, >1.0 = advantage)
@@ -362,11 +362,11 @@ AI adjusts strategy based on position:
        # Early position (first to act)
        if position <= num_players // 3:
            return 0.85  # Play tighter
-       
+
        # Middle position
        elif position <= 2 * num_players // 3:
            return 1.0  # Standard play
-       
+
        # Late position (dealer button nearby)
        else:
            return 1.15  # Play looser, more aggressive
@@ -422,12 +422,12 @@ AI uses pot odds for call/fold decisions:
 
    def should_call(pot_size, call_amount, win_rate):
        """Determine if calling is profitable.
-       
+
        Args:
            pot_size: Current pot size
            call_amount: Amount to call
            win_rate: Estimated probability of winning
-       
+
        Returns:
            bool: True if call is +EV
        """
@@ -455,7 +455,7 @@ The architecture supports adding new poker variants:
        TEXAS_HOLDEM = "texas-holdem"
        OMAHA = "omaha"
        # Add new variants here
-   
+
    def deal_hole_cards(variant, deck):
        """Deal appropriate hole cards for variant."""
        if variant == GameVariant.TEXAS_HOLDEM:
@@ -475,7 +475,7 @@ Easy to add new betting structures:
        NO_LIMIT = "no-limit"
        POT_LIMIT = "pot-limit"
        FIXED_LIMIT = "fixed-limit"
-   
+
    def max_raise(limit_type, pot_size, current_bet):
        """Calculate maximum raise for betting structure."""
        if limit_type == BettingLimit.NO_LIMIT:
@@ -534,7 +534,7 @@ Blinds increase on schedule:
 
    def get_blinds(hands_played, schedule_interval=10):
        """Calculate current blinds based on hands played.
-       
+
        Example schedule:
            Hands 1-10:   $5/$10
            Hands 11-20:  $10/$20
@@ -569,7 +569,7 @@ The poker module includes comprehensive tests:
            royal = [Card('A','♠'), Card('K','♠'), ...]
            pair = [Card('A','♥'), Card('A','♦'), ...]
            self.assertGreater(best_hand(royal), best_hand(pair))
-       
+
        def test_pot_calculation(self):
            """Test pot and side pot calculation."""
            # Player 1: $100 all-in
@@ -579,7 +579,7 @@ The poker module includes comprehensive tests:
            table.process_bets()
            self.assertEqual(table.main_pot, 300)
            self.assertEqual(table.side_pots[0], 400)
-       
+
        def test_ai_decision(self):
            """Test AI makes reasonable decisions."""
            bot = PokerBot(skill_level='Medium')

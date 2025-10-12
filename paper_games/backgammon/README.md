@@ -18,7 +18,4 @@ Dice-based race game with bearing off and doubling cube.
 
 ## Implementation Status
 
-✅ Basic structure
-🔄 Full backgammon rules pending
-🔄 Bearing off mechanics pending
-🔄 Doubling cube pending
+✅ Basic structure 🔄 Full backgammon rules pending 🔄 Bearing off mechanics pending 🔄 Doubling cube pending

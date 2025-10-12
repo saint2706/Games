@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'pip'
+          cache: "pip"
           cache-dependency-path: |
             requirements-dev.txt
 
@@ -60,7 +60,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          cache: "pip"
           cache-dependency-path: |
             requirements.txt
             requirements-dev.txt
@@ -79,7 +79,9 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run tests with coverage (skip performance benchmarks)
-        run: python -m pytest tests/ -v -m "not performance" --cov=paper_games --cov=card_games --cov-report=xml --cov-report=term-missing
+        run:
+          python -m pytest tests/ -v -m "not performance" --cov=paper_games --cov=card_games --cov-report=xml
+          --cov-report=term-missing
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

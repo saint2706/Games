@@ -230,11 +230,7 @@ class TicTacToeGame:
                 return center_index
 
         # Next, favour the corners for stronger board control.
-        corners = [
-            row * self.board_size + col
-            for row in (0, self.board_size - 1)
-            for col in (0, self.board_size - 1)
-        ]
+        corners = [row * self.board_size + col for row in (0, self.board_size - 1) for col in (0, self.board_size - 1)]
         for corner in corners:
             if 0 <= corner < len(self.board) and self.board[corner] == " ":
                 return corner

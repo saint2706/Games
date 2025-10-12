@@ -136,7 +136,8 @@ This document provides technical implementation notes for the Uno game features 
 
 ### Conditional GUI Import
 
-**Problem**: The uno package import failed when tkinter was not available (e.g., in headless environments or during testing).
+**Problem**: The uno package import failed when tkinter was not available (e.g., in headless environments or during
+testing).
 
 **Solution**: Modified `__init__.py` to conditionally import GUI components:
 
@@ -212,73 +213,59 @@ All tests pass successfully as of this implementation.
 ### Modified Files
 
 1. `card_games/uno/__init__.py`
-
    - Conditional GUI import
    - Prevents tkinter dependency issues
 
 1. `card_games/uno/uno.py`
-
    - Added TODO comment for jump-in rule
    - No functional changes
 
 1. `card_games/uno/gui.py`
-
    - Integrated SoundManager
    - Enhanced `_animate_card_play()` method
    - Updated `play_sound()` implementation
 
 1. `.gitignore`
-
    - Added sound file patterns to ignore user-added sounds
 
 ### New Files
 
 1. `card_games/uno/sound_manager.py`
-
    - Complete sound effect system
    - Pygame integration with fallback
 
 1. `card_games/uno/sounds/README.md`
-
    - User guide for adding sound files
    - Sound resources and format specifications
 
 1. `card_games/uno/sounds/.gitkeep`
-
    - Ensures sounds directory is tracked
 
 1. `card_games/uno/FEATURES.md`
-
    - Comprehensive feature documentation
    - Usage examples and implementation status
 
 1. `card_games/uno/IMPLEMENTATION_NOTES.md`
-
    - This file - technical implementation details
 
 1. `tests/test_uno_features.py`
-
    - Complete test suite for implemented features
 
 ## Known Limitations
 
 1. **Jump-In Rule**: Flag exists but no implementation
-
    - Would require major refactoring of turn flow
    - Marked for future implementation
 
 1. **Sound Files**: Not included in repository
-
    - Users must provide their own sound files
    - See `sounds/README.md` for guidance
 
 1. **Team Mode**: Only supports 4-player games
-
    - Could be extended to support other even numbers
    - Currently enforced in `build_players()`
 
 1. **Animations**: Basic implementation
-
    - Could be enhanced with more sophisticated effects
    - Currently limited to highlight/pulse
 

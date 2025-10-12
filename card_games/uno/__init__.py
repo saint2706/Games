@@ -2,15 +2,7 @@
 
 # Public re-exports make it easy for callers to discover the primary
 # interfaces without digging through submodules.
-from .uno import (
-    ConsoleUnoInterface,
-    PlayerDecision,
-    UnoCard,
-    UnoDeck,
-    UnoGame,
-    build_players,
-    main,
-)
+from .uno import ConsoleUnoInterface, PlayerDecision, UnoCard, UnoDeck, UnoGame, build_players, main
 
 # GUI components are imported conditionally to avoid tkinter dependency
 __all__ = [

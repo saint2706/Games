@@ -63,8 +63,7 @@ Players can take turns choosing secret words for others to guess.
 - Score tracking
 - Winner announcement
 
-**How to Use:**
-In the CLI, select option 2 "Multiplayer" when prompted for game mode.
+**How to Use:** In the CLI, select option 2 "Multiplayer" when prompted for game mode.
 
 ### 4. Hint System
 
@@ -186,7 +185,7 @@ game = HangmanGame(
 while not (game.is_won() or game.is_lost()):
     print(game.stage)
     print(f"Word: {game.obscured_word}")
-    
+
     choice = input("Guess or 'hint': ")
     if choice == "hint":
         hint = game.get_hint()

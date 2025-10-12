@@ -1,6 +1,7 @@
 # Repository Organization Rationale
 
-This document explains the organizational structure of the Games repository and the reasoning behind key design decisions.
+This document explains the organizational structure of the Games repository and the reasoning behind key design
+decisions.
 
 ## Table of Contents
 
@@ -50,9 +51,11 @@ Games/
 
 **Why this structure?**
 
-- **Intuitive Classification**: Users immediately understand the distinction between different game types (card games, paper-and-pencil games, dice games, word games, logic puzzles)
+- **Intuitive Classification**: Users immediately understand the distinction between different game types (card games,
+  paper-and-pencil games, dice games, word games, logic puzzles)
 - **Clear Boundaries**: Physical game requirements and mechanics differ by category
-- **Shared Utilities**: Games in the same category can share common elements (e.g., card games share decks, hands, suits)
+- **Shared Utilities**: Games in the same category can share common elements (e.g., card games share decks, hands,
+  suits)
 - **Discoverability**: Users looking for a specific type of game can browse one category
 - **Scalability**: Easy to add new categories as the collection grows
 
@@ -115,8 +118,8 @@ game_name/
 
 #### 3. Common Utilities
 
-**card_games/common/**: Card-specific utilities (Card, Deck, Hand, Suit)
-**common/**: Repository-wide utilities (game engine base, GUI base, AI strategies)
+**card_games/common/**: Card-specific utilities (Card, Deck, Hand, Suit) **common/**: Repository-wide utilities (game
+engine base, GUI base, AI strategies)
 
 **Why separate common modules?**
 
@@ -279,7 +282,8 @@ tests/
 - Benefit: Tests co-located with game code
 - Trade-off: More complex test discovery, harder to run all tests
 
-**Best Practice**: Use centralized tests/ for integration and cross-game tests, per-game tests/ for extensive game-specific unit tests if needed.
+**Best Practice**: Use centralized tests/ for integration and cross-game tests, per-game tests/ for extensive
+game-specific unit tests if needed.
 
 ## Design Principles
 
@@ -401,7 +405,7 @@ This structure has been refined based on:
 
 The organization is not set in stone—it should evolve as the repository grows while maintaining these core principles.
 
-______________________________________________________________________
+---
 
 **Last Updated**: October 2025\
 **Games Count**: 21\

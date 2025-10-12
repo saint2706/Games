@@ -187,7 +187,7 @@ Advanced Features
 
    # Enable hints
    python -m paper_games.dots_and_boxes --gui --hints
-   
+
    # Tournament mode
    python -m paper_games.dots_and_boxes --tournament --games 5
 
@@ -296,7 +296,7 @@ Some games support network multiplayer:
    # Host a game
    python -m paper_games.tic_tac_toe --network
    # Choose option 1: Host
-   
+
    # Join a game
    python -m paper_games.tic_tac_toe --network
    # Choose option 2: Join
@@ -327,19 +327,19 @@ Starting Each Game
 
    # Tic-Tac-Toe
    python -m paper_games.tic_tac_toe
-   
+
    # Battleship
    python -m paper_games.battleship
-   
+
    # Hangman
    python -m paper_games.hangman
-   
+
    # Dots and Boxes
    python -m paper_games.dots_and_boxes
-   
+
    # Nim
    python -m paper_games.nim
-   
+
    # Unscramble
    python -m paper_games.unscramble
 
@@ -363,14 +363,14 @@ Use any game engine in your code:
 .. code-block:: python
 
    from paper_games.tic_tac_toe.tic_tac_toe import TicTacToe
-   
+
    # Create a game
    game = TicTacToe(board_size=3)
-   
+
    # Make moves
    game.make_move(0, 0)  # X plays top-left
    game.make_move(1, 1)  # O plays center
-   
+
    # Check winner
    winner = game.get_winner()
 

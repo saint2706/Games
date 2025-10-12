@@ -9,16 +9,7 @@ from __future__ import annotations
 import random
 import time
 
-from common.cli_utils import (
-    THEMES,
-    ASCIIArt,
-    Color,
-    CommandHistory,
-    InteractiveMenu,
-    ProgressBar,
-    RichText,
-    Spinner,
-)
+from common.cli_utils import THEMES, ASCIIArt, Color, CommandHistory, InteractiveMenu, ProgressBar, RichText, Spinner
 
 
 class NumberGuessingGame:

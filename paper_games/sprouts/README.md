@@ -21,6 +21,4 @@ Topological graph game with dots and lines.
 
 ## Implementation Status
 
-✅ Basic graph structure
-�� Full topological rules pending
-🔄 Visual representation pending
+✅ Basic graph structure �� Full topological rules pending 🔄 Visual representation pending

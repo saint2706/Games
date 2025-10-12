@@ -352,4 +352,3 @@ class SokobanGame(GameEngine[str, int]):
         self.moves = cast(int, snapshot["moves"])
         self.pushes = cast(int, snapshot["pushes"])
         self.state = cast(GameState, snapshot["state"])
-

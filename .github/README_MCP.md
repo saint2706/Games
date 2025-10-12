@@ -2,7 +2,8 @@
 
 ## Quick Start
 
-The MCP (Model Context Protocol) configuration enables GitHub Copilot coding agent to use external servers for enhanced capabilities.
+The MCP (Model Context Protocol) configuration enables GitHub Copilot coding agent to use external servers for enhanced
+capabilities.
 
 ### Validate Configuration
 

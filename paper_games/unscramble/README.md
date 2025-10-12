@@ -68,8 +68,7 @@ Features:
 - Time tracking for statistics
 - Speed-based achievements
 
-**How to Play:**
-Select "Timed Mode" from the CLI menu and choose your preferred time limit.
+**How to Play:** Select "Timed Mode" from the CLI menu and choose your preferred time limit.
 
 ### 4. Multiplayer Competitive Mode
 
@@ -267,7 +266,7 @@ game = UnscrambleGame()
 for round_num in range(5):
     game.new_round()
     print(f"\nRound {round_num + 1}: {game.scrambled}")
-    
+
     for player in players:
         print(f"\n{player['name']}'s turn:")
         guess = input("Your guess: ")
@@ -321,11 +320,13 @@ You'll be presented with:
 
 ### Word Selection
 
-Words are selected randomly from the chosen difficulty or theme. Each word is scrambled by shuffling its letters, ensuring the scrambled version is different from the original word.
+Words are selected randomly from the chosen difficulty or theme. Each word is scrambled by shuffling its letters,
+ensuring the scrambled version is different from the original word.
 
 ### Time Tracking
 
-Time is tracked using Python's `time.time()` for precise measurements. Times are recorded in seconds with decimal precision.
+Time is tracked using Python's `time.time()` for precise measurements. Times are recorded in seconds with decimal
+precision.
 
 ### Statistics Persistence
 
@@ -333,7 +334,8 @@ Statistics are saved as JSON files with human-readable formatting. The file is c
 
 ### Achievements
 
-Achievements are checked after each game session. Once unlocked, achievements persist permanently in the statistics file.
+Achievements are checked after each game session. Once unlocked, achievements persist permanently in the statistics
+file.
 
 ## Future Enhancements
 

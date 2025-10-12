@@ -5,13 +5,7 @@ from __future__ import annotations
 from typing import Optional
 
 from card_games.common.cards import Card, format_cards
-from card_games.gin_rummy.game import (
-    GinRummyGame,
-    GinRummyPlayer,
-    HandAnalysis,
-    Meld,
-    MeldType,
-)
+from card_games.gin_rummy.game import GinRummyGame, GinRummyPlayer, HandAnalysis, Meld, MeldType
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 
 if TKINTER_AVAILABLE:  # pragma: no cover - UI specific branch
@@ -293,9 +287,7 @@ class GinRummyGUI(BaseGUI):
 
         if self.game.discard_pile:
             top_card = self.game.discard_pile[-1]
-            self.top_discard_var.set(
-                f"Discard pile: {top_card} (total {len(self.game.discard_pile)})"
-            )
+            self.top_discard_var.set(f"Discard pile: {top_card} (total {len(self.game.discard_pile)})")
         else:
             self.top_discard_var.set("Discard pile: empty")
 
@@ -485,9 +477,7 @@ class GinRummyGUI(BaseGUI):
             self.melds_var.set("No melds detected yet.")
 
         if analysis.deadwood_cards:
-            self.deadwood_cards_var.set(
-                f"Deadwood cards: {format_cards(analysis.deadwood_cards)}"
-            )
+            self.deadwood_cards_var.set(f"Deadwood cards: {format_cards(analysis.deadwood_cards)}")
         else:
             self.deadwood_cards_var.set("No deadwood cards!")
 
@@ -562,11 +552,7 @@ class GinRummyGUI(BaseGUI):
         player = self.players[player_idx]
         if self.game.current_turn_draw is None:
             top_card = self.game.discard_pile[-1] if self.game.discard_pile else None
-            if (
-                top_card
-                and self.game.can_draw_from_discard(player_idx)
-                and self.game.should_draw_discard(player, top_card)
-            ):
+            if top_card and self.game.can_draw_from_discard(player_idx) and self.game.should_draw_discard(player, top_card):
                 card = self.game.draw_from_discard()
             else:
                 card = self.game.draw_from_stock()
@@ -645,7 +631,6 @@ class GinRummyGUI(BaseGUI):
             f"{summary.opponent}: {summary.opponent_deadwood} "
             f"(was {summary.opponent_initial_deadwood}).",
         )
-        self.log_message(self.log_widget, deadwood_message)
 
         if summary.melds_shown:
             self.log_message(self.log_widget, "Melds shown:")
@@ -687,12 +672,7 @@ class GinRummyGUI(BaseGUI):
         state_draw_stock = "normal" if (not self.round_over and self.phase == "draw") else "disabled"
         self.draw_stock_button.config(state=state_draw_stock)
 
-        can_draw_discard = (
-            not self.round_over
-            and self.phase == "draw"
-            and bool(self.game.discard_pile)
-            and self.game.can_draw_from_discard(0)
-        )
+        can_draw_discard = not self.round_over and self.phase == "draw" and bool(self.game.discard_pile) and self.game.can_draw_from_discard(0)
         self.draw_discard_button.config(state="normal" if can_draw_discard else "disabled")
 
         analysis = self.game.analyze_hand(self.players[0].hand)
@@ -708,6 +688,7 @@ class GinRummyGUI(BaseGUI):
 
         next_state = "normal" if self.round_over and not self.game.is_game_over() else "disabled"
         self.next_round_button.config(state=next_state)
+
 
 def run_app(*, player_name: str = "You", opponent_name: str = "AI") -> None:
     """Launch the Gin Rummy GUI application."""

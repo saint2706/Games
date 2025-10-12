@@ -1,7 +1,7 @@
 # Minesweeper
 
-Classic mine detection puzzle game where players reveal squares on a grid, using number clues to identify and avoid
-mine locations.
+Classic mine detection puzzle game where players reveal squares on a grid, using number clues to identify and avoid mine
+locations.
 
 ## Rules
 
