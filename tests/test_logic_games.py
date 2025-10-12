@@ -6,6 +6,7 @@ import pytest
 
 from logic_games import LightsOutGame, MinesweeperGame, PicrossGame, SlidingPuzzleGame, SokobanGame
 from logic_games.minesweeper.minesweeper import Difficulty
+from logic_games.picross.picross import CellState
 
 
 class TestMinesweeper:
@@ -124,24 +125,67 @@ class TestPicross:
     def test_initialization(self) -> None:
         """Test game initializes correctly."""
         game = PicrossGame()
-        assert len(game.row_hints) > 0
-        assert len(game.col_hints) > 0
-        assert game.size > 0
+        assert game.size == 10
+        assert len(game.row_hints) == 10
+        assert len(game.col_hints) == 10
+        assert all(cell == CellState.UNKNOWN for row in game.grid for cell in row)
+        assert game.total_mistakes == 0
 
     def test_hints_generation(self) -> None:
         """Test hint generation."""
-        game = PicrossGame()
         # Row with no filled cells should have hint [0]
-        hints = game._get_hints([0, 0, 0])
+        hints = PicrossGame._get_hints([0, 0, 0])
         assert hints == [0]
         # Row with consecutive filled cells
-        hints = game._get_hints([1, 1, 0, 1])
+        hints = PicrossGame._get_hints([1, 1, 0, 1])
         assert hints == [2, 1]
 
-    def test_make_move(self) -> None:
-        """Test making a move."""
+    def test_move_cycle_and_validation(self) -> None:
+        """Test filling, toggling and clearing cells."""
         game = PicrossGame()
-        game.state = game.state.IN_PROGRESS
-        result = game.make_move((0, 0, "fill"))
-        assert result
-        assert game.grid[0][0] is not None
+        assert game.make_move((0, 2, "fill"))
+        assert game.grid[0][2] == CellState.FILLED
+        assert game.is_cell_correct(0, 2)
+
+        assert game.make_move((0, 2, "toggle"))
+        assert game.grid[0][2] == CellState.EMPTY
+        assert not game.is_cell_correct(0, 2)
+        assert game.total_mistakes == 1
+        assert (0, 2) in game.incorrect_cells
+
+        assert game.make_move((0, 2, "clear"))
+        assert game.grid[0][2] == CellState.UNKNOWN
+        assert (0, 2) not in game.incorrect_cells
+
+    def test_line_progress_tracks_segments(self) -> None:
+        """Ensure line progress reflects placed groups."""
+        game = PicrossGame()
+        game.make_move((0, 2, "fill"))
+        game.make_move((0, 3, "fill"))
+        progress = game.get_line_progress(0, is_row=True)
+        assert list(progress.segments) == [2]
+        assert progress.expected_filled == sum(game.row_hints[0])
+        assert not progress.is_satisfied
+
+        game.make_move((0, 2, "clear"))
+        progress_after_clear = game.get_line_progress(0, is_row=True)
+        assert list(progress_after_clear.segments) == [1]
+
+        game.make_move((0, 3, "clear"))
+        progress_all_cleared = game.get_line_progress(0, is_row=True)
+        assert list(progress_all_cleared.segments) == [0]
+
+    def test_mistake_tracking(self) -> None:
+        """Incorrect placements are counted once until cleared."""
+        game = PicrossGame()
+        assert game.make_move((0, 0, "fill"))  # incorrect cell
+        assert (0, 0) in game.incorrect_cells
+        assert game.total_mistakes == 1
+
+        # Repeating the same incorrect action should not double count
+        assert game.make_move((0, 0, "fill"))
+        assert game.total_mistakes == 1
+
+        # Clearing removes the mistake marker
+        assert game.make_move((0, 0, "clear"))
+        assert (0, 0) not in game.incorrect_cells
