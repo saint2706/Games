@@ -11,9 +11,11 @@ This package provides shared functionality including:
 - Educational features (tutorials, strategy tips, probability calculators)
 - Enhanced CLI utilities
 - GUI enhancements (themes, sounds, animations, accessibility, i18n, shortcuts)
+- MCP configuration loading and validation
 """
 
 from .ai_strategy import AIStrategy, HeuristicStrategy, MinimaxStrategy, RandomStrategy
+from .mcp_config_loader import MCPConfig, MCPServerConfig, load_default_mcp_config, validate_mcp_config_file
 from .architecture.engine import GameEngine, GamePhase, GameState
 from .architecture.events import Event, EventBus, EventHandler, FunctionEventHandler
 from .architecture.observer import Observable, Observer, PropertyObservable
@@ -127,6 +129,11 @@ __all__ = [
     "CommandHistory",
     "clear_screen",
     "get_terminal_size",
+    # MCP Configuration
+    "MCPConfig",
+    "MCPServerConfig",
+    "load_default_mcp_config",
+    "validate_mcp_config_file",
 ]
 
 # Add GUI enhancements to __all__ if available
