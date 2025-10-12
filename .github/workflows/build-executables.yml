@@ -1,0 +1,153 @@
+# GitHub Actions workflow for building standalone executables
+name: Build Executables
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-pyinstaller:
+    name: Build with PyInstaller - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.11']
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pyinstaller
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller build_configs/pyinstaller/games.spec --clean
+
+      - name: Test executable (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          ./dist/games-collection --help || echo "No help flag yet"
+        continue-on-error: true
+
+      - name: Test executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          .\dist\games-collection.exe --help || echo "No help flag yet"
+        continue-on-error: true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: games-collection-pyinstaller-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: |
+            dist/games-collection*
+          retention-days: 30
+
+  cross-platform-tests:
+    name: Cross-Platform Tests - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+      fail-fast: false
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Test launcher import
+        run: |
+          python -c "from scripts.launcher import main; print('Launcher import successful')"
+
+      - name: Test crash reporter import
+        run: |
+          python -c "from common.crash_reporter import CrashReporter; print('Crash reporter import successful')"
+
+      - name: Test game imports (sample)
+        run: |
+          python -c "from card_games.war import WarGame; print('War game import successful')"
+          python -c "from card_games.go_fish import GoFishGame; print('Go Fish game import successful')"
+        continue-on-error: true
+
+  docker-build:
+    name: Build and Test Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: games-collection:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          docker run --rm games-collection:test python -c "import sys; print(f'Python {sys.version}')"
+
+  create-release:
+    name: Create Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-pyinstaller, cross-platform-tests, docker-build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

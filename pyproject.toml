@@ -98,6 +98,9 @@ games-crazy-eights = "card_games.crazy_eights.crazy_eights:main"
 games-war = "card_games.war.war:main"
 games-solitaire = "card_games.solitaire.solitaire:main"
 games-bluff = "card_games.bluff.bluff:main"
+games-cribbage = "card_games.cribbage.__main__:main"
+games-euchre = "card_games.euchre.__main__:main"
+games-rummy500 = "card_games.rummy500.__main__:main"
 
 # Paper Games  
 games-tic-tac-toe = "paper_games.tic_tac_toe.tic_tac_toe:main"
