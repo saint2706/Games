@@ -5,9 +5,27 @@ duplicate-style bridge including vulnerability, doubles, and rubber-style scorin
 
 ## How to Play
 
+### GUI (default)
+
 ```bash
 python -m card_games.bridge
 ```
+
+### Command-line interface
+
+```bash
+python -m card_games.bridge --cli
+```
+
+The GUI automatically falls back to the CLI mode if Tkinter is unavailable. Pass
+``--gui`` explicitly to force the graphical launcher when Tkinter is installed.
+
+### GUI features
+
+- Four-seat table layout with bidding history and trick display
+- Automated auction followed by AI-driven play sequencing
+- Interactive card buttons for the South player with legal-move validation
+- Live scoreboard highlighting vulnerability, contract, and trick totals
 
 ## Game Rules
 
