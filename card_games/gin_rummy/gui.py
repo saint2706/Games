@@ -633,15 +633,13 @@ class GinRummyGUI(BaseGUI):
             self.log_widget,
             f"Round ends: {summary.knocker} ({knock_label}).",
         )
-        self.log_message(
-            self.log_widget,
-            (
-                "Deadwood — "
-                f"{summary.knocker}: {summary.knocker_deadwood}, "
-                f"{summary.opponent}: {summary.opponent_deadwood} "
-                f"(was {summary.opponent_initial_deadwood})."
-            ),
+        deadwood_message = (
+            "Deadwood — "
+            f"{summary.knocker}: {summary.knocker_deadwood}, "
+            f"{summary.opponent}: {summary.opponent_deadwood} "
+            f"(was {summary.opponent_initial_deadwood})."
         )
+        self.log_message(self.log_widget, deadwood_message)
 
         if summary.melds_shown:
             self.log_message(self.log_widget, "Melds shown:")
