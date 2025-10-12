@@ -93,10 +93,12 @@ Welcome to the Games documentation! This guide will help you navigate all availa
 
 #### 📚 Specialized Guides
 
-- **[ANALYTICS_INTEGRATION_GUIDE.md](ANALYTICS_INTEGRATION_GUIDE.md)** - Game analytics and statistics
-- **[CLI_UTILS.md](CLI_UTILS.md)** - Enhanced CLI utilities
-- **[EDUCATIONAL_FEATURES.md](EDUCATIONAL_FEATURES.md)** - Educational mode integration
-- **[EDUCATIONAL_QUICKSTART.md](EDUCATIONAL_QUICKSTART.md)** - Quick start for educators
+- **[development/ANALYTICS_INTEGRATION_GUIDE.md](development/ANALYTICS_INTEGRATION_GUIDE.md)** - Game analytics and statistics
+- **[development/CLI_UTILS.md](development/CLI_UTILS.md)** - Enhanced CLI utilities
+- **[development/EDUCATIONAL_FEATURES.md](development/EDUCATIONAL_FEATURES.md)** - Educational mode integration
+- **[development/EDUCATIONAL_QUICKSTART.md](development/EDUCATIONAL_QUICKSTART.md)** - Quick start for educators
+- **[development/NEW_GAMES_IMPLEMENTATION.md](development/NEW_GAMES_IMPLEMENTATION.md)** - Implementation of dice, word, and logic games
+- **[deployment/DEPLOYMENT.md](deployment/DEPLOYMENT.md)** - Deployment and release guide
 
 #### 🤝 Contributing
 
@@ -153,9 +155,21 @@ docs/
 ├── development/                         # Development resources
 │   ├── CODE_QUALITY.md                 # Code quality standards and tools
 │   ├── TESTING.md                      # Testing guide and best practices
-│   └── IMPLEMENTATION_NOTES.md         # Detailed implementation notes
+│   ├── IMPLEMENTATION_NOTES.md         # Detailed implementation notes
+│   ├── ANALYTICS_INTEGRATION_GUIDE.md  # Analytics integration guide
+│   ├── CLI_UTILS.md                    # CLI utilities guide
+│   ├── EDUCATIONAL_FEATURES.md         # Educational features
+│   ├── EDUCATIONAL_QUICKSTART.md       # Quick start for educators
+│   └── NEW_GAMES_IMPLEMENTATION.md     # Implementation of dice, word, logic games
+├── deployment/                         # Deployment documentation
+│   ├── DEPLOYMENT.md                   # Deployment and release guide
+│   └── PYPI_RELEASE.md                 # PyPI release process
 ├── planning/                           # Planning and roadmap
 │   └── TODO.md                         # Future plans and features
+├── images/                             # Documentation images
+│   ├── battleship_gui_game.png         # Battleship gameplay screenshot
+│   ├── battleship_gui_setup.png        # Battleship setup screenshot
+│   └── hearts_gui_overview.svg         # Hearts GUI diagram
 ├── source/                             # Sphinx documentation
 │   ├── index.rst                       # Main documentation index
 │   ├── conf.py                         # Sphinx configuration
@@ -177,10 +191,7 @@ docs/
 │   │   ├── card_games.rst
 │   │   └── paper_games.rst
 │   └── contributing.rst               # Contribution guidelines
-├── ANALYTICS_INTEGRATION_GUIDE.md      # Analytics integration guide
-├── CLI_UTILS.md                        # CLI utilities guide
-├── EDUCATIONAL_FEATURES.md             # Educational features
-├── EDUCATIONAL_QUICKSTART.md           # Quick start for educators
+├── ORGANIZATION_RATIONALE.md           # Repository organization rationale
 ├── Makefile                            # Build automation (Unix)
 ├── make.bat                            # Build automation (Windows)
 └── README.md                           # This file

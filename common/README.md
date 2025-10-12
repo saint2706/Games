@@ -156,7 +156,7 @@ menu = InteractiveMenu("Main Menu", ["Play", "Options", "Quit"])
 choice = menu.display()
 ```
 
-See [docs/CLI_UTILS.md](../docs/CLI_UTILS.md) for complete documentation.
+See [docs/development/CLI_UTILS.md](../docs/development/CLI_UTILS.md) for complete documentation.
 
 ## Benefits
 

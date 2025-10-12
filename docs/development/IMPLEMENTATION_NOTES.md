@@ -617,7 +617,7 @@ October 2025
 
 #### Documentation
 
-- **docs/CLI_UTILS.md** (620 lines)
+- **CLI_UTILS.md** (620 lines)
   - Complete API reference
   - Usage examples
   - Best practices
@@ -1163,7 +1163,7 @@ pyinstaller build_configs/pyinstaller/games.spec --clean
 
 ### Documentation
 
-- **docs/DEPLOYMENT.md**: Complete deployment reference
+- **../deployment/DEPLOYMENT.md**: Complete deployment reference
 - **build_configs/README.md**: Build tool documentation
 - **Game READMEs**: Detailed rules for new games
 
@@ -1178,7 +1178,7 @@ ______________________________________________________________________
 
 ## Additional Game Implementations
 
-For detailed information about dice, word, and logic games implementations, see [NEW_GAMES_IMPLEMENTATION.md](../NEW_GAMES_IMPLEMENTATION.md), which covers:
+For detailed information about dice, word, and logic games implementations, see [NEW_GAMES_IMPLEMENTATION.md](NEW_GAMES_IMPLEMENTATION.md), which covers:
 
 - 4 Dice Games: Farkle, Craps, Liar's Dice, Bunco
 - 4 Word Games: Anagrams, Trivia, Crossword, WordBuilder
@@ -1200,7 +1200,7 @@ The Games repository has undergone significant improvements across multiple area
    - 10 paper & pencil games (6 complete, 4 foundation)
    - 3 basic card games (War, Go Fish, Crazy Eights)
    - 3 medium-priority card games (Cribbage, Euchre, Rummy 500)
-   - 13 additional games (4 dice, 4 word, 5 logic - see NEW_GAMES_IMPLEMENTATION.md)
+   - 13 additional games (4 dice, 4 word, 5 logic - see development/NEW_GAMES_IMPLEMENTATION.md)
 7. **Deployment**: Docker, PyInstaller, Nuitka, universal launcher
 8. **Analytics**: Statistics tracking, crash reporting, cross-platform testing
 

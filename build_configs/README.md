@@ -144,4 +144,4 @@ See `.github/workflows/build-executables.yml` for configuration.
 
 - [PyInstaller Documentation](https://pyinstaller.org/en/stable/)
 - [Nuitka Documentation](https://nuitka.net/doc/user-manual.html)
-- [Deployment Guide](../docs/DEPLOYMENT.md)
+- [Deployment Guide](../docs/deployment/DEPLOYMENT.md)
