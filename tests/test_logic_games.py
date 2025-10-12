@@ -130,30 +130,42 @@ class TestSlidingPuzzle:
 
     def test_initialization(self) -> None:
         """Test game initializes correctly."""
-        game = SlidingPuzzleGame(size=3)
-        assert len(game.board) == 9
+        game = SlidingPuzzleGame(size=4)
+        assert len(game.board) == 16
         assert 0 in game.board  # Empty space
-        assert game.size == 3
+        assert game.size == 4
+        assert not game.is_game_over()
 
     def test_valid_moves(self) -> None:
         """Test getting valid moves."""
-        game = SlidingPuzzleGame(size=3)
+        game = SlidingPuzzleGame(size=4)
         moves = game.get_valid_moves()
         assert len(moves) > 0
         assert all(m in ["u", "d", "l", "r"] for m in moves)
 
     def test_move_execution(self) -> None:
-        """Test executing a move."""
-        game = SlidingPuzzleGame(size=3)
-        # Make sure game isn't already solved
-        if not game.is_game_over():
-            game.state = game.state.IN_PROGRESS
-            moves = game.get_valid_moves()
-            if moves:
-                initial_moves = game.moves
-                result = game.make_move(moves[0])
-                assert result
-                assert game.moves == initial_moves + 1
+        """Test executing moves by direction and tile number."""
+        game = SlidingPuzzleGame(size=4)
+        moves = game.get_valid_moves()
+        assert moves
+        initial_moves = game.moves
+        assert game.make_move(moves[0])
+        assert game.moves == initial_moves + 1
+
+        zero_idx = game.board.index(0)
+        row, col = divmod(zero_idx, game.size)
+        neighbor_indices = []
+        if row > 0:
+            neighbor_indices.append(zero_idx - game.size)
+        if row < game.size - 1:
+            neighbor_indices.append(zero_idx + game.size)
+        if col > 0:
+            neighbor_indices.append(zero_idx - 1)
+        if col < game.size - 1:
+            neighbor_indices.append(zero_idx + 1)
+        tile_to_slide = next(game.board[idx] for idx in neighbor_indices if game.board[idx] != 0)
+        assert tile_to_slide != 0
+        assert game.make_move(str(tile_to_slide))
 
 
 class TestLightsOut:
