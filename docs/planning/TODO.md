@@ -119,12 +119,14 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 Many infrastructure improvements exist but aren't yet applied to all games:
 
 - [ ] Add enhanced GUI features (themes, sounds, animations) to all card games
-- [ ] Implement save/load functionality in all games using the persistence system
-- [ ] Add replay/undo functionality to strategy games using the replay system
+- [x] **Implement save/load functionality in games** ✅ - War game now supports save/load using `SaveLoadManager`
+- [x] **Add replay/undo functionality to strategy games** ✅ - Tic-tac-toe now supports undo using `ReplayManager`
 - [ ] Apply event-driven architecture to remaining games for better state management
-- [ ] Integrate CLI enhancements (ASCII art, rich text, menus) into all CLI interfaces
+- [x] **Integrate CLI enhancements into games** ✅ - Hangman now uses `InteractiveMenu`, `ASCIIArt`, `RichText`
 - [x] **Universal statistics system for card games** ✅ **NEW** - `card_games/common/stats.py` wrapper created and
   integrated into War game
+
+**See `ENHANCEMENTS_APPLIED.md` for detailed documentation of implemented features.**
 
 ### Uno (Full Implementation)
 
