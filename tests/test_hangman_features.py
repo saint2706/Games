@@ -5,13 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from paper_games.hangman import (
-    HANGMAN_ART_STYLES,
-    HangmanGame,
-    load_default_words,
-    load_themed_words,
-    load_words_by_difficulty,
-)
+from paper_games.hangman import HANGMAN_ART_STYLES, HangmanGame, load_default_words, load_themed_words, load_words_by_difficulty
 
 
 def test_load_words_by_difficulty_easy():

@@ -61,7 +61,7 @@ Step-by-step tutorials for learning each game:
 .. code-block:: python
 
     from card_games.poker.educational import PokerTutorialMode
-    
+
     tutorial = PokerTutorialMode()
     step = tutorial.get_current_step()
     print(step.title)
@@ -87,7 +87,7 @@ Calculate odds during gameplay:
 .. code-block:: python
 
     from card_games.poker.educational import PokerProbabilityCalculator
-    
+
     calc = PokerProbabilityCalculator()
     win_prob = calc.calculate_win_probability(table_state)
     pot_odds_analysis = calc.format_pot_odds_comparison(20, 100, win_prob)
@@ -101,7 +101,7 @@ Get context-aware strategy advice:
 .. code-block:: python
 
     from common import StrategyTipProvider, StrategyTip
-    
+
     tip_provider = StrategyTipProvider()
     tip = tip_provider.get_random_tip()
     print(f"{tip.title}: {tip.description}")
@@ -114,7 +114,7 @@ Learn about the algorithms:
 .. code-block:: python
 
     from common import GameTheoryExplainer
-    
+
     explainer = GameTheoryExplainer()
     monte_carlo = explainer.get_explanation("monte_carlo")
     print(monte_carlo.description)

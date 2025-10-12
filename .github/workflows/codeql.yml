@@ -9,7 +9,7 @@ on:
   pull_request:
     branches: [master, main]
   schedule:
-    - cron: '0 0 * * 1'  # Run weekly on Mondays
+    - cron: "0 0 * * 1" # Run weekly on Mondays
   workflow_dispatch:
 
 permissions:
@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['python']
+        language: ["python"]
 
     steps:
       - name: Checkout repository

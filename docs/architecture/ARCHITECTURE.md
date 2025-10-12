@@ -1,10 +1,12 @@
 # Games Repository Architecture
 
-This document describes the architecture components available in the Games repository for building consistent, extensible game implementations.
+This document describes the architecture components available in the Games repository for building consistent,
+extensible game implementations.
 
 ## Overview
 
-The `common/architecture` module provides a comprehensive set of architectural patterns and utilities to support game development:
+The `common/architecture` module provides a comprehensive set of architectural patterns and utilities to support game
+development:
 
 1. **Plugin System** - Add third-party games without modifying core code
 1. **Event-Driven Architecture** - Decouple components using events
@@ -35,15 +37,15 @@ class MyGamePlugin(GamePlugin):
             author="Your Name",
             description="A custom game"
         )
-    
+
     def initialize(self, **kwargs):
         # Plugin initialization code
         pass
-    
+
     def shutdown(self):
         # Cleanup code
         pass
-    
+
     def get_game_class(self):
         return MyGameEngine
 
@@ -117,7 +119,7 @@ class GameModel(Observable):
     def __init__(self):
         super().__init__()
         self._score = 0
-    
+
     def set_score(self, score):
         old_score = self._score
         self._score = score
@@ -248,21 +250,21 @@ class MyGameEngine(GameEngine):
     def initialize(self, **kwargs):
         self._state = GameState(phase=GamePhase.RUNNING)
         self.emit_event("GAME_START")
-    
+
     def reset(self):
         self._state = GameState(phase=GamePhase.SETUP)
         self.emit_event("GAME_RESET")
-    
+
     def is_finished(self):
         return self._state.phase == GamePhase.FINISHED
-    
+
     def get_current_player(self):
         return self.players[self.current_player_index]
-    
+
     def get_valid_actions(self):
         # Return list of valid actions
         return []
-    
+
     def execute_action(self, action):
         # Execute the action
         self.emit_event("PLAYER_MOVE", data={"action": action})
@@ -292,29 +294,29 @@ class MyGame(GameEngine):
         self.save_manager = SaveLoadManager()
         self.replay_manager = ReplayManager()
         self.settings_manager = SettingsManager()
-        
+
         # Subscribe to own events
         self.event_bus.subscribe("PLAYER_MOVE", self._on_player_move)
-    
+
     def initialize(self, **kwargs):
         self._state = GameState(phase=GamePhase.RUNNING)
         settings = self.settings_manager.load_settings("my_game")
         self.emit_event("GAME_START")
-    
+
     def reset(self):
         self._state = GameState(phase=GamePhase.SETUP)
         self.replay_manager.clear()
         self.emit_event("GAME_RESET")
-    
+
     def is_finished(self):
         return self._state.phase == GamePhase.FINISHED
-    
+
     def get_current_player(self):
         return None
-    
+
     def get_valid_actions(self):
         return []
-    
+
     def execute_action(self, action):
         # Record for replay/undo
         self.replay_manager.record_action(
@@ -324,23 +326,23 @@ class MyGame(GameEngine):
             data=action,
             state_before=self.save_state()
         )
-        
+
         # Emit event
         self.emit_event("PLAYER_MOVE", data=action)
-        
+
         # Notify observers
         self.notify(action=action)
-        
+
         return True
-    
+
     def _on_player_move(self, event):
         # Handle player move event
         pass
-    
+
     def save_game(self, name="quicksave"):
         """Save the current game state."""
         return self.save_manager.save("my_game", self.save_state(), save_name=name)
-    
+
     def load_game(self, filepath):
         """Load a saved game state."""
         data = self.save_manager.load(filepath)
@@ -394,7 +396,7 @@ When adding new games:
 
 See `CONTRIBUTING.md` for detailed guidelines.
 
-______________________________________________________________________
+---
 
 ## Architecture System Overview
 

@@ -111,14 +111,14 @@ Each player maintains comprehensive state:
        name: str
        hand: List[Card]
        is_bot: bool
-       
+
        # Statistics for AI decision making
        total_claims: int = 0
        caught_lying: int = 0
        successful_bluffs: int = 0
        challenges_made: int = 0
        successful_challenges: int = 0
-       
+
        # Bot personality (if bot)
        personality: Optional[BotPersonality] = None
 
@@ -140,17 +140,17 @@ The discard pile is central to gameplay:
        def __init__(self):
            self.pile: Deque[Card] = deque()
            self.pile_claims: List[Tuple[str, str]] = []
-       
+
        def add_to_pile(self, card: Card, claimed_rank: str, player: str):
            """Add card to pile with claim."""
            self.pile.append(card)
            self.pile_claims.append((claimed_rank, player))
-       
+
        def resolve_challenge(self, challenger_idx: int):
            """Resolve challenge and transfer pile."""
            last_card = self.pile[-1]
            claimed_rank = self.pile_claims[-1][0]
-           
+
            if last_card.rank == claimed_rank:
                # Truth - challenger takes pile
                return self.transfer_pile_to(challenger_idx)
@@ -171,13 +171,13 @@ Complete Turn Sequence
       ├─> Player views their hand
       ├─> Player selects a card to play
       └─> Player claims a rank for that card
-   
+
    2. CHALLENGE WINDOW
       │
       ├─> All other players see the claim
       ├─> Each player decides: Challenge or Pass
       └─> First challenger gets to challenge
-   
+
    3. CHALLENGE RESOLUTION (if challenged)
       │
       ├─> Reveal the played card
@@ -190,12 +190,12 @@ Complete Turn Sequence
       └──> MISMATCH (lie)
            ├─> Claimer takes entire pile
            └─> Challenger continues playing
-   
+
    4. NO CHALLENGE
       │
       ├─> Card added to pile (remains face-down)
       └─> Next player's turn
-   
+
    5. ROUND/GAME END CHECK
       │
       ├─> Player emptied hand? → Win round
@@ -214,7 +214,7 @@ A round ends when:
 
    def check_round_end(self) -> Optional[int]:
        """Check if round has ended.
-       
+
        Returns:
            int: Winner index, or None if round continues
        """
@@ -222,13 +222,13 @@ A round ends when:
        for idx, player in enumerate(self.players):
            if len(player.hand) == 0:
                return idx
-       
+
        # Check if all players had equal turns
        if self.turns_this_round >= len(self.players) * self.max_turns:
            # Find player with fewest cards
-           return min(enumerate(self.players), 
+           return min(enumerate(self.players),
                      key=lambda x: len(x[1].hand))[0]
-       
+
        return None
 
 AI Strategy
@@ -243,10 +243,10 @@ Bots make two key decisions: when to lie and when to challenge.
 
 .. code-block:: python
 
-   def should_bot_lie(bot: PlayerState, claimed_rank: str, 
+   def should_bot_lie(bot: PlayerState, claimed_rank: str,
                       pile_size: int, difficulty: DifficultyLevel) -> bool:
        """Determine if bot should lie about a card.
-       
+
        Factors:
        - Bot personality (from difficulty level)
        - Pile size (lower risk for small piles)
@@ -257,20 +257,20 @@ Bots make two key decisions: when to lie and when to challenge.
        has_rank = any(c.rank == claimed_rank for c in bot.hand)
        if has_rank and random.random() > difficulty.bluff_frequency:
            return False
-       
+
        # Risk assessment based on pile size
        pile_risk = min(1.0, pile_size / 20)  # Larger pile = more risk
-       
+
        # Historical success rate
        if bot.total_claims > 0:
            success_rate = bot.successful_bluffs / bot.total_claims
        else:
            success_rate = 0.5
-       
+
        # Decide based on personality
        lie_threshold = difficulty.bluff_frequency * (1 - pile_risk)
        lie_threshold *= (1 + success_rate)
-       
+
        return random.random() < lie_threshold
 
 **Deciding Whether to Challenge:**
@@ -280,7 +280,7 @@ Bots make two key decisions: when to lie and when to challenge.
    def should_bot_challenge(bot: PlayerState, claimer: PlayerState,
                            claimed_rank: str, difficulty: DifficultyLevel) -> bool:
        """Determine if bot should challenge a claim.
-       
+
        Factors:
        - Claimer's history (frequent liar?)
        - Bot's hand (do we have many of claimed rank?)
@@ -292,17 +292,17 @@ Bots make two key decisions: when to lie and when to challenge.
            liar_rate = claimer.caught_lying / claimer.total_claims
        else:
            liar_rate = 0.3  # Assume moderate lying
-       
+
        # Do we have many of the claimed rank?
        # More we have, less likely they have it
        we_have_count = sum(1 for c in bot.hand if c.rank == claimed_rank)
        suspicion = we_have_count * 0.15
-       
+
        # Personality factor
        challenge_threshold = difficulty.challenge_frequency
        challenge_threshold += suspicion
        challenge_threshold += liar_rate * 0.5
-       
+
        return random.random() < challenge_threshold
 
 Difficulty Levels
@@ -357,38 +357,38 @@ Bots track opponent behavior:
 
    class OpponentModel:
        """Track opponent patterns."""
-       
+
        def __init__(self, player_name: str):
            self.name = player_name
            self.recent_claims = deque(maxlen=10)
            self.lie_history = []
            self.challenge_history = []
-       
+
        def update_claim(self, rank: str, was_truthful: bool):
            """Record a claim result."""
            self.recent_claims.append((rank, was_truthful))
            if not was_truthful:
                self.lie_history.append(rank)
-       
+
        def get_trust_score(self) -> float:
            """Calculate trust score (0.0 = always lies, 1.0 = always honest)."""
            if not self.recent_claims:
                return 0.5  # Neutral
-           
+
            truthful_count = sum(1 for _, truth in self.recent_claims if truth)
            return truthful_count / len(self.recent_claims)
-       
+
        def is_suspicious(self, claimed_rank: str) -> bool:
            """Check if this claim is suspicious."""
            # Recently lied about this rank?
            recent_lies = [r for r in self.lie_history[-5:]]
            if claimed_rank in recent_lies:
                return True
-           
+
            # Low trust score?
            if self.get_trust_score() < 0.3:
                return True
-           
+
            return False
 
 Challenge Dynamics
@@ -403,16 +403,16 @@ Multiple players can attempt to challenge:
 
    def collect_challenges(self, claimer_idx: int) -> List[int]:
        """Collect challenges from all players except claimer.
-       
+
        Returns:
            List of player indices who want to challenge
        """
        challengers = []
-       
+
        for idx, player in enumerate(self.players):
            if idx == claimer_idx:
                continue
-           
+
            if player.is_bot:
                if self.bot_should_challenge(player, claimer_idx):
                    challengers.append(idx)
@@ -420,7 +420,7 @@ Multiple players can attempt to challenge:
                # Ask human player
                if self.prompt_for_challenge(player):
                    challengers.append(idx)
-       
+
        return challengers
 
 **Priority System:**
@@ -438,22 +438,22 @@ When a challenge is resolved:
 
    def transfer_pile_to(self, player_idx: int):
        """Transfer entire pile to a player.
-       
+
        Args:
            player_idx: Player receiving the pile
        """
        player = self.players[player_idx]
-       
+
        # Add all cards to player's hand
        player.hand.extend(self.pile)
-       
+
        # Log the transfer
        self.log_event(f"{player.name} takes pile of {len(self.pile)} cards")
-       
+
        # Clear pile
        self.pile.clear()
        self.pile_claims.clear()
-       
+
        # Update statistics
        if player_idx == self.current_player_idx:
            # They lied and were caught
@@ -476,7 +476,7 @@ If a player empties their hand:
        """Play a card and make a claim."""
        card = self.current_player.hand.pop(card_idx)
        self.add_to_pile(card, claimed_rank, self.current_player.name)
-       
+
        # Check for immediate win
        if len(self.current_player.hand) == 0:
            self.phase = Phase.COMPLETE
@@ -517,28 +517,28 @@ For each player:
        """Comprehensive player statistics."""
        games_played: int = 0
        games_won: int = 0
-       
+
        total_claims: int = 0
        truthful_claims: int = 0
        bluff_claims: int = 0
-       
+
        times_challenged: int = 0
        caught_lying: int = 0
        falsely_accused: int = 0
-       
+
        challenges_made: int = 0
        successful_challenges: int = 0
        failed_challenges: int = 0
-       
+
        cards_collected: int = 0  # From taking piles
-       
+
        @property
        def bluff_rate(self) -> float:
            """Percentage of claims that were bluffs."""
            if self.total_claims == 0:
                return 0.0
            return self.bluff_claims / self.total_claims
-       
+
        @property
        def challenge_accuracy(self) -> float:
            """Percentage of challenges that were correct."""
@@ -595,22 +595,22 @@ Comprehensive test coverage:
        def test_challenge_resolution(self):
            """Test challenge outcomes."""
            game = BluffGame(num_players=3)
-           
+
            # Bot lies about card
            game.play_card(0, claimed_rank='A')
            initial_pile = len(game.pile)
-           
+
            # Human challenges
            game.challenge(challenger_idx=1)
-           
+
            # Pile should transfer to liar
-           self.assertEqual(len(game.players[0].hand), 
+           self.assertEqual(len(game.players[0].hand),
                           initial_hand_size + initial_pile)
-       
+
        def test_bot_decision_making(self):
            """Test AI makes reasonable decisions."""
            bot = PlayerState(name="Bot", hand=[...], is_bot=True)
-           
+
            # With card in hand, should usually tell truth
            decisions = [should_bot_lie(bot, 'A', pile_size=5, ...)
                        for _ in range(100)]

@@ -54,10 +54,10 @@ Play your first game:
 
    # Play Poker
    python -m card_games.poker --difficulty Medium --rounds 5
-   
+
    # Play Bluff with GUI
    python -m card_games.bluff --gui
-   
+
    # Play Tic-Tac-Toe
    python -m paper_games.tic_tac_toe
 

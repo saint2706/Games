@@ -153,63 +153,63 @@ class Player:
 
 class GameEngine:
     """Core game logic.
-    
+
     This class manages game state and rules, independent of UI.
     """
-    
+
     def __init__(self, num_players: int = 2):
         """Initialize game.
-        
+
         Args:
             num_players: Number of players (2-4)
         """
         self.players = [Player(f"Player {i+1}") for i in range(num_players)]
         self.phase = GamePhase.SETUP
         self.current_player = 0
-    
+
     def start(self):
         """Start the game."""
         self.phase = GamePhase.PLAYING
         # Setup game state
-    
+
     def make_move(self, move):
         """Process a player move.
-        
+
         Args:
             move: The move to make
-        
+
         Returns:
             bool: True if move was valid
         """
         if not self.is_valid_move(move):
             return False
-        
+
         # Apply move
         # Update state
         # Check for game end
-        
+
         if self.is_game_over():
             self.phase = GamePhase.FINISHED
         else:
             self.next_player()
-        
+
         return True
-    
+
     def is_valid_move(self, move) -> bool:
         """Check if move is legal."""
         # Implement validation
         return True
-    
+
     def is_game_over(self) -> bool:
         """Check if game has ended."""
         # Implement end condition
         return False
-    
+
     def get_winner(self) -> Optional[Player]:
         """Get game winner, if any."""
         # Implement winner determination
         return None
-    
+
     def next_player(self):
         """Advance to next player."""
         self.current_player = (self.current_player + 1) % len(self.players)
@@ -218,25 +218,25 @@ class GameEngine:
 def main():
     """Command-line interface."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description='Game Name')
     parser.add_argument('--players', type=int, default=2,
                        help='Number of players')
     parser.add_argument('--seed', type=int, help='Random seed')
-    
+
     args = parser.parse_args()
-    
+
     # Create and run game
     game = GameEngine(num_players=args.players)
     game.start()
-    
+
     # Game loop
     while not game.is_game_over():
         # Display state
         # Get player input
         # Make move
         pass
-    
+
     # Show results
     winner = game.get_winner()
     print(f"Winner: {winner.name if winner else 'Draw'}")
@@ -245,7 +245,7 @@ if __name__ == '__main__':
     main()
 ```
 
-### __main__.py Template
+### **main**.py Template
 
 ```python
 """Entry point for game_name module."""
@@ -270,19 +270,19 @@ Example AI structure:
 ```python
 class AIPlayer:
     """AI opponent for game.
-    
+
     Uses [algorithm name] to make decisions.
     """
-    
+
     def __init__(self, difficulty: str = 'medium'):
         self.difficulty = difficulty
-    
+
     def choose_move(self, game_state):
         """Choose best move.
-        
+
         Args:
             game_state: Current game state
-        
+
         Returns:
             Best move according to AI strategy
         """
@@ -301,7 +301,7 @@ class AIPlayer:
 - **Readability**: Code should be self-documenting
 - **Simplicity**: Prefer simple solutions over clever ones
 - **Consistency**: Follow existing patterns in the codebase
-- **Documentation**: Explain *why*, not just *what*
+- **Documentation**: Explain _why_, not just _what_
 
 ### Python Style
 
@@ -339,16 +339,16 @@ def deal_cards(num_cards: int) -> List[Card]:
 # Docstrings: Google style
 def my_function(param1: int, param2: str) -> bool:
     """Short description.
-    
+
     Longer description if needed.
-    
+
     Args:
         param1: Description of param1
         param2: Description of param2
-    
+
     Returns:
         Description of return value
-    
+
     Raises:
         ValueError: When params are invalid
     """
@@ -371,21 +371,21 @@ Comprehensive explanation of the module, including:
 
 class GameEngine:
     """Brief description.
-    
+
     Detailed description of the class, its purpose,
     and how it fits into the larger system.
-    
+
     Attributes:
         players: List of players in the game
         current_player: Index of active player
     """
-    
+
     def __init__(self, num_players: int):
         """Initialize game engine.
-        
+
         Args:
             num_players: Number of players (2-4)
-        
+
         Raises:
             ValueError: If num_players is out of range
         """
@@ -455,34 +455,34 @@ from game_package.game_name import GameEngine, Player
 
 class TestGameEngine(unittest.TestCase):
     """Tests for GameEngine class."""
-    
+
     def setUp(self):
         """Set up test fixtures."""
         self.game = GameEngine(num_players=2)
-    
+
     def test_initialization(self):
         """Test game initializes correctly."""
         self.assertEqual(len(self.game.players), 2)
         self.assertEqual(self.game.current_player, 0)
-    
+
     def test_valid_move(self):
         """Test valid move is accepted."""
         self.game.start()
         result = self.game.make_move(valid_move)
         self.assertTrue(result)
-    
+
     def test_invalid_move(self):
         """Test invalid move is rejected."""
         self.game.start()
         result = self.game.make_move(invalid_move)
         self.assertFalse(result)
-    
+
     def test_game_end(self):
         """Test game ends correctly."""
         # Set up winning condition
         self.assertTrue(self.game.is_game_over())
         self.assertIsNotNone(self.game.get_winner())
-    
+
     def test_edge_cases(self):
         """Test edge cases."""
         # Test boundary conditions
@@ -585,7 +585,6 @@ make html
    ```
 
 1. **Open PR**: Open Pull Request on GitHub
-
    - Use clear title following commit conventions
    - Describe changes comprehensively
    - Reference related issues
@@ -595,15 +594,18 @@ make html
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Documentation update
 - [ ] Performance improvement
 
 ## Checklist
+
 - [ ] Tests pass locally
 - [ ] Added tests for new code
 - [ ] Documentation updated
@@ -611,9 +613,11 @@ Brief description of changes
 - [ ] No breaking changes (or documented)
 
 ## Related Issues
+
 Fixes #123
 
 ## Screenshots
+
 (If applicable)
 ```
 

@@ -16,13 +16,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from typing import Dict, Optional, Set, Tuple
 
-from .battleship import (
-    DEFAULT_FLEET,
-    EXTENDED_FLEET,
-    SMALL_FLEET,
-    BattleshipGame,
-    Coordinate,
-)
+from .battleship import DEFAULT_FLEET, EXTENDED_FLEET, SMALL_FLEET, BattleshipGame, Coordinate
 
 
 class BattleshipGUI:

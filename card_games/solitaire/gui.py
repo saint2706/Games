@@ -727,4 +727,3 @@ def run_app(
     gui = SolitaireGUI(root, make_game(), new_game_factory=make_game)
     gui.update_display()
     root.mainloop()
-

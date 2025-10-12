@@ -1,6 +1,7 @@
 # Analytics & Metrics System
 
-The analytics module provides comprehensive tools for tracking, analyzing, and visualizing game statistics and player performance.
+The analytics module provides comprehensive tools for tracking, analyzing, and visualizing game statistics and player
+performance.
 
 ## Features
 
@@ -231,11 +232,11 @@ for _ in range(10):
     # Record game
     stats.record_game("Alice", ["Alice", "Bob"], 1200.0)
     metrics.record_game_duration(1200.0)
-    
+
     # Record decisions
     metrics.record_decision("Alice", 3.2, quality=0.85)
     metrics.record_decision("Bob", 4.5, quality=0.75)
-    
+
     # Update ratings
     elo.update_ratings("Alice", "Bob", 1.0)
 
@@ -337,18 +338,18 @@ class MyGame:
         self.stats = GameStatistics(game_name="MyGame")
         self.metrics = PerformanceMetrics(game_name="MyGame")
         self.elo = EloRating()
-    
+
     def play_game(self, player1, player2):
         # Game logic here...
-        
+
         # Record analytics
         self.stats.record_game(winner, [player1, player2], duration)
         self.metrics.record_game_duration(duration)
-        
+
         # Update ratings
         score = 1.0 if winner == player1 else 0.0
         self.elo.update_ratings(player1, player2, score)
-    
+
     def show_stats(self):
         print(self.stats.get_summary())
         print(self.metrics.get_summary())

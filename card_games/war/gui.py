@@ -338,9 +338,7 @@ class WarGUI(BaseGUI):
         self._last_result = result
 
         if "player1_card" in result:
-            summary_line = (
-                f"Round {self.game.rounds_played}: {result['player1_card']} vs {result['player2_card']}"
-            )
+            summary_line = f"Round {self.game.rounds_played}: {result['player1_card']} vs {result['player2_card']}"
             if result["round_type"] == "war":
                 summary_line += " — WAR!"
             self.log_message(self.log_widget, summary_line)
@@ -427,16 +425,8 @@ class WarGUI(BaseGUI):
             return
 
         current_bg = self.war_alert_label.cget("bg")
-        new_bg = (
-            self.current_theme.colors.error
-            if current_bg == self.current_theme.colors.background
-            else self.current_theme.colors.background
-        )
-        fg_color = (
-            self.current_theme.colors.background
-            if new_bg == self.current_theme.colors.error
-            else self.current_theme.colors.error
-        )
+        new_bg = self.current_theme.colors.error if current_bg == self.current_theme.colors.background else self.current_theme.colors.background
+        fg_color = self.current_theme.colors.background if new_bg == self.current_theme.colors.error else self.current_theme.colors.error
         self.war_alert_label.configure(bg=new_bg, fg=fg_color)
         self._flash_cycles_remaining -= 1
         self._flash_job = self.root.after(220, self._toggle_flash)
@@ -512,10 +502,7 @@ class WarGUI(BaseGUI):
         else:
             message = "One player captured the entire deck."
 
-        detail = (
-            f"Player {winner} wins after {rounds} rounds with {wars} wars fought.\n"
-            f"Game duration: {duration:.1f} seconds.\n{message}"
-        )
+        detail = f"Player {winner} wins after {rounds} rounds with {wars} wars fought.\n" f"Game duration: {duration:.1f} seconds.\n{message}"
 
         messagebox.showinfo("War - Game Over", detail)
 
@@ -557,4 +544,3 @@ def run_app(*, game: Optional[WarGame] = None, enable_sounds: bool = False) -> N
 
 
 __all__ = ["WarGUI", "run_app"]
-

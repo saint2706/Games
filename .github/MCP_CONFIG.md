@@ -2,11 +2,13 @@
 
 ## Overview
 
-This document describes the MCP (Model Context Protocol) configuration for the GitHub Copilot coding agent used in this repository.
+This document describes the MCP (Model Context Protocol) configuration for the GitHub Copilot coding agent used in this
+repository.
 
 ## Configuration File
 
-The MCP configuration is stored in `.github/mcp-config.json` and defines the external servers that the GitHub Copilot coding agent can connect to for enhanced capabilities.
+The MCP configuration is stored in `.github/mcp-config.json` and defines the external servers that the GitHub Copilot
+coding agent can connect to for enhanced capabilities.
 
 ## Configuration Structure
 

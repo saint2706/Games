@@ -4,9 +4,9 @@ This file provides context-specific guidance for GitHub Copilot when working in 
 
 ## Repository Overview
 
-This is a Python-based games collection featuring card games (Poker, Blackjack, Bluff, Uno, Solitaire, Hearts, Spades, 
-Gin Rummy, Bridge) and paper games (Tic-Tac-Toe, Battleship, Nim, Hangman, Dots and Boxes, Unscramble, Checkers, 
-Connect Four, Othello, Sudoku, Mancala). The project emphasizes clean architecture, AI opponents, and both CLI and GUI 
+This is a Python-based games collection featuring card games (Poker, Blackjack, Bluff, Uno, Solitaire, Hearts, Spades,
+Gin Rummy, Bridge) and paper games (Tic-Tac-Toe, Battleship, Nim, Hangman, Dots and Boxes, Unscramble, Checkers, Connect
+Four, Othello, Sudoku, Mancala). The project emphasizes clean architecture, AI opponents, and both CLI and GUI
 interfaces.
 
 ## Code Quality Standards
@@ -407,7 +407,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
-______________________________________________________________________
+---
 
 **Remember**: The goal is maintainable, well-documented, tested code that follows consistent patterns across all games.
 Prioritize code quality and simplicity over clever solutions.

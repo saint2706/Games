@@ -6,14 +6,7 @@ both the game engine and the CLI.
 """
 
 from .cli import play
-from .hangman import (
-    HANGMAN_ART_STYLES,
-    HANGMAN_STAGES,
-    HangmanGame,
-    load_default_words,
-    load_themed_words,
-    load_words_by_difficulty,
-)
+from .hangman import HANGMAN_ART_STYLES, HANGMAN_STAGES, HangmanGame, load_default_words, load_themed_words, load_words_by_difficulty
 
 __all__ = [
     "HangmanGame",

@@ -5,14 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from paper_games.unscramble import (
-    GameStats,
-    UnscrambleGame,
-    list_themes,
-    load_themed_words,
-    load_unscramble_words,
-    load_words_by_difficulty,
-)
+from paper_games.unscramble import GameStats, UnscrambleGame, list_themes, load_themed_words, load_unscramble_words, load_words_by_difficulty
 
 
 def test_load_unscramble_words():

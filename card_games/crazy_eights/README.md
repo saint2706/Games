@@ -55,7 +55,8 @@ Reproducible game with seed:
 python -m card_games.crazy_eights --seed 42
 ```
 
-> **Note:** The GUI requires Tkinter, which is typically bundled with standard Python installations on Windows and macOS. Linux users may need to install `python3-tk` from their package manager.
+> **Note:** The GUI requires Tkinter, which is typically bundled with standard Python installations on Windows and
+> macOS. Linux users may need to install `python3-tk` from their package manager.
 
 ## Features
 

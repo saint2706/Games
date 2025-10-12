@@ -1,6 +1,7 @@
 # CLI Utilities Documentation
 
-The `common.cli_utils` module provides enhanced command-line interface utilities for terminal-based games, including colorful ASCII art, rich text formatting, progress indicators, interactive menus, command history, and theme support.
+The `common.cli_utils` module provides enhanced command-line interface utilities for terminal-based games, including
+colorful ASCII art, rich text formatting, progress indicators, interactive menus, command history, and theme support.
 
 ## Table of Contents
 
@@ -20,7 +21,8 @@ The `common.cli_utils` module provides enhanced command-line interface utilities
 
 ## Installation
 
-The CLI utilities are part of the common module and have no additional dependencies beyond what's already required for the project.
+The CLI utilities are part of the common module and have no additional dependencies beyond what's already required for
+the project.
 
 ```python
 from common.cli_utils import (
@@ -526,15 +528,15 @@ def main():
 
     if choice == 0:  # New Game
         print(RichText.info("Starting new game..."))
-        
+
         # Show loading progress
         bar = ProgressBar(total=100, width=50, theme=THEMES["ocean"])
         for i in range(101):
             bar.update(i)
             time.sleep(0.02)
-        
+
         print(RichText.success("Game loaded successfully!"))
-        
+
     elif choice == 3:  # Quit
         print(RichText.warning("Thanks for playing!"))
 
@@ -649,15 +651,15 @@ commands = ["play", "pause", "stop", "help", "quit"]
 
 while True:
     user_input = input("> ")
-    
+
     # Autocomplete
     if user_input and user_input != history.autocomplete(user_input, commands):
         completed = history.autocomplete(user_input, commands)
         if completed:
             print(f"Did you mean: {completed}?")
-    
+
     history.add(user_input)
-    
+
     # Process command...
 ```
 

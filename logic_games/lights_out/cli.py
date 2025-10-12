@@ -81,10 +81,7 @@ def main() -> None:
     """Run Lights Out."""
 
     print("LIGHTS OUT".center(60, "="))
-    print(
-        "\nTurn all lights off by toggling fixtures. Brighter symbols indicate\n"
-        "bulbs that are glowing or receiving light bleed from neighbours."
-    )
+    print("\nTurn all lights off by toggling fixtures. Brighter symbols indicate\n" "bulbs that are glowing or receiving light bleed from neighbours.")
     print("\nBrightness scale: " + " ".join(char for _, char in _BRIGHTNESS_CHARS))
 
     size = _prompt_for_integer(

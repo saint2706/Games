@@ -2,7 +2,8 @@
 
 ## Overview
 
-This guide explains how to create and use custom Uno decks with additional cards, colors, and special effects. The custom deck system allows for creative variations of the classic game.
+This guide explains how to create and use custom Uno decks with additional cards, colors, and special effects. The
+custom deck system allows for creative variations of the classic game.
 
 ## Custom Deck Format
 
@@ -56,7 +57,7 @@ class CustomUnoCard(UnoCard):
     """Extended Uno card with custom effects."""
     effect: Optional[str] = None
     effect_params: Optional[Dict[str, Any]] = None
-    
+
     def has_custom_effect(self) -> bool:
         return self.effect is not None
 ```
@@ -66,7 +67,7 @@ class CustomUnoCard(UnoCard):
 ```python
 class CustomDeckLoader:
     """Loads and validates custom Uno deck definitions."""
-    
+
     @staticmethod
     def load_from_file(filepath: str) -> Dict:
         """Load a custom deck from a JSON file."""
@@ -74,7 +75,7 @@ class CustomDeckLoader:
             deck_def = json.load(f)
         CustomDeckLoader.validate(deck_def)
         return deck_def
-    
+
     @staticmethod
     def validate(deck_def: Dict) -> None:
         """Validate deck definition structure."""
@@ -82,31 +83,31 @@ class CustomDeckLoader:
         for key in required_keys:
             if key not in deck_def:
                 raise ValueError(f"Missing required key: {key}")
-        
+
         # Validate colors
         if len(deck_def['colors']) < 2:
             raise ValueError("Deck must have at least 2 colors")
-        
+
         # Validate cards
         if len(deck_def['cards']) < 20:
             raise ValueError("Deck must have at least 20 cards")
-        
+
         # Validate card structure
         for card in deck_def['cards']:
             if 'value' not in card or 'count' not in card:
                 raise ValueError("Each card must have 'value' and 'count'")
-    
+
     @staticmethod
     def create_deck(deck_def: Dict, rng: Optional[random.Random] = None) -> UnoDeck:
         """Create a UnoDeck from a deck definition."""
         deck = UnoDeck(rng=rng)
         deck.cards.clear()
-        
+
         for card_def in deck_def['cards']:
             color = card_def.get('color')
             value = card_def['value']
             count = card_def['count']
-            
+
             for _ in range(count):
                 if 'effect' in card_def:
                     # Custom card with effect
@@ -119,7 +120,7 @@ class CustomDeckLoader:
                 else:
                     # Standard card
                     deck.cards.append(UnoCard(color=color, value=value))
-        
+
         deck.shuffle()
         return deck
 ```
@@ -129,7 +130,7 @@ class CustomDeckLoader:
 ```python
 class CustomEffectHandler:
     """Handles custom card effects in the game."""
-    
+
     def __init__(self, game: UnoGame):
         self.game = game
         self.handlers = {
@@ -139,21 +140,21 @@ class CustomEffectHandler:
             'peek_hand': self._handle_peek_hand,
             'block': self._handle_block,
         }
-    
+
     def apply_effect(self, card: CustomUnoCard, player: UnoPlayer) -> None:
         """Apply the custom effect of a card."""
         if card.effect in self.handlers:
             self.handlers[card.effect](card, player)
         else:
             raise ValueError(f"Unknown effect: {card.effect}")
-    
+
     def _handle_swap_with_any(self, card: CustomUnoCard, player: UnoPlayer) -> None:
         """Allow player to swap hands with any other player."""
         target_idx = self.game.interface.choose_swap_target(player, self.game.players)
         if target_idx is not None:
             target = self.game.players[target_idx]
             self.game._swap_hands(player, target)
-    
+
     def _handle_steal_card(self, card: CustomUnoCard, player: UnoPlayer) -> None:
         """Steal a random card from another player."""
         target_idx = self.game.interface.choose_swap_target(player, self.game.players)
@@ -167,7 +168,7 @@ class CustomEffectHandler:
                     f"{player.name} steals a card from {target.name}!",
                     Fore.MAGENTA
                 )
-    
+
     def _handle_gift_card(self, card: CustomUnoCard, player: UnoPlayer) -> None:
         """Give a card to another player."""
         if len(player.hand) > 1:
@@ -176,14 +177,14 @@ class CustomEffectHandler:
             if card_idx is not None and target_idx is not None:
                 given_card = player.hand.pop(card_idx)
                 self.game.players[target_idx].hand.append(given_card)
-    
+
     def _handle_peek_hand(self, card: CustomUnoCard, player: UnoPlayer) -> None:
         """Peek at another player's hand."""
         target_idx = self.game.interface.choose_swap_target(player, self.game.players)
         if target_idx is not None:
             target = self.game.players[target_idx]
             self.game.interface.show_peek_result(target.hand)
-    
+
     def _handle_block(self, card: CustomUnoCard, player: UnoPlayer) -> None:
         """Block the next player's turn (like skip but with special visual)."""
         self.game._log(f"{player.name} blocks the next player!", Fore.RED)
@@ -207,7 +208,7 @@ class UnoGame:
         custom_deck: Optional[Dict] = None,  # New parameter
     ) -> None:
         # ... existing initialization ...
-        
+
         if custom_deck:
             self.deck = CustomDeckLoader.create_deck(custom_deck, rng=self.rng)
             self.custom_effect_handler = CustomEffectHandler(self)
@@ -226,19 +227,19 @@ class UnoGame:
   "description": "Uno with 6 colors and extra wildcards",
   "colors": ["red", "yellow", "green", "blue", "purple", "orange"],
   "cards": [
-    {"color": "red", "value": "0", "count": 1},
-    {"color": "red", "value": "1", "count": 2},
-    {"color": "red", "value": "2", "count": 2},
-    {"color": "red", "value": "3", "count": 2},
-    {"color": "red", "value": "4", "count": 2},
-    {"color": "red", "value": "5", "count": 2},
-    {"color": "red", "value": "6", "count": 2},
-    {"color": "red", "value": "7", "count": 2},
-    {"color": "red", "value": "8", "count": 2},
-    {"color": "red", "value": "9", "count": 2},
-    {"color": "red", "value": "skip", "count": 2},
-    {"color": "red", "value": "reverse", "count": 2},
-    {"color": "red", "value": "+2", "count": 2}
+    { "color": "red", "value": "0", "count": 1 },
+    { "color": "red", "value": "1", "count": 2 },
+    { "color": "red", "value": "2", "count": 2 },
+    { "color": "red", "value": "3", "count": 2 },
+    { "color": "red", "value": "4", "count": 2 },
+    { "color": "red", "value": "5", "count": 2 },
+    { "color": "red", "value": "6", "count": 2 },
+    { "color": "red", "value": "7", "count": 2 },
+    { "color": "red", "value": "8", "count": 2 },
+    { "color": "red", "value": "9", "count": 2 },
+    { "color": "red", "value": "skip", "count": 2 },
+    { "color": "red", "value": "reverse", "count": 2 },
+    { "color": "red", "value": "+2", "count": 2 }
   ]
 }
 ```
@@ -251,10 +252,10 @@ class UnoGame:
   "description": "High-stakes Uno with powerful special cards",
   "colors": ["red", "yellow", "green", "blue"],
   "cards": [
-    {"color": null, "value": "mega-wild", "count": 2, "effect": "swap_with_any"},
-    {"color": null, "value": "steal", "count": 4, "effect": "steal_card"},
-    {"color": null, "value": "gift", "count": 2, "effect": "gift_card"},
-    {"color": null, "value": "+6", "count": 2}
+    { "color": null, "value": "mega-wild", "count": 2, "effect": "swap_with_any" },
+    { "color": null, "value": "steal", "count": 4, "effect": "steal_card" },
+    { "color": null, "value": "gift", "count": 2, "effect": "gift_card" },
+    { "color": null, "value": "+6", "count": 2 }
   ]
 }
 ```
@@ -267,11 +268,11 @@ class UnoGame:
   "description": "Faster gameplay with fewer numbers",
   "colors": ["red", "yellow", "green", "blue"],
   "cards": [
-    {"color": "red", "value": "1", "count": 3},
-    {"color": "red", "value": "2", "count": 3},
-    {"color": "red", "value": "3", "count": 3},
-    {"color": "red", "value": "skip", "count": 3},
-    {"color": "red", "value": "reverse", "count": 3}
+    { "color": "red", "value": "1", "count": 3 },
+    { "color": "red", "value": "2", "count": 3 },
+    { "color": "red", "value": "3", "count": 3 },
+    { "color": "red", "value": "skip", "count": 3 },
+    { "color": "red", "value": "reverse", "count": 3 }
   ]
 }
 ```
@@ -283,7 +284,7 @@ Create a visual deck designer tool:
 ```python
 class DeckDesignerGUI:
     """GUI application for designing custom Uno decks."""
-    
+
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Uno Custom Deck Designer")
@@ -293,35 +294,35 @@ class DeckDesignerGUI:
             "cards": []
         }
         self._build_ui()
-    
+
     def _build_ui(self):
         # Deck properties
         tk.Label(self.root, text="Deck Name:").pack()
         self.name_entry = tk.Entry(self.root)
         self.name_entry.pack()
-        
+
         # Color selector
         tk.Label(self.root, text="Colors:").pack()
         self.color_frame = tk.Frame(self.root)
         self.color_frame.pack()
-        
+
         # Card list
         tk.Label(self.root, text="Cards:").pack()
         self.card_list = tk.Listbox(self.root, height=10)
         self.card_list.pack()
-        
+
         # Add card controls
         tk.Button(self.root, text="Add Card", command=self.add_card).pack()
         tk.Button(self.root, text="Remove Card", command=self.remove_card).pack()
-        
+
         # Export buttons
         tk.Button(self.root, text="Export JSON", command=self.export_json).pack()
         tk.Button(self.root, text="Test Deck", command=self.test_deck).pack()
-    
+
     def add_card(self):
         # Open dialog to configure new card
         pass
-    
+
     def export_json(self):
         filepath = filedialog.asksaveasfilename(
             defaultextension=".json",
@@ -360,11 +361,11 @@ python -m card_games.uno.validate_deck decks/extreme.json
 ```python
 class DynamicEffect:
     """Card effect that can be modified during runtime."""
-    
+
     def __init__(self, effect_type: str, params: Dict[str, Any]):
         self.effect_type = effect_type
         self.params = params
-    
+
     def execute(self, game: UnoGame, player: UnoPlayer) -> None:
         # Execute effect with parameters
         if self.effect_type == "conditional_draw":

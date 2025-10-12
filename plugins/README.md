@@ -24,23 +24,23 @@ class MyGameEngine(GameEngine):
     def initialize(self, **kwargs):
         # Initialize game
         pass
-    
+
     def reset(self):
         # Reset game state
         pass
-    
+
     def is_finished(self):
         # Check if game is finished
         return False
-    
+
     def get_current_player(self):
         # Return current player
         return None
-    
+
     def get_valid_actions(self):
         # Return list of valid actions
         return []
-    
+
     def execute_action(self, action):
         # Execute an action
         return True
@@ -53,13 +53,13 @@ class MyGamePlugin(GamePlugin):
             author="Your Name",
             description="My awesome game"
         )
-    
+
     def initialize(self, **kwargs):
         print("Plugin initialized")
-    
+
     def shutdown(self):
         print("Plugin shutting down")
-    
+
     def get_game_class(self):
         return MyGameEngine
 
@@ -130,7 +130,7 @@ game.initialize(target=42, max_guesses=7)
 while not game.is_finished():
     guess = int(input("Enter your guess (1-100): "))
     game.execute_action(guess)
-    
+
     state = game.get_public_state()
     if state.get("finished"):
         print("Game over!")

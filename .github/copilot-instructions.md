@@ -4,9 +4,9 @@ This file provides context-specific guidance for GitHub Copilot when working in 
 
 ## Repository Overview
 
-This is a Python-based games collection featuring card games (Poker, Blackjack, Bluff, Uno, Solitaire, Hearts, Spades, 
-Gin Rummy, Bridge) and paper games (Tic-Tac-Toe, Battleship, Nim, Hangman, Dots and Boxes, Unscramble, Checkers, 
-Connect Four, Othello, Sudoku, Mancala). The project emphasizes clean architecture, AI opponents, and both CLI and GUI 
+This is a Python-based games collection featuring card games (Poker, Blackjack, Bluff, Uno, Solitaire, Hearts, Spades,
+Gin Rummy, Bridge) and paper games (Tic-Tac-Toe, Battleship, Nim, Hangman, Dots and Boxes, Unscramble, Checkers, Connect
+Four, Othello, Sudoku, Mancala). The project emphasizes clean architecture, AI opponents, and both CLI and GUI
 interfaces.
 
 ## Code Quality Standards
@@ -338,7 +338,9 @@ class MyGameGUI(BaseGUI):
 - ❌ Commit code that fails pre-commit hooks
 - ❌ Exceed 160 character line length
 
-**Note**: While Ruff's C90 complexity checking is temporarily disabled in the configuration (due to 31 existing violations), new code should still maintain complexity ≤ 10. Use `./scripts/check_complexity.sh` or Radon directly to check your code's complexity.
+**Note**: While Ruff's C90 complexity checking is temporarily disabled in the configuration (due to 31 existing
+violations), new code should still maintain complexity ≤ 10. Use `./scripts/check_complexity.sh` or Radon directly to
+check your code's complexity.
 
 ## AI Opponent Implementation
 
@@ -426,7 +428,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
-______________________________________________________________________
+---
 
 **Remember**: The goal is maintainable, well-documented, tested code that follows consistent patterns across all games.
 Prioritize code quality and simplicity over clever solutions.

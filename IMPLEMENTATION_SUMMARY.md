@@ -1,12 +1,12 @@
 # Paper & Pencil Games Implementation Summary
 
-This document summarizes the implementation of 10 unimplemented paper & pencil games as tracked in [docs/planning/TODO.md](docs/planning/TODO.md).
+This document summarizes the implementation of 10 unimplemented paper & pencil games as tracked in
+[docs/planning/TODO.md](docs/planning/TODO.md).
 
 ## Overview
 
-**Issue**: Implement all unimplemented paper & pencil games and features  
-**PR Branch**: `copilot/implement-paper-pencil-games`  
-**Status**: ✅ **COMPLETE**
+**Issue**: Implement all unimplemented paper & pencil games and features **PR Branch**:
+`copilot/implement-paper-pencil-games` **Status**: ✅ **COMPLETE**
 
 All 10 games have been successfully implemented, tested, documented, and integrated into the repository.
 
@@ -68,25 +68,25 @@ These games have working implementations with solid foundations that can be enha
    - Four 3x3 quadrants
    - Basic placement mechanics
    - 5-in-a-row win condition (to be fully implemented)
-   - *Enhancement opportunity*: Full quadrant rotation mechanics
+   - _Enhancement opportunity_: Full quadrant rotation mechanics
 
 8. **Backgammon** (`paper_games/backgammon/`)
    - Traditional board layout (24 positions)
    - Dice rolling mechanics
    - Basic movement structure
-   - *Enhancement opportunity*: Full rules, bearing off, doubling cube
+   - _Enhancement opportunity_: Full rules, bearing off, doubling cube
 
 9. **Sprouts** (`paper_games/sprouts/`)
    - Dot and line graph structure
    - Basic connection mechanics
    - Turn-based gameplay
-   - *Enhancement opportunity*: Full topological constraints
+   - _Enhancement opportunity_: Full topological constraints
 
 10. **Chess** (`paper_games/chess/`)
     - 8x8 board setup
     - Basic piece placement
     - Simple pawn movement
-    - *Enhancement opportunity*: All pieces, castling, en passant, check/checkmate, AI engine
+    - _Enhancement opportunity_: All pieces, castling, en passant, check/checkmate, AI engine
 
 ## Implementation Details
 
@@ -120,6 +120,7 @@ These games have working implementations with solid foundations that can be enha
 ### Integration
 
 All games are:
+
 - ✅ Runnable via `python -m paper_games.<game_name>`
 - ✅ Importable from `paper_games` package
 - ✅ Compatible with existing infrastructure:
@@ -203,6 +204,7 @@ The 4 basic implementations (Pentago, Backgammon, Sprouts, Chess) provide workin
 ✅ **All 10 unimplemented paper & pencil games have been successfully implemented, tested, documented, and integrated.**
 
 The implementation provides:
+
 - 6 complete, production-ready games
 - 4 working foundation games that can be enhanced
 - Full test coverage

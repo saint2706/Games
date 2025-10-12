@@ -22,5 +22,5 @@ This is not a game but an educational tool. The four-square method helps structu
 
 ## Purpose
 
-Helps students and writers organize thoughts before writing a full essay.
-The four-square method is widely used in education for teaching essay structure.
+Helps students and writers organize thoughts before writing a full essay. The four-square method is widely used in
+education for teaching essay structure.

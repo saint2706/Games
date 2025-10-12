@@ -1,7 +1,7 @@
 # Example GitHub Actions workflow for code quality checks
-# 
+#
 # To enable, rename this file to .github/workflows/code-quality.yml
-# 
+#
 # This workflow runs on all pull requests and pushes to main branch
 
 name: Code Quality

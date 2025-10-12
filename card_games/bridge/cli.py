@@ -5,13 +5,7 @@ from __future__ import annotations
 import random
 from typing import Optional
 
-from card_games.bridge.game import (
-    BidSuit,
-    BridgeGame,
-    BridgePlayer,
-    CallType,
-    Vulnerability,
-)
+from card_games.bridge.game import BidSuit, BridgeGame, BridgePlayer, CallType, Vulnerability
 from card_games.common.cards import format_cards, parse_card
 
 SUIT_SYMBOLS = {

@@ -18,6 +18,4 @@ Rotating quadrant board game with 5-in-a-row win condition.
 
 ## Implementation Status
 
-✅ Basic board and placement
-🔄 Full quadrant rotation mechanics pending
-🔄 AI opponent pending
+✅ Basic board and placement 🔄 Full quadrant rotation mechanics pending 🔄 AI opponent pending

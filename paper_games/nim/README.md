@@ -1,6 +1,7 @@
 # Nim and Variants
 
-A comprehensive implementation of the classic game of Nim and its mathematical variants, featuring educational tools, multiplayer support, and advanced visualizations.
+A comprehensive implementation of the classic game of Nim and its mathematical variants, featuring educational tools,
+multiplayer support, and advanced visualizations.
 
 ## Quick Start
 
@@ -24,7 +25,8 @@ Play the mathematical game of Nim with an optimal computer opponent. The game in
 
 #### Northcott's Game
 
-A spatial variant where players slide pieces towards each other on parallel rows. The gaps between pieces form Nim heaps, combining positional play with Nim strategy.
+A spatial variant where players slide pieces towards each other on parallel rows. The gaps between pieces form Nim
+heaps, combining positional play with Nim strategy.
 
 **Features:**
 
@@ -62,15 +64,15 @@ print(game.render(graphical=True))
 Output:
 
 ```
-                ▓▓▓  
-                ▓▓▓  
-         ▓▓▓    ▓▓▓  
-         ▓▓▓    ▓▓▓  
-  ▓▓▓    ▓▓▓    ▓▓▓  
-  ▓▓▓    ▓▓▓    ▓▓▓  
-  ▓▓▓    ▓▓▓    ▓▓▓  
-  ▓▓▓    ▓▓▓    ▓▓▓  
- [  4]  [  6]  [  8] 
+                ▓▓▓
+                ▓▓▓
+         ▓▓▓    ▓▓▓
+         ▓▓▓    ▓▓▓
+  ▓▓▓    ▓▓▓    ▓▓▓
+  ▓▓▓    ▓▓▓    ▓▓▓
+  ▓▓▓    ▓▓▓    ▓▓▓
+  ▓▓▓    ▓▓▓    ▓▓▓
+ [  4]  [  6]  [  8]
  Heap1 Heap2 Heap3
 ```
 
@@ -171,11 +173,13 @@ The optimal strategy is to make moves that result in a Nim-sum of 0.
 
 ### Misère Nim
 
-In misère rules, the player who takes the last object **loses**. The strategy is similar to normal Nim, except when all remaining heaps have size 1.
+In misère rules, the player who takes the last object **loses**. The strategy is similar to normal Nim, except when all
+remaining heaps have size 1.
 
 ### Northcott's Game
 
-This is equivalent to Nim where the "heap" is the gap between pieces. The game demonstrates that many spatial games can be analyzed using Nim theory.
+This is equivalent to Nim where the "heap" is the gap between pieces. The game demonstrates that many spatial games can
+be analyzed using Nim theory.
 
 ### Wythoff's Game
 

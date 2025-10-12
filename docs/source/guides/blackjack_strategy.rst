@@ -295,7 +295,7 @@ Calculate the running count:
 .. code-block:: text
 
    Cards dealt: K, 5, 3, J, 2, 8, A, 6, Q
-   
+
    K: -1
    5: +1
    3: +1
@@ -305,7 +305,7 @@ Calculate the running count:
    A: -1
    6: +1
    Q: -1
-   
+
    Running Count: 0
 
 Advanced Topics

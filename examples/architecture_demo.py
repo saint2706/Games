@@ -13,15 +13,7 @@ This script shows how to use all the architecture components together:
 import tempfile
 from pathlib import Path
 
-from common.architecture import (
-    Event,
-    EventHandler,
-    Observer,
-    PluginManager,
-    ReplayManager,
-    SaveLoadManager,
-    SettingsManager,
-)
+from common.architecture import Event, EventHandler, Observer, PluginManager, ReplayManager, SaveLoadManager, SettingsManager
 
 
 class GameEventLogger(EventHandler):

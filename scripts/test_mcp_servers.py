@@ -9,11 +9,8 @@ This script performs comprehensive testing of the MCP servers including:
 
 from __future__ import annotations
 
-import socket
 import sys
 from pathlib import Path
-from urllib import error as urllib_error
-from urllib import request as urllib_request
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -68,8 +65,8 @@ def test_server_connectivity() -> tuple[bool, list[str]]:
 
     try:
         import socket
-        import urllib.error
-        import urllib.request
+        from urllib import error as urllib_error
+        from urllib import request as urllib_request
 
         config = load_default_mcp_config()
         all_reachable = True
@@ -78,9 +75,7 @@ def test_server_connectivity() -> tuple[bool, list[str]]:
             server = config.get_server(name)
             try:
                 # Try to connect with a short timeout
-                request = urllib_request.Request(
-                    server.url, headers={"User-Agent": "MCP-Test/1.0"}
-                )
+                request = urllib_request.Request(server.url, headers={"User-Agent": "MCP-Test/1.0"})
                 response = urllib_request.urlopen(request, timeout=5)
                 status = response.getcode()
                 messages.append(f"  ✓ {name}: Reachable (HTTP {status})")
@@ -97,9 +92,7 @@ def test_server_connectivity() -> tuple[bool, list[str]]:
         if all_reachable:
             messages.append("\n✓ All servers are reachable")
         else:
-            messages.append(
-                "\n⚠ Some servers not reachable (may be expected in this environment)"
-            )
+            messages.append("\n⚠ Some servers not reachable (may be expected in this environment)")
 
         return True, messages
 

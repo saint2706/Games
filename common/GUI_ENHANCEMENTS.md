@@ -360,11 +360,11 @@ config = GUIConfig(
 class MyGameGUI(BaseGUI):
     def __init__(self, root):
         super().__init__(root, config)
-    
+
     def _setup_shortcuts(self):
         """Override to add custom shortcuts."""
         self.register_shortcut("<Space>", self.make_move, "Make Move")
-    
+
     def update_display(self):
         """Update display with theme colors."""
         self.canvas.config(bg=self.current_theme.colors.canvas_bg)
@@ -408,13 +408,13 @@ class MyGameGUI(BaseGUI):
         )
         super().__init__(root, config)
         self.build_layout()
-    
+
     def build_layout(self):
         """Build GUI layout."""
         # Header with translated text
         header = self.create_header(self.root, _("my_game"))
         header.pack(pady=10)
-        
+
         # Game button with theme colors
         self.game_button = tk.Button(
             self.root,
@@ -424,35 +424,35 @@ class MyGameGUI(BaseGUI):
             fg=self.current_theme.colors.button_fg,
         )
         self.game_button.pack(pady=10)
-        
+
         # Add accessibility features
         self.accessibility_manager.add_focus_indicator(self.game_button)
         self.accessibility_manager.add_screen_reader_label(
             self.game_button,
             _("new_game")
         )
-    
+
     def _setup_shortcuts(self):
         """Set up keyboard shortcuts."""
         self.register_shortcut("<Control-n>", self.start_game, "New Game")
         self.register_shortcut("<F1>", self.show_help, "Show Help")
-    
+
     def start_game(self):
         """Start a new game."""
         # Play sound
         self.play_sound("game_start")
-        
+
         # Animate button
         from common.animations import animate_widget_highlight
         animate_widget_highlight(self.game_button)
-        
+
         # Announce for screen readers
         self.accessibility_manager.announce(_("game_started"))
-    
+
     def show_help(self):
         """Show help dialog."""
         self.show_shortcuts_help()
-    
+
     def update_display(self):
         """Update display based on game state."""
         # Apply theme colors to widgets

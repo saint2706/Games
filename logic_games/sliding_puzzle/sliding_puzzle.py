@@ -91,9 +91,7 @@ class SlidingPuzzleGame(GameEngine[str, int]):
             alternative_moves = self.get_valid_moves()
             first_move = random.choice(alternative_moves)
             self._move_blank(first_move)
-            second_move_candidates = [
-                move for move in self.get_valid_moves() if move != self._OPPOSITE_DIRECTIONS[first_move]
-            ]
+            second_move_candidates = [move for move in self.get_valid_moves() if move != self._OPPOSITE_DIRECTIONS[first_move]]
             if second_move_candidates:
                 self._move_blank(random.choice(second_move_candidates))
 

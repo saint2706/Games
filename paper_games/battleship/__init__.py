@@ -5,15 +5,7 @@ Re-exports core types so ``paper_games.battleship`` behaves like a facade for
 both the game engine and the CLI.
 """
 
-from .battleship import (
-    DEFAULT_FLEET,
-    EXTENDED_FLEET,
-    SMALL_FLEET,
-    BattleshipGame,
-    Board,
-    Coordinate,
-    Ship,
-)
+from .battleship import DEFAULT_FLEET, EXTENDED_FLEET, SMALL_FLEET, BattleshipGame, Board, Coordinate, Ship
 from .cli import play
 
 # GUI is optional (requires tkinter)

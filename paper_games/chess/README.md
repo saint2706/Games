@@ -21,15 +21,13 @@ Standard chess rules with all pieces, special moves, and win conditions.
 
 ## Implementation Status
 
-✅ Basic board structure
-✅ Simple pawn movement
-🔄 All pieces and rules pending
-🔄 Chess engine pending
+✅ Basic board structure ✅ Simple pawn movement 🔄 All pieces and rules pending 🔄 Chess engine pending
 
 ## Note
 
-Full chess implementation is a substantial project. This basic version demonstrates
-the structure. A complete implementation would require:
+Full chess implementation is a substantial project. This basic version demonstrates the structure. A complete
+implementation would require:
+
 - Move generation for all pieces
 - Legal move validation (including check)
 - Game state evaluation

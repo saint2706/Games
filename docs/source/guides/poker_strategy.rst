@@ -68,7 +68,7 @@ Pot Odds and Expected Value
    Pot: $100
    Bet to call: $20
    Pot odds = $20 / ($100 + $20) = 16.7%
-   
+
    If you have >16.7% equity, calling is profitable!
 
 Common Mistakes to Avoid

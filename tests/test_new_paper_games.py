@@ -126,6 +126,8 @@ def test_snakes_and_ladders_movement() -> None:
 
     # Next player's turn
     assert game.get_current_player() == 1
+
+
 def test_yahtzee_scoring() -> None:
     game = YahtzeeGame(num_players=1)
 
@@ -141,6 +143,8 @@ def test_yahtzee_scoring() -> None:
     game._dice = [5, 5, 5, 5, 5]
     score = game.calculate_score(YahtzeeCategory.YAHTZEE)
     assert score == 50
+
+
 def test_mastermind_feedback() -> None:
     game = MastermindGame(code_length=4)
     # Set a known secret code for testing
@@ -152,6 +156,8 @@ def test_mastermind_feedback() -> None:
     black, white = game.get_feedback()[0]
     assert black == 4  # All correct
     assert white == 0
+
+
 def test_boggle_word_validation() -> None:
     game = BoggleGame(size=4)
     # Set a specific grid for testing
@@ -166,6 +172,8 @@ def test_boggle_word_validation() -> None:
     # Note: may not be in simple dictionary, so just test structure
     assert game.is_word_in_grid("CAT")
     assert BoggleMove(word="cat").word.upper() == "CAT"
+
+
 def test_twenty_questions_basic() -> None:
     game = TwentyQuestionsGame()
     assert not game.is_game_over()
@@ -173,6 +181,8 @@ def test_twenty_questions_basic() -> None:
 
     game.ask_question("Is it alive?", True)
     assert game.get_questions_remaining() == 19
+
+
 def test_chess_basic_board() -> None:
     game = ChessGame()
     # Board should be initialized

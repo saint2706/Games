@@ -129,13 +129,13 @@ from common.architecture import GamePlugin, PluginMetadata
 class RealPlugin(GamePlugin):
     def get_metadata(self):
         return PluginMetadata(name="real", version="1.0")
-    
+
     def initialize(self, **kwargs):
         pass
-    
+
     def shutdown(self):
         pass
-    
+
     def get_game_class(self):
         return object
 

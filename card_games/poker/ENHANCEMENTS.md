@@ -131,8 +131,7 @@ You:
 - Automatic JSON export after each match
 - Filename format: `poker_history_YYYYMMDD_HHMMSS.json`
 
-**Usage:**
-History files are automatically saved in the working directory after each match.
+**Usage:** History files are automatically saved in the working directory after each match.
 
 **JSON Structure:**
 

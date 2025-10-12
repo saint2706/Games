@@ -187,11 +187,7 @@ class TestLightsOut:
             (1, 0),
             (1, 2),
         ]
-        before = {
-            (r, c): game.grid[r][c].is_on
-            for r, c in positions
-            if 0 <= r < game.size and 0 <= c < game.size
-        }
+        before = {(r, c): game.grid[r][c].is_on for r, c in positions if 0 <= r < game.size and 0 <= c < game.size}
 
         result = game.make_move((1, 1))
         assert result

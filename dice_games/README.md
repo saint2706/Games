@@ -5,20 +5,25 @@ This directory contains implementations of dice-based games.
 ## Planned Games
 
 ### Craps
+
 Casino dice game with pass/don't pass betting
 
 ### Farkle
+
 Risk-based scoring with push-your-luck mechanics
 
 ### Liar's Dice
+
 Bluffing game similar to Bluff but with dice
 
 ### Bunco
+
 Party dice game with rounds and team scoring
 
 ## Game Structure
 
 Each game follows the standard structure:
+
 ```
 game_name/
 ├── __init__.py          # Package initialization
@@ -33,6 +38,7 @@ game_name/
 ## Running Games
 
 Once implemented, games can be run with:
+
 ```bash
 python -m dice_games.game_name
 ```

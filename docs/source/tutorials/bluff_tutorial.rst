@@ -30,8 +30,8 @@ How to Play
 
 1. **Making a Claim**: On your turn, play a card face-down and claim what rank it is
 2. **Challenging**: Other players can challenge your claim if they think you're lying
-3. **Resolution**: 
-   
+3. **Resolution**:
+
    * If the challenge is correct (you lied), you take the pile
    * If the challenge is wrong (you told truth), challenger takes the pile
 
@@ -114,7 +114,7 @@ Control how many rounds the game lasts:
 
    # Short game (3 rounds)
    python -m card_games.bluff --rounds 3
-   
+
    # Long game (10 rounds)
    python -m card_games.bluff --rounds 10
 
@@ -156,7 +156,7 @@ Combining GUI with Options
 
    # GUI with hard difficulty
    python -m card_games.bluff --gui --difficulty Hard
-   
+
    # GUI with custom rounds
    python -m card_games.bluff --gui --rounds 8 --seed 123
 
@@ -195,7 +195,7 @@ Each turn follows this sequence:
 3. Player claims what rank they're playing
 4. All other players can choose to challenge
 5. If challenged, card is revealed:
-   
+
    * Liar takes the pile
    * Truthful player gives pile to challenger
 
@@ -280,7 +280,7 @@ You can use the Bluff engine in your own code:
 .. code-block:: python
 
    from card_games.bluff.bluff import BluffGame, DifficultyLevel
-   
+
    # Create a game
    game = BluffGame(
        num_players=4,
@@ -288,13 +288,13 @@ You can use the Bluff engine in your own code:
        difficulty=DifficultyLevel.MEDIUM,
        rounds=5
    )
-   
+
    # Start the game
    game.start()
-   
+
    # Make moves
    game.play_card(card_index=0, claimed_rank='A')
-   
+
    # Challenge a claim
    game.challenge(challenger_index=1)
 

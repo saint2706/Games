@@ -1,7 +1,7 @@
 # Bridge
 
-Classic contract bridge with bidding, partnership play, and trick-taking. This implementation now models key elements of modern
-duplicate-style bridge including vulnerability, doubles, and rubber-style scoring.
+Classic contract bridge with bidding, partnership play, and trick-taking. This implementation now models key elements of
+modern duplicate-style bridge including vulnerability, doubles, and rubber-style scoring.
 
 ## How to Play
 
@@ -17,8 +17,8 @@ python -m card_games.bridge
 python -m card_games.bridge --cli
 ```
 
-The GUI automatically falls back to the CLI mode if Tkinter is unavailable. Pass
-``--gui`` explicitly to force the graphical launcher when Tkinter is installed.
+The GUI automatically falls back to the CLI mode if Tkinter is unavailable. Pass `--gui` explicitly to force the
+graphical launcher when Tkinter is installed.
 
 ### GUI features
 
@@ -51,7 +51,8 @@ This implementation includes:
 - Basic scoring system
 - AI card play
 
-Note: This is a simplified version. Full contract bridge includes complex bidding conventions, declarer play strategies, and detailed scoring.
+Note: This is a simplified version. Full contract bridge includes complex bidding conventions, declarer play strategies,
+and detailed scoring.
 
 ## High Card Points (HCP)
 

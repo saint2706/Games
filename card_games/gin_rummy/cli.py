@@ -3,13 +3,7 @@
 from __future__ import annotations
 
 from card_games.common.cards import format_cards, parse_card
-from card_games.gin_rummy.game import (
-    GinRummyGame,
-    GinRummyPlayer,
-    Meld,
-    MeldType,
-    RoundSummary,
-)
+from card_games.gin_rummy.game import GinRummyGame, GinRummyPlayer, Meld, MeldType, RoundSummary
 
 
 def _format_meld(meld: Meld) -> str:

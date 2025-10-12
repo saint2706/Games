@@ -4,13 +4,7 @@ This is a simple example showing how to create a game plugin
 using the architecture framework.
 """
 
-from common.architecture import (
-    GameEngine,
-    GamePhase,
-    GamePlugin,
-    GameState,
-    PluginMetadata,
-)
+from common.architecture import GameEngine, GamePhase, GamePlugin, GameState, PluginMetadata
 
 
 class SimpleNumberGuessingGame(GameEngine):

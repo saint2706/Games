@@ -18,12 +18,7 @@ from .ai_strategy import AIStrategy, HeuristicStrategy, MinimaxStrategy, RandomS
 from .architecture.engine import GameEngine, GamePhase, GameState
 from .architecture.events import Event, EventBus, EventHandler, FunctionEventHandler
 from .architecture.observer import Observable, Observer, PropertyObservable
-from .architecture.persistence import (
-    GameStateSerializer,
-    JSONSerializer,
-    PickleSerializer,
-    SaveLoadManager,
-)
+from .architecture.persistence import GameStateSerializer, JSONSerializer, PickleSerializer, SaveLoadManager
 from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
 from .architecture.replay import ReplayAction, ReplayManager, ReplayRecorder
 from .architecture.settings import Settings, SettingsManager

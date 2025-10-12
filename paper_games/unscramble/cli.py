@@ -11,12 +11,7 @@ import time
 from typing import Optional
 
 from .stats import GameStats
-from .unscramble import (
-    UnscrambleGame,
-    list_themes,
-    load_themed_words,
-    load_words_by_difficulty,
-)
+from .unscramble import UnscrambleGame, list_themes, load_themed_words, load_words_by_difficulty
 
 # Path to store statistics
 STATS_FILE = pathlib.Path.home() / ".games" / "unscramble_stats.json"

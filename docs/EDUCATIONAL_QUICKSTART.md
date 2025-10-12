@@ -25,7 +25,7 @@ while not tutorial.completed:
     step = tutorial.get_current_step()
     print(f"\n{step.title}")
     print(step.description)
-    
+
     input("Press Enter to continue...")
     tutorial.advance_step()
 
@@ -174,17 +174,17 @@ open build/html/guides/index.html
 
 ## Quick Reference
 
-| Feature | Module | Description |
-|---------|--------|-------------|
-| Tutorial Mode | `common.TutorialMode` | Step-by-step learning |
-| Strategy Tips | `common.StrategyTipProvider` | Contextual advice |
-| Probability Calc | `common.ProbabilityCalculator` | Odds calculation |
-| Game Theory | `common.GameTheoryExplainer` | Algorithm explanations |
-| Challenges | `common.ChallengeManager` | Practice puzzles |
-| Poker Tutorial | `card_games.poker.educational` | Poker learning |
-| Poker Calculator | `card_games.poker.educational` | Poker odds |
-| Blackjack Tutorial | `card_games.blackjack.educational` | Blackjack learning |
-| Blackjack Calculator | `card_games.blackjack.educational` | Blackjack odds |
+| Feature              | Module                             | Description            |
+| -------------------- | ---------------------------------- | ---------------------- |
+| Tutorial Mode        | `common.TutorialMode`              | Step-by-step learning  |
+| Strategy Tips        | `common.StrategyTipProvider`       | Contextual advice      |
+| Probability Calc     | `common.ProbabilityCalculator`     | Odds calculation       |
+| Game Theory          | `common.GameTheoryExplainer`       | Algorithm explanations |
+| Challenges           | `common.ChallengeManager`          | Practice puzzles       |
+| Poker Tutorial       | `card_games.poker.educational`     | Poker learning         |
+| Poker Calculator     | `card_games.poker.educational`     | Poker odds             |
+| Blackjack Tutorial   | `card_games.blackjack.educational` | Blackjack learning     |
+| Blackjack Calculator | `card_games.blackjack.educational` | Blackjack odds         |
 
 ## Help
 

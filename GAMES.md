@@ -8,12 +8,11 @@ Card games using standard 52-card decks or specialized card sets.
 
 ### Poker
 
-**Location**: `card_games/poker/`  
-**Description**: Texas Hold'em and Omaha variants with tournament mode, Monte Carlo AI, and comprehensive statistics  
-**Players**: 2-9 (with 3 AI opponents)  
-**Run**: `python -m card_games.poker`
+**Location**: `card_games/poker/` **Description**: Texas Hold'em and Omaha variants with tournament mode, Monte Carlo
+AI, and comprehensive statistics **Players**: 2-9 (with 3 AI opponents) **Run**: `python -m card_games.poker`
 
 Features:
+
 - Multiple variants (Texas Hold'em, Omaha)
 - Tournament mode with blind escalation
 - Pot-limit, no-limit, and fixed-limit betting
@@ -27,12 +26,11 @@ Features:
 
 ### Blackjack
 
-**Location**: `card_games/blackjack/`  
-**Description**: Casino-style blackjack with splits, doubles, insurance, and surrender  
-**Players**: 1 player vs dealer  
-**Run**: `python -m card_games.blackjack`
+**Location**: `card_games/blackjack/` **Description**: Casino-style blackjack with splits, doubles, insurance, and
+surrender **Players**: 1 player vs dealer **Run**: `python -m card_games.blackjack`
 
 Features:
+
 - Multi-hand splitting
 - Double down
 - Insurance and surrender options
@@ -47,12 +45,11 @@ Features:
 
 ### Bluff (Cheat)
 
-**Location**: `card_games/bluff/`  
-**Description**: Strategic bluffing game where players must claim card ranks and challenge suspicious plays  
-**Players**: 2-5 (1 human + AI bots)  
-**Run**: `python -m card_games.bluff`
+**Location**: `card_games/bluff/` **Description**: Strategic bluffing game where players must claim card ranks and
+challenge suspicious plays **Players**: 2-5 (1 human + AI bots) **Run**: `python -m card_games.bluff`
 
 Features:
+
 - Adjustable difficulty (Noob to Insane)
 - AI opponents with personality traits
 - Challenge mechanics
@@ -66,12 +63,11 @@ Features:
 
 ### Uno
 
-**Location**: `card_games/uno/`  
-**Description**: Classic Uno with wild cards, action cards, and strategic AI  
-**Players**: 2-10 (configurable human/AI mix)  
-**Run**: `python -m card_games.uno`
+**Location**: `card_games/uno/` **Description**: Classic Uno with wild cards, action cards, and strategic AI
+**Players**: 2-10 (configurable human/AI mix) **Run**: `python -m card_games.uno`
 
 Features:
+
 - Full 108-card deck
 - Wild +4 challenges
 - Automatic UNO call enforcement
@@ -86,12 +82,11 @@ Features:
 
 ### Hearts
 
-**Location**: `card_games/hearts/`  
-**Description**: Classic trick-taking game where the goal is to avoid hearts and the Queen of Spades  
-**Players**: 4 (1 human + 3 AI)  
-**Run**: `python -m card_games.hearts`
+**Location**: `card_games/hearts/` **Description**: Classic trick-taking game where the goal is to avoid hearts and the
+Queen of Spades **Players**: 4 (1 human + 3 AI) **Run**: `python -m card_games.hearts`
 
 Features:
+
 - Card passing phase (left, right, across, none rotation)
 - Shooting the moon mechanic
 - Strategic AI that avoids penalty cards
@@ -104,12 +99,11 @@ Features:
 
 ### Spades
 
-**Location**: `card_games/spades/`  
-**Description**: Partnership bidding game with nil bids and bags tracking  
-**Players**: 4 (2 partnerships)  
-**Run**: `python -m card_games.spades`
+**Location**: `card_games/spades/` **Description**: Partnership bidding game with nil bids and bags tracking
+**Players**: 4 (2 partnerships) **Run**: `python -m card_games.spades`
 
 Features:
+
 - Partnership play (teams of 2)
 - Nil bid support (+100/-100)
 - Bags tracking (10 bags = -100 points)
@@ -123,12 +117,11 @@ Features:
 
 ### Gin Rummy
 
-**Location**: `card_games/gin_rummy/`  
-**Description**: Two-player melding game with knock and gin mechanics  
-**Players**: 2 (1 human vs AI)  
-**Run**: `python -m card_games.gin_rummy`
+**Location**: `card_games/gin_rummy/` **Description**: Two-player melding game with knock and gin mechanics **Players**:
+2 (1 human vs AI) **Run**: `python -m card_games.gin_rummy`
 
 Features:
+
 - Automatic meld detection (sets and runs)
 - Deadwood calculation
 - Knock when deadwood ≤ 10
@@ -142,12 +135,11 @@ Features:
 
 ### Bridge
 
-**Location**: `card_games/bridge/`  
-**Description**: Classic contract bridge with simplified automated bidding  
-**Players**: 4 (2 partnerships)  
-**Run**: `python -m card_games.bridge`
+**Location**: `card_games/bridge/` **Description**: Classic contract bridge with simplified automated bidding
+**Players**: 4 (2 partnerships) **Run**: `python -m card_games.bridge`
 
 Features:
+
 - Partnership play (North-South vs East-West)
 - HCP-based bidding system
 - Contract system (1♣ to 7NT)
@@ -161,12 +153,11 @@ Features:
 
 ### Solitaire (Klondike)
 
-**Location**: `card_games/solitaire/`  
-**Description**: Classic patience game with tableau, foundation, stock, and waste piles  
-**Players**: 1 (single player)  
-**Run**: `python -m card_games.solitaire`
+**Location**: `card_games/solitaire/` **Description**: Classic patience game with tableau, foundation, stock, and waste
+piles **Players**: 1 (single player) **Run**: `python -m card_games.solitaire`
 
 Features:
+
 - 7 tableau piles with face-up/face-down tracking
 - 4 foundation piles (Ace to King by suit)
 - Stock and waste pile mechanics
@@ -184,12 +175,11 @@ Classic paper-and-pencil games reimagined for the terminal and GUI.
 
 ### Tic-Tac-Toe
 
-**Location**: `paper_games/tic_tac_toe/`  
-**Description**: Classic noughts and crosses with perfect minimax AI  
-**Players**: 1 vs AI or 2 players  
-**Run**: `python -m paper_games.tic_tac_toe`
+**Location**: `paper_games/tic_tac_toe/` **Description**: Classic noughts and crosses with perfect minimax AI
+**Players**: 1 vs AI or 2 players **Run**: `python -m paper_games.tic_tac_toe`
 
 Features:
+
 - Perfect minimax AI
 - Larger board sizes (3x3 to 9x9)
 - Ultimate Tic-Tac-Toe variant
@@ -204,12 +194,11 @@ Features:
 
 ### Battleship
 
-**Location**: `paper_games/battleship/`  
-**Description**: Naval combat game with strategic ship placement and hunting AI  
-**Players**: 1 vs AI or 2 players  
-**Run**: `python -m paper_games.battleship`
+**Location**: `paper_games/battleship/` **Description**: Naval combat game with strategic ship placement and hunting AI
+**Players**: 1 vs AI or 2 players **Run**: `python -m paper_games.battleship`
 
 Features:
+
 - Configurable grid sizes (6x6 to 10x10)
 - Multiple ship types
 - AI difficulty levels (random to smart hunting)
@@ -223,12 +212,11 @@ Features:
 
 ### Hangman
 
-**Location**: `paper_games/hangman/`  
-**Description**: Word guessing game with ASCII art gallows  
-**Players**: 1 (vs computer)  
-**Run**: `python -m paper_games.hangman`
+**Location**: `paper_games/hangman/` **Description**: Word guessing game with ASCII art gallows **Players**: 1 (vs
+computer) **Run**: `python -m paper_games.hangman`
 
 Features:
+
 - Curated word list
 - Configurable mistake limits
 - Progressive ASCII art
@@ -243,12 +231,11 @@ Features:
 
 ### Dots and Boxes
 
-**Location**: `paper_games/dots_and_boxes/`  
-**Description**: Connect edges to capture boxes  
-**Players**: 1 vs AI or 2 players  
-**Run**: `python -m paper_games.dots_and_boxes`
+**Location**: `paper_games/dots_and_boxes/` **Description**: Connect edges to capture boxes **Players**: 1 vs AI or 2
+players **Run**: `python -m paper_games.dots_and_boxes`
 
 Features:
+
 - Variable board sizes (2x2 to 5x5)
 - Chain highlighting
 - Strategic AI
@@ -262,12 +249,11 @@ Features:
 
 ### Nim
 
-**Location**: `paper_games/nim/`  
-**Description**: Mathematical strategy game with optimal AI  
-**Players**: 2-4 (vs optimal AI)  
-**Run**: `python -m paper_games.nim`
+**Location**: `paper_games/nim/` **Description**: Mathematical strategy game with optimal AI **Players**: 2-4 (vs
+optimal AI) **Run**: `python -m paper_games.nim`
 
 Features:
+
 - Classic Nim
 - Variants: Northcott's Game, Wythoff's Game
 - Graphical heap visualization
@@ -282,12 +268,11 @@ Features:
 
 ### Unscramble
 
-**Location**: `paper_games/unscramble/`  
-**Description**: Word unscrambling game with curated vocabulary  
-**Players**: 1 or multiplayer  
-**Run**: `python -m paper_games.unscramble`
+**Location**: `paper_games/unscramble/` **Description**: Word unscrambling game with curated vocabulary **Players**: 1
+or multiplayer **Run**: `python -m paper_games.unscramble`
 
 Features:
+
 - Curated word list
 - Timed mode
 - Difficulty levels
@@ -302,12 +287,11 @@ Features:
 
 ### Connect Four
 
-**Location**: `paper_games/connect_four/`  
-**Description**: Vertical grid game with gravity mechanics  
-**Players**: 1 vs AI or 2 players  
-**Run**: `python -m paper_games.connect_four`
+**Location**: `paper_games/connect_four/` **Description**: Vertical grid game with gravity mechanics **Players**: 1 vs
+AI or 2 players **Run**: `python -m paper_games.connect_four`
 
 Features:
+
 - 7x6 grid with gravity
 - Win detection (4-in-a-row: horizontal, vertical, diagonal)
 - Minimax AI with alpha-beta pruning
@@ -320,12 +304,11 @@ Features:
 
 ### Checkers
 
-**Location**: `paper_games/checkers/`  
-**Description**: Classic checkers with jump mechanics and king promotion  
-**Players**: 1 vs AI or 2 players  
-**Run**: `python -m paper_games.checkers`
+**Location**: `paper_games/checkers/` **Description**: Classic checkers with jump mechanics and king promotion
+**Players**: 1 vs AI or 2 players **Run**: `python -m paper_games.checkers`
 
 Features:
+
 - Standard 8x8 board
 - Jump mechanics (single and multi-jump)
 - King promotion
@@ -339,12 +322,11 @@ Features:
 
 ### Mancala
 
-**Location**: `paper_games/mancala/`  
-**Description**: Ancient stone distribution game  
-**Players**: 2 (1 vs AI)  
-**Run**: `python -m paper_games.mancala`
+**Location**: `paper_games/mancala/` **Description**: Ancient stone distribution game **Players**: 2 (1 vs AI) **Run**:
+`python -m paper_games.mancala`
 
 Features:
+
 - Traditional Kalah rules
 - Stone distribution mechanics
 - Capture rules
@@ -358,12 +340,11 @@ Features:
 
 ### Othello (Reversi)
 
-**Location**: `paper_games/othello/`  
-**Description**: Disc flipping game with positional strategy  
-**Players**: 1 vs AI or 2 players  
-**Run**: `python -m paper_games.othello`
+**Location**: `paper_games/othello/` **Description**: Disc flipping game with positional strategy **Players**: 1 vs AI
+or 2 players **Run**: `python -m paper_games.othello`
 
 Features:
+
 - Standard 8x8 board
 - Disc flipping mechanics
 - Valid move highlighting
@@ -377,12 +358,11 @@ Features:
 
 ### Sudoku
 
-**Location**: `paper_games/sudoku/`  
-**Description**: Number placement puzzle  
-**Players**: 1 (single player puzzle)  
+**Location**: `paper_games/sudoku/` **Description**: Number placement puzzle **Players**: 1 (single player puzzle)
 **Run**: `python -m paper_games.sudoku`
 
 Features:
+
 - Puzzle generator
 - Multiple difficulty levels (easy to expert)
 - Hint system
@@ -396,12 +376,11 @@ Features:
 
 ### Snakes and Ladders
 
-**Location**: `paper_games/snakes_and_ladders/`  
-**Description**: Classic board game with dice rolling, ladders, and snakes  
-**Players**: 2-4  
-**Run**: `python -m paper_games.snakes_and_ladders`
+**Location**: `paper_games/snakes_and_ladders/` **Description**: Classic board game with dice rolling, ladders, and
+snakes **Players**: 2-4 **Run**: `python -m paper_games.snakes_and_ladders`
 
 Features:
+
 - Standard 100-square board
 - Configurable snakes and ladders
 - Dice rolling mechanics
@@ -414,12 +393,11 @@ Features:
 
 ### Yahtzee
 
-**Location**: `paper_games/yahtzee/`  
-**Description**: Dice scoring game with category selection  
-**Players**: 1-4  
+**Location**: `paper_games/yahtzee/` **Description**: Dice scoring game with category selection **Players**: 1-4
 **Run**: `python -m paper_games.yahtzee`
 
 Features:
+
 - 5 dice rolling (up to 3 rolls per turn)
 - 13 scoring categories
 - Upper section bonus
@@ -433,12 +411,11 @@ Features:
 
 ### Mastermind
 
-**Location**: `paper_games/mastermind/`  
-**Description**: Code-breaking game with colored pegs  
-**Players**: 1 vs computer  
+**Location**: `paper_games/mastermind/` **Description**: Code-breaking game with colored pegs **Players**: 1 vs computer
 **Run**: `python -m paper_games.mastermind`
 
 Features:
+
 - 6 colored pegs
 - Configurable code length (2-8)
 - Black and white peg feedback system
@@ -452,12 +429,11 @@ Features:
 
 ### 20 Questions
 
-**Location**: `paper_games/twenty_questions/`  
-**Description**: AI guessing game with yes/no questions  
-**Players**: 1 vs AI  
-**Run**: `python -m paper_games.twenty_questions`
+**Location**: `paper_games/twenty_questions/` **Description**: AI guessing game with yes/no questions **Players**: 1 vs
+AI **Run**: `python -m paper_games.twenty_questions`
 
 Features:
+
 - Binary search strategy
 - Multiple object categories
 - 20 question limit
@@ -470,12 +446,11 @@ Features:
 
 ### Boggle
 
-**Location**: `paper_games/boggle/`  
-**Description**: Word search in random letter grid  
-**Players**: 1  
-**Run**: `python -m paper_games.boggle`
+**Location**: `paper_games/boggle/` **Description**: Word search in random letter grid **Players**: 1 **Run**:
+`python -m paper_games.boggle`
 
 Features:
+
 - Random 4x4 letter grid
 - Adjacent letter word formation
 - Dictionary validation
@@ -488,12 +463,11 @@ Features:
 
 ### Four Square Writing
 
-**Location**: `paper_games/four_square_writing/`  
-**Description**: Educational essay structure template  
-**Players**: 1  
+**Location**: `paper_games/four_square_writing/` **Description**: Educational essay structure template **Players**: 1
 **Run**: `python -m paper_games.four_square_writing`
 
 Features:
+
 - Four-quadrant writing method
 - Interactive template filling
 - Essay organization tool
@@ -505,16 +479,15 @@ Features:
 
 ### Pentago
 
-**Location**: `paper_games/pentago/`  
-**Description**: Board game with rotating quadrants  
-**Players**: 2  
-**Run**: `python -m paper_games.pentago`
+**Location**: `paper_games/pentago/` **Description**: Board game with rotating quadrants **Players**: 2 **Run**:
+`python -m paper_games.pentago`
 
 Features:
+
 - 6x6 board with four 3x3 quadrants
 - Basic placement mechanics
 - 5-in-a-row win condition
-- *Note: Quadrant rotation to be enhanced*
+- _Note: Quadrant rotation to be enhanced_
 
 **Documentation**: [pentago/README.md](paper_games/pentago/README.md)
 
@@ -522,16 +495,15 @@ Features:
 
 ### Backgammon
 
-**Location**: `paper_games/backgammon/`  
-**Description**: Dice-based race game  
-**Players**: 2  
-**Run**: `python -m paper_games.backgammon`
+**Location**: `paper_games/backgammon/` **Description**: Dice-based race game **Players**: 2 **Run**:
+`python -m paper_games.backgammon`
 
 Features:
+
 - Traditional board layout
 - Dice rolling mechanics
 - Basic movement rules
-- *Note: Full rules and bearing off to be enhanced*
+- _Note: Full rules and bearing off to be enhanced_
 
 **Documentation**: [backgammon/README.md](paper_games/backgammon/README.md)
 
@@ -539,16 +511,15 @@ Features:
 
 ### Sprouts
 
-**Location**: `paper_games/sprouts/`  
-**Description**: Topological graph game  
-**Players**: 2  
-**Run**: `python -m paper_games.sprouts`
+**Location**: `paper_games/sprouts/` **Description**: Topological graph game **Players**: 2 **Run**:
+`python -m paper_games.sprouts`
 
 Features:
+
 - Dot and line mechanics
 - Graph-based gameplay
 - Turn-based strategy
-- *Note: Full topological rules to be enhanced*
+- _Note: Full topological rules to be enhanced_
 
 **Documentation**: [sprouts/README.md](paper_games/sprouts/README.md)
 
@@ -556,15 +527,14 @@ Features:
 
 ### Chess
 
-**Location**: `paper_games/chess/`  
-**Description**: Classic chess game  
-**Players**: 2  
-**Run**: `python -m paper_games.chess`
+**Location**: `paper_games/chess/` **Description**: Classic chess game **Players**: 2 **Run**:
+`python -m paper_games.chess`
 
 Features:
+
 - 8x8 chess board
 - Basic piece movement
-- *Note: Full chess rules (castling, en passant, check/checkmate) and engine to be enhanced*
+- _Note: Full chess rules (castling, en passant, check/checkmate) and engine to be enhanced_
 
 **Documentation**: [chess/README.md](paper_games/chess/README.md)
 
@@ -576,35 +546,31 @@ Dice-based games with random elements and strategic decisions.
 
 ### Craps
 
-Casino dice game with pass/don't pass betting. Roll two dice and bet on the outcome. Come-out roll wins on 7/11,
-loses on 2/3/12, otherwise establishes a point.
+Casino dice game with pass/don't pass betting. Roll two dice and bet on the outcome. Come-out roll wins on 7/11, loses
+on 2/3/12, otherwise establishes a point.
 
-**Features**: Pass line betting, don't pass option, point system  
-**Run**: `python -m dice_games.craps`
+**Features**: Pass line betting, don't pass option, point system **Run**: `python -m dice_games.craps`
 
 ### Farkle
 
-Risk-based scoring game with push-your-luck mechanics. Roll six dice and bank scoring combinations, but risk
-"farkling" (rolling no scoring dice) and losing turn points.
+Risk-based scoring game with push-your-luck mechanics. Roll six dice and bank scoring combinations, but risk "farkling"
+(rolling no scoring dice) and losing turn points.
 
-**Features**: Hot dice bonus, multiple scoring patterns, strategic banking  
-**Run**: `python -m dice_games.farkle`
+**Features**: Hot dice bonus, multiple scoring patterns, strategic banking **Run**: `python -m dice_games.farkle`
 
 ### Liar's Dice
 
 Bluffing game with dice bidding mechanics. Players secretly roll dice and make bids on total dice values across all
 players. Challenge bids or raise them higher.
 
-**Features**: Hidden information, bluffing, challenge mechanics  
-**Run**: `python -m dice_games.liars_dice`
+**Features**: Hidden information, bluffing, challenge mechanics **Run**: `python -m dice_games.liars_dice`
 
 ### Bunco
 
 Party dice game with rounds and team scoring. Roll three dice trying to match the round number. Score 21 points for
 "Bunco" (all three dice match the round).
 
-**Features**: Simple rules, fast-paced, round-based scoring  
-**Run**: `python -m dice_games.bunco`
+**Features**: Simple rules, fast-paced, round-based scoring **Run**: `python -m dice_games.bunco`
 
 **Documentation**: [dice_games/README.md](dice_games/README.md)
 
@@ -616,34 +582,30 @@ Word-based games, trivia quizzes, and linguistic challenges.
 
 ### Trivia Quiz
 
-Multiple choice trivia questions from various categories. Test your knowledge across different subjects with
-progressive difficulty.
+Multiple choice trivia questions from various categories. Test your knowledge across different subjects with progressive
+difficulty.
 
-**Features**: Multiple choice format, score tracking, diverse questions  
-**Run**: `python -m word_games.trivia`
+**Features**: Multiple choice format, score tracking, diverse questions **Run**: `python -m word_games.trivia`
 
 ### Crossword
 
-Create and solve crossword puzzles with clue system. Fill in words based on across and down clues to complete the
-puzzle grid.
+Create and solve crossword puzzles with clue system. Fill in words based on across and down clues to complete the puzzle
+grid.
 
-**Features**: Grid-based puzzles, clue system, progressive solving  
-**Run**: `python -m word_games.crossword`
+**Features**: Grid-based puzzles, clue system, progressive solving **Run**: `python -m word_games.crossword`
 
 ### Anagrams
 
 Word rearrangement game with scoring system. Unscramble letters to form valid words as quickly as possible.
 
-**Features**: Timed rounds, difficulty levels, score tracking  
-**Run**: `python -m word_games.anagrams`
+**Features**: Timed rounds, difficulty levels, score tracking **Run**: `python -m word_games.anagrams`
 
 ### WordBuilder
 
-Tile-based word building game (Scrabble-like). Create words from letter tiles with varying point values to maximize
-your score.
+Tile-based word building game (Scrabble-like). Create words from letter tiles with varying point values to maximize your
+score.
 
-**Features**: Letter tiles, point values, strategic word building  
-**Run**: `python -m word_games.wordbuilder`
+**Features**: Letter tiles, point values, strategic word building **Run**: `python -m word_games.wordbuilder`
 
 **Documentation**: [word_games/README.md](word_games/README.md)
 
@@ -655,42 +617,36 @@ Logic puzzles, brain teasers, and problem-solving games.
 
 ### Minesweeper
 
-Classic mine detection puzzle game. Reveal cells on a grid using number clues to identify mine locations. Don't click
-on mines!
+Classic mine detection puzzle game. Reveal cells on a grid using number clues to identify mine locations. Don't click on
+mines!
 
-**Features**: Three difficulty levels, flag system, cascade reveal  
-**Run**: `python -m logic_games.minesweeper`
+**Features**: Three difficulty levels, flag system, cascade reveal **Run**: `python -m logic_games.minesweeper`
 
 ### Sokoban
 
-Warehouse puzzle with box-pushing mechanics. Push boxes onto goal positions without getting stuck. Plan moves
-carefully!
+Warehouse puzzle with box-pushing mechanics. Push boxes onto goal positions without getting stuck. Plan moves carefully!
 
-**Features**: Grid-based puzzles, undo support, level progression  
-**Run**: `python -m logic_games.sokoban`
+**Features**: Grid-based puzzles, undo support, level progression **Run**: `python -m logic_games.sokoban`
 
 ### Sliding Puzzle (15-puzzle)
 
-Number tile sliding game. Arrange numbered tiles in order by sliding them into the empty space. Solvable
-configurations only.
+Number tile sliding game. Arrange numbered tiles in order by sliding them into the empty space. Solvable configurations
+only.
 
-**Features**: Multiple grid sizes, move counter, optimal solution hints  
-**Run**: `python -m logic_games.sliding_puzzle`
+**Features**: Multiple grid sizes, move counter, optimal solution hints **Run**: `python -m logic_games.sliding_puzzle`
 
 ### Lights Out
 
 Toggle-based puzzle game. Click cells to toggle them and their neighbors. Turn all lights off to win using pattern
 recognition.
 
-**Features**: Grid-based toggling, pattern solving, move optimization  
-**Run**: `python -m logic_games.lights_out`
+**Features**: Grid-based toggling, pattern solving, move optimization **Run**: `python -m logic_games.lights_out`
 
 ### Picross/Nonograms
 
 Picture logic puzzles with row/column hints. Fill cells based on number clues to reveal a hidden picture.
 
-**Features**: Grid-based logic, number hints, picture reveal  
-**Run**: `python -m logic_games.picross`
+**Features**: Grid-based logic, number hints, picture reveal **Run**: `python -m logic_games.picross`
 
 **Documentation**: [logic_games/README.md](logic_games/README.md)
 
@@ -752,7 +708,8 @@ python -m paper_games.battleship --grid-size 10
 - **Architecture**: [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) - Design patterns
 - **Code Quality**: [docs/development/CODE_QUALITY.md](docs/development/CODE_QUALITY.md) - Standards and guidelines
 - **Testing**: [docs/development/TESTING.md](docs/development/TESTING.md) - Testing guide
-- **Development**: [docs/development/IMPLEMENTATION_NOTES.md](docs/development/IMPLEMENTATION_NOTES.md) - Implementation details
+- **Development**: [docs/development/IMPLEMENTATION_NOTES.md](docs/development/IMPLEMENTATION_NOTES.md) - Implementation
+  details
 - **Roadmap**: [docs/planning/TODO.md](docs/planning/TODO.md) - Future plans
 
 ## 🎯 Game Statistics
@@ -797,6 +754,4 @@ See repository license for details.
 
 ---
 
-**Last Updated**: October 2025  
-**Games Count**: 21 playable games  
-**Status**: Active development
+**Last Updated**: October 2025 **Games Count**: 21 playable games **Status**: Active development

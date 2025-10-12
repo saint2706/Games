@@ -19,5 +19,4 @@ AI-based guessing game where the computer tries to guess what you're thinking th
 
 ## Implementation Status
 
-✅ Basic implementation with question/answer system
-🔄 Full decision tree optimization pending
+✅ Basic implementation with question/answer system 🔄 Full decision tree optimization pending

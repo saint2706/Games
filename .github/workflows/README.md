@@ -26,17 +26,19 @@ Analyzes code for security vulnerabilities and coding errors. Runs:
 
 #### `manual-tests.yml` - Run Tests On Demand
 
-Allows maintainers to manually trigger pytest runs with custom Python version matrices, marker expressions, and additional CLI arguments supplied as a JSON array.
-Useful for reproducing CI runs or verifying fixes before opening a pull request.
+Allows maintainers to manually trigger pytest runs with custom Python version matrices, marker expressions, and
+additional CLI arguments supplied as a JSON array. Useful for reproducing CI runs or verifying fixes before opening a
+pull request.
 
 #### `manual-coverage.yml` - Generate Coverage Reports
 
-Produces HTML and XML coverage reports on demand with optional Codecov uploads and control over whether to include tests marked as `slow`.
+Produces HTML and XML coverage reports on demand with optional Codecov uploads and control over whether to include tests
+marked as `slow`.
 
 #### `format-and-lint.yml` - Auto-fix Formatting
 
-Manual workflow (workflow_dispatch) that automatically formats code and commits changes.
-Use this for local development to fix formatting issues in bulk.
+Manual workflow (workflow_dispatch) that automatically formats code and commits changes. Use this for local development
+to fix formatting issues in bulk.
 
 #### `mutation-testing.yml` - Mutation Testing Sweep
 
@@ -68,4 +70,5 @@ pytest tests/ -v
 
 ## CI Status
 
-All workflows must pass before merging pull requests. The `ci.yml` workflow combines both linting and testing to ensure code quality.
+All workflows must pass before merging pull requests. The `ci.yml` workflow combines both linting and testing to ensure
+code quality.

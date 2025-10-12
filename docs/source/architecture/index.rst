@@ -66,11 +66,11 @@ Example structure:
        def __init__(self):
            self.players = []
            self.current_state = None
-       
+
        def make_move(self, action):
            """Process a player action."""
            pass
-       
+
        def get_winner(self):
            """Determine game winner."""
            pass
@@ -95,11 +95,11 @@ Game logic is independent of UI:
    # Game engine is UI-agnostic
    game = PokerGame()
    game.deal_cards()
-   
+
    # CLI uses the same engine
    cli = PokerCLI(game)
    cli.run()
-   
+
    # GUI uses the same engine
    gui = PokerGUI(game)
    gui.mainloop()
@@ -222,7 +222,7 @@ Example test structure:
            game = PokerGame()
            game.deal()
            self.assertEqual(len(game.players[0].hand), 2)
-       
+
        def test_hand_ranking(self):
            """Test hand evaluation."""
            hand = [Card('A', 'hearts'), ...]
