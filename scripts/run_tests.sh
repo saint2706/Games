@@ -66,7 +66,8 @@ case "$TEST_TYPE" in
 
   "mutation")
     echo -e "${GREEN}Running mutation tests (this may take a while)...${NC}"
-    mutmut run --paths-to-mutate paper_games/nim/,paper_games/tic_tac_toe/
+    echo -e "${GREEN}Using configuration from pyproject.toml${NC}"
+    mutmut run
     mutmut results
     echo ""
     echo "Run 'mutmut html' to generate HTML report"
