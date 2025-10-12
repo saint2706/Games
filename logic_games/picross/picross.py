@@ -11,13 +11,7 @@ class PicrossGame(GameEngine[Tuple[int, int, str], int]):
     """Picross/Nonogram picture logic puzzle."""
 
     # Simple 5x5 puzzle (1 = filled, 0 = empty)
-    SOLUTION = [
-        [0, 1, 1, 1, 0],
-        [1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1],
-        [0, 1, 1, 1, 0]
-    ]
+    SOLUTION = [[0, 1, 1, 1, 0], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [1, 0, 0, 0, 1], [0, 1, 1, 1, 0]]
 
     def __init__(self) -> None:
         """Initialize game."""
@@ -29,8 +23,7 @@ class PicrossGame(GameEngine[Tuple[int, int, str], int]):
         self.state = GameState.NOT_STARTED
         self.grid = [[None] * self.size for _ in range(self.size)]
         self.row_hints = [self._get_hints(row) for row in self.SOLUTION]
-        self.col_hints = [self._get_hints([self.SOLUTION[r][c] for r in range(self.size)]) 
-                         for c in range(self.size)]
+        self.col_hints = [self._get_hints([self.SOLUTION[r][c] for r in range(self.size)]) for c in range(self.size)]
 
     def _get_hints(self, line: List[int]) -> List[int]:
         """Get hints for a line."""
@@ -72,19 +65,19 @@ class PicrossGame(GameEngine[Tuple[int, int, str], int]):
         """Fill or mark cell."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         r, c, action = move
         if not (0 <= r < self.size and 0 <= c < self.size):
             return False
-        
+
         if self.grid[r][c] is not None:
             return False
-        
+
         self.grid[r][c] = action == "fill"
-        
+
         if self.is_game_over():
             self.state = GameState.FINISHED
-        
+
         return True
 
     def get_winner(self) -> int | None:
@@ -93,7 +86,7 @@ class PicrossGame(GameEngine[Tuple[int, int, str], int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

@@ -19,8 +19,7 @@ class LightsOutGame(GameEngine[Tuple[int, int], int]):
     def reset(self) -> None:
         """Reset game."""
         self.state = GameState.NOT_STARTED
-        self.grid = [[random.choice([True, False]) for _ in range(self.size)] 
-                     for _ in range(self.size)]
+        self.grid = [[random.choice([True, False]) for _ in range(self.size)] for _ in range(self.size)]
         self.moves = 0
 
     def is_game_over(self) -> bool:
@@ -39,22 +38,22 @@ class LightsOutGame(GameEngine[Tuple[int, int], int]):
         """Toggle cell and neighbors."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         r, c = move
         if not (0 <= r < self.size and 0 <= c < self.size):
             return False
-        
+
         # Toggle cell and neighbors
         for dr, dc in [(0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)]:
             nr, nc = r + dr, c + dc
             if 0 <= nr < self.size and 0 <= nc < self.size:
                 self.grid[nr][nc] = not self.grid[nr][nc]
-        
+
         self.moves += 1
-        
+
         if self.is_game_over():
             self.state = GameState.FINISHED
-        
+
         return True
 
     def get_winner(self) -> int | None:
@@ -63,7 +62,7 @@ class LightsOutGame(GameEngine[Tuple[int, int], int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

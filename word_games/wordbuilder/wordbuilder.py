@@ -12,10 +12,32 @@ class WordBuilderGame(GameEngine[str, int]):
     """Tile-based word building game (Scrabble-like)."""
 
     TILE_VALUES = {
-        "A": 1, "E": 1, "I": 1, "O": 1, "U": 1, "L": 1, "N": 1,
-        "S": 1, "T": 1, "R": 1, "D": 2, "G": 2, "B": 3, "C": 3,
-        "M": 3, "P": 3, "F": 4, "H": 4, "V": 4, "W": 4, "Y": 4,
-        "K": 5, "J": 8, "X": 8, "Q": 10, "Z": 10
+        "A": 1,
+        "E": 1,
+        "I": 1,
+        "O": 1,
+        "U": 1,
+        "L": 1,
+        "N": 1,
+        "S": 1,
+        "T": 1,
+        "R": 1,
+        "D": 2,
+        "G": 2,
+        "B": 3,
+        "C": 3,
+        "M": 3,
+        "P": 3,
+        "F": 4,
+        "H": 4,
+        "V": 4,
+        "W": 4,
+        "Y": 4,
+        "K": 5,
+        "J": 8,
+        "X": 8,
+        "Q": 10,
+        "Z": 10,
     }
 
     COMMON_WORDS = ["CAT", "DOG", "HAT", "BAT", "RAT", "MAT", "SAT"]
@@ -52,12 +74,12 @@ class WordBuilderGame(GameEngine[str, int]):
         """Play a word."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         if self.is_game_over():
             return False
-        
+
         word = move.upper()
-        
+
         # Check if can make word from hand
         hand_copy = self.hand.copy()
         for letter in word:
@@ -65,21 +87,21 @@ class WordBuilderGame(GameEngine[str, int]):
                 hand_copy.remove(letter)
             else:
                 return False
-        
+
         # Calculate score
-        points = sum(self.TILE_VALUES.get(l, 0) for l in word)
+        points = sum(self.TILE_VALUES.get(letter, 0) for letter in word)
         self.score += points
-        
+
         # Remove used tiles and draw new ones
         for letter in word:
             self.hand.remove(letter)
         self.hand.extend(self._draw_tiles(len(word)))
-        
+
         self.turns += 1
-        
+
         if self.is_game_over():
             self.state = GameState.FINISHED
-        
+
         return True
 
     def get_winner(self) -> int | None:
@@ -88,7 +110,7 @@ class WordBuilderGame(GameEngine[str, int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

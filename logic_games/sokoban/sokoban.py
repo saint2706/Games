@@ -11,12 +11,7 @@ class SokobanGame(GameEngine[str, int]):
     """Sokoban box-pushing puzzle game."""
 
     # Simple level: # = wall, @ = player, $ = box, . = goal, * = box on goal
-    LEVEL = [
-        "######",
-        "#.@ $#",
-        "#  $.#",
-        "######"
-    ]
+    LEVEL = ["######", "#.@ $#", "#  $.#", "######"]
 
     def __init__(self) -> None:
         """Initialize game."""
@@ -56,25 +51,25 @@ class SokobanGame(GameEngine[str, int]):
         """Move player."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         dr, dc = {"u": (-1, 0), "d": (1, 0), "l": (0, -1), "r": (0, 1)}.get(move, (0, 0))
         if dr == 0 and dc == 0:
             return False
-        
+
         r, c = self.player_pos
         nr, nc = r + dr, c + dc
         nnr, nnc = nr + dr, nc + dc
-        
+
         # Check bounds
         if nr < 0 or nr >= len(self.grid) or nc < 0 or nc >= len(self.grid[0]):
             return False
-        
+
         next_cell = self.grid[nr][nc]
-        
+
         # Hit wall
         if next_cell == "#":
             return False
-        
+
         # Push box
         if next_cell in "$*":
             # Check if can push
@@ -83,21 +78,21 @@ class SokobanGame(GameEngine[str, int]):
             beyond_cell = self.grid[nnr][nnc]
             if beyond_cell in "#$*":
                 return False
-            
+
             # Move box
             self.grid[nnr][nnc] = "*" if beyond_cell == "." else "$"
             self.grid[nr][nc] = "." if next_cell == "*" else " "
-        
+
         # Move player
         current = self.grid[r][c]
         self.grid[r][c] = "." if current == "+" else " "
         self.grid[nr][nc] = "+" if next_cell in ".*" else "@"
         self.player_pos = (nr, nc)
         self.moves += 1
-        
+
         if self.is_game_over():
             self.state = GameState.FINISHED
-        
+
         return True
 
     def get_winner(self) -> int | None:
@@ -106,7 +101,7 @@ class SokobanGame(GameEngine[str, int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

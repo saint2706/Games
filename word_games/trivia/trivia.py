@@ -13,31 +13,11 @@ class TriviaGame(GameEngine[int, int]):
 
     # Sample questions (in real implementation, could load from file/API)
     QUESTIONS: List[Dict[str, any]] = [
-        {
-            "question": "What is the capital of France?",
-            "options": ["London", "Berlin", "Paris", "Madrid"],
-            "correct": 2
-        },
-        {
-            "question": "What is 2 + 2?",
-            "options": ["3", "4", "5", "6"],
-            "correct": 1
-        },
-        {
-            "question": "Which planet is known as the Red Planet?",
-            "options": ["Venus", "Mars", "Jupiter", "Saturn"],
-            "correct": 1
-        },
-        {
-            "question": "Who wrote Romeo and Juliet?",
-            "options": ["Dickens", "Shakespeare", "Austen", "Twain"],
-            "correct": 1
-        },
-        {
-            "question": "What is the largest ocean?",
-            "options": ["Atlantic", "Indian", "Arctic", "Pacific"],
-            "correct": 3
-        }
+        {"question": "What is the capital of France?", "options": ["London", "Berlin", "Paris", "Madrid"], "correct": 2},
+        {"question": "What is 2 + 2?", "options": ["3", "4", "5", "6"], "correct": 1},
+        {"question": "Which planet is known as the Red Planet?", "options": ["Venus", "Mars", "Jupiter", "Saturn"], "correct": 1},
+        {"question": "Who wrote Romeo and Juliet?", "options": ["Dickens", "Shakespeare", "Austen", "Twain"], "correct": 1},
+        {"question": "What is the largest ocean?", "options": ["Atlantic", "Indian", "Arctic", "Pacific"], "correct": 3},
     ]
 
     def __init__(self, num_questions: int = 5) -> None:
@@ -70,19 +50,19 @@ class TriviaGame(GameEngine[int, int]):
         """Submit answer."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         if self.is_game_over() or move not in self.get_valid_moves():
             return False
-        
+
         correct = self.questions[self.current_question_idx]["correct"]
         if move == correct:
             self.score += 1
-        
+
         self.current_question_idx += 1
-        
+
         if self.is_game_over():
             self.state = GameState.FINISHED
-        
+
         return True
 
     def get_current_question(self) -> Dict[str, any] | None:
@@ -97,7 +77,7 @@ class TriviaGame(GameEngine[int, int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

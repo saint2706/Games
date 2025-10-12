@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import random
-from typing import List, Tuple
+from typing import List
 
 from common.game_engine import GameEngine, GameState
 
@@ -35,10 +35,10 @@ class SlidingPuzzleGame(GameEngine[str, int]):
         """Slide tile in direction."""
         zero_idx = self.board.index(0)
         row, col = zero_idx // self.size, zero_idx % self.size
-        
+
         dr, dc = {"u": (1, 0), "d": (-1, 0), "l": (0, 1), "r": (0, -1)}.get(direction, (0, 0))
         nr, nc = row + dr, col + dc
-        
+
         if 0 <= nr < self.size and 0 <= nc < self.size:
             new_idx = nr * self.size + nc
             self.board[zero_idx], self.board[new_idx] = self.board[new_idx], self.board[zero_idx]
@@ -72,10 +72,10 @@ class SlidingPuzzleGame(GameEngine[str, int]):
         """Make move."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         if move not in self.get_valid_moves():
             return False
-        
+
         if self._slide(move):
             self.moves += 1
             if self.is_game_over():
@@ -89,7 +89,7 @@ class SlidingPuzzleGame(GameEngine[str, int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

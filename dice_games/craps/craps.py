@@ -4,20 +4,21 @@ from __future__ import annotations
 
 import random
 from enum import Enum
-from typing import List, Tuple
+from typing import List
 
 from common.game_engine import GameEngine, GameState
 
 
 class BetType(Enum):
     """Types of bets in Craps."""
+
     PASS_LINE = "pass"
     DONT_PASS = "dont_pass"
 
 
 class CrapsGame(GameEngine[str, int]):
     """Craps casino dice game.
-    
+
     Players bet on dice rolls. Pass line wins on 7/11 on come-out,
     loses on 2/3/12. Otherwise, point is established and must be
     rolled again before a 7.
@@ -62,9 +63,9 @@ class CrapsGame(GameEngine[str, int]):
         """Roll two dice and process result."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         roll = random.randint(1, 6) + random.randint(1, 6)
-        
+
         if self.point is None:
             # Come-out roll
             if roll in (7, 11):
@@ -85,7 +86,7 @@ class CrapsGame(GameEngine[str, int]):
                 if self.bet_type == BetType.DONT_PASS:
                     self.bankroll += self.current_bet
                 self.point = None
-        
+
         return True
 
     def get_winner(self) -> int | None:
@@ -94,7 +95,7 @@ class CrapsGame(GameEngine[str, int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

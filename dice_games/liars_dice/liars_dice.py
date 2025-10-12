@@ -10,7 +10,7 @@ from common.game_engine import GameEngine, GameState
 
 class LiarsDiceGame(GameEngine[Tuple[int, int], int]):
     """Liar's Dice bluffing game.
-    
+
     Players roll dice secretly and make bids on total dice values
     across all players. Challenge or raise bids.
     """
@@ -24,8 +24,7 @@ class LiarsDiceGame(GameEngine[Tuple[int, int], int]):
     def reset(self) -> None:
         """Reset game."""
         self.state = GameState.NOT_STARTED
-        self.player_dice = [[random.randint(1, 6) for _ in range(self.dice_per_player)] 
-                           for _ in range(self.num_players)]
+        self.player_dice = [[random.randint(1, 6) for _ in range(self.dice_per_player)] for _ in range(self.num_players)]
         self.current_player_idx = 0
         self.current_bid: Tuple[int, int] | None = None  # (quantity, face_value)
         self.eliminated = [False] * self.num_players
@@ -41,19 +40,19 @@ class LiarsDiceGame(GameEngine[Tuple[int, int], int]):
     def get_valid_moves(self) -> List[Tuple[int, int]]:
         """Get valid moves: (quantity, face) or (-1, -1) for challenge."""
         if self.current_bid is None:
-            return [(q, f) for q in range(1, self.num_players * self.dice_per_player + 1)
-                    for f in range(1, 7)]
-        return [(q, f) for q in range(self.current_bid[0], self.num_players * self.dice_per_player + 1)
-                for f in range(1, 7) if (q, f) > self.current_bid] + [(-1, -1)]
+            return [(q, f) for q in range(1, self.num_players * self.dice_per_player + 1) for f in range(1, 7)]
+        return [(q, f) for q in range(self.current_bid[0], self.num_players * self.dice_per_player + 1) for f in range(1, 7) if (q, f) > self.current_bid] + [
+            (-1, -1)
+        ]
 
     def make_move(self, move: Tuple[int, int]) -> bool:
         """Make a bid or challenge."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         if move == (-1, -1):  # Challenge
             return self._resolve_challenge()
-        
+
         quantity, face = move
         if self.current_bid is None or (quantity, face) > self.current_bid:
             self.current_bid = (quantity, face)
@@ -65,10 +64,10 @@ class LiarsDiceGame(GameEngine[Tuple[int, int], int]):
         """Resolve a challenge."""
         if self.current_bid is None:
             return False
-        
+
         quantity, face = self.current_bid
         actual = sum(d.count(face) for d in self.player_dice if d)
-        
+
         if actual >= quantity:
             # Bid was good, challenger loses
             self.player_dice[self.current_player_idx] = self.player_dice[self.current_player_idx][:-1]
@@ -76,12 +75,12 @@ class LiarsDiceGame(GameEngine[Tuple[int, int], int]):
             # Bid was bluff, bidder loses
             prev_player = (self.current_player_idx - 1) % self.num_players
             self.player_dice[prev_player] = self.player_dice[prev_player][:-1]
-        
+
         # Check elimination
         for i, dice in enumerate(self.player_dice):
             if len(dice) == 0:
                 self.eliminated[i] = True
-        
+
         self.current_bid = None
         return True
 
@@ -102,7 +101,7 @@ class LiarsDiceGame(GameEngine[Tuple[int, int], int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

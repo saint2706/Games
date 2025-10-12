@@ -21,7 +21,7 @@ class AnagramsGame(GameEngine[str, int]):
         ("state", "taste"),
         ("worth", "throw"),
         ("angel", "angle"),
-        ("read", "dear")
+        ("read", "dear"),
     ]
 
     def __init__(self, num_rounds: int = 5) -> None:
@@ -52,19 +52,19 @@ class AnagramsGame(GameEngine[str, int]):
         """Submit word guess."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         if self.is_game_over():
             return False
-        
+
         scrambled, answer = self.pairs[self.current_round]
         if move.lower() == answer.lower():
             self.score += 1
-        
+
         self.current_round += 1
-        
+
         if self.is_game_over():
             self.state = GameState.FINISHED
-        
+
         return True
 
     def get_current_scrambled(self) -> str:
@@ -79,7 +79,7 @@ class AnagramsGame(GameEngine[str, int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

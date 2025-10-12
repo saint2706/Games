@@ -10,7 +10,7 @@ from common.game_engine import GameEngine, GameState
 
 class BuncoGame(GameEngine[str, int]):
     """Bunco party dice game.
-    
+
     Roll three dice trying to match the round number.
     Bunco = all three dice match round number (21 points).
     """
@@ -44,11 +44,11 @@ class BuncoGame(GameEngine[str, int]):
         """Roll dice."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         if move == "roll":
             dice = [random.randint(1, 6) for _ in range(3)]
             points = 0
-            
+
             # Bunco: all three match round
             if all(d == self.round_num for d in dice):
                 points = 21
@@ -58,15 +58,15 @@ class BuncoGame(GameEngine[str, int]):
             # Matches: count dice matching round
             else:
                 points = dice.count(self.round_num)
-            
+
             self.scores[self.current_player_idx] += points
-            
+
             # Next player or next round
             if points == 0:
                 self.current_player_idx = (self.current_player_idx + 1) % self.num_players
                 if self.current_player_idx == 0:
                     self.round_num += 1
-            
+
             return True
         return False
 
@@ -78,7 +78,7 @@ class BuncoGame(GameEngine[str, int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """

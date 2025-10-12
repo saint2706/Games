@@ -14,7 +14,7 @@ class CrosswordGame(GameEngine[Tuple[int, str], int]):
     PUZZLE: Dict[int, Tuple[int, int, str, str, str]] = {
         1: (0, 0, "across", "CAT", "Feline pet"),
         2: (0, 0, "down", "CAN", "Container"),
-        3: (2, 0, "across", "NET", "Fishing tool")
+        3: (2, 0, "across", "NET", "Fishing tool"),
     }
 
     def __init__(self) -> None:
@@ -44,11 +44,11 @@ class CrosswordGame(GameEngine[Tuple[int, str], int]):
         """Submit answer for a clue."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
-        
+
         clue_id, guess = move
         if clue_id not in self.PUZZLE or clue_id in self.solved:
             return False
-        
+
         _, _, _, answer, _ = self.PUZZLE[clue_id]
         if guess.upper() == answer.upper():
             self.solved.add(clue_id)
@@ -63,7 +63,7 @@ class CrosswordGame(GameEngine[Tuple[int, str], int]):
 
     def get_game_state(self) -> GameState:
         """Get current game state.
-        
+
         Returns:
             Current state of the game
         """
