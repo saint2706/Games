@@ -7,10 +7,11 @@ and card-specific metrics.
 
 from __future__ import annotations
 
+import json
 import pathlib
 from typing import Optional
 
-from common.analytics.game_stats import GameStatsTracker
+from common.analytics.game_stats import GameStatistics, PlayerStats
 
 
 class CardGameStats:
@@ -28,7 +29,28 @@ class CardGameStats:
             stats_dir: Optional directory for storing stats (defaults to ~/.game_stats)
         """
         self.game_name = game_name
-        self.tracker = GameStatsTracker(game_type=game_name, stats_dir=stats_dir)
+        self.stats_dir = stats_dir or pathlib.Path.home() / ".game_stats"
+        self.stats_dir.mkdir(parents=True, exist_ok=True)
+        self.stats_file = self.stats_dir / f"{game_name}_stats.json"
+        self.tracker = self._load_stats()
+
+    def _load_stats(self) -> GameStatistics:
+        """Load statistics from file.
+
+        Returns:
+            GameStatistics instance
+        """
+        if self.stats_file.exists():
+            try:
+                with open(self.stats_file, "r") as f:
+                    data = json.load(f)
+                    stats = GameStatistics(game_name=self.game_name)
+                    stats.players = {pid: PlayerStats.from_dict(pdata) for pid, pdata in data.get("players", {}).items()}
+                    stats.game_history = data.get("game_history", [])
+                    return stats
+            except Exception:
+                pass
+        return GameStatistics(game_name=self.game_name)
 
     def record_win(self, player_name: str, duration: float, score: Optional[int] = None) -> None:
         """Record a win for a player.
@@ -38,16 +60,8 @@ class CardGameStats:
             duration: Game duration in seconds
             score: Optional final score
         """
-        custom_metrics = {}
-        if score is not None:
-            custom_metrics["score"] = score
-
-        self.tracker.record_game(
-            player_id=player_name,
-            result="win",
-            duration=duration,
-            custom_metrics=custom_metrics,
-        )
+        player_stats = self.tracker.get_or_create_player(player_name)
+        player_stats.record_game("win", duration)
 
     def record_loss(self, player_name: str, duration: float, score: Optional[int] = None) -> None:
         """Record a loss for a player.
@@ -57,16 +71,8 @@ class CardGameStats:
             duration: Game duration in seconds
             score: Optional final score
         """
-        custom_metrics = {}
-        if score is not None:
-            custom_metrics["score"] = score
-
-        self.tracker.record_game(
-            player_id=player_name,
-            result="loss",
-            duration=duration,
-            custom_metrics=custom_metrics,
-        )
+        player_stats = self.tracker.get_or_create_player(player_name)
+        player_stats.record_game("loss", duration)
 
     def record_draw(self, player_name: str, duration: float) -> None:
         """Record a draw for a player.
@@ -75,11 +81,8 @@ class CardGameStats:
             player_name: Name of the player
             duration: Game duration in seconds
         """
-        self.tracker.record_game(
-            player_id=player_name,
-            result="draw",
-            duration=duration,
-        )
+        player_stats = self.tracker.get_or_create_player(player_name)
+        player_stats.record_game("draw", duration)
 
     def get_player_stats(self, player_name: str) -> dict[str, any]:
         """Get statistics for a specific player.
@@ -98,8 +101,7 @@ class CardGameStats:
             - longest_win_streak: Longest winning streak
             - average_duration: Average game duration
         """
-        stats = self.tracker.get_player_stats(player_name)
-        if stats is None:
+        if player_name not in self.tracker.players:
             return {
                 "total_games": 0,
                 "wins": 0,
@@ -111,6 +113,7 @@ class CardGameStats:
                 "average_duration": 0.0,
             }
 
+        stats = self.tracker.players[player_name]
         return {
             "total_games": stats.total_games,
             "wins": stats.wins,
@@ -135,8 +138,6 @@ class CardGameStats:
             - total_games: Total games played
             - win_rate: Win rate percentage
         """
-        all_stats = self.tracker.get_all_player_stats()
-
         leaderboard = [
             {
                 "player_name": player_id,
@@ -144,7 +145,7 @@ class CardGameStats:
                 "total_games": stats.total_games,
                 "win_rate": stats.win_rate(),
             }
-            for player_id, stats in all_stats.items()
+            for player_id, stats in self.tracker.players.items()
             if stats.total_games > 0
         ]
 
@@ -195,7 +196,13 @@ class CardGameStats:
 
     def save(self) -> None:
         """Save statistics to disk."""
-        self.tracker.save()
+        data = {
+            "game_name": self.tracker.game_name,
+            "players": {pid: stats.to_dict() for pid, stats in self.tracker.players.items()},
+            "game_history": self.tracker.game_history,
+        }
+        with open(self.stats_file, "w") as f:
+            json.dump(data, f, indent=2)
 
     def clear_stats(self, player_name: Optional[str] = None) -> None:
         """Clear statistics.
@@ -206,11 +213,11 @@ class CardGameStats:
         """
         if player_name:
             # Remove specific player
-            all_stats = self.tracker.get_all_player_stats()
-            if player_name in all_stats:
-                del all_stats[player_name]
-                self.tracker.save()
+            if player_name in self.tracker.players:
+                del self.tracker.players[player_name]
+                self.save()
         else:
             # Clear all stats
-            self.tracker.stats.clear()
-            self.tracker.save()
+            self.tracker.players.clear()
+            self.tracker.game_history.clear()
+            self.save()
