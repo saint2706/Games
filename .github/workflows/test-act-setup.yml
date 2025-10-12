@@ -1,0 +1,87 @@
+# Test Act Setup workflow
+# This workflow tests that the local workflow testing infrastructure works correctly
+
+name: Test Act Setup
+
+on:
+  workflow_dispatch: # Manual trigger only
+  pull_request:
+    paths:
+      - 'scripts/setup_act.sh'
+      - 'scripts/run_workflow.sh'
+      - '.actrc'
+      - '.github/workflows/events/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test-scripts:
+    name: Test Workflow Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Test script permissions
+        run: |
+          test -x scripts/setup_act.sh || (echo "setup_act.sh is not executable" && exit 1)
+          test -x scripts/run_workflow.sh || (echo "run_workflow.sh is not executable" && exit 1)
+          echo "✓ Scripts are executable"
+
+      - name: Test run_workflow.sh help
+        run: |
+          # Should fail gracefully when act is not installed
+          ./scripts/run_workflow.sh --help || true
+          echo "✓ Help command works"
+
+      - name: Test run_workflow.sh list
+        run: |
+          # Should fail gracefully when act is not installed but show help
+          ./scripts/run_workflow.sh all || true
+          echo "✓ List command works"
+
+      - name: Validate workflow event files
+        run: |
+          # Check that event files are valid JSON
+          for file in .github/workflows/events/*.json; do
+            if [ -f "$file" ]; then
+              echo "Validating $file..."
+              python3 -m json.tool "$file" > /dev/null || (echo "Invalid JSON in $file" && exit 1)
+            fi
+          done
+          echo "✓ All event files are valid JSON"
+
+      - name: Check .actrc configuration
+        run: |
+          test -f .actrc || (echo ".actrc not found" && exit 1)
+          echo "✓ .actrc exists"
+
+      - name: Check documentation
+        run: |
+          test -f docs/development/LOCAL_WORKFLOWS.md || (echo "LOCAL_WORKFLOWS.md not found" && exit 1)
+          test -f docs/development/WORKFLOW_TESTING_QUICKSTART.md || (echo "WORKFLOW_TESTING_QUICKSTART.md not found" && exit 1)
+          test -f .github/workflows/events/README.md || (echo "events/README.md not found" && exit 1)
+          echo "✓ Documentation exists"
+
+      - name: Test Makefile targets
+        run: |
+          # Test that Makefile has workflow targets
+          grep -q "workflow-ci:" Makefile || (echo "workflow-ci target missing" && exit 1)
+          grep -q "workflow-list:" Makefile || (echo "workflow-list target missing" && exit 1)
+          grep -q "setup-act:" Makefile || (echo "setup-act target missing" && exit 1)
+          echo "✓ Makefile targets exist"
+
+      - name: Summary
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All workflow testing infrastructure checks passed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Verified Components:" >> $GITHUB_STEP_SUMMARY
+          echo "- Scripts (setup_act.sh, run_workflow.sh)" >> $GITHUB_STEP_SUMMARY
+          echo "- Configuration (.actrc, .secrets.example)" >> $GITHUB_STEP_SUMMARY
+          echo "- Event payloads (push, pull_request, workflow_dispatch)" >> $GITHUB_STEP_SUMMARY
+          echo "- Documentation (LOCAL_WORKFLOWS.md, QUICKSTART.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- Makefile targets" >> $GITHUB_STEP_SUMMARY

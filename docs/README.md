@@ -43,6 +43,20 @@ Welcome to the Games documentation! This guide will help you navigate all availa
   - Performance benchmarking
   - Mutation testing
 
+- **[development/LOCAL_WORKFLOWS.md](development/LOCAL_WORKFLOWS.md)** - Local workflow testing
+
+  - Running GitHub Actions locally with act
+  - Debugging workflows before pushing
+  - Testing CI/CD changes locally
+  - Using Docker containers for testing
+
+- **[development/WORKFLOW_TESTING_QUICKSTART.md](development/WORKFLOW_TESTING_QUICKSTART.md)** - Quick start for
+  workflow testing
+
+  - 5-minute setup guide
+  - Basic usage examples
+  - Common commands and patterns
+
 - **[development/IMPLEMENTATION_NOTES.md](development/IMPLEMENTATION_NOTES.md)** - Implementation details
 
   - Code quality improvements

@@ -1,0 +1,20 @@
+{
+  "inputs": {
+    "python-versions": "[\"3.12\"]",
+    "marker": "",
+    "extra-args-json": "[]",
+    "collect-coverage": true,
+    "python-version": "3.12",
+    "include-slow-tests": false,
+    "upload-to-codecov": false,
+    "test-pypi": true
+  },
+  "ref": "refs/heads/master",
+  "repository": {
+    "name": "Games",
+    "full_name": "saint2706/Games",
+    "owner": {
+      "login": "saint2706"
+    }
+  }
+}
