@@ -7,6 +7,7 @@ import random
 
 from card_games.solitaire.cli import game_loop
 from card_games.solitaire.game import SolitaireGame
+from card_games.solitaire.gui import run_app
 
 
 def main() -> None:
@@ -31,19 +32,41 @@ def main() -> None:
         default="standard",
         help="Choose between standard (Windows-style) or Vegas scoring.",
     )
+    parser.add_argument(
+        "--cli",
+        action="store_true",
+        help="Run the text-based interface instead of the GUI.",
+    )
     args = parser.parse_args()
 
-    rng = None
-    if args.seed is not None:
-        rng = random.Random(args.seed)
+    if args.cli:
+        rng = random.Random(args.seed) if args.seed is not None else None
+        game = SolitaireGame(
+            draw_count=args.draw_count,
+            max_recycles=args.max_recycles,
+            scoring_mode=args.scoring,
+            rng=rng,
+        )
+        game_loop(game)
+        return
 
-    game = SolitaireGame(
-        draw_count=args.draw_count,
-        max_recycles=args.max_recycles,
-        scoring_mode=args.scoring,
-        rng=rng,
-    )
-    game_loop(game)
+    try:
+        run_app(
+            draw_count=args.draw_count,
+            max_recycles=args.max_recycles,
+            scoring_mode=args.scoring,
+            seed=args.seed,
+        )
+    except RuntimeError as exc:
+        print(f"GUI unavailable ({exc}). Falling back to CLI mode.")
+        rng = random.Random(args.seed) if args.seed is not None else None
+        game = SolitaireGame(
+            draw_count=args.draw_count,
+            max_recycles=args.max_recycles,
+            scoring_mode=args.scoring,
+            rng=rng,
+        )
+        game_loop(game)
 
 
 if __name__ == "__main__":

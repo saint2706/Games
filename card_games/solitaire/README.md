@@ -7,8 +7,16 @@ Windows-style scoring, and the Vegas casino option.
 ## How to Play
 
 ```bash
-python -m card_games.solitaire [--draw-count {1,3}] [--max-recycles N] [--scoring {standard,vegas}] [--seed SEED]
+python -m card_games.solitaire [--draw-count {1,3}] [--max-recycles N] [--scoring {standard,vegas}] [--seed SEED] [--cli]
 ```
+
+By default the module launches the Tkinter GUI. Pass `--cli` to stay in the original command-line interface; all gameplay options apply to both modes.
+
+### GUI Highlights
+
+- Toolbar buttons for drawing, auto-moving to the foundations, recycling the waste, and starting a fresh deal.
+- Visual tableau with highlighted drop targets whenever a card or run is selected.
+- Scoreboard showing score, move counts, and recycle usage in real time.
 
 ### Launch Options
 
@@ -16,6 +24,9 @@ python -m card_games.solitaire [--draw-count {1,3}] [--max-recycles N] [--scorin
 - `--max-recycles` – cap how many times the waste may be recycled back to the stock (defaults to `None` for draw-one and `3` for draw-three).
 - `--scoring` – `standard` (Windows scoring with flip bonuses) or `vegas` (buy-in of -52, +5 per foundation card).
 - `--seed` – provide a random seed for reproducible shuffles.
+- `--cli` – force the text-mode experience when Tkinter is not desired or available.
+
+> **Tkinter dependency:** Most desktop Python installations include Tkinter. If you encounter an import error on Linux, install `python3-tk` (Debian/Ubuntu) or the equivalent package for your distribution. macOS users should ensure they are running the framework build of Python.
 
 ## Game Rules
 
