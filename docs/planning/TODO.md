@@ -91,25 +91,25 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 ### Dice Games
 
-- [ ] **Craps** - Casino dice game with pass/don't pass betting
-- [ ] **Farkle** - Risk-based scoring with push-your-luck mechanics
-- [ ] **Liar's Dice** - Bluffing game similar to Bluff but with dice
-- [ ] **Bunco** - Party dice game with rounds and team scoring
+- [x] **Craps** - Casino dice game with pass/don't pass betting
+- [x] **Farkle** - Risk-based scoring with push-your-luck mechanics
+- [x] **Liar's Dice** - Bluffing game similar to Bluff but with dice
+- [x] **Bunco** - Party dice game with rounds and team scoring
 
 ### Trivia & Word Games
 
-- [ ] **Trivia Quiz** - Multiple choice questions from various categories with API integration
-- [ ] **Crossword Generator** - Create and solve crossword puzzles with clue system
-- [ ] **Anagrams** - Word rearrangement game with scoring system
-- [ ] **Scrabble-like** - Tile-based word building game (avoiding trademark issues)
+- [x] **Trivia Quiz** - Multiple choice questions from various categories with API integration
+- [x] **Crossword Generator** - Create and solve crossword puzzles with clue system
+- [x] **Anagrams** - Word rearrangement game with scoring system
+- [x] **WordBuilder** - Tile-based word building game (avoiding trademark issues)
 
 ### Logic & Puzzle Games
 
-- [ ] **Minesweeper** - Classic mine detection game with difficulty levels
-- [ ] **Sokoban** - Warehouse puzzle with box-pushing mechanics
-- [ ] **Sliding Puzzle (15-puzzle)** - Number tile sliding game with solvability check
-- [ ] **Lights Out** - Toggle-based puzzle with graph theory solution
-- [ ] **Picross/Nonograms** - Picture logic puzzles with row/column hints
+- [x] **Minesweeper** - Classic mine detection game with difficulty levels
+- [x] **Sokoban** - Warehouse puzzle with box-pushing mechanics
+- [x] **Sliding Puzzle (15-puzzle)** - Number tile sliding game with solvability check
+- [x] **Lights Out** - Toggle-based puzzle with graph theory solution
+- [x] **Picross/Nonograms** - Picture logic puzzles with row/column hints
 
 ## ✨ Feature Enhancements for Existing Games
 

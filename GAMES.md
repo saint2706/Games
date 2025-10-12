@@ -396,13 +396,39 @@ Features:
 
 ## 🎲 Dice Games
 
-Dice-based games with random elements and strategic decisions. This is a new category with games planned for future implementation.
+Dice-based games with random elements and strategic decisions.
 
-**Planned Games:**
-- Craps - Casino dice game with pass/don't pass betting
-- Farkle - Risk-based scoring with push-your-luck mechanics
-- Liar's Dice - Bluffing game similar to Bluff but with dice
-- Bunco - Party dice game with rounds and team scoring
+### Craps
+
+Casino dice game with pass/don't pass betting. Roll two dice and bet on the outcome. Come-out roll wins on 7/11,
+loses on 2/3/12, otherwise establishes a point.
+
+**Features**: Pass line betting, don't pass option, point system  
+**Run**: `python -m dice_games.craps`
+
+### Farkle
+
+Risk-based scoring game with push-your-luck mechanics. Roll six dice and bank scoring combinations, but risk
+"farkling" (rolling no scoring dice) and losing turn points.
+
+**Features**: Hot dice bonus, multiple scoring patterns, strategic banking  
+**Run**: `python -m dice_games.farkle`
+
+### Liar's Dice
+
+Bluffing game with dice bidding mechanics. Players secretly roll dice and make bids on total dice values across all
+players. Challenge bids or raise them higher.
+
+**Features**: Hidden information, bluffing, challenge mechanics  
+**Run**: `python -m dice_games.liars_dice`
+
+### Bunco
+
+Party dice game with rounds and team scoring. Roll three dice trying to match the round number. Score 21 points for
+"Bunco" (all three dice match the round).
+
+**Features**: Simple rules, fast-paced, round-based scoring  
+**Run**: `python -m dice_games.bunco`
 
 **Documentation**: [dice_games/README.md](dice_games/README.md)
 
@@ -410,13 +436,38 @@ Dice-based games with random elements and strategic decisions. This is a new cat
 
 ## 📚 Word & Trivia Games
 
-Word-based games, trivia quizzes, and linguistic challenges. This is a new category with games planned for future implementation.
+Word-based games, trivia quizzes, and linguistic challenges.
 
-**Planned Games:**
-- Trivia Quiz - Multiple choice questions from various categories with API integration
-- Crossword Generator - Create and solve crossword puzzles with clue system
-- Anagrams - Word rearrangement game with scoring system
-- Scrabble-like - Tile-based word building game (avoiding trademark issues)
+### Trivia Quiz
+
+Multiple choice trivia questions from various categories. Test your knowledge across different subjects with
+progressive difficulty.
+
+**Features**: Multiple choice format, score tracking, diverse questions  
+**Run**: `python -m word_games.trivia`
+
+### Crossword
+
+Create and solve crossword puzzles with clue system. Fill in words based on across and down clues to complete the
+puzzle grid.
+
+**Features**: Grid-based puzzles, clue system, progressive solving  
+**Run**: `python -m word_games.crossword`
+
+### Anagrams
+
+Word rearrangement game with scoring system. Unscramble letters to form valid words as quickly as possible.
+
+**Features**: Timed rounds, difficulty levels, score tracking  
+**Run**: `python -m word_games.anagrams`
+
+### WordBuilder
+
+Tile-based word building game (Scrabble-like). Create words from letter tiles with varying point values to maximize
+your score.
+
+**Features**: Letter tiles, point values, strategic word building  
+**Run**: `python -m word_games.wordbuilder`
 
 **Documentation**: [word_games/README.md](word_games/README.md)
 
@@ -424,14 +475,46 @@ Word-based games, trivia quizzes, and linguistic challenges. This is a new categ
 
 ## 🧩 Logic & Puzzle Games
 
-Logic puzzles, brain teasers, and problem-solving games. This is a new category with games planned for future implementation.
+Logic puzzles, brain teasers, and problem-solving games.
 
-**Planned Games:**
-- Minesweeper - Classic mine detection game with difficulty levels
-- Sokoban - Warehouse puzzle with box-pushing mechanics
-- Sliding Puzzle (15-puzzle) - Number tile sliding game with solvability check
-- Lights Out - Toggle-based puzzle with graph theory solution
-- Picross/Nonograms - Picture logic puzzles with row/column hints
+### Minesweeper
+
+Classic mine detection puzzle game. Reveal cells on a grid using number clues to identify mine locations. Don't click
+on mines!
+
+**Features**: Three difficulty levels, flag system, cascade reveal  
+**Run**: `python -m logic_games.minesweeper`
+
+### Sokoban
+
+Warehouse puzzle with box-pushing mechanics. Push boxes onto goal positions without getting stuck. Plan moves
+carefully!
+
+**Features**: Grid-based puzzles, undo support, level progression  
+**Run**: `python -m logic_games.sokoban`
+
+### Sliding Puzzle (15-puzzle)
+
+Number tile sliding game. Arrange numbered tiles in order by sliding them into the empty space. Solvable
+configurations only.
+
+**Features**: Multiple grid sizes, move counter, optimal solution hints  
+**Run**: `python -m logic_games.sliding_puzzle`
+
+### Lights Out
+
+Toggle-based puzzle game. Click cells to toggle them and their neighbors. Turn all lights off to win using pattern
+recognition.
+
+**Features**: Grid-based toggling, pattern solving, move optimization  
+**Run**: `python -m logic_games.lights_out`
+
+### Picross/Nonograms
+
+Picture logic puzzles with row/column hints. Fill cells based on number clues to reveal a hidden picture.
+
+**Features**: Grid-based logic, number hints, picture reveal  
+**Run**: `python -m logic_games.picross`
 
 **Documentation**: [logic_games/README.md](logic_games/README.md)
 
@@ -498,9 +581,9 @@ python -m paper_games.battleship --grid-size 10
 
 ## 🎯 Game Statistics
 
-- **Total Games**: 21 playable games (10 card games + 11 paper games)
-- **Game Categories**: 5 (Card, Paper, Dice, Word, Logic - last 3 are new and awaiting implementations)
-- **Total Lines of Code**: ~15,000+
+- **Total Games**: 34 playable games (10 card games + 11 paper games + 4 dice games + 4 word games + 5 logic games)
+- **Game Categories**: 5 (Card, Paper, Dice, Word, Logic)
+- **Total Lines of Code**: ~20,000+
 - **Test Coverage**: 90%+ for most games
 - **Supported Platforms**: Linux, macOS, Windows
 
