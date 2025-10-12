@@ -394,6 +394,49 @@ Features:
 
 ---
 
+## 🎲 Dice Games
+
+Dice-based games with random elements and strategic decisions. This is a new category with games planned for future implementation.
+
+**Planned Games:**
+- Craps - Casino dice game with pass/don't pass betting
+- Farkle - Risk-based scoring with push-your-luck mechanics
+- Liar's Dice - Bluffing game similar to Bluff but with dice
+- Bunco - Party dice game with rounds and team scoring
+
+**Documentation**: [dice_games/README.md](dice_games/README.md)
+
+---
+
+## 📚 Word & Trivia Games
+
+Word-based games, trivia quizzes, and linguistic challenges. This is a new category with games planned for future implementation.
+
+**Planned Games:**
+- Trivia Quiz - Multiple choice questions from various categories with API integration
+- Crossword Generator - Create and solve crossword puzzles with clue system
+- Anagrams - Word rearrangement game with scoring system
+- Scrabble-like - Tile-based word building game (avoiding trademark issues)
+
+**Documentation**: [word_games/README.md](word_games/README.md)
+
+---
+
+## 🧩 Logic & Puzzle Games
+
+Logic puzzles, brain teasers, and problem-solving games. This is a new category with games planned for future implementation.
+
+**Planned Games:**
+- Minesweeper - Classic mine detection game with difficulty levels
+- Sokoban - Warehouse puzzle with box-pushing mechanics
+- Sliding Puzzle (15-puzzle) - Number tile sliding game with solvability check
+- Lights Out - Toggle-based puzzle with graph theory solution
+- Picross/Nonograms - Picture logic puzzles with row/column hints
+
+**Documentation**: [logic_games/README.md](logic_games/README.md)
+
+---
+
 ## 🎮 Quick Start
 
 ### Running a Game
@@ -455,7 +498,8 @@ python -m paper_games.battleship --grid-size 10
 
 ## 🎯 Game Statistics
 
-- **Total Games**: 21 (10 card games + 11 paper games)
+- **Total Games**: 21 playable games (10 card games + 11 paper games)
+- **Game Categories**: 5 (Card, Paper, Dice, Word, Logic - last 3 are new and awaiting implementations)
 - **Total Lines of Code**: ~15,000+
 - **Test Coverage**: 90%+ for most games
 - **Supported Platforms**: Linux, macOS, Windows

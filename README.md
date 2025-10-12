@@ -1,6 +1,6 @@
-# Card & Paper Games Collection
+# Games Collection
 
-A comprehensive collection of card and paper-and-pencil games implemented in Python. The project includes 21 playable games ranging from casino classics like Texas Hold'em and Blackjack to strategy games like Chess and Othello.
+A comprehensive collection of games implemented in Python, organized by category. The project includes 21 playable games ranging from casino classics like Texas Hold'em and Blackjack to strategy games like Checkers and Othello, with infrastructure ready for dice games, word games, and logic puzzles.
 
 **📖 See [GAMES.md](GAMES.md) for a complete catalog of all available games.**
 
@@ -30,6 +30,9 @@ paper_games/
 ├── mancala/          # Stone distribution game
 ├── othello/          # Disc flipping with positional strategy
 └── sudoku/           # Number puzzle with difficulty levels
+dice_games/           # Dice-based games (new category)
+word_games/           # Word and trivia games (new category)
+logic_games/          # Logic puzzles and brain teasers (new category)
 common/
 ├── architecture/     # Architectural patterns (plugin, events, persistence)
 ├── analytics/        # Game analytics and statistics
