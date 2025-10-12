@@ -11,14 +11,6 @@ from __future__ import annotations
 import random
 from typing import Optional
 
-from common.gui_base import (
-    BaseGUI,
-    GUIConfig,
-    TKINTER_AVAILABLE,
-    scrolledtext,
-    tk,
-    ttk,
-)
 from card_games.bridge.game import (
     BidSuit,
     BridgeGame,
@@ -29,6 +21,14 @@ from card_games.bridge.game import (
     Vulnerability,
 )
 from card_games.common.cards import Card, Suit
+from common.gui_base import (
+    TKINTER_AVAILABLE,
+    BaseGUI,
+    GUIConfig,
+    scrolledtext,
+    tk,
+    ttk,
+)
 
 SUIT_DISPLAY_ORDER = {
     Suit.SPADES: 0,

@@ -14,7 +14,7 @@ import time
 from typing import Optional
 
 from card_games.war.game import WarGame
-from common.gui_base import BaseGUI, GUIConfig, TKINTER_AVAILABLE
+from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 
 try:  # pragma: no cover - optional dependency
     from card_games.common.stats import CardGameStats

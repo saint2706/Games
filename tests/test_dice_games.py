@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from dice_games import BuncoGame, CrapsGame, FarkleGame, LiarsDiceGame
 
 

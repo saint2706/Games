@@ -12,12 +12,7 @@ from card_games.gin_rummy.game import (
     Meld,
     MeldType,
 )
-from common.gui_base import BaseGUI, GUIConfig, TKINTER_AVAILABLE
-
-if TKINTER_AVAILABLE:  # pragma: no cover - UI specific branch
-    import tkinter as tk
-else:  # pragma: no cover - fallback for headless environments
-    tk = None  # type: ignore
+from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, tk
 
 
 def _format_meld(meld: Meld) -> str:
@@ -282,8 +277,6 @@ class GinRummyGUI(BaseGUI):
         self.log_widget.pack(fill=tk.BOTH, expand=True)
 
     def update_display(self) -> None:
-        theme = self.current_theme
-
         for idx, player in enumerate(self.players):
             analysis = self.game.analyze_hand(player.hand)
             self.score_vars[idx].set(f"Score: {player.score}")
@@ -642,7 +635,12 @@ class GinRummyGUI(BaseGUI):
         )
         self.log_message(
             self.log_widget,
-            f"Deadwood — {summary.knocker}: {summary.knocker_deadwood}, {summary.opponent}: {summary.opponent_deadwood} (was {summary.opponent_initial_deadwood}).",
+            (
+                "Deadwood — "
+                f"{summary.knocker}: {summary.knocker_deadwood}, "
+                f"{summary.opponent}: {summary.opponent_deadwood} "
+                f"(was {summary.opponent_initial_deadwood})."
+            ),
         )
 
         if summary.melds_shown:

@@ -745,10 +745,10 @@ ______________________________________________________________________
 This section documents the implementation of five complete, playable card games, all specified as high-priority items in TODO.md:
 
 1. **Solitaire (Klondike)** - Classic patience game
-2. **Hearts** - Trick-taking with shooting the moon
-3. **Spades** - Partnership bidding game
-4. **Gin Rummy** - Two-player melding game
-5. **Bridge** - Classic contract bridge (simplified)
+1. **Hearts** - Trick-taking with shooting the moon
+1. **Spades** - Partnership bidding game
+1. **Gin Rummy** - Two-player melding game
+1. **Bridge** - Classic contract bridge (simplified)
 
 ### Implementation Details
 

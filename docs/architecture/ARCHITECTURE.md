@@ -481,36 +481,43 @@ ______________________________________________________________________
 ### Key Features
 
 ✅ **Plugin System**
+
 - Dynamic loading
 - Metadata management
 - Safe unloading
 
 ✅ **Event System**
+
 - Publish/subscribe
 - Event history
 - Filtering
 
 ✅ **Observer Pattern**
+
 - Multi-observer support
 - Property observation
 - Context passing
 
 ✅ **Persistence**
+
 - JSON/Pickle formats
 - Metadata tracking
 - Save management
 
 ✅ **Replay System**
+
 - Action recording
 - Undo/redo
 - State snapshots
 
 ✅ **Settings**
+
 - Per-game config
 - Global settings
 - Persistence
 
 ✅ **Game Engine**
+
 - Abstract interface
 - State management
 - Event integration
