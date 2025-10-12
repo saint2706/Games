@@ -127,13 +127,16 @@ class TestSolitaire:
 
         ace_clubs = Card("A", Suit.CLUBS)
         two_clubs = Card("2", Suit.CLUBS)
+        three_clubs = Card("3", Suit.CLUBS)
 
         game.waste.cards = [ace_clubs]
         game.tableau[0].cards = [Card("5", Suit.HEARTS), two_clubs]
         game.tableau[0].face_up_count = 2
+        game.tableau[1].cards = [Card("6", Suit.DIAMONDS), three_clubs]
+        game.tableau[1].face_up_count = 2
 
         assert game.auto_move_to_foundation() is True
-        assert len(game.foundations[0].cards) == 2
+        assert len(game.foundations[0].cards) == 3
         assert game.auto_moves_made == 1
 
 
