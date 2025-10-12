@@ -291,11 +291,12 @@ mutmut html
 
 ### Configuration
 
-Mutation testing settings are in `.mutmut.toml`:
+Mutation testing settings are in `pyproject.toml` under `[tool.mutmut]`:
 
-- Excludes: GUI files, demos, **main** files
+- Paths to mutate: `paper_games/`, `card_games/`
+- Excludes: GUI files, demos, `__main__.py`, `__init__.py`, tests
 - Uses coverage data to target tested code
-- Parallel execution support
+- Test runner: pytest with specific flags
 
 ## Writing Tests
 

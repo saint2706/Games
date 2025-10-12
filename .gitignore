@@ -19,6 +19,7 @@ dist/
 htmlcov/
 coverage.xml
 .mutmut-cache/
+mutants/
 *.pyc
 
 # IDEs

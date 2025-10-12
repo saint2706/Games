@@ -48,8 +48,8 @@ jobs:
 
       - name: Run mutation testing
         run: |
-          # Run mutmut on a subset of files to keep execution time reasonable
-          mutmut run --paths-to-mutate paper_games/nim/,paper_games/tic_tac_toe/ || true
+          # Run mutmut using configuration from pyproject.toml
+          mutmut run || true
 
       - name: Generate mutation report
         run: |
