@@ -164,22 +164,73 @@ class TestLightsOut:
         game = LightsOutGame(size=5)
         assert len(game.grid) == 5
         assert all(len(row) == 5 for row in game.grid)
+        assert all(isinstance(cell, LightBulb) for row in game.grid for cell in row)
 
     def test_toggle_cell(self) -> None:
         """Test toggling a cell."""
         game = LightsOutGame(size=3)
-        game.state = game.state.IN_PROGRESS
-        initial_state = game.grid[1][1]
-        game.make_move((1, 1))
-        # Center and neighbors should toggle
-        assert game.grid[1][1] != initial_state
+        positions = [
+            (1, 1),
+            (0, 1),
+            (2, 1),
+            (1, 0),
+            (1, 2),
+        ]
+        before = {
+            (r, c): game.grid[r][c].is_on
+            for r, c in positions
+            if 0 <= r < game.size and 0 <= c < game.size
+        }
+
+        result = game.make_move((1, 1))
+        assert result
+
+        for (r, c), state in before.items():
+            assert game.grid[r][c].is_on != state
 
     def test_win_condition(self) -> None:
         """Test win condition detection."""
         game = LightsOutGame(size=3)
         # Set all lights off
-        game.grid = [[False] * 3 for _ in range(3)]
+        for row in game.grid:
+            for bulb in row:
+                bulb.is_on = False
+                bulb.brightness = 0.0
         assert game.is_game_over()
+
+    def test_brightness_reflects_neighbors(self) -> None:
+        """Bulb brightness should respond to neighbours."""
+        game = LightsOutGame(size=3)
+        for row in game.grid:
+            for bulb in row:
+                bulb.is_on = False
+                bulb.brightness = 0.0
+
+        game.grid[1][1].is_on = True
+        game._recalculate_brightness()
+
+        assert game.grid[1][1].brightness == game.on_brightness
+        assert game.grid[0][1].brightness > 0
+
+    def test_energy_tracking(self) -> None:
+        """Energy tracking should increase with moves."""
+        game = LightsOutGame(size=3)
+        initial_energy = game.total_energy_kwh
+        initial_time = game.total_time_seconds
+
+        assert game.make_move((0, 0))
+
+        assert game.total_energy_kwh > initial_energy
+        assert game.total_time_seconds > initial_time
+
+    def test_state_representation_contains_metrics(self) -> None:
+        """Structured state representation should expose telemetry."""
+        game = LightsOutGame(size=3)
+        state = game.get_state_representation()
+
+        assert "brightness" in state
+        assert "power_draw_w" in state
+        assert "total_energy_kwh" in state
 
 
 class TestPicross:
@@ -188,24 +239,67 @@ class TestPicross:
     def test_initialization(self) -> None:
         """Test game initializes correctly."""
         game = PicrossGame()
-        assert len(game.row_hints) > 0
-        assert len(game.col_hints) > 0
-        assert game.size > 0
+        assert game.size == 10
+        assert len(game.row_hints) == 10
+        assert len(game.col_hints) == 10
+        assert all(cell == CellState.UNKNOWN for row in game.grid for cell in row)
+        assert game.total_mistakes == 0
 
     def test_hints_generation(self) -> None:
         """Test hint generation."""
-        game = PicrossGame()
         # Row with no filled cells should have hint [0]
-        hints = game._get_hints([0, 0, 0])
+        hints = PicrossGame._get_hints([0, 0, 0])
         assert hints == [0]
         # Row with consecutive filled cells
-        hints = game._get_hints([1, 1, 0, 1])
+        hints = PicrossGame._get_hints([1, 1, 0, 1])
         assert hints == [2, 1]
 
-    def test_make_move(self) -> None:
-        """Test making a move."""
+    def test_move_cycle_and_validation(self) -> None:
+        """Test filling, toggling and clearing cells."""
         game = PicrossGame()
-        game.state = game.state.IN_PROGRESS
-        result = game.make_move((0, 0, "fill"))
-        assert result
-        assert game.grid[0][0] is not None
+        assert game.make_move((0, 2, "fill"))
+        assert game.grid[0][2] == CellState.FILLED
+        assert game.is_cell_correct(0, 2)
+
+        assert game.make_move((0, 2, "toggle"))
+        assert game.grid[0][2] == CellState.EMPTY
+        assert not game.is_cell_correct(0, 2)
+        assert game.total_mistakes == 1
+        assert (0, 2) in game.incorrect_cells
+
+        assert game.make_move((0, 2, "clear"))
+        assert game.grid[0][2] == CellState.UNKNOWN
+        assert (0, 2) not in game.incorrect_cells
+
+    def test_line_progress_tracks_segments(self) -> None:
+        """Ensure line progress reflects placed groups."""
+        game = PicrossGame()
+        game.make_move((0, 2, "fill"))
+        game.make_move((0, 3, "fill"))
+        progress = game.get_line_progress(0, is_row=True)
+        assert list(progress.segments) == [2]
+        assert progress.expected_filled == sum(game.row_hints[0])
+        assert not progress.is_satisfied
+
+        game.make_move((0, 2, "clear"))
+        progress_after_clear = game.get_line_progress(0, is_row=True)
+        assert list(progress_after_clear.segments) == [1]
+
+        game.make_move((0, 3, "clear"))
+        progress_all_cleared = game.get_line_progress(0, is_row=True)
+        assert list(progress_all_cleared.segments) == [0]
+
+    def test_mistake_tracking(self) -> None:
+        """Incorrect placements are counted once until cleared."""
+        game = PicrossGame()
+        assert game.make_move((0, 0, "fill"))  # incorrect cell
+        assert (0, 0) in game.incorrect_cells
+        assert game.total_mistakes == 1
+
+        # Repeating the same incorrect action should not double count
+        assert game.make_move((0, 0, "fill"))
+        assert game.total_mistakes == 1
+
+        # Clearing removes the mistake marker
+        assert game.make_move((0, 0, "clear"))
+        assert (0, 0) not in game.incorrect_cells
