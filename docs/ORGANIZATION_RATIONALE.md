@@ -27,31 +27,41 @@ Games/
 │   ├── bridge/
 │   ├── solitaire/
 │   └── common/         # Shared card utilities
-└── paper_games/        # Paper-and-pencil games
-    ├── tic_tac_toe/
-    ├── battleship/
-    ├── hangman/
-    ├── dots_and_boxes/
-    ├── nim/
-    ├── unscramble/
-    ├── connect_four/
-    ├── checkers/
-    ├── mancala/
-    ├── othello/
-    └── sudoku/
+├── paper_games/        # Paper-and-pencil games
+│   ├── tic_tac_toe/
+│   ├── battleship/
+│   ├── hangman/
+│   ├── dots_and_boxes/
+│   ├── nim/
+│   ├── unscramble/
+│   ├── connect_four/
+│   ├── checkers/
+│   ├── mancala/
+│   ├── othello/
+│   └── sudoku/
+├── dice_games/         # Dice-based games (new category)
+├── word_games/         # Word and trivia games (new category)
+└── logic_games/        # Logic puzzles and brain teasers (new category)
 ```
 
 ### Rationale
 
-#### 1. Category-Based Separation (card_games vs paper_games)
+#### 1. Category-Based Separation
 
 **Why this structure?**
 
-- **Intuitive Classification**: Users immediately understand the distinction between card games and paper-and-pencil games
-- **Clear Boundaries**: Physical game requirements differ (cards vs. board/grid)
-- **Shared Utilities**: Card games share common elements (decks, hands, suits) that paper games don't
+- **Intuitive Classification**: Users immediately understand the distinction between different game types (card games, paper-and-pencil games, dice games, word games, logic puzzles)
+- **Clear Boundaries**: Physical game requirements and mechanics differ by category
+- **Shared Utilities**: Games in the same category can share common elements (e.g., card games share decks, hands, suits)
 - **Discoverability**: Users looking for a specific type of game can browse one category
-- **Scalability**: Easy to add new categories (e.g., `board_games/`, `dice_games/`) in the future
+- **Scalability**: Easy to add new categories as the collection grows
+
+**Current Categories:**
+- `card_games/` - Card-based games using standard or specialized decks
+- `paper_games/` - Paper-and-pencil games and board games
+- `dice_games/` - Dice-based games with random elements (new, awaiting implementations)
+- `word_games/` - Word-based games, trivia, and linguistic challenges (new, awaiting implementations)
+- `logic_games/` - Logic puzzles, brain teasers, and problem-solving games (new, awaiting implementations)
 
 **Alternative Approaches Considered:**
 

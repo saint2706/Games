@@ -65,11 +65,11 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 ### High Priority
 
-- [ ] **Connect Four** - Implement vertical grid with gravity, win detection for 4-in-a-row patterns
-- [ ] **Checkers** - Add jump mechanics, king promotion, and minimax AI for perfect play
-- [ ] **Mancala** - Implement stone distribution, capture rules, and strategic AI opponent
-- [ ] **Othello/Reverserrsi** - Flipping mechanics with positional strategy AI
-- [ ] **Sudoku** - Puzzle generator with multiple difficulty levels and hint system
+- [x] **Connect Four** - Implement vertical grid with gravity, win detection for 4-in-a-row patterns
+- [x] **Checkers** - Add jump mechanics, king promotion, and minimax AI for perfect play
+- [x] **Mancala** - Implement stone distribution, capture rules, and strategic AI opponent
+- [x] **Othello/Reversi** - Flipping mechanics with positional strategy AI
+- [x] **Sudoku** - Puzzle generator with multiple difficulty levels and hint system
 
 ### Medium Priority
 
