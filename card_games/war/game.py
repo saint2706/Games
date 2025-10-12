@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from random import Random
-from typing import Optional
+from typing import Any, Optional
 
 from card_games.common.cards import Card, Deck
 
@@ -241,3 +241,41 @@ class WarGame:
             True if game is over, False otherwise
         """
         return self.state == GameState.GAME_OVER
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize game state to a dictionary.
+
+        Returns:
+            Dictionary representation of the game state
+        """
+        return {
+            "player1_deck": [{"rank": c.rank, "suit": c.suit.value} for c in self.player1_deck],
+            "player2_deck": [{"rank": c.rank, "suit": c.suit.value} for c in self.player2_deck],
+            "pile": [{"rank": c.rank, "suit": c.suit.value} for c in self.pile],
+            "state": self.state.name,
+            "rounds_played": self.rounds_played,
+            "wars_fought": self.wars_fought,
+            "winner": self.winner,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> WarGame:
+        """Deserialize game state from a dictionary.
+
+        Args:
+            data: Dictionary containing game state
+
+        Returns:
+            Restored WarGame instance
+        """
+        from card_games.common.cards import Suit
+
+        game = cls.__new__(cls)
+        game.player1_deck = [Card(rank=c["rank"], suit=Suit(c["suit"])) for c in data["player1_deck"]]
+        game.player2_deck = [Card(rank=c["rank"], suit=Suit(c["suit"])) for c in data["player2_deck"]]
+        game.pile = [Card(rank=c["rank"], suit=Suit(c["suit"])) for c in data["pile"]]
+        game.state = GameState[data["state"]]
+        game.rounds_played = data["rounds_played"]
+        game.wars_fought = data["wars_fought"]
+        game.winner = data.get("winner")
+        return game

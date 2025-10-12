@@ -7,8 +7,11 @@ computer opponent that never loses.
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Optional, Tuple
+
+from common.architecture.replay import ReplayManager
 
 # A mapping of human-readable coordinates to board indices.
 COORDINATES: Dict[str, int] = {
@@ -49,6 +52,7 @@ class TicTacToeGame:
         if self.win_length < 3 or self.win_length > self.board_size:
             raise ValueError(f"Win length must be between 3 and {self.board_size}.")
         self.board: List[str] = [" "] * (self.board_size * self.board_size)
+        self.replay_manager = ReplayManager()
         self.reset(self.starting_symbol)
 
     def reset(self, starting_symbol: Optional[str] = None) -> None:
@@ -84,6 +88,17 @@ class TicTacToeGame:
             return False
 
         symbol_to_use = symbol if symbol is not None else getattr(self, "current_turn", self.human_symbol)
+
+        # Record the move for replay/undo
+        state_before = {"board": self.board.copy(), "current_turn": getattr(self, "current_turn", self.human_symbol)}
+        self.replay_manager.record_action(
+            timestamp=time.time(),
+            actor=symbol_to_use,
+            action_type="place_symbol",
+            data={"position": index, "symbol": symbol_to_use},
+            state_before=state_before,
+        )
+
         self.board[index] = symbol_to_use
         return True
 
@@ -241,6 +256,31 @@ class TicTacToeGame:
     def human_move(self, position: int) -> bool:
         """Makes a move for the human player."""
         return self.make_move(position, self.human_symbol)
+
+    def undo_last_move(self) -> bool:
+        """Undo the last move made.
+
+        Returns:
+            True if a move was undone, False if no moves to undo
+        """
+        if not self.replay_manager.can_undo():
+            return False
+
+        action = self.replay_manager.undo()
+        if action and action.state_before:
+            # Restore the board state
+            self.board = action.state_before["board"].copy()
+            self.current_turn = action.state_before["current_turn"]
+            return True
+        return False
+
+    def can_undo(self) -> bool:
+        """Check if there are moves that can be undone.
+
+        Returns:
+            True if undo is available, False otherwise
+        """
+        return self.replay_manager.can_undo()
 
     def render(self, show_reference: bool = False) -> str:
         """Return a human-friendly board representation."""

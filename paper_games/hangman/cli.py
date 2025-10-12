@@ -8,21 +8,27 @@ from __future__ import annotations
 
 from typing import Iterable
 
+from common.cli_utils import ASCIIArt, InteractiveMenu, RichText, Theme, clear_screen
+
 from .hangman import HANGMAN_ART_STYLES, HangmanGame, load_themed_words, load_words_by_difficulty
+
+# Create a theme for consistent colors
+CLI_THEME = Theme()
 
 
 def _get_difficulty() -> str:
     """Prompt user to select difficulty level."""
-    print("\nSelect difficulty:")
-    print("1. Easy (6+ letter words)")
-    print("2. Medium (4-5 letter words)")
-    print("3. Hard (3 letter words)")
-    print("4. All difficulties (default)")
+    options = [
+        "Easy (6+ letter words)",
+        "Medium (4-5 letter words)",
+        "Hard (3 letter words)",
+        "All difficulties",
+    ]
+    menu = InteractiveMenu("Select Difficulty", options, theme=CLI_THEME)
+    selection = menu.display()
 
-    choice = input("Enter choice (1-4) or press Enter for all: ").strip()
-
-    difficulty_map = {"1": "easy", "2": "medium", "3": "hard", "4": "all", "": "all"}
-    return difficulty_map.get(choice, "all")
+    difficulty_map = {0: "easy", 1: "medium", 2: "hard", 3: "all"}
+    return difficulty_map.get(selection, "all")
 
 
 def _get_theme() -> str | None:
@@ -31,66 +37,46 @@ def _get_theme() -> str | None:
     if not themes:
         return None
 
-    print("\nSelect theme:")
-    print("0. No theme (standard words)")
+    options = ["No theme (standard words)"]
     theme_list = sorted(themes.keys())
-    for idx, theme in enumerate(theme_list, 1):
-        print(f"{idx}. {theme.capitalize()}")
+    options.extend([theme.capitalize() for theme in theme_list])
 
-    choice = input(f"Enter choice (0-{len(theme_list)}) or press Enter for no theme: ").strip()
+    menu = InteractiveMenu("Select Theme", options, theme=CLI_THEME)
+    selection = menu.display()
 
-    if choice == "" or choice == "0":
+    if selection == 0:
         return None
 
-    try:
-        idx = int(choice) - 1
-        if 0 <= idx < len(theme_list):
-            return theme_list[idx]
-    except ValueError:
-        pass
-
-    return None
+    return theme_list[selection - 1] if 0 < selection <= len(theme_list) else None
 
 
 def _get_art_style() -> str:
     """Prompt user to select ASCII art style."""
-    print("\nSelect ASCII art style:")
     styles = sorted(HANGMAN_ART_STYLES.keys())
-    for idx, style in enumerate(styles, 1):
-        print(f"{idx}. {style.capitalize()}")
+    options = [style.capitalize() for style in styles]
 
-    choice = input(f"Enter choice (1-{len(styles)}) or press Enter for classic: ").strip()
+    menu = InteractiveMenu("Select ASCII Art Style", options, theme=CLI_THEME)
+    selection = menu.display()
 
-    if choice == "":
-        return "classic"
-
-    try:
-        idx = int(choice) - 1
-        if 0 <= idx < len(styles):
-            return styles[idx]
-    except ValueError:
-        pass
-
-    return "classic"
+    return styles[selection] if 0 <= selection < len(styles) else "classic"
 
 
 def _get_game_mode() -> str:
     """Prompt user to select game mode."""
-    print("\nSelect game mode:")
-    print("1. Single Player (default)")
-    print("2. Multiplayer (take turns choosing words)")
+    options = ["Single Player", "Multiplayer (take turns choosing words)"]
 
-    choice = input("Enter choice (1-2) or press Enter for single player: ").strip()
+    menu = InteractiveMenu("Select Game Mode", options, theme=CLI_THEME)
+    selection = menu.display()
 
-    if choice == "2":
-        return "multiplayer"
-    return "single"
+    return "multiplayer" if selection == 1 else "single"
 
 
 def _play_multiplayer() -> None:
     """Run multiplayer mode where players take turns."""
-    print("\n=== MULTIPLAYER MODE ===")
-    print("Players will take turns choosing words for each other to guess.\n")
+    clear_screen()
+    print(ASCIIArt.banner("MULTIPLAYER", CLI_THEME.primary, width=60))
+    print(RichText.info("Players will take turns choosing words for each other to guess.", CLI_THEME))
+    print()
 
     num_players = 2
     try:
@@ -215,9 +201,10 @@ def play(words: Iterable[str] | None = None, max_attempts: int = 6) -> None:
         return
 
     # Otherwise, show the full interactive menu
-    print("=" * 60)
-    print("WELCOME TO HANGMAN!")
-    print("=" * 60)
+    clear_screen()
+    print(ASCIIArt.banner("HANGMAN", CLI_THEME.primary, width=60))
+    print(RichText.info("Guess letters or attempt the entire word!", CLI_THEME))
+    print()
 
     mode = _get_game_mode()
 
@@ -240,9 +227,11 @@ def play(words: Iterable[str] | None = None, max_attempts: int = 6) -> None:
 
     game = HangmanGame(word_list, max_attempts=max_attempts, theme=theme_display, hints_enabled=True, art_style=art_style)
 
-    print(f"\nStarting game with {len(word_list)} possible words.")
-    print("Type 'hint' at any time to reveal a letter (3 hints available).")
-    print("Good luck!\n")
+    print()
+    print(RichText.info(f"Starting game with {len(word_list)} possible words.", CLI_THEME))
+    print(RichText.highlight("Type 'hint' at any time to reveal a letter (3 hints available).", CLI_THEME))
+    print(RichText.success("Good luck!", CLI_THEME))
+    print()
 
     _play_single_game(game)
 
@@ -259,29 +248,31 @@ def _play_single_game(game: HangmanGame) -> None:
         if guess == "hint":
             hint = game.get_hint()
             if hint:
-                print(f"Hint! The letter '{hint}' has been revealed.")
+                print(RichText.info(f"Hint! The letter '{hint}' has been revealed.", CLI_THEME))
             else:
-                print("No hints available!")
+                print(RichText.warning("No hints available!", CLI_THEME))
             continue
 
         try:
             correct = game.guess(guess)
         except ValueError as exc:
-            print(exc)
+            print(RichText.error(str(exc), CLI_THEME))
             continue
 
         if correct:
             if len(guess) == 1:
-                print("Good guess!")
+                print(RichText.success("Good guess!", CLI_THEME))
             else:
-                print("Incredible! You solved the word outright.")
+                print(RichText.success("Incredible! You solved the word outright.", CLI_THEME))
         else:
             if len(guess) == 1:
-                print("Nope, that letter isn't in the word.")
+                print(RichText.error("Nope, that letter isn't in the word.", CLI_THEME))
             else:
-                print("That's not the word. The gallows creak ominously...")
+                print(RichText.error("That's not the word. The gallows creak ominously...", CLI_THEME))
 
     if game.is_won():
-        print(f"\n✓ Congratulations! You guessed '{game.secret_word}'.")
+        print()
+        print(RichText.success(f"✓ Congratulations! You guessed '{game.secret_word}'.", CLI_THEME))
     else:
-        print(f"\n✗ Game over! The word was '{game.secret_word}'.")
+        print()
+        print(RichText.error(f"✗ Game over! The word was '{game.secret_word}'.", CLI_THEME))
