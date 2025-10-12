@@ -47,6 +47,7 @@ Workflows:
   mutation          Run mutation-testing workflow
   build             Run build-executables workflow
   codeql            Run CodeQL security analysis
+  publish           Run publish-pypi workflow (release event)
   all               List all available workflows
 
 Options:
@@ -243,12 +244,16 @@ ACT_CMD="act"
 # Add event type (default to push for most workflows)
 if [ -z "$EVENT_FILE" ]; then
     # Determine event type from workflow
-    if grep -q "workflow_dispatch:" "$WORKFLOW_PATH"; then
-        ACT_CMD="$ACT_CMD workflow_dispatch"
-    elif grep -q "schedule:" "$WORKFLOW_PATH"; then
+    # Check release first as it's typically the primary production trigger
+    # Use more specific pattern to match event triggers in the 'on:' section
+    if grep -E "^  release:" "$WORKFLOW_PATH" > /dev/null 2>&1; then
+        ACT_CMD="$ACT_CMD release"
+    elif grep -E "^  schedule:" "$WORKFLOW_PATH" > /dev/null 2>&1; then
         ACT_CMD="$ACT_CMD schedule"
-    elif grep -q "pull_request:" "$WORKFLOW_PATH"; then
+    elif grep -E "^  pull_request:" "$WORKFLOW_PATH" > /dev/null 2>&1; then
         ACT_CMD="$ACT_CMD pull_request"
+    elif grep -E "^  workflow_dispatch:" "$WORKFLOW_PATH" > /dev/null 2>&1; then
+        ACT_CMD="$ACT_CMD workflow_dispatch"
     else
         ACT_CMD="$ACT_CMD push"
     fi
