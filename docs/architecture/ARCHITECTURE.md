@@ -393,3 +393,135 @@ When adding new games:
 1. Include comprehensive tests
 
 See `CONTRIBUTING.md` for detailed guidelines.
+
+______________________________________________________________________
+
+## Architecture System Overview
+
+### Component Structure
+
+```
+📦 common/architecture/          Core Architecture Components
+├── 🎮 engine.py                 Game Engine Abstraction Layer
+│   ├── GameEngine (ABC)         - Base class for all games
+│   ├── GameState                - State container
+│   └── GamePhase (Enum)         - Standard game phases
+│
+├── 📡 events.py                  Event-Driven Architecture
+│   ├── Event                    - Event data structure
+│   ├── EventBus                 - Central event dispatcher
+│   ├── EventHandler (ABC)       - Handler interface
+│   └── FunctionEventHandler     - Function wrapper
+│
+├── 👁️ observer.py                Observer Pattern
+│   ├── Observer (ABC)           - Observer interface
+│   ├── Observable               - Base observable class
+│   └── PropertyObservable       - Property-specific observation
+│
+├── 💾 persistence.py             Save/Load System
+│   ├── GameStateSerializer      - Serializer interface
+│   ├── JSONSerializer           - JSON format
+│   ├── PickleSerializer         - Binary format
+│   └── SaveLoadManager          - High-level API
+│
+├── 🔌 plugin.py                  Plugin System
+│   ├── GamePlugin (ABC)         - Plugin interface
+│   ├── PluginMetadata           - Plugin information
+│   └── PluginManager            - Plugin lifecycle
+│
+├── 🎬 replay.py                  Replay/Undo System
+│   ├── ReplayAction             - Action record
+│   ├── ReplayRecorder           - Records actions
+│   └── ReplayManager            - Undo/redo management
+│
+└── ⚙️ settings.py                Unified Settings
+    ├── Settings                 - Settings container
+    └── SettingsManager          - Persistence manager
+```
+
+### Component Integration Flow
+
+```
+┌─────────────┐
+│   Plugin    │ ← Loads third-party games
+│   Manager   │
+└──────┬──────┘
+       │ creates
+       ↓
+┌─────────────┐     emits      ┌─────────────┐
+│    Game     │ ─────────────→ │    Event    │
+│   Engine    │                │     Bus     │
+└──────┬──────┘                └──────┬──────┘
+       │                              │ notifies
+       │ notifies                     ↓
+       ↓                        ┌─────────────┐
+┌─────────────┐                │   Event     │
+│  Observers  │                │  Handlers   │
+└─────────────┘                └─────────────┘
+
+       ↓ saves state
+┌─────────────┐
+│  Save/Load  │
+│   Manager   │
+└─────────────┘
+
+       ↓ records actions
+┌─────────────┐
+│   Replay    │
+│   Manager   │
+└─────────────┘
+
+       ↓ loads config
+┌─────────────┐
+│  Settings   │
+│   Manager   │
+└─────────────┘
+```
+
+### Key Features
+
+✅ **Plugin System**
+- Dynamic loading
+- Metadata management
+- Safe unloading
+
+✅ **Event System**
+- Publish/subscribe
+- Event history
+- Filtering
+
+✅ **Observer Pattern**
+- Multi-observer support
+- Property observation
+- Context passing
+
+✅ **Persistence**
+- JSON/Pickle formats
+- Metadata tracking
+- Save management
+
+✅ **Replay System**
+- Action recording
+- Undo/redo
+- State snapshots
+
+✅ **Settings**
+- Per-game config
+- Global settings
+- Persistence
+
+✅ **Game Engine**
+- Abstract interface
+- State management
+- Event integration
+
+### Test Coverage
+
+41/41 tests passing ✅
+
+### Related Files
+
+- **Plugin Directory**: `plugins/` - Plugin development and examples
+- **Examples**: `examples/` - Usage demonstrations
+- **Tests**: `tests/test_architecture.py`, `tests/test_plugin_system.py`
+- **Documentation**: This file and individual component docstrings

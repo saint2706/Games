@@ -1,14 +1,63 @@
 # Documentation
 
-This directory contains the Sphinx documentation for the Card & Paper Games project.
+This directory contains comprehensive documentation for the Card & Paper Games project, including Sphinx documentation, architecture guides, development resources, and planning documents.
 
 ## Quick Start
 
-Welcome to the Games documentation! This guide will help you navigate the comprehensive documentation.
+Welcome to the Games documentation! This guide will help you navigate all available resources.
 
-### 📚 What's Available
+### 📚 Documentation Overview
 
-#### For Players and Users
+#### 📖 Game Catalog
+
+- **[GAMES.md](../GAMES.md)** - Complete catalog of all 21 available games with features and usage
+
+#### 📐 Architecture & Design
+
+- **[architecture/ARCHITECTURE.md](architecture/ARCHITECTURE.md)** - Comprehensive architecture guide
+  - Plugin system for third-party games
+  - Event-driven architecture patterns
+  - Save/load system
+  - Unified settings management
+  - Replay/undo functionality
+  - Observer pattern for GUI synchronization
+  - Game engine abstraction
+
+#### 💻 Development Resources
+
+- **[development/CODE_QUALITY.md](development/CODE_QUALITY.md)** - Code quality standards
+  - Pre-commit hooks configuration
+  - Linting and formatting (Black, Ruff)
+  - Type checking (mypy)
+  - Complexity analysis
+  - Best practices
+
+- **[development/TESTING.md](development/TESTING.md)** - Testing guide
+  - Running tests (pytest)
+  - Coverage requirements (90%+)
+  - Writing tests
+  - GUI testing
+  - Performance benchmarking
+  - Mutation testing
+
+- **[development/IMPLEMENTATION_NOTES.md](development/IMPLEMENTATION_NOTES.md)** - Implementation details
+  - Code quality improvements
+  - Documentation system
+  - Testing infrastructure
+  - Architecture system
+  - CLI enhancements
+  - Five new card games implementation
+
+#### 🗺️ Planning & Roadmap
+
+- **[planning/TODO.md](planning/TODO.md)** - Future plans and roadmap
+  - Planned new games
+  - Feature enhancements
+  - Technical improvements
+
+#### 📘 Sphinx Documentation (source/)
+
+**For Players:**
 
 1. **[Tutorial Series](source/tutorials/index.rst)** - Learn how to play each game
    - 🎮 [Poker Tutorial](source/tutorials/poker_tutorial.rst) - Texas Hold'em and Omaha
@@ -17,34 +66,38 @@ Welcome to the Games documentation! This guide will help you navigate the compre
    - 🎴 [Uno Tutorial](source/tutorials/uno_tutorial.rst) - Classic card game
    - ✏️ [Paper Games Tutorial](source/tutorials/paper_games_tutorial.rst) - Tic-Tac-Toe, Battleship, and more
 
-#### For Developers
+**For Developers:**
 
-2. **[Architecture Documentation](source/architecture/index.rst)** - Understand how games are built
-
+2. **[Architecture Documentation](source/architecture/index.rst)** - Detailed design documentation
    - 🏗️ [Architecture Overview](source/architecture/index.rst) - Design patterns and principles
    - ♠️ [Poker Architecture](source/architecture/poker_architecture.rst) - Deep dive with diagrams
    - 🎭 [Bluff Architecture](source/architecture/bluff_architecture.rst) - Game mechanics and AI
-   - 🤖 [AI Strategies](source/architecture/ai_strategies.rst) - Algorithms explained (Minimax, Monte Carlo, etc.)
+   - 🤖 [AI Strategies](source/architecture/ai_strategies.rst) - Algorithms explained
 
-1. **[Code Examples](source/examples/index.rst)** - Learn by doing
-
+3. **[Code Examples](source/examples/index.rst)** - Learn by doing
    - 30+ practical code examples
    - Common patterns and best practices
    - Custom game creation
    - AI integration
 
-1. **[API Reference](source/api/)** - Complete module documentation
-
+4. **[API Reference](source/api/)** - Complete module documentation
    - [Card Games API](source/api/card_games.rst)
    - [Paper Games API](source/api/paper_games.rst)
 
-#### For Contributors
+#### 📚 Specialized Guides
 
-5. **[Contributing Guidelines](../CONTRIBUTING.md)** - Join the project
-   - Code style guide
-   - How to add new games
-   - Testing requirements
-   - Pull request process
+- **[ANALYTICS_INTEGRATION_GUIDE.md](ANALYTICS_INTEGRATION_GUIDE.md)** - Game analytics and statistics
+- **[CLI_UTILS.md](CLI_UTILS.md)** - Enhanced CLI utilities
+- **[EDUCATIONAL_FEATURES.md](EDUCATIONAL_FEATURES.md)** - Educational mode integration
+- **[EDUCATIONAL_QUICKSTART.md](EDUCATIONAL_QUICKSTART.md)** - Quick start for educators
+
+#### 🤝 Contributing
+
+- **[../CONTRIBUTING.md](../CONTRIBUTING.md)** - Join the project
+  - Code style guide
+  - How to add new games
+  - Testing requirements
+  - Pull request process
 
 ## Building the Documentation
 
@@ -88,29 +141,42 @@ make clean
 
 ```
 docs/
-├── source/
-│   ├── index.rst              # Main documentation index
-│   ├── conf.py                # Sphinx configuration
-│   ├── tutorials/             # Getting started guides
+├── architecture/                        # Architecture documentation
+│   └── ARCHITECTURE.md                  # Comprehensive architecture guide
+├── development/                         # Development resources
+│   ├── CODE_QUALITY.md                 # Code quality standards and tools
+│   ├── TESTING.md                      # Testing guide and best practices
+│   └── IMPLEMENTATION_NOTES.md         # Detailed implementation notes
+├── planning/                           # Planning and roadmap
+│   └── TODO.md                         # Future plans and features
+├── source/                             # Sphinx documentation
+│   ├── index.rst                       # Main documentation index
+│   ├── conf.py                         # Sphinx configuration
+│   ├── tutorials/                      # Getting started guides
+│   │   ├── index.rst
 │   │   ├── poker_tutorial.rst
 │   │   ├── bluff_tutorial.rst
 │   │   ├── blackjack_tutorial.rst
 │   │   ├── uno_tutorial.rst
 │   │   └── paper_games_tutorial.rst
-│   ├── architecture/          # Design and architecture docs
+│   ├── architecture/                   # Sphinx architecture docs
 │   │   ├── index.rst
 │   │   ├── poker_architecture.rst
 │   │   ├── bluff_architecture.rst
 │   │   └── ai_strategies.rst
-│   ├── examples/              # Code examples
+│   ├── examples/                       # Code examples
 │   │   └── index.rst
-│   ├── api/                   # API reference (auto-generated)
+│   ├── api/                           # API reference (auto-generated)
 │   │   ├── card_games.rst
 │   │   └── paper_games.rst
-│   └── contributing.rst       # Contribution guidelines
-├── Makefile                   # Build automation (Unix)
-├── make.bat                   # Build automation (Windows)
-└── README.md                  # This file
+│   └── contributing.rst               # Contribution guidelines
+├── ANALYTICS_INTEGRATION_GUIDE.md      # Analytics integration guide
+├── CLI_UTILS.md                        # CLI utilities guide
+├── EDUCATIONAL_FEATURES.md             # Educational features
+├── EDUCATIONAL_QUICKSTART.md           # Quick start for educators
+├── Makefile                            # Build automation (Unix)
+├── make.bat                            # Build automation (Windows)
+└── README.md                           # This file
 ```
 
 ## Writing Documentation
