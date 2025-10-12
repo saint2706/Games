@@ -476,6 +476,10 @@ class WarGUI(BaseGUI):
     def _auto_step(self) -> None:
         """Play a round as part of the auto-play loop."""
 
+        # Clear the stored job token now that the scheduled callback is executing. This ensures that
+        # attempts to stop the auto-loop while this callback runs do not try to cancel a job Tkinter
+        # already executed.
+        self._auto_job = None
         self._play_round()
         if not self.game.is_game_over() and self._auto_running:
             self._schedule_next_round()
@@ -486,8 +490,13 @@ class WarGUI(BaseGUI):
         """Stop the auto-play loop if it is active."""
 
         if self._auto_job is not None:
-            self.root.after_cancel(self._auto_job)
-            self._auto_job = None
+            try:
+                self.root.after_cancel(self._auto_job)
+            except tk.TclError:
+                # The job may have already executed, so treat cancellation failure as benign.
+                pass
+            finally:
+                self._auto_job = None
         self._auto_running = False
         self.auto_button_text.set("Start Auto Play")
         self.play_button.configure(state=tk.NORMAL if not self.game.is_game_over() else tk.DISABLED)
