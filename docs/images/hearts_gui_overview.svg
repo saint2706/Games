@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+  <style>
+    .title { font: bold 28px 'Segoe UI', sans-serif; fill: #102542; }
+    .subtitle { font: 18px 'Segoe UI', sans-serif; fill: #394a6d; }
+    .label { font: 16px 'Segoe UI', sans-serif; fill: #102542; }
+    .annotation { font: italic 14px 'Segoe UI', sans-serif; fill: #394a6d; }
+    .panel { fill: #f3f5f9; stroke: #102542; stroke-width: 2; }
+    .arrow { stroke: #c14953; stroke-width: 2; marker-end: url(#arrowhead); }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c14953" />
+    </marker>
+  </defs>
+  <rect width="900" height="600" fill="#ffffff" rx="12" ry="12" />
+  <text x="40" y="60" class="title">Hearts GUI Overview</text>
+  <text x="40" y="100" class="subtitle">Four-seat layout, passing controls, and live scoring.</text>
+  <rect x="60" y="140" width="360" height="400" class="panel" rx="12" ry="12" />
+  <text x="80" y="180" class="label">Table layout</text>
+  <text x="80" y="210" class="annotation">• Human sits in the south seat</text>
+  <text x="80" y="235" class="annotation">• Trick display highlights hearts-broken status</text>
+  <text x="80" y="260" class="annotation">• AI turns resolve automatically</text>
+  <rect x="460" y="140" width="360" height="180" class="panel" rx="12" ry="12" />
+  <text x="480" y="180" class="label">Passing phase panel</text>
+  <text x="480" y="210" class="annotation">Select exactly three cards with toggle buttons.</text>
+  <text x="480" y="235" class="annotation">The confirm button activates when three cards are chosen.</text>
+  <rect x="460" y="340" width="360" height="200" class="panel" rx="12" ry="12" />
+  <text x="480" y="380" class="label">Score &amp; accessibility summary</text>
+  <text x="480" y="410" class="annotation">• Live scores and penalty card count per player</text>
+  <text x="480" y="435" class="annotation">• Keyboard shortcuts listed in the status bar</text>
+  <text x="480" y="460" class="annotation">• High contrast mode available via CLI flags</text>
+  <line x1="420" y1="220" x2="460" y2="220" class="arrow" />
+  <line x1="420" y1="380" x2="460" y2="380" class="arrow" />
+</svg>
