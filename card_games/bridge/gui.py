@@ -476,13 +476,25 @@ class BridgeGUI(BaseGUI):
 
 def run_app() -> None:
     """Launch the Bridge GUI application."""
-    if not TKINTER_AVAILABLE:
+
+    def _fallback_to_cli(message: str) -> None:
         from card_games.bridge.cli import game_loop
 
-        print("Tkinter is unavailable. Falling back to CLI interface.")
+        print(message)
         game_loop()
+
+    if not TKINTER_AVAILABLE:
+        _fallback_to_cli("Tkinter is unavailable. Falling back to CLI interface.")
         return
-    root = tk.Tk()
+
+    try:
+        root = tk.Tk()
+    except tk.TclError:
+        _fallback_to_cli(
+            "Tkinter could not open a display. Falling back to CLI interface."
+        )
+        return
+
     config = GUIConfig(
         window_title="Contract Bridge",
         window_width=1100,
