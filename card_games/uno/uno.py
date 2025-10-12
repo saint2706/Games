@@ -243,10 +243,9 @@ class HouseRules:
 
     Attributes:
         stacking: Allow stacking +2 and +4 cards to increase penalty.
-        jump_in: Allow players to play identical cards out of turn.
-                 TODO: Jump-in logic not yet implemented in game flow.
-                 This requires checking all players after each card play and
-                 allowing them to interrupt the turn order with identical cards.
+        jump_in: Allow players to play identical cards (same color AND value) out of turn,
+                 interrupting the normal turn order. Players are checked clockwise from
+                 the current player, and the first to accept jumps in.
         seven_zero_swap: Playing 7 swaps hands with another player, playing 0 rotates all hands.
     """
 
@@ -294,6 +293,7 @@ class UnoInterface(Protocol):
     def render_card(self, card: UnoCard, *, emphasize: bool = False) -> str: ...
     def render_color(self, color: str) -> str: ...
     def play_sound(self, sound_type: str) -> None: ...  # Hook for sound effects
+    def prompt_jump_in(self, player: UnoPlayer, card: UnoCard) -> bool: ...  # Ask if player wants to jump in
 
 
 class ConsoleUnoInterface(UnoInterface):
@@ -423,6 +423,20 @@ class ConsoleUnoInterface(UnoInterface):
     def play_sound(self, sound_type: str) -> None:
         """Play a sound effect (no-op for console interface)."""
         pass  # Console doesn't play sounds
+
+    def prompt_jump_in(self, player: UnoPlayer, card: UnoCard) -> bool:
+        """Ask if player wants to jump in with an identical card.
+
+        Args:
+            player: The player being asked.
+            card: The card that was just played.
+
+        Returns:
+            True if player wants to jump in, False otherwise.
+        """
+        print(format_highlight(f"\n{player.name}, someone played {self.render_card(card)}!", Fore.MAGENTA, style=Style.BRIGHT))
+        response = input("Do you want to JUMP IN with an identical card? (y/n): ").strip().lower()
+        return response in ("y", "yes")
 
 
 class UnoGame:
@@ -685,6 +699,85 @@ class UnoGame:
                 player.pending_uno = len(player.hand) == 1
             self._log("All hands rotate counter-clockwise!", Fore.MAGENTA, style=Style.BRIGHT)
 
+    def _check_jump_in(self, played_card: UnoCard, current_player: UnoPlayer) -> Optional[tuple[UnoPlayer, int]]:
+        """Check if any other player wants to jump in with an identical card.
+
+        Jump-in rule: Players can play an identical card (same color AND value)
+        out of turn, interrupting the normal turn order.
+
+        Args:
+            played_card: The card that was just played.
+            current_player: The player who just played the card.
+
+        Returns:
+            Tuple of (player, card_index) who jumps in, or None if no one jumps in.
+        """
+        if played_card.is_wild():
+            # Cannot jump in on wild cards (no fixed color)
+            return None
+
+        # Check players in clockwise order from current player
+        # This ensures fairness - closest player gets priority
+        start_idx = (self.players.index(current_player) + 1) % len(self.players)
+        for offset in range(len(self.players) - 1):
+            check_idx = (start_idx + offset) % len(self.players)
+            player = self.players[check_idx]
+
+            if player == current_player:
+                continue
+
+            # Check if player has an identical card
+            identical_cards = [i for i, card in enumerate(player.hand) if card.color == played_card.color and card.value == played_card.value]
+
+            if not identical_cards:
+                continue
+
+            # Human player: ask if they want to jump in
+            if player.is_human:
+                if self.interface.prompt_jump_in(player, played_card):
+                    # Use first identical card
+                    return (player, identical_cards[0])
+            else:
+                # Bot decision: jump in based on personality
+                if self._bot_should_jump_in(player, played_card, identical_cards):
+                    # Use first identical card
+                    return (player, identical_cards[0])
+
+        return None
+
+    def _bot_should_jump_in(self, bot: UnoPlayer, played_card: UnoCard, identical_card_indices: List[int]) -> bool:
+        """Determine if a bot should jump in with an identical card.
+
+        Args:
+            bot: The bot player.
+            played_card: The card that was just played.
+            identical_card_indices: Indices of identical cards in bot's hand.
+
+        Returns:
+            True if the bot should jump in, False otherwise.
+        """
+        if not identical_card_indices:
+            return False
+
+        # More likely to jump in if they have few cards or it's an action card
+        hand_size = len(bot.hand)
+        is_action = played_card.is_action()
+
+        # Personality-based probability
+        base_prob = {"aggressive": 0.7, "balanced": 0.5, "easy": 0.3}.get(bot.personality, 0.5)
+
+        # Adjust for hand size (more likely with fewer cards)
+        if hand_size <= 3:
+            base_prob += 0.2
+        elif hand_size <= 5:
+            base_prob += 0.1
+
+        # Adjust for action cards (more likely to jump in on action cards)
+        if is_action:
+            base_prob += 0.15
+
+        return self.rng.random() < min(0.95, base_prob)
+
     def _execute_play(
         self,
         player: UnoPlayer,
@@ -727,6 +820,18 @@ class UnoGame:
             self.interface.play_sound("wild")
         else:
             self.interface.play_sound("card_play")
+
+        # Handle jump-in rule: check if another player can play an identical card
+        if self.house_rules.jump_in and not card.is_wild():
+            jump_in_result = self._check_jump_in(card, player)
+            if jump_in_result:
+                jump_in_player, jump_in_card_idx = jump_in_result
+                self._log(f"{jump_in_player.name} jumps in!", Fore.MAGENTA, style=Style.BRIGHT)
+                self.interface.play_sound("jump_in")
+                # Set current player to jump-in player so they take the next turn
+                self.current_index = self.players.index(jump_in_player)
+                # Play their card immediately (recursive call to execute_play)
+                return self._execute_play(jump_in_player, jump_in_card_idx, declare_uno=len(jump_in_player.hand) == 2)
 
         # Handle 7-0 swapping house rule
         if self.house_rules.seven_zero_swap and card.value in ("7", "0"):

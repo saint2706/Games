@@ -20,23 +20,32 @@ Enable with: `--stacking` flag
 
 **Implementation**: See `_execute_play()` and `_accept_penalty()` methods in `uno.py`
 
-#### ⚠️ Jump-In
+#### ✅ Jump-In
 
-**Status**: Partially Implemented (Flag exists, logic not implemented)
+**Status**: Fully Implemented
 
 The jump-in rule allows players to play a card that is identical (same color AND value) to the card just played, even if
 it's not their turn. This interrupts the normal turn order.
 
-Enable with: `--jump-in` flag (currently has no effect)
+Enable with: `--jump-in` flag
 
-**TODO**: Implement the jump-in logic in the game flow. This requires:
+**How it works**:
 
-1. Checking all players after each card is played
-1. Prompting players (or checking bots) if they have an identical card
-1. Handling turn order interruption
-1. Managing multiple simultaneous jump-in attempts
+1. After each non-wild card is played, the game checks all other players clockwise from the current player
+1. Human players are prompted if they want to jump in with an identical card
+1. Bot players decide probabilistically based on their personality, hand size, and whether it's an action card
+1. The first player (in clockwise order) to accept jumps in and plays their identical card
+1. Turn order is interrupted - the jump-in player becomes the current player
 
-This is marked as a future enhancement due to the complexity of the implementation.
+**Bot behavior**:
+
+- Aggressive bots: 70% base probability to jump in
+- Balanced bots: 50% base probability to jump in
+- Easy bots: 30% base probability to jump in
+- Probability increases with fewer cards in hand
+- Probability increases for action cards (skip, reverse, +2)
+
+**Implementation**: See `_check_jump_in()` and `_bot_should_jump_in()` methods in `uno.py`
 
 #### ✅ 7-0 Swapping
 

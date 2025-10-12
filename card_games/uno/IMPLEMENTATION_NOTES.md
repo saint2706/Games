@@ -28,18 +28,24 @@ This document provides technical implementation notes for the Uno game features 
 - **Testing**: Verified with `test_uno_features.py`
 - **Usage**: `--seven-zero` flag
 
-#### Jump-In (Not Implemented)
+#### ✅ Jump-In (Fully Implemented)
 
-- **Status**: Flag exists, game logic not implemented
-- **Implementation**: Command-line argument parsing exists
-- **Reason**: Requires significant changes to turn flow:
-  1. After each card play, need to check all other players
-  1. Prompt each player if they have an identical card
-  1. Handle simultaneous jump-in attempts
-  1. Manage turn order interruption
-  1. Update both console and GUI interfaces
-- **TODO**: Marked with comment in `HouseRules` dataclass
-- **Future Work**: Would require refactoring the main game loop in `play()` method
+- **Status**: Complete and tested
+- **Implementation**:
+  - Command-line argument: `--jump-in` flag
+  - Core logic: `_check_jump_in()` method checks players clockwise for identical cards
+  - Bot decision: `_bot_should_jump_in()` method with personality-based probability
+  - Interface methods: `prompt_jump_in()` in both CLI and GUI
+  - Integration: Called from `_execute_play()` after each non-wild card is played
+- **Testing**: Comprehensive tests in `tests/test_uno_jump_in.py` (14 tests)
+- **Bot Behavior**:
+  - Base probabilities: aggressive (70%), balanced (50%), easy (30%)
+  - Adjustments: +20% for ≤3 cards, +10% for ≤5 cards, +15% for action cards
+  - Priority: Clockwise from current player
+- **Files Modified**:
+  - `uno.py`: Added `_check_jump_in()`, `_bot_should_jump_in()`, interface method
+  - `gui.py`: Added `prompt_jump_in()` with messagebox
+  - Updated `HouseRules` docstring to remove TODO
 
 ### ✅ 2v2 Team Play Mode (Fully Implemented)
 
@@ -213,59 +219,73 @@ All tests pass successfully as of this implementation.
 ### Modified Files
 
 1. `card_games/uno/__init__.py`
+
    - Conditional GUI import
    - Prevents tkinter dependency issues
 
 1. `card_games/uno/uno.py`
+
    - Added TODO comment for jump-in rule
    - No functional changes
 
 1. `card_games/uno/gui.py`
+
    - Integrated SoundManager
    - Enhanced `_animate_card_play()` method
    - Updated `play_sound()` implementation
 
 1. `.gitignore`
+
    - Added sound file patterns to ignore user-added sounds
 
 ### New Files
 
 1. `card_games/uno/sound_manager.py`
+
    - Complete sound effect system
    - Pygame integration with fallback
 
 1. `card_games/uno/sounds/README.md`
+
    - User guide for adding sound files
    - Sound resources and format specifications
 
 1. `card_games/uno/sounds/.gitkeep`
+
    - Ensures sounds directory is tracked
 
 1. `card_games/uno/FEATURES.md`
+
    - Comprehensive feature documentation
    - Usage examples and implementation status
 
 1. `card_games/uno/IMPLEMENTATION_NOTES.md`
+
    - This file - technical implementation details
 
 1. `tests/test_uno_features.py`
+
    - Complete test suite for implemented features
 
 ## Known Limitations
 
 1. **Jump-In Rule**: Flag exists but no implementation
+
    - Would require major refactoring of turn flow
    - Marked for future implementation
 
 1. **Sound Files**: Not included in repository
+
    - Users must provide their own sound files
    - See `sounds/README.md` for guidance
 
 1. **Team Mode**: Only supports 4-player games
+
    - Could be extended to support other even numbers
    - Currently enforced in `build_players()`
 
 1. **Animations**: Basic implementation
+
    - Could be enhanced with more sophisticated effects
    - Currently limited to highlight/pulse
 

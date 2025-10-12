@@ -124,21 +124,21 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [ ] Apply event-driven architecture to remaining games for better state management
 - [ ] Integrate CLI enhancements (ASCII art, rich text, menus) into all CLI interfaces
 - [x] **Universal statistics system for card games** ✅ **NEW** - `card_games/common/stats.py` wrapper created and
-      integrated into War game
+  integrated into War game
 
-### Uno (Partial Implementation)
+### Uno (Full Implementation)
 
-- [x] House rules options (stacking, 7-0 swapping implemented; jump-in flag exists but not functional)
+- [x] House rules options (stacking, 7-0 swapping, jump-in all fully implemented)
 - [x] 2v2 team play mode
 - [x] Card animation effects and sound infrastructure in GUI
-- [ ] Complete jump-in rule implementation
+- [x] **Complete jump-in rule implementation** ✅ **NEW**
 - [ ] Add online multiplayer capability
 - [ ] Create custom deck designer
 
 ### Cross-Game Features
 
 - [x] **Implement universal statistics tracking system** ✅ **PARTIAL** - Created `card_games/common/stats.py` wrapper,
-      integrated into War game as example
+  integrated into War game as example
 - [ ] Add achievement system across all games
 - [ ] Create unified profile and progression system
 - [ ] Implement cross-game tutorial system using existing documentation
@@ -292,7 +292,7 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [ ] Organize coding competitions and game jams
 - [ ] Establish code review and mentorship program
 
----
+______________________________________________________________________
 
 ## Priority Legend
 
@@ -308,9 +308,9 @@ This section provides a timeline-based view of planned development, organizing t
 
 **Focus**: Complete existing features, improve quality, and establish deployment infrastructure
 
-- [ ] Complete jump-in rule for Uno
-- [ ] Add achievement system framework (cross-game)
-- [ ] Implement unified profile and progression system
+- [x] **Complete jump-in rule for Uno** ✅ **COMPLETE**
+- [x] **Add achievement system framework (cross-game)** ✅ **COMPLETE**
+- [x] **Implement unified profile and progression system** ✅ **COMPLETE**
 - [ ] Complete medium-priority card games (Cribbage, Euchre, Rummy 500)
 - [ ] Create standalone executables (PyInstaller/Nuitka)
 - [ ] Publish initial release to PyPI
@@ -320,6 +320,8 @@ This section provides a timeline-based view of planned development, organizing t
 - [ ] Implement crash reporting and error analytics
 
 **Deliverables**: PyPI package v1.0, Standalone executables, 3 new card games, Achievement system
+
+**Status**: 3/10 items complete (30%)
 
 ### 2026 Q1 (Jan-Mar 2026) - Enhanced GUI & User Experience
 
@@ -494,7 +496,7 @@ By end of 2027, target achievements:
 - **10+** third-party integrations
 - **Active community** with regular contributions and events
 
----
+______________________________________________________________________
 
 ## Notes
 
