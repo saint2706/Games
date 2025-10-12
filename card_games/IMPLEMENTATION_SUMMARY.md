@@ -36,7 +36,7 @@ python -m card_games.war --leaderboard
 - `__main__.py` - Entry point with argument parsing
 - `README.md` - Documentation
 
----
+______________________________________________________________________
 
 ### 2. Go Fish (Set Collection Game)
 
@@ -72,7 +72,7 @@ python -m card_games.go_fish --seed 42
 - `__main__.py` - Entry point
 - `README.md` - Documentation
 
----
+______________________________________________________________________
 
 ### 3. Crazy Eights (Shedding Game)
 
@@ -110,7 +110,7 @@ python -m card_games.crazy_eights --seed 42
 - `__main__.py` - Entry point
 - `README.md` - Documentation
 
----
+______________________________________________________________________
 
 ## New Cross-Game Features
 
@@ -169,37 +169,41 @@ python -m card_games.war --show-stats --player "Player 1"
 - Provides competitive element with leaderboards
 - Easy to integrate into existing and future card games
 
----
+______________________________________________________________________
 
 ## Architecture Patterns Followed
 
 All implemented games follow the repository's established architecture:
 
 1. **Separation of Concerns**:
+
    - `game.py` - Pure game logic, no UI dependencies
    - `cli.py` - Command-line interface
    - `__main__.py` - Entry point with argument parsing
    - `README.md` - Documentation
 
-2. **Code Quality**:
+1. **Code Quality**:
+
    - Type hints on all functions
    - Google-style docstrings
    - Black formatting (160 char line length)
    - Ruff linting compliance
    - Complexity kept under control
 
-3. **Testing-Friendly**:
+1. **Testing-Friendly**:
+
    - Deterministic gameplay with seed support
    - Pure functions for game logic
    - Easy to unit test
 
-4. **Consistent CLI Patterns**:
+1. **Consistent CLI Patterns**:
+
    - `--seed` for reproducible games
    - `--players` for multiplayer configuration
    - `--names` for custom player names
    - `--help` for usage information
 
----
+______________________________________________________________________
 
 ## Testing
 
@@ -223,19 +227,19 @@ python -m card_games.go_fish --players 4 --seed 123
 python -m card_games.crazy_eights --players 3 --draw-limit 0 --seed 456
 ```
 
----
+______________________________________________________________________
 
 ## Lines of Code Summary
 
-| Component          | Lines      |
+| Component | Lines |
 | ------------------ | ---------- |
-| War game           | ~230       |
-| Go Fish game       | ~320       |
-| Crazy Eights game  | ~315       |
-| Statistics wrapper | ~230       |
-| **Total**          | **~1,095** |
+| War game | ~230 |
+| Go Fish game | ~320 |
+| Crazy Eights game | ~315 |
+| Statistics wrapper | ~230 |
+| **Total** | **~1,095** |
 
----
+______________________________________________________________________
 
 ## Future Work
 
@@ -263,7 +267,7 @@ python -m card_games.crazy_eights --players 3 --draw-limit 0 --seed 456
 - Achievement system
 - Profile/progression system
 
----
+______________________________________________________________________
 
 ## Integration Guide for Future Games
 
@@ -306,7 +310,7 @@ if args.leaderboard:
     stats.display_leaderboard()
 ```
 
----
+______________________________________________________________________
 
 ## Conclusion
 

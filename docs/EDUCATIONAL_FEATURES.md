@@ -242,6 +242,7 @@ Comprehensive strategy documentation is available in the `docs/source/guides/` d
 ### Available Guides
 
 1. **Poker Strategy** (`docs/source/guides/poker_strategy.rst`)
+
    - Pre-flop hand selection
    - Position strategy
    - Pot odds and EV
@@ -249,6 +250,7 @@ Comprehensive strategy documentation is available in the `docs/source/guides/` d
    - Common mistakes
 
 1. **Blackjack Strategy** (`docs/source/guides/blackjack_strategy.rst`)
+
    - Complete basic strategy
    - Card counting (Hi-Lo system)
    - Bankroll management
@@ -256,6 +258,7 @@ Comprehensive strategy documentation is available in the `docs/source/guides/` d
    - Practice drills
 
 1. **Game Theory** (`docs/source/guides/game_theory.rst`)
+
    - Minimax algorithm with code examples
    - Monte Carlo simulation
    - Nim-sum (XOR strategy)

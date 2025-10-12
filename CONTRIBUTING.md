@@ -585,6 +585,7 @@ make html
    ```
 
 1. **Open PR**: Open Pull Request on GitHub
+
    - Use clear title following commit conventions
    - Describe changes comprehensively
    - Reference related issues

@@ -80,16 +80,16 @@ pytest
 
 ### Quick Reference
 
-| Command                       | What It Does            |
+| Command | What It Does |
 | ----------------------------- | ----------------------- |
-| `pytest`                      | Run all tests           |
-| `pytest -v`                   | Verbose output          |
-| `pytest -m integration`       | Run integration tests   |
-| `pytest -k "test_name"`       | Run tests matching name |
-| `pytest --cov`                | Run with coverage       |
-| `pytest -x`                   | Stop on first failure   |
-| `pytest --pdb`                | Debug on failure        |
-| `./scripts/run_tests.sh help` | Show script options     |
+| `pytest` | Run all tests |
+| `pytest -v` | Verbose output |
+| `pytest -m integration` | Run integration tests |
+| `pytest -k "test_name"` | Run tests matching name |
+| `pytest --cov` | Run with coverage |
+| `pytest -x` | Stop on first failure |
+| `pytest --pdb` | Debug on failure |
+| `./scripts/run_tests.sh help` | Show script options |
 
 ## Overview
 
@@ -408,14 +408,14 @@ pytest -m "not performance" --cov=paper_games --cov=card_games --cov-report=term
 
 ### Target Coverage by Module
 
-| Module Type     | Target | Priority |
+| Module Type | Target | Priority |
 | --------------- | ------ | -------- |
-| Core game logic | 95%+   | High     |
-| AI algorithms   | 90%+   | High     |
-| Statistics      | 90%+   | Medium   |
-| CLI interfaces  | 80%+   | Medium   |
-| GUI components  | 60%+   | Low      |
-| Demo scripts    | 30%+   | Low      |
+| Core game logic | 95%+ | High |
+| AI algorithms | 90%+ | High |
+| Statistics | 90%+ | Medium |
+| CLI interfaces | 80%+ | Medium |
+| GUI components | 60%+ | Low |
+| Demo scripts | 30%+ | Low |
 
 ## Troubleshooting
 

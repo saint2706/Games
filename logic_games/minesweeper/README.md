@@ -12,11 +12,11 @@ Reveal all non-mine cells without detonating any mines.
 ### Gameplay
 
 1. Click a cell to reveal it
-2. Numbers indicate how many mines are in adjacent cells (including diagonals)
-3. Use flags to mark suspected mine locations
-4. Revealing a cell with 0 adjacent mines will cascade reveal neighbors
-5. Game is won when all non-mine cells are revealed
-6. Game is lost if you reveal a mine
+1. Numbers indicate how many mines are in adjacent cells (including diagonals)
+1. Use flags to mark suspected mine locations
+1. Revealing a cell with 0 adjacent mines will cascade reveal neighbors
+1. Game is won when all non-mine cells are revealed
+1. Game is lost if you reveal a mine
 
 ### Difficulty Levels
 

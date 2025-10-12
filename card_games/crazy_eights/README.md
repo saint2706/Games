@@ -7,12 +7,12 @@ A classic shedding card game similar to Uno but using a standard deck.
 Crazy Eights is a shedding game where players try to get rid of all their cards:
 
 1. **Setup**: Each player gets 5 cards (2 players) or 7 cards (3+ players)
-2. **Gameplay**: Play a card matching the active card's rank OR suit
-3. **Eights are wild**: Play an 8 to change the suit to anything you want
-4. **Drawing**: If you can't play, draw up to 3 cards (or until you can play)
-5. **Passing**: If still unable to play after drawing, pass your turn
-6. **Winning**: First player to discard all cards wins the round
-7. **Scoring**: Winner gets points for cards left in opponents' hands:
+1. **Gameplay**: Play a card matching the active card's rank OR suit
+1. **Eights are wild**: Play an 8 to change the suit to anything you want
+1. **Drawing**: If you can't play, draw up to 3 cards (or until you can play)
+1. **Passing**: If still unable to play after drawing, pass your turn
+1. **Winning**: First player to discard all cards wins the round
+1. **Scoring**: Winner gets points for cards left in opponents' hands:
    - Eights: 50 points each
    - Face cards (J, Q, K, A): 10 points each
    - Number cards: Face value

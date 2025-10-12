@@ -218,15 +218,18 @@ game_name/
 ### Updated Files
 
 1. **docs/planning/TODO.md**
+
    - Marked all 13 games as completed with [x]
    - Updated from planned to implemented status
 
 1. **GAMES.md**
+
    - Added detailed descriptions for all new games
    - Updated game statistics (21 → 34 playable games)
    - Added running instructions for each game
 
 1. **Category Package Files**
+
    - `dice_games/__init__.py` - Added exports for all dice games
    - `word_games/__init__.py` - Added exports for all word games
    - `logic_games/__init__.py` - Added exports for all logic games

@@ -396,7 +396,7 @@ When adding new games:
 
 See `CONTRIBUTING.md` for detailed guidelines.
 
----
+______________________________________________________________________
 
 ## Architecture System Overview
 

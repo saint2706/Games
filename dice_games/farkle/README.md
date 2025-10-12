@@ -23,12 +23,12 @@ Be the first player to reach 10,000 points.
 ### Gameplay
 
 1. On your turn, roll all 6 dice
-2. Set aside scoring dice and add to your turn score
-3. Choose to:
+1. Set aside scoring dice and add to your turn score
+1. Choose to:
    - **Bank and continue**: Roll remaining dice to score more (risk farkling)
    - **Bank and end turn**: Add turn score to your total score
-4. If you use all 6 dice ("hot dice"), you get all 6 back
-5. If you roll with no scoring dice, you "farkle" and lose all turn points
+1. If you use all 6 dice ("hot dice"), you get all 6 back
+1. If you roll with no scoring dice, you "farkle" and lose all turn points
 
 ## Running the Game
 

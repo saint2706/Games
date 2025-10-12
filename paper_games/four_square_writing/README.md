@@ -7,10 +7,10 @@ Educational writing template for essay structure.
 This is not a game but an educational tool. The four-square method helps structure essays:
 
 1. **Center Square**: Main idea/thesis
-2. **Top Left**: First supporting point/reason
-3. **Top Right**: Second supporting point/reason
-4. **Bottom Left**: Third supporting point/reason
-5. **Bottom Right**: Conclusion
+1. **Top Left**: First supporting point/reason
+1. **Top Right**: Second supporting point/reason
+1. **Bottom Left**: Third supporting point/reason
+1. **Bottom Right**: Conclusion
 
 **Run the tool**: `python -m paper_games.four_square_writing`
 

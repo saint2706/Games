@@ -332,6 +332,7 @@ class TestFeatureX(unittest.TestCase):
    ```
 
 1. **Make changes**
+
    - Write code following standards
    - Add type hints
    - Keep complexity low
@@ -444,7 +445,7 @@ If you have questions about code quality standards, please:
 1. Look at existing code examples
 1. Open an issue for discussion
 
----
+______________________________________________________________________
 
 ## Code Complexity Analysis
 
@@ -468,30 +469,37 @@ These functions should be considered for refactoring:
 #### Critical (D-E-F ratings: 21+)
 
 1. **`paper_games/nim/cli.py:play_classic_nim`** - E (40)
+
    - Very high complexity, main game loop with many nested conditions
    - Recommendation: Split into separate functions for setup, game loop, and turn handling
 
 1. **`paper_games/tic_tac_toe/cli.py:play`** - D (28)
+
    - High complexity in main game loop
    - Recommendation: Extract functions for input handling, display updates, and turn logic
 
 1. **`paper_games/battleship/cli.py:_game_loop`** - D (28)
+
    - Complex game loop with multiple phases
    - Recommendation: Split into phase-specific functions
 
 1. **`paper_games/tic_tac_toe/tic_tac_toe.py:TicTacToeGame.winner`** - D (25)
+
    - Complex winner detection logic
    - Recommendation: Extract helper functions for checking rows, columns, diagonals
 
 1. **`paper_games/hangman/cli.py:_play_multiplayer`** - D (24)
+
    - Complex multiplayer logic
    - Recommendation: Split into player setup, turn handling, and scoring
 
 1. **`paper_games/unscramble/cli.py:_play_multiplayer`** - D (23)
+
    - Complex multiplayer game flow
    - Recommendation: Extract turn logic and scoring to separate functions
 
 1. **`paper_games/tic_tac_toe/ultimate_cli.py:play_ultimate`** - D (21)
+
    - Complex UI and game loop
    - Recommendation: Separate UI rendering from game logic
 
@@ -529,16 +537,19 @@ and have comprehensive test coverage.
 #### High Priority (Critical Complexity)
 
 1. **Nim CLI** (`paper_games/nim/cli.py:play_classic_nim`)
+
    - Complexity: 40 (E rating)
    - Impact: High - main game function
    - Effort: Medium - can be split into logical sections
 
 1. **Tic Tac Toe CLI** (`paper_games/tic_tac_toe/cli.py:play`)
+
    - Complexity: 28 (D rating)
    - Impact: High - main game function
    - Effort: Medium
 
 1. **Battleship CLI** (`paper_games/battleship/cli.py:_game_loop`)
+
    - Complexity: 28 (D rating)
    - Impact: High - core game loop
    - Effort: High - complex state management
@@ -546,11 +557,13 @@ and have comprehensive test coverage.
 #### Medium Priority (Moderate Complexity)
 
 4. **AI Functions** (various `computer_move` functions)
+
    - Complexity: 15-17 (C rating)
    - Impact: Medium - affects gameplay
    - Effort: Low-Medium - can extract decision logic
 
 1. **Rendering Functions** (various `render` functions)
+
    - Complexity: 11-13 (C rating)
    - Impact: Low - display only
    - Effort: Low - can split into helper functions

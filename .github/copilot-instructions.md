@@ -428,7 +428,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
----
+______________________________________________________________________
 
 **Remember**: The goal is maintainable, well-documented, tested code that follows consistent patterns across all games.
 Prioritize code quality and simplicity over clever solutions.

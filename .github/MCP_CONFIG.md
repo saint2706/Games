@@ -35,7 +35,7 @@ The configuration file follows this JSON schema:
   - **serverName**: Unique identifier for each server
     - **type**: Protocol type (currently "http")
     - **url**: Full HTTPS endpoint URL for the server
-    - **tools**: Array of enabled tools (["*"] means all tools)
+    - **tools**: Array of enabled tools (["\*"] means all tools)
     - **headers**: HTTP headers to include in requests
 
 ## Configured Servers
@@ -46,30 +46,30 @@ This repository has three MCP servers configured:
 
 - **Purpose**: Provides access to DeepWiki knowledge base
 - **Endpoint**: `https://mcp.deepwiki.com/mcp`
-- **Tools**: All tools enabled (["*"])
+- **Tools**: All tools enabled (["\*"])
 
 ### 2. FetchMCP
 
 - **Purpose**: Fetches and processes external resources
 - **Endpoint**: `https://remote.mcpservers.org/fetch/mcp`
-- **Tools**: All tools enabled (["*"])
+- **Tools**: All tools enabled (["\*"])
 
 ### 3. SequentialThinking
 
 - **Purpose**: Provides sequential reasoning and thinking capabilities
 - **Endpoint**: `https://remote.mcpservers.org/sequentialthinking/mcp`
-- **Tools**: All tools enabled (["*"])
+- **Tools**: All tools enabled (["\*"])
 
 ## Validation
 
 The configuration is automatically validated using the test suite to ensure:
 
 1. ✅ File exists and is valid JSON
-2. ✅ All required fields are present
-3. ✅ Exactly three servers are configured
-4. ✅ All URLs use HTTPS for security
-5. ✅ Server configurations are consistent
-6. ✅ URLs are well-formed and valid
+1. ✅ All required fields are present
+1. ✅ Exactly three servers are configured
+1. ✅ All URLs use HTTPS for security
+1. ✅ Server configurations are consistent
+1. ✅ URLs are well-formed and valid
 
 ### Running Validation Tests
 
@@ -143,9 +143,9 @@ else:
 If you need to add, remove, or modify servers:
 
 1. Edit `.github/mcp-config.json`
-2. Ensure the JSON syntax is valid
-3. Run validation tests: `pytest tests/test_mcp_config.py -v`
-4. Update tests if server names or URLs change
+1. Ensure the JSON syntax is valid
+1. Run validation tests: `pytest tests/test_mcp_config.py -v`
+1. Update tests if server names or URLs change
 
 ### Adding a New Server
 
@@ -171,9 +171,9 @@ Then update the tests to reflect the new server count and name.
 ## Security Considerations
 
 1. **HTTPS Only**: All server URLs must use HTTPS for secure communication
-2. **Trusted Sources**: Only configure servers from trusted sources
-3. **Headers**: Review headers to ensure they don't expose sensitive information
-4. **Validation**: Always run validation tests after modifying the configuration
+1. **Trusted Sources**: Only configure servers from trusted sources
+1. **Headers**: Review headers to ensure they don't expose sensitive information
+1. **Validation**: Always run validation tests after modifying the configuration
 
 ## Troubleshooting
 
@@ -182,8 +182,8 @@ Then update the tests to reflect the new server count and name.
 If the configuration fails to load:
 
 1. Check that the file exists at `.github/mcp-config.json`
-2. Validate JSON syntax using `python -m json.tool .github/mcp-config.json`
-3. Run tests to identify specific issues: `pytest tests/test_mcp_config.py -v`
+1. Validate JSON syntax using `python -m json.tool .github/mcp-config.json`
+1. Run tests to identify specific issues: `pytest tests/test_mcp_config.py -v`
 
 ### Validation Errors
 
@@ -199,9 +199,9 @@ Common validation errors and solutions:
 For issues with the MCP configuration:
 
 1. Run the test suite to identify specific problems
-2. Check the error messages in test output
-3. Review this documentation for correct format
-4. Consult the MCP protocol documentation
+1. Check the error messages in test output
+1. Review this documentation for correct format
+1. Consult the MCP protocol documentation
 
 ## Related Files
 

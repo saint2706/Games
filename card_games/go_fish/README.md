@@ -7,12 +7,12 @@ A classic implementation of the Go Fish card game for 2-6 players.
 Go Fish is a card game where players try to collect sets of four cards of the same rank:
 
 1. **Setup**: Each player gets 7 cards (5 for 3+ players), remaining cards form the draw pile
-2. **Gameplay**: On your turn, ask another player for cards of a specific rank you have in your hand
-3. **If they have it**: They give you all cards of that rank, and you get another turn
-4. **If they don't**: They say "Go Fish!" and you draw a card from the pile
-5. **Lucky draw**: If you draw the rank you asked for, you get another turn
-6. **Making books**: When you collect all 4 cards of a rank, you lay them down (make a "book")
-7. **Winning**: Player with the most books when all cards are collected wins
+1. **Gameplay**: On your turn, ask another player for cards of a specific rank you have in your hand
+1. **If they have it**: They give you all cards of that rank, and you get another turn
+1. **If they don't**: They say "Go Fish!" and you draw a card from the pile
+1. **Lucky draw**: If you draw the rank you asked for, you get another turn
+1. **Making books**: When you collect all 4 cards of a rank, you lay them down (make a "book")
+1. **Winning**: Player with the most books when all cards are collected wins
 
 ## Running the Game
 

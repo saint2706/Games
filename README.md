@@ -159,13 +159,13 @@ after the configured number of table rotations, wins the match.
 
 Difficulty levels tune the number of opponents, deck count, and AI personalities:
 
-| Difficulty | Bots | Decks | Personality                                   |
+| Difficulty | Bots | Decks | Personality |
 | ---------- | ---- | ----- | --------------------------------------------- |
-| Noob       | 1    | 1     | Cautious, rarely bluffs                       |
-| Easy       | 2    | 1     | Even tempered with light deception            |
-| Medium     | 2    | 2     | Balanced mix of bluffing and scrutiny         |
-| Hard       | 3    | 2     | Bolder bluffs and sharper challenges          |
-| Insane     | 4    | 3     | Aggressive liars who constantly police rivals |
+| Noob | 1 | 1 | Cautious, rarely bluffs |
+| Easy | 2 | 1 | Even tempered with light deception |
+| Medium | 2 | 2 | Balanced mix of bluffing and scrutiny |
+| Hard | 3 | 2 | Bolder bluffs and sharper challenges |
+| Insane | 4 | 3 | Aggressive liars who constantly police rivals |
 
 Fire up a five-rotation match on the default "Noob" setting from the terminal:
 

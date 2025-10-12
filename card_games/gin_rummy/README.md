@@ -60,11 +60,11 @@ while the status bar summarises what the engine expects from you (draw, discard,
 
 ### Scoring Details
 
-| Event    | Points Awarded                                     |
+| Event | Points Awarded |
 | -------- | -------------------------------------------------- |
-| Knock    | Deadwood difference (opponent minus knocker)       |
-| Gin      | Opponent deadwood + 25 bonus points                |
-| Big Gin  | Opponent deadwood + 31 bonus points                |
+| Knock | Deadwood difference (opponent minus knocker) |
+| Gin | Opponent deadwood + 25 bonus points |
+| Big Gin | Opponent deadwood + 31 bonus points |
 | Undercut | Deadwood difference + 25 points to the undercutter |
 
 ## Testing

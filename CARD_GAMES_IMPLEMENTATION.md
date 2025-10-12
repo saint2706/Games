@@ -9,7 +9,7 @@ system**, adding approximately **1,600 lines of production code and documentatio
 implementations follow established architecture patterns and demonstrate reusable approaches for completing the
 remaining card games.
 
----
+______________________________________________________________________
 
 ## Completed Implementations
 
@@ -53,7 +53,7 @@ python -m card_games.war --show-stats --player "Player 1"
 python -m card_games.war --no-stats
 ```
 
----
+______________________________________________________________________
 
 ### 2. Go Fish - Set Collection Game
 
@@ -92,7 +92,7 @@ python -m card_games.go_fish --players 3 --names Alice Bob Charlie
 python -m card_games.go_fish --seed 42
 ```
 
----
+______________________________________________________________________
 
 ### 3. Crazy Eights - Shedding Game
 
@@ -135,7 +135,7 @@ python -m card_games.crazy_eights --draw-limit 0
 python -m card_games.crazy_eights --names Alice Bob Charlie Dave
 ```
 
----
+______________________________________________________________________
 
 ### 4. Universal Statistics System
 
@@ -207,29 +207,32 @@ stats.record_loss(loser, duration)
 stats.save()
 ```
 
----
+______________________________________________________________________
 
 ## Documentation Created
 
 1. **Individual README.md files** (3 files, ~250 lines each)
+
    - `card_games/war/README.md`
    - `card_games/go_fish/README.md`
    - `card_games/crazy_eights/README.md`
 
-2. **Implementation Summary** (`card_games/IMPLEMENTATION_SUMMARY.md`, 280 lines)
+1. **Implementation Summary** (`card_games/IMPLEMENTATION_SUMMARY.md`, 280 lines)
+
    - Detailed description of each game
    - Architecture patterns
    - Integration guide
    - Future work roadmap
 
-3. **Updated TODO.md** (`docs/planning/TODO.md`)
+1. **Updated TODO.md** (`docs/planning/TODO.md`)
+
    - Marked 3 games as complete
    - Added statistics system completion
    - Updated cross-game features progress
 
-4. **This PR Summary** (`CARD_GAMES_IMPLEMENTATION.md`)
+1. **This PR Summary** (`CARD_GAMES_IMPLEMENTATION.md`)
 
----
+______________________________________________________________________
 
 ## Code Quality Metrics
 
@@ -244,7 +247,7 @@ All code follows repository standards:
 - ✅ **Testing**: Deterministic gameplay with seed support for easy testing
 - ✅ **Documentation**: Comprehensive README for each game
 
----
+______________________________________________________________________
 
 ## Architecture Patterns Established
 
@@ -262,13 +265,13 @@ game_name/
 **Key Principles**:
 
 1. **Separation of Concerns**: Game logic independent of UI
-2. **Deterministic**: Seed support for reproducible games
-3. **Extensible**: Easy to add GUI, AI, or network play
-4. **Testable**: Pure functions make testing straightforward
-5. **Documented**: Clear docstrings and user guides
-6. **Consistent**: Same patterns across all games
+1. **Deterministic**: Seed support for reproducible games
+1. **Extensible**: Easy to add GUI, AI, or network play
+1. **Testable**: Pure functions make testing straightforward
+1. **Documented**: Clear docstrings and user guides
+1. **Consistent**: Same patterns across all games
 
----
+______________________________________________________________________
 
 ## Testing Performed
 
@@ -309,20 +312,20 @@ All implementations have been manually tested:
 - ✅ Multiple games accumulate stats properly
 - ✅ Empty leaderboard displays correctly
 
----
+______________________________________________________________________
 
 ## Lines of Code Summary
 
-| Component           | Files  | LOC        | Tests           |
+| Component | Files | LOC | Tests |
 | ------------------- | ------ | ---------- | --------------- |
-| War game            | 5      | 415        | Manual          |
-| Go Fish game        | 5      | 524        | Manual          |
-| Crazy Eights game   | 5      | 549        | Manual          |
-| Statistics wrapper  | 1      | 232        | Manual          |
-| Documentation       | 4      | ~1,000     | N/A             |
+| War game | 5 | 415 | Manual |
+| Go Fish game | 5 | 524 | Manual |
+| Crazy Eights game | 5 | 549 | Manual |
+| Statistics wrapper | 1 | 232 | Manual |
+| Documentation | 4 | ~1,000 | N/A |
 | **Production Code** | **16** | **~1,720** | **All Passing** |
 
----
+______________________________________________________________________
 
 ## Impact on Repository Goals
 
@@ -353,28 +356,31 @@ All implementations have been manually tested:
 This implementation provides:
 
 1. **Templates** for implementing remaining 5 card games
-2. **Reusable infrastructure** (statistics system)
-3. **Documentation patterns** (READMEs, integration guides)
-4. **Testing approaches** (deterministic seeds, manual verification)
-5. **Architecture blueprints** (separation of concerns, extensibility)
+1. **Reusable infrastructure** (statistics system)
+1. **Documentation patterns** (READMEs, integration guides)
+1. **Testing approaches** (deterministic seeds, manual verification)
+1. **Architecture blueprints** (separation of concerns, extensibility)
 
----
+______________________________________________________________________
 
 ## Future Work Recommendations
 
 ### Immediate Next Steps (High Value)
 
 1. **Implement remaining medium-priority card games** (~5-10 hours)
+
    - Cribbage (~400 LOC)
    - Euchre (~350 LOC)
    - Rummy 500 (~400 LOC)
 
-2. **Add GUI implementations** to new games (~8-12 hours)
+1. **Add GUI implementations** to new games (~8-12 hours)
+
    - Use existing `common/gui_base.py`
    - Add card animations
    - Integrate themes and sounds
 
-3. **Add AI opponents** (~6-8 hours)
+1. **Add AI opponents** (~6-8 hours)
+
    - Use existing `common/ai_strategy.py`
    - Implement game-specific heuristics
    - Add difficulty levels
@@ -382,14 +388,17 @@ This implementation provides:
 ### Medium-Term Goals
 
 1. **Integrate save/load** for all card games
+
    - Use existing `common/architecture/persistence.py`
    - Add to CLI with `--save` and `--load` flags
 
-2. **Add replay/undo** for strategy card games
+1. **Add replay/undo** for strategy card games
+
    - Use existing `common/architecture/replay.py`
    - Especially valuable for Gin Rummy, Bridge
 
-3. **Expand statistics system**
+1. **Expand statistics system**
+
    - Achievement tracking
    - Profile/progression system
    - Cross-game statistics
@@ -397,11 +406,11 @@ This implementation provides:
 ### Long-Term Enhancements
 
 1. **Network multiplayer** (if in scope)
-2. **Tournament modes**
-3. **Custom rule variants**
-4. **Mobile/web versions**
+1. **Tournament modes**
+1. **Custom rule variants**
+1. **Mobile/web versions**
 
----
+______________________________________________________________________
 
 ## Conclusion
 
@@ -417,7 +426,7 @@ game requiring approximately 300-500 lines of code and 4-8 hours of development 
 **Total Progress on Issue**: ~40% of card games, ~17% of cross-game features **Estimated Effort to Complete**: ~30-40
 hours for remaining games and features
 
----
+______________________________________________________________________
 
 ## Integration Testing Commands
 
@@ -438,7 +447,7 @@ python -m card_games.go_fish --names Alice Bob
 python -m card_games.crazy_eights --draw-limit 0
 ```
 
----
+______________________________________________________________________
 
 ## Files Changed
 

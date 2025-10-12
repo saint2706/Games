@@ -9,10 +9,10 @@ A classic board game where players race to the finish by rolling dice, climbing 
 **Gameplay**:
 
 1. Players take turns rolling a single die (1-6)
-2. Move your token forward by the number rolled
-3. If you land on a ladder, climb up to the top
-4. If you land on a snake's head, slide down to its tail
-5. First player to reach or pass the final square wins
+1. Move your token forward by the number rolled
+1. If you land on a ladder, climb up to the top
+1. If you land on a snake's head, slide down to its tail
+1. First player to reach or pass the final square wins
 
 **Run the game**:
 

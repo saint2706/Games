@@ -46,17 +46,20 @@ The multiplayer system uses a message-based protocol over WebSockets for real-ti
 #### Components
 
 1. **Game Server**
+
    - Manages multiple game instances
    - Routes messages between clients
    - Enforces game rules
    - Handles disconnections and reconnections
 
 1. **Lobby System**
+
    - Create/join game lobbies
    - Player matchmaking
    - Game configuration (house rules, player count)
 
 1. **Authentication** (optional)
+
    - User accounts
    - Session management
    - Player statistics

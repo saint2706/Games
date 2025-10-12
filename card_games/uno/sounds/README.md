@@ -29,14 +29,17 @@ Place the following `.wav` files in this directory to enable sound effects:
 ### Free Sound Resources
 
 1. **Freesound.org** - https://freesound.org/
+
    - Search for terms like "card shuffle", "card flip", "game win", "beep"
    - Make sure to check the license (CC0 or CC-BY recommended)
 
 1. **OpenGameArt.org** - https://opengameart.org/
+
    - Browse game sound effects
    - Filter by license (Public Domain or CC0)
 
 1. **Zapsplat.com** - https://www.zapsplat.com/
+
    - Free sound effects library
    - Requires attribution for free tier
 

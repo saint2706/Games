@@ -41,17 +41,17 @@ gameplay options apply to both modes.
 
 ### Commands
 
-| Command            | Description                                                                                |
+| Command | Description |
 | ------------------ | ------------------------------------------------------------------------------------------ |
-| `d`, `draw`        | Draw from stock into the waste (obeys draw-one/draw-three setting).                        |
-| `r`, `reset`       | Recycle the entire waste back to the stock when redeals remain.                            |
-| `a`, `auto`        | Auto-play all currently legal foundation moves (does not count towards manual move tally). |
-| `s`, `stats`       | Display score, move counts, and redeal usage in-line.                                      |
-| `w <dest>`         | Move the top waste card (e.g., `w 0` moves to tableau column 0).                           |
-| `<src> f`          | Move the top tableau card to the matching foundation (e.g., `0 f`).                        |
-| `<src> <dest> [n]` | Move a face-up run of `n` cards between tableau columns (e.g., `0 1 3`).                   |
-| `h`, `help`        | Show contextual help including scoring reminders.                                          |
-| `q`, `quit`        | Exit the current game.                                                                     |
+| `d`, `draw` | Draw from stock into the waste (obeys draw-one/draw-three setting). |
+| `r`, `reset` | Recycle the entire waste back to the stock when redeals remain. |
+| `a`, `auto` | Auto-play all currently legal foundation moves (does not count towards manual move tally). |
+| `s`, `stats` | Display score, move counts, and redeal usage in-line. |
+| `w <dest>` | Move the top waste card (e.g., `w 0` moves to tableau column 0). |
+| `<src> f` | Move the top tableau card to the matching foundation (e.g., `0 f`). |
+| `<src> <dest> [n]` | Move a face-up run of `n` cards between tableau columns (e.g., `0 1 3`). |
+| `h`, `help` | Show contextual help including scoring reminders. |
+| `q`, `quit` | Exit the current game. |
 
 ## Features
 

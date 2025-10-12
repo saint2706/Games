@@ -5,8 +5,8 @@ Rotating quadrant board game with 5-in-a-row win condition.
 ## How to Play
 
 1. Place your marble on the 6x6 board
-2. Rotate one of four 3x3 quadrants
-3. Get 5 in a row to win (horizontal, vertical, or diagonal)
+1. Rotate one of four 3x3 quadrants
+1. Get 5 in a row to win (horizontal, vertical, or diagonal)
 
 **Run the game**: `python -m paper_games.pentago`
 

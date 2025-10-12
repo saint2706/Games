@@ -11,7 +11,7 @@ This document describes the new features added to the Bluff (Cheat) card game.
 - [Challenge Reveal Animations](#challenge-reveal-animations)
 - [Advanced AI with Pattern Learning](#advanced-ai-with-pattern-learning)
 
----
+______________________________________________________________________
 
 ## Replay System
 
@@ -43,7 +43,7 @@ Each replay includes:
 - All player actions (claims, challenges, passes)
 - Final game state and winner
 
----
+______________________________________________________________________
 
 ## Variable Deck Types
 
@@ -51,13 +51,13 @@ Choose from different deck configurations to vary gameplay difficulty and strate
 
 ### Available Deck Types
 
-| Deck Type         | Description              | Cards | Best For                    |
+| Deck Type | Description | Cards | Best For |
 | ----------------- | ------------------------ | ----- | --------------------------- |
-| **Standard**      | Traditional 52-card deck | 52    | Classic gameplay            |
-| **FaceCardsOnly** | Only J, Q, K, A          | 16    | Fast-paced games            |
-| **NumbersOnly**   | Only 2-10                | 36    | Beginner practice           |
-| **DoubleDown**    | Two copies of each card  | 104   | More bluffing opportunities |
-| **HighLow**       | Only 2-6 and 9-A         | 44    | Strategic variety           |
+| **Standard** | Traditional 52-card deck | 52 | Classic gameplay |
+| **FaceCardsOnly** | Only J, Q, K, A | 16 | Fast-paced games |
+| **NumbersOnly** | Only 2-10 | 36 | Beginner practice |
+| **DoubleDown** | Two copies of each card | 104 | More bluffing opportunities |
+| **HighLow** | Only 2-6 and 9-A | 44 | Strategic variety |
 
 ### Usage
 
@@ -75,7 +75,7 @@ python -m card_games.bluff --deck-type DoubleDown --difficulty Hard --gui
 - Game engine validates claims against the active deck type
 - AI bots adapt their strategies to the available ranks
 
----
+______________________________________________________________________
 
 ## Tournament Mode
 
@@ -111,7 +111,7 @@ python -m card_games.bluff --tournament --difficulty Hard --rounds 5
 - Match winner advances, loser is eliminated
 - Final standings show all players ranked by wins
 
----
+______________________________________________________________________
 
 ## Team Play Variant
 
@@ -153,7 +153,7 @@ Team Bravo (Total: 12 cards):
   - Bot 3 (Team Bravo): 6 cards | Truths: 1 | Lies: 3 | Calls: 2/3
 ```
 
----
+______________________________________________________________________
 
 ## Challenge Reveal Animations
 
@@ -177,7 +177,7 @@ Enhanced GUI with visual effects for challenge outcomes.
 - Non-blocking animation that doesn't interrupt gameplay
 - Automatically saves replays when recording is enabled
 
----
+______________________________________________________________________
 
 ## Advanced AI with Pattern Learning
 
@@ -231,7 +231,7 @@ Pattern learning is automatic and based on bot profiles:
 - **Medium Memory (0.4-0.7)**: Moderate pattern use
 - **Low Memory (0.2-0.4)**: Minimal pattern influence
 
----
+______________________________________________________________________
 
 ## Combining Features
 
@@ -248,7 +248,7 @@ python -m card_games.bluff --team-play --deck-type FaceCardsOnly --gui
 python -m card_games.bluff --difficulty Insane --record-replay --seed 42
 ```
 
----
+______________________________________________________________________
 
 ## Implementation Summary
 
@@ -286,7 +286,7 @@ All features have been tested with:
 - Integration testing via demo script
 - Syntax validation and import checks
 
----
+______________________________________________________________________
 
 ## Future Enhancements
 

@@ -20,14 +20,14 @@ tile is occupied by either the worker (`+`) or a crate (`*`).
 
 When running the CLI you can use the following commands:
 
-| Command            | Action                              |
+| Command | Action |
 | ------------------ | ----------------------------------- |
-| `u`, `d`, `l`, `r` | Move up, down, left, or right       |
-| `undo`             | Revert the previous move            |
-| `restart`          | Reset the current level             |
-| `next`, `prev`     | Cycle through the curated level set |
-| `help`             | Display the command reference       |
-| `quit`             | Exit the game                       |
+| `u`, `d`, `l`, `r` | Move up, down, left, or right |
+| `undo` | Revert the previous move |
+| `restart` | Reset the current level |
+| `next`, `prev` | Cycle through the curated level set |
+| `help` | Display the command reference |
+| `quit` | Exit the game |
 
 The interface also tracks both total moves and the number of pushes so you can challenge yourself to optimise your
 solution.

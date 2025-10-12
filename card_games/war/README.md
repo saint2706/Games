@@ -7,14 +7,14 @@ A simple implementation of the classic card game War.
 War is a simple card game typically played between two players:
 
 1. The deck is divided equally between two players (26 cards each)
-2. Each round, both players reveal their top card simultaneously
-3. The player with the higher card wins both cards and adds them to the bottom of their deck
-4. If both cards are equal, a "war" occurs:
+1. Each round, both players reveal their top card simultaneously
+1. The player with the higher card wins both cards and adds them to the bottom of their deck
+1. If both cards are equal, a "war" occurs:
    - Each player places 3 cards face down
    - Then reveals 1 card face up
    - The higher face-up card wins all cards in play
    - If those cards are also equal, another war occurs
-5. The game continues until one player has all the cards
+1. The game continues until one player has all the cards
 
 ## Card Values
 

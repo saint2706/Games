@@ -9,10 +9,10 @@ A classic dice game where players roll five dice trying to achieve specific comb
 **Gameplay**:
 
 1. Roll five dice up to three times per turn
-2. After each roll, choose which dice to keep
-3. After your rolls, choose a category to score
-4. Each category can only be used once
-5. Game ends when all players have scored all 13 categories
+1. After each roll, choose which dice to keep
+1. After your rolls, choose a category to score
+1. Each category can only be used once
+1. Game ends when all players have scored all 13 categories
 
 **Run the game**:
 

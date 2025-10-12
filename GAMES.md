@@ -22,7 +22,7 @@ Features:
 
 **Documentation**: [poker/README.md](card_games/poker/README.md)
 
----
+______________________________________________________________________
 
 ### Blackjack
 
@@ -41,7 +41,7 @@ Features:
 
 **Documentation**: [blackjack/README.md](card_games/blackjack/README.md)
 
----
+______________________________________________________________________
 
 ### Bluff (Cheat)
 
@@ -59,7 +59,7 @@ Features:
 
 **Documentation**: [bluff/README.md](card_games/bluff/README.md)
 
----
+______________________________________________________________________
 
 ### Uno
 
@@ -78,7 +78,7 @@ Features:
 
 **Documentation**: [uno/README.md](card_games/uno/README.md)
 
----
+______________________________________________________________________
 
 ### Hearts
 
@@ -95,7 +95,7 @@ Features:
 
 **Documentation**: [hearts/README.md](card_games/hearts/README.md)
 
----
+______________________________________________________________________
 
 ### Spades
 
@@ -113,7 +113,7 @@ Features:
 
 **Documentation**: [spades/README.md](card_games/spades/README.md)
 
----
+______________________________________________________________________
 
 ### Gin Rummy
 
@@ -131,7 +131,7 @@ Features:
 
 **Documentation**: [gin_rummy/README.md](card_games/gin_rummy/README.md)
 
----
+______________________________________________________________________
 
 ### Bridge
 
@@ -149,7 +149,7 @@ Features:
 
 **Documentation**: [bridge/README.md](card_games/bridge/README.md)
 
----
+______________________________________________________________________
 
 ### Solitaire (Klondike)
 
@@ -167,7 +167,7 @@ Features:
 
 **Documentation**: [solitaire/README.md](card_games/solitaire/README.md)
 
----
+______________________________________________________________________
 
 ## 📝 Paper & Pencil Games
 
@@ -190,7 +190,7 @@ Features:
 
 **Documentation**: [tic_tac_toe/README.md](paper_games/tic_tac_toe/README.md)
 
----
+______________________________________________________________________
 
 ### Battleship
 
@@ -208,7 +208,7 @@ Features:
 
 **Documentation**: [battleship/README.md](paper_games/battleship/README.md)
 
----
+______________________________________________________________________
 
 ### Hangman
 
@@ -227,7 +227,7 @@ Features:
 
 **Documentation**: [hangman/README.md](paper_games/hangman/README.md)
 
----
+______________________________________________________________________
 
 ### Dots and Boxes
 
@@ -245,7 +245,7 @@ Features:
 
 **Documentation**: [dots_and_boxes/README.md](paper_games/dots_and_boxes/README.md)
 
----
+______________________________________________________________________
 
 ### Nim
 
@@ -264,7 +264,7 @@ Features:
 
 **Documentation**: [nim/README.md](paper_games/nim/README.md)
 
----
+______________________________________________________________________
 
 ### Unscramble
 
@@ -283,7 +283,7 @@ Features:
 
 **Documentation**: [unscramble/README.md](paper_games/unscramble/README.md)
 
----
+______________________________________________________________________
 
 ### Connect Four
 
@@ -300,7 +300,7 @@ Features:
 
 **Documentation**: [connect_four/README.md](paper_games/connect_four/README.md)
 
----
+______________________________________________________________________
 
 ### Checkers
 
@@ -318,7 +318,7 @@ Features:
 
 **Documentation**: [checkers/README.md](paper_games/checkers/README.md)
 
----
+______________________________________________________________________
 
 ### Mancala
 
@@ -336,7 +336,7 @@ Features:
 
 **Documentation**: [mancala/README.md](paper_games/mancala/README.md)
 
----
+______________________________________________________________________
 
 ### Othello (Reversi)
 
@@ -354,7 +354,7 @@ Features:
 
 **Documentation**: [othello/README.md](paper_games/othello/README.md)
 
----
+______________________________________________________________________
 
 ### Sudoku
 
@@ -372,7 +372,7 @@ Features:
 
 **Documentation**: [sudoku/README.md](paper_games/sudoku/README.md)
 
----
+______________________________________________________________________
 
 ### Snakes and Ladders
 
@@ -389,7 +389,7 @@ Features:
 
 **Documentation**: [snakes_and_ladders/README.md](paper_games/snakes_and_ladders/README.md)
 
----
+______________________________________________________________________
 
 ### Yahtzee
 
@@ -407,7 +407,7 @@ Features:
 
 **Documentation**: [yahtzee/README.md](paper_games/yahtzee/README.md)
 
----
+______________________________________________________________________
 
 ### Mastermind
 
@@ -425,7 +425,7 @@ Features:
 
 **Documentation**: [mastermind/README.md](paper_games/mastermind/README.md)
 
----
+______________________________________________________________________
 
 ### 20 Questions
 
@@ -442,7 +442,7 @@ Features:
 
 **Documentation**: [twenty_questions/README.md](paper_games/twenty_questions/README.md)
 
----
+______________________________________________________________________
 
 ### Boggle
 
@@ -459,7 +459,7 @@ Features:
 
 **Documentation**: [boggle/README.md](paper_games/boggle/README.md)
 
----
+______________________________________________________________________
 
 ### Four Square Writing
 
@@ -475,7 +475,7 @@ Features:
 
 **Documentation**: [four_square_writing/README.md](paper_games/four_square_writing/README.md)
 
----
+______________________________________________________________________
 
 ### Pentago
 
@@ -491,7 +491,7 @@ Features:
 
 **Documentation**: [pentago/README.md](paper_games/pentago/README.md)
 
----
+______________________________________________________________________
 
 ### Backgammon
 
@@ -507,7 +507,7 @@ Features:
 
 **Documentation**: [backgammon/README.md](paper_games/backgammon/README.md)
 
----
+______________________________________________________________________
 
 ### Sprouts
 
@@ -523,7 +523,7 @@ Features:
 
 **Documentation**: [sprouts/README.md](paper_games/sprouts/README.md)
 
----
+______________________________________________________________________
 
 ### Chess
 
@@ -538,7 +538,7 @@ Features:
 
 **Documentation**: [chess/README.md](paper_games/chess/README.md)
 
----
+______________________________________________________________________
 
 ## 🎲 Dice Games
 
@@ -574,7 +574,7 @@ Party dice game with rounds and team scoring. Roll three dice trying to match th
 
 **Documentation**: [dice_games/README.md](dice_games/README.md)
 
----
+______________________________________________________________________
 
 ## 📚 Word & Trivia Games
 
@@ -609,7 +609,7 @@ score.
 
 **Documentation**: [word_games/README.md](word_games/README.md)
 
----
+______________________________________________________________________
 
 ## 🧩 Logic & Puzzle Games
 
@@ -650,7 +650,7 @@ Picture logic puzzles with row/column hints. Fill cells based on number clues to
 
 **Documentation**: [logic_games/README.md](logic_games/README.md)
 
----
+______________________________________________________________________
 
 ## 🎮 Quick Start
 
@@ -752,6 +752,6 @@ All games follow consistent patterns using base classes from `common/` module.
 
 See repository license for details.
 
----
+______________________________________________________________________
 
 **Last Updated**: October 2025 **Games Count**: 21 playable games **Status**: Active development

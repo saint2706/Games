@@ -5,9 +5,9 @@ Word search game in a random letter grid with dictionary validation.
 ## How to Play
 
 1. View the 4x4 letter grid
-2. Find words by connecting adjacent letters (including diagonals)
-3. Enter words you find
-4. Score points based on word length
+1. Find words by connecting adjacent letters (including diagonals)
+1. Enter words you find
+1. Score points based on word length
 
 **Run the game**: `python -m paper_games.boggle`
 

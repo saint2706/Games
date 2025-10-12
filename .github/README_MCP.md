@@ -30,8 +30,8 @@ print(f"Servers: {config.get_server_names()}")
 The repository is configured with **3 MCP servers**:
 
 1. **deepwiki** - DeepWiki knowledge base access
-2. **fetchMCP** - External resource fetching
-3. **sequentialThinking** - Sequential reasoning capabilities
+1. **fetchMCP** - External resource fetching
+1. **sequentialThinking** - Sequential reasoning capabilities
 
 All servers use HTTPS and are properly validated.
 
