@@ -15,16 +15,30 @@ from .battleship import (
     Ship,
 )
 from .cli import play
-from .gui import run_gui
 
-__all__ = [
-    "BattleshipGame",
-    "Board",
-    "Ship",
-    "Coordinate",
-    "DEFAULT_FLEET",
-    "EXTENDED_FLEET",
-    "SMALL_FLEET",
-    "play",
-    "run_gui",
-]
+# GUI is optional (requires tkinter)
+try:
+    from .gui import run_gui
+
+    __all__ = [
+        "BattleshipGame",
+        "Board",
+        "Ship",
+        "Coordinate",
+        "DEFAULT_FLEET",
+        "EXTENDED_FLEET",
+        "SMALL_FLEET",
+        "play",
+        "run_gui",
+    ]
+except ImportError:
+    __all__ = [
+        "BattleshipGame",
+        "Board",
+        "Ship",
+        "Coordinate",
+        "DEFAULT_FLEET",
+        "EXTENDED_FLEET",
+        "SMALL_FLEET",
+        "play",
+    ]
