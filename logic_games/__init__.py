@@ -20,10 +20,11 @@ __all__ = [
     "SokobanGame",
     "SlidingPuzzleGame",
     "LightsOutGame",
+    "LightBulb",
     "PicrossGame",
 ]
 
-from .lights_out import LightsOutGame
+from .lights_out import LightBulb, LightsOutGame
 from .minesweeper import MinesweeperGame
 from .picross import PicrossGame
 from .sliding_puzzle import SlidingPuzzleGame

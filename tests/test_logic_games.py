@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from logic_games import LightsOutGame, MinesweeperGame, PicrossGame, SlidingPuzzleGame, SokobanGame
+from logic_games import LightBulb, LightsOutGame, MinesweeperGame, PicrossGame, SlidingPuzzleGame, SokobanGame
 from logic_games.minesweeper.minesweeper import Difficulty
 
 
@@ -100,22 +100,73 @@ class TestLightsOut:
         game = LightsOutGame(size=5)
         assert len(game.grid) == 5
         assert all(len(row) == 5 for row in game.grid)
+        assert all(isinstance(cell, LightBulb) for row in game.grid for cell in row)
 
     def test_toggle_cell(self) -> None:
         """Test toggling a cell."""
         game = LightsOutGame(size=3)
-        game.state = game.state.IN_PROGRESS
-        initial_state = game.grid[1][1]
-        game.make_move((1, 1))
-        # Center and neighbors should toggle
-        assert game.grid[1][1] != initial_state
+        positions = [
+            (1, 1),
+            (0, 1),
+            (2, 1),
+            (1, 0),
+            (1, 2),
+        ]
+        before = {
+            (r, c): game.grid[r][c].is_on
+            for r, c in positions
+            if 0 <= r < game.size and 0 <= c < game.size
+        }
+
+        result = game.make_move((1, 1))
+        assert result
+
+        for (r, c), state in before.items():
+            assert game.grid[r][c].is_on != state
 
     def test_win_condition(self) -> None:
         """Test win condition detection."""
         game = LightsOutGame(size=3)
         # Set all lights off
-        game.grid = [[False] * 3 for _ in range(3)]
+        for row in game.grid:
+            for bulb in row:
+                bulb.is_on = False
+                bulb.brightness = 0.0
         assert game.is_game_over()
+
+    def test_brightness_reflects_neighbors(self) -> None:
+        """Bulb brightness should respond to neighbours."""
+        game = LightsOutGame(size=3)
+        for row in game.grid:
+            for bulb in row:
+                bulb.is_on = False
+                bulb.brightness = 0.0
+
+        game.grid[1][1].is_on = True
+        game._recalculate_brightness()
+
+        assert game.grid[1][1].brightness == game.on_brightness
+        assert game.grid[0][1].brightness > 0
+
+    def test_energy_tracking(self) -> None:
+        """Energy tracking should increase with moves."""
+        game = LightsOutGame(size=3)
+        initial_energy = game.total_energy_kwh
+        initial_time = game.total_time_seconds
+
+        assert game.make_move((0, 0))
+
+        assert game.total_energy_kwh > initial_energy
+        assert game.total_time_seconds > initial_time
+
+    def test_state_representation_contains_metrics(self) -> None:
+        """Structured state representation should expose telemetry."""
+        game = LightsOutGame(size=3)
+        state = game.get_state_representation()
+
+        assert "brightness" in state
+        assert "power_draw_w" in state
+        assert "total_energy_kwh" in state
 
 
 class TestPicross:

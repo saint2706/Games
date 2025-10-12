@@ -5,6 +5,6 @@ Toggle-based puzzle game
 
 from __future__ import annotations
 
-__all__ = ["LightsOutGame"]
+from .lights_out import LightBulb, LightsOutGame
 
-from .lights_out import LightsOutGame
+__all__ = ["LightsOutGame", "LightBulb"]
