@@ -24,13 +24,42 @@ War is a simple card game typically played between two players:
 
 ## Running the Game
 
-Play interactively:
+### Graphical Interface (GUI)
+
+Launch the animated Tkinter GUI:
+
+```bash
+python -m card_games.war --gui
+```
+
+Features of the GUI:
+
+- Deck counters for each player and the shared pile
+- Animated war sequences that stack facedown cards and flash alerts
+- Round log with the face-up cards from each battle
+- Buttons for **Play Round** and **Start/Stop Auto Play**
+- Slider to adjust auto-play speed (150 ms – 2000 ms between rounds)
+
+Auto-play tips:
+
+- Click **Start Auto Play** to schedule rounds. The slider updates instantly, so you can slow down or speed up play mid-game.
+- The GUI automatically stops when the game ends and offers to save statistics if the optional analytics package is available.
+
+Enable experimental sound effects (requires `pygame` for the shared sound manager):
+
+```bash
+python -m card_games.war --gui --enable-sounds
+```
+
+### Command-Line Interface (CLI)
+
+Play interactively in the terminal:
 
 ```bash
 python -m card_games.war
 ```
 
-Auto-play a full game:
+Auto-play a full game from the CLI:
 
 ```bash
 python -m card_games.war --auto
@@ -67,6 +96,7 @@ python -m card_games.war --no-stats
 - Game statistics tracking (rounds played, wars fought)
 - **Win/loss statistics** - Tracks player performance across games
 - **Leaderboards** - View top players by wins
+- Animated Tkinter GUI with auto-play controls and round log
 - Interactive CLI with round-by-round play
 - Auto-play mode for quick simulation
 - Deterministic games with seed support
@@ -83,8 +113,6 @@ The implementation follows the repository's architecture patterns:
 
 Potential additions:
 
-- GUI implementation using tkinter
 - Support for more than 2 players
 - Statistics tracking across multiple games
 - AI strategy analysis (though War is entirely luck-based)
-- Animation of card movements in GUI

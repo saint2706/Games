@@ -8,4 +8,9 @@ from __future__ import annotations
 
 from .game import WarGame
 
-__all__ = ["WarGame"]
+try:  # pragma: no cover - import guarded for environments without Tkinter
+    from .gui import WarGUI, run_app
+
+    __all__ = ["WarGame", "WarGUI", "run_app"]
+except ImportError:  # pragma: no cover - GUI dependencies not available
+    __all__ = ["WarGame"]
