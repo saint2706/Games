@@ -19,19 +19,19 @@ Crazy Eights is a shedding game where players try to get rid of all their cards:
 
 ## Running the Game
 
-Play with 2 players:
+Launch the Tkinter GUI (default):
 
 ```bash
 python -m card_games.crazy_eights
 ```
 
-Play with more players:
+Run the command-line interface instead of the GUI:
 
 ```bash
-python -m card_games.crazy_eights --players 4
+python -m card_games.crazy_eights --cli
 ```
 
-Use custom names:
+Specify players and names:
 
 ```bash
 python -m card_games.crazy_eights --players 3 --names Alice Bob Charlie
@@ -54,6 +54,8 @@ Reproducible game with seed:
 ```bash
 python -m card_games.crazy_eights --seed 42
 ```
+
+> **Note:** The GUI requires Tkinter, which is typically bundled with standard Python installations on Windows and macOS. Linux users may need to install `python3-tk` from their package manager.
 
 ## Features
 
