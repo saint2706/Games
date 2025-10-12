@@ -1,8 +1,8 @@
 # Games Collection
 
-A comprehensive collection of games implemented in Python, organized by category. The project includes 21 playable games
-ranging from casino classics like Texas Hold'em and Blackjack to strategy games like Checkers and Othello, with
-infrastructure ready for dice games, word games, and logic puzzles.
+A comprehensive collection of games implemented in Python, organized by category. The project includes 49 playable games
+(15 card games + 21 paper games + 4 dice games + 4 word games + 5 logic games) ranging from casino classics like Texas
+Hold'em and Blackjack to strategy games like Checkers and Chess, word puzzles, dice games, and logic challenges.
 
 **📖 See [GAMES.md](GAMES.md) for a complete catalog of all available games.**
 
@@ -19,7 +19,13 @@ card_games/
 ├── spades/           # Partnership bidding with nil bids
 ├── gin_rummy/        # Two-player melding game
 ├── bridge/           # Contract bridge with simplified bidding
-└── solitaire/        # Klondike patience game
+├── solitaire/        # Klondike patience game
+├── cribbage/         # Pegging and crib scoring to 121 points
+├── euchre/           # Trump-based trick-taking with bowers
+├── rummy500/         # Melding variant with negative scoring
+├── go_fish/          # Classic card matching game
+├── war/              # Simple comparison card game
+└── crazy_eights/     # Discard matching with action cards
 paper_games/
 ├── tic_tac_toe/      # Minimax AI with ultimate variant
 ├── battleship/       # Naval combat with strategic AI
@@ -31,10 +37,33 @@ paper_games/
 ├── checkers/         # Jump mechanics with king promotion
 ├── mancala/          # Stone distribution game
 ├── othello/          # Disc flipping with positional strategy
-└── sudoku/           # Number puzzle with difficulty levels
-dice_games/           # Dice-based games (new category)
-word_games/           # Word and trivia games (new category)
-logic_games/          # Logic puzzles and brain teasers (new category)
+├── sudoku/           # Number puzzle with difficulty levels
+├── chess/            # Classic chess with move validation
+├── backgammon/       # Race game with dice and strategy
+├── mastermind/       # Code-breaking deduction game
+├── boggle/           # Word search in letter grid
+├── pentago/          # Tic-tac-toe with board rotation
+├── sprouts/          # Topological connection game
+├── snakes_and_ladders/ # Classic board game with dice
+├── yahtzee/          # Dice combination scoring game
+├── twenty_questions/ # Deductive guessing game
+└── four_square_writing/ # Creative writing game
+dice_games/
+├── farkle/           # Risk-based dice scoring with hot dice
+├── craps/            # Casino dice game with betting
+├── liars_dice/       # Bluffing game with hidden dice
+└── bunco/            # Social dice game with rounds
+word_games/
+├── trivia/           # Question and answer trivia game
+├── crossword/        # Crossword puzzle generation and solving
+├── anagrams/         # Word rearrangement challenge
+└── wordbuilder/      # Build words from letter sets
+logic_games/
+├── minesweeper/      # Classic mine detection puzzle
+├── lights_out/       # Toggle puzzle with pattern solving
+├── sliding_puzzle/   # Number tile sliding game
+├── picross/          # Nonogram picture logic puzzle
+└── sokoban/          # Warehouse box-pushing puzzle
 common/
 ├── architecture/     # Architectural patterns (plugin, events, persistence)
 ├── analytics/        # Game analytics and statistics
