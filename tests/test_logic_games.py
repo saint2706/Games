@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from common.game_engine import GameState
-from logic_games import LightBulb, LightsOutGame, MinesweeperGame, PicrossGame, SlidingPuzzleGame, SokobanGame
-from logic_games.minesweeper.minesweeper import CellState as MinesweeperCellState
-from logic_games.minesweeper.minesweeper import Difficulty
-from logic_games.picross import CellState as PicrossCellState
+from logic_games import LightsOutGame, MinesweeperGame, PicrossGame, SlidingPuzzleGame, SokobanGame
+from logic_games.lights_out.lights_out import LightBulb
+from logic_games.minesweeper.minesweeper import CellState, Difficulty
 
 
 class TestMinesweeper:

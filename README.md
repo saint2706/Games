@@ -267,8 +267,11 @@ pip install -e ".[dev]"
 # Install pre-commit hooks
 pre-commit install
 
-# Run tests
+# Run the full test suite (includes performance benchmarks)
 pytest
+
+# Run a quicker subset that skips performance benchmarks
+pytest -m "not performance"
 
 # Check code quality
 pre-commit run --all-files

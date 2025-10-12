@@ -66,14 +66,25 @@ class TicTacToeGame:
         """Returns a list of available (empty) squares on the board."""
         return [i for i, value in enumerate(self.board) if value == " "]
 
-    def make_move(self, position: int, symbol: str) -> bool:
-        """Places a symbol on the board at a given position."""
+    def make_move(self, position: int | tuple[int, int], symbol: Optional[str] = None) -> bool:
+        """Place ``symbol`` on the board at ``position`` if available."""
+
+        if isinstance(position, tuple):
+            row, col = position
+            if not (0 <= row < self.board_size and 0 <= col < self.board_size):
+                raise ValueError("Row and column are out of bounds.")
+            index = row * self.board_size + col
+        else:
+            index = position
+
         max_position = self.board_size * self.board_size
-        if position not in range(max_position):
+        if index not in range(max_position):
             raise ValueError(f"Position must be between 0 and {max_position - 1} inclusive.")
-        if self.board[position] != " ":
+        if self.board[index] != " ":
             return False
-        self.board[position] = symbol
+
+        symbol_to_use = symbol if symbol is not None else getattr(self, "current_turn", self.human_symbol)
+        self.board[index] = symbol_to_use
         return True
 
     def winner(self) -> Optional[str]:
@@ -116,6 +127,11 @@ class TicTacToeGame:
     def is_draw(self) -> bool:
         """Checks if the game is a draw."""
         return " " not in self.board and self.winner() is None
+
+    def is_over(self) -> bool:
+        """Return ``True`` when the game has a winner or ends in a draw."""
+
+        return self.winner() is not None or self.is_draw()
 
     def minimax(self, is_maximizing: bool, depth: int = 0, max_depth: Optional[int] = None) -> Tuple[int, Optional[int]]:
         """
@@ -172,13 +188,59 @@ class TicTacToeGame:
         return int(best_score), best_move
 
     def computer_move(self) -> int:
-        """Determines and makes the computer's move."""
-        _, move = self.minimax(True)
-        if move is None:
-            # This should not happen in a normal game, but as a fallback.
-            move = self.available_moves()[0]
-        self.make_move(move, self.computer_symbol)
-        return move
+        """Determine and apply the computer's move."""
+
+        if self.board_size == 3 and self.win_length == 3:
+            move_index = self._select_fast_move()
+        else:
+            _, move_index = self.minimax(True)
+            if move_index is None:
+                move_index = self.available_moves()[0]
+
+        row, col = divmod(move_index, self.board_size)
+        self.make_move(move_index, self.computer_symbol)
+        return row, col
+
+    def _select_fast_move(self) -> int:
+        """Return a strong move using lightweight heuristics."""
+
+        available = self.available_moves()
+
+        def _winning_move(symbol: str) -> Optional[int]:
+            for candidate in available:
+                self.board[candidate] = symbol
+                has_won = self.winner() == symbol
+                self.board[candidate] = " "
+                if has_won:
+                    return candidate
+            return None
+
+        win_now = _winning_move(self.computer_symbol)
+        if win_now is not None:
+            return win_now
+
+        block_human = _winning_move(self.human_symbol)
+        if block_human is not None:
+            return block_human
+
+        # Prefer the center square when available.
+        if self.board_size % 2 == 1:
+            center_index = (self.board_size * self.board_size) // 2
+            if self.board[center_index] == " ":
+                return center_index
+
+        # Next, favour the corners for stronger board control.
+        corners = [
+            row * self.board_size + col
+            for row in (0, self.board_size - 1)
+            for col in (0, self.board_size - 1)
+        ]
+        for corner in corners:
+            if 0 <= corner < len(self.board) and self.board[corner] == " ":
+                return corner
+
+        # Finally fall back to the first available square for determinism.
+        return available[0]
 
     def human_move(self, position: int) -> bool:
         """Makes a move for the human player."""

@@ -31,6 +31,9 @@ pip install -r requirements-dev.txt
 # Run all tests
 pytest
 
+# Run the CI-equivalent suite (skips performance benchmarks)
+pytest -m "not performance"
+
 # Run all tests with coverage report
 ./scripts/run_tests.sh coverage
 
@@ -204,7 +207,9 @@ Test GUI components (requires display).
 pytest -m performance
 ```
 
-Benchmark tests for game algorithms.
+Benchmark tests for game algorithms. These are intended for local validation and
+are skipped automatically in continuous integration environments to keep
+pipeline execution times reasonable.
 
 ### Network Tests
 
@@ -228,6 +233,10 @@ Performance tests ensure game algorithms run efficiently:
 ```bash
 pytest tests/test_performance.py -v
 ```
+
+Because performance benchmarks can take significantly longer than functional
+tests, the CI configuration skips them by default. Run the command above (or
+`pytest -m performance`) locally to validate performance before merging.
 
 ### Benchmarking
 
@@ -353,17 +362,12 @@ Common fixtures are available in `conftest.py` and `tests/fixtures/`:
 
 The project uses GitHub Actions for CI:
 
-#### Test Workflow (`.github/workflows/test.yml`)
-
-- Runs on: Python 3.11, 3.12
-- Executes: Full test suite with coverage
-- Coverage threshold: 30% (increasing to 90%)
-
 #### CI Workflow (`.github/workflows/ci.yml`)
 
 - Combines: Linting + Testing
 - Uploads: Coverage reports to Codecov
 - Runs on: All pushes and pull requests
+- Test command: `pytest -m "not performance" --cov=paper_games --cov=card_games`
 
 ### Running CI Locally
 
@@ -379,8 +383,8 @@ black --check .
 ruff check .
 mdformat --check .
 
-# Run tests with coverage
-pytest --cov=paper_games --cov=card_games --cov-report=term-missing
+# Run tests with coverage (matches CI configuration)
+pytest -m "not performance" --cov=paper_games --cov=card_games --cov-report=term-missing
 ```
 
 ## Best Practices

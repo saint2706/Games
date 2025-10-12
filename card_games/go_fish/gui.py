@@ -29,6 +29,9 @@ from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, tk, ttk
 if not TKINTER_AVAILABLE:  # pragma: no cover - import guard for optional GUI
     raise RuntimeError("Tkinter is required to use the Go Fish GUI.")
 
+import tkinter as tk
+from tkinter import ttk
+
 
 @dataclass
 class ScoreboardRow:

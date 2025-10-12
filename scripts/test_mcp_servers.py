@@ -67,6 +67,10 @@ def test_server_connectivity() -> tuple[bool, list[str]]:
     messages.append("(Note: Servers may not be reachable in all environments)")
 
     try:
+        import socket
+        import urllib.error
+        import urllib.request
+
         config = load_default_mcp_config()
         all_reachable = True
 

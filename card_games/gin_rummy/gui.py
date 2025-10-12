@@ -12,7 +12,12 @@ from card_games.gin_rummy.game import (
     Meld,
     MeldType,
 )
-from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, tk
+from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
+
+if TKINTER_AVAILABLE:  # pragma: no cover - UI specific branch
+    import tkinter as tk
+else:  # pragma: no cover - fallback for headless environments
+    tk = None  # type: ignore
 
 
 def _format_meld(meld: Meld) -> str:
@@ -633,11 +638,12 @@ class GinRummyGUI(BaseGUI):
             self.log_widget,
             f"Round ends: {summary.knocker} ({knock_label}).",
         )
-        deadwood_message = (
+        self.log_message(
+            self.log_widget,
             "Deadwood — "
             f"{summary.knocker}: {summary.knocker_deadwood}, "
             f"{summary.opponent}: {summary.opponent_deadwood} "
-            f"(was {summary.opponent_initial_deadwood})."
+            f"(was {summary.opponent_initial_deadwood}).",
         )
         self.log_message(self.log_widget, deadwood_message)
 

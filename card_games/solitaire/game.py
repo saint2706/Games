@@ -320,33 +320,34 @@ class SolitaireGame:
             True if at least one card was moved, False otherwise.
         """
         moved_any = False
+        candidates: list[Pile] = []
 
-        while True:
-            moved_this_cycle = False
+        if self.waste.cards:
+            candidates.append(self.waste)
 
-            if self.waste.cards:
-                for i in range(4):
-                    if self.move_to_foundation(self.waste, i, register_move=False):
-                        moved_any = True
-                        moved_this_cycle = True
-                        break
+        for tableau_pile in self.tableau:
+            if tableau_pile.cards and tableau_pile.face_up_count > 0:
+                candidates.append(tableau_pile)
 
-            if moved_this_cycle:
-                continue
+        while candidates:
+            source = candidates.pop(0)
+            moved_from_source = False
 
-            for tableau_pile in self.tableau:
-                if not tableau_pile.cards:
-                    continue
-                for i in range(4):
-                    if self.move_to_foundation(tableau_pile, i, register_move=False):
-                        moved_any = True
-                        moved_this_cycle = True
-                        break
-                if moved_this_cycle:
+            for i in range(4):
+                if self.move_to_foundation(source, i, register_move=False):
+                    moved_any = True
+                    moved_from_source = True
                     break
 
-            if not moved_this_cycle:
-                break
+            if not moved_from_source:
+                continue
+
+            if source is self.waste and self.waste.cards:
+                if self.waste not in candidates:
+                    candidates.insert(0, self.waste)
+            elif source is not self.waste and source.cards and source.face_up_count > 0:
+                if source not in candidates:
+                    candidates.insert(0, source)
 
         if moved_any:
             self.auto_moves_made += 1

@@ -109,7 +109,8 @@ def play() -> None:
                 continue
         else:
             print("Computer is thinking…")
-            comp_position = game.computer_move()
+            comp_row, comp_col = game.computer_move()
+            comp_position = comp_row * game.board_size + comp_col
             coords_map = game._generate_coordinates()
             print(f"Computer chooses {coords_map[comp_position]}.")
 
