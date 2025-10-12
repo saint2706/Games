@@ -50,6 +50,13 @@ Welcome to the Games documentation! This guide will help you navigate all availa
   - Testing CI/CD changes locally
   - Using Docker containers for testing
 
+- **[development/WORKFLOW_TESTING_QUICKSTART.md](development/WORKFLOW_TESTING_QUICKSTART.md)** - Quick start for
+  workflow testing
+
+  - 5-minute setup guide
+  - Basic usage examples
+  - Common commands and patterns
+
 - **[development/IMPLEMENTATION_NOTES.md](development/IMPLEMENTATION_NOTES.md)** - Implementation details
 
   - Code quality improvements
