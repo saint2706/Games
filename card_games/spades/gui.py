@@ -14,7 +14,7 @@ from typing import Dict, Optional
 
 from card_games.common.cards import Card
 from card_games.spades.game import SpadesGame, SpadesPlayer
-from common.gui_base import BaseGUI, GUIConfig, TKINTER_AVAILABLE, scrolledtext, tk, ttk
+from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 
 
 @dataclass

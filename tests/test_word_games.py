@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from word_games import AnagramsGame, CrosswordGame, TriviaGame, WordBuilderGame
 
 

@@ -57,6 +57,7 @@ Games/
 - **Scalability**: Easy to add new categories as the collection grows
 
 **Current Categories:**
+
 - `card_games/` - Card-based games using standard or specialized decks
 - `paper_games/` - Paper-and-pencil games and board games
 - `dice_games/` - Dice-based games with random elements (new, awaiting implementations)
@@ -66,24 +67,28 @@ Games/
 **Alternative Approaches Considered:**
 
 ❌ **Flat Structure** (`games/poker/`, `games/tic_tac_toe/`)
-   - Cons: Loses helpful categorization, harder to browse with many games
-   - Pros: Simpler structure
-   - Verdict: Too simplistic for 21+ games
+
+- Cons: Loses helpful categorization, harder to browse with many games
+- Pros: Simpler structure
+- Verdict: Too simplistic for 21+ games
 
 ❌ **By Player Count** (`single_player/`, `multiplayer/`)
-   - Cons: Many games support multiple modes, arbitrary classification
-   - Pros: Helps users find games by number of players
-   - Verdict: Player count is better as metadata, not primary organization
+
+- Cons: Many games support multiple modes, arbitrary classification
+- Pros: Helps users find games by number of players
+- Verdict: Player count is better as metadata, not primary organization
 
 ❌ **By Complexity** (`beginner/`, `intermediate/`, `advanced/`)
-   - Cons: Subjective, changes over time, discourages growth
-   - Pros: Helps new users
-   - Verdict: Complexity is better as metadata in game catalog
+
+- Cons: Subjective, changes over time, discourages growth
+- Pros: Helps new users
+- Verdict: Complexity is better as metadata in game catalog
 
 ❌ **By Interface** (`cli_games/`, `gui_games/`)
-   - Cons: Most games support both interfaces, not a distinguishing feature
-   - Pros: Technical organization
-   - Verdict: Interface type is implementation detail, not game category
+
+- Cons: Most games support both interfaces, not a distinguishing feature
+- Pros: Technical organization
+- Verdict: Interface type is implementation detail, not game category
 
 #### 2. Self-Contained Game Modules
 
@@ -176,25 +181,28 @@ game_name/
 **Categories:**
 
 1. **architecture/**: Design patterns, system architecture, technical decisions
-2. **development/**: Code quality, testing, implementation details
-3. **planning/**: Roadmap, TODOs, future plans
-4. **source/**: Sphinx-generated documentation (tutorials, API reference)
+1. **development/**: Code quality, testing, implementation details
+1. **planning/**: Roadmap, TODOs, future plans
+1. **source/**: Sphinx-generated documentation (tutorials, API reference)
 
 #### 3. Documentation Consolidation
 
 **What was consolidated?**
 
 Before:
+
 - 3 separate MCP debug files (FINAL_MCP_DEBUG_REPORT.md, MCP_TEST_RESULTS.md, .github/MCP_DEBUG_SUMMARY.md)
 - 2 implementation documents (IMPLEMENTATION_NOTES.md, IMPLEMENTATION_SUMMARY.md)
 - Duplicate architecture info (ARCHITECTURE.md, ARCHITECTURE_STRUCTURE.txt)
 
 After:
+
 - MCP documentation in .github/ only (configuration-specific)
 - Single IMPLEMENTATION_NOTES.md with all implementation details
 - Single ARCHITECTURE.md with integrated structure diagrams
 
 **Benefits:**
+
 - **Reduced Duplication**: One source of truth per topic
 - **Easier Maintenance**: Update one file instead of multiple
 - **Better Organization**: Clear information hierarchy
@@ -266,6 +274,7 @@ tests/
 - **Coverage Tracking**: Unified coverage reports
 
 **Alternative: Per-Game Tests**
+
 - Some games have `game_name/tests/` for extensive game-specific tests
 - Benefit: Tests co-located with game code
 - Trade-off: More complex test discovery, harder to run all tests
@@ -279,6 +288,7 @@ tests/
 **Principle**: Users should be able to find what they need quickly.
 
 **Applied:**
+
 - README.md at root with overview
 - GAMES.md catalog of all games
 - Organized docs/ with clear categories
@@ -289,6 +299,7 @@ tests/
 **Principle**: Similar things should be organized similarly.
 
 **Applied:**
+
 - All games follow same module structure
 - All documentation follows same categorization
 - All tests in centralized location
@@ -299,6 +310,7 @@ tests/
 **Principle**: Organization should support growth.
 
 **Applied:**
+
 - Easy to add new game categories (board_games/, dice_games/)
 - Easy to add new documentation categories (docs/tutorials/, docs/guides/)
 - Common module supports new architectural patterns
@@ -309,6 +321,7 @@ tests/
 **Principle**: Different concerns should be separated.
 
 **Applied:**
+
 - Game logic separate from UI (cli.py, gui.py separate from game.py)
 - Documentation separate from code
 - Tests separate from implementation
@@ -319,6 +332,7 @@ tests/
 **Principle**: Follow standard practices to reduce learning curve.
 
 **Applied:**
+
 - README.md and CONTRIBUTING.md at root (GitHub standard)
 - docs/ for documentation (common practice)
 - tests/ for tests (pytest convention)
@@ -329,6 +343,7 @@ tests/
 **Principle**: Avoid duplication.
 
 **Applied:**
+
 - Common base classes for game engines
 - Shared AI strategies
 - Consolidated documentation (removed duplicates)
@@ -339,6 +354,7 @@ tests/
 **Principle**: Organization should be self-explanatory.
 
 **Applied:**
+
 - Clear directory names (card_games/, paper_games/, docs/)
 - Consistent naming conventions
 - README files at each level
@@ -360,22 +376,23 @@ As the repository grows, we may add:
 When adding new games or features:
 
 1. **Follow Existing Patterns**: Look at similar games for structure
-2. **Update Catalogs**: Add to GAMES.md and appropriate indexes
-3. **Document Decisions**: Update this rationale if making organizational changes
-4. **Test Organization**: Ensure new games are discoverable and runnable
-5. **Seek Feedback**: Propose significant organizational changes via issues
+1. **Update Catalogs**: Add to GAMES.md and appropriate indexes
+1. **Document Decisions**: Update this rationale if making organizational changes
+1. **Test Organization**: Ensure new games are discoverable and runnable
+1. **Seek Feedback**: Propose significant organizational changes via issues
 
 ## Conclusion
 
 The current organization prioritizes:
 
-✅ **Discoverability**: Easy to find games and documentation  
-✅ **Consistency**: Similar things organized similarly  
-✅ **Scalability**: Can grow without reorganization  
-✅ **Maintainability**: Easy to update and extend  
-✅ **Clarity**: Purpose of each directory is clear  
+✅ **Discoverability**: Easy to find games and documentation\
+✅ **Consistency**: Similar things organized similarly\
+✅ **Scalability**: Can grow without reorganization\
+✅ **Maintainability**: Easy to update and extend\
+✅ **Clarity**: Purpose of each directory is clear
 
 This structure has been refined based on:
+
 - Standard practices in open-source projects
 - Python packaging conventions
 - User feedback and usability
@@ -384,9 +401,9 @@ This structure has been refined based on:
 
 The organization is not set in stone—it should evolve as the repository grows while maintaining these core principles.
 
----
+______________________________________________________________________
 
-**Last Updated**: October 2025  
-**Games Count**: 21  
-**Documentation Files**: 40+  
+**Last Updated**: October 2025\
+**Games Count**: 21\
+**Documentation Files**: 40+\
 **Organization Version**: 2.0

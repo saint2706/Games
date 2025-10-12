@@ -33,7 +33,7 @@ except ImportError as exc:  # pragma: no cover - Tkinter availability is environ
 from card_games.common.cards import Card, Suit, format_cards
 from common.gui_base import BaseGUI, GUIConfig
 
-from .game import HeartsGame, HeartsPlayer, PassDirection, QUEEN_OF_SPADES
+from .game import QUEEN_OF_SPADES, HeartsGame, HeartsPlayer, PassDirection
 
 PhaseName = Literal["passing", "playing", "round_end"]
 

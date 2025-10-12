@@ -9,8 +9,11 @@ This script performs comprehensive testing of the MCP servers including:
 
 from __future__ import annotations
 
+import socket
 import sys
 from pathlib import Path
+from urllib import error as urllib_error
+from urllib import request as urllib_request
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -27,7 +30,7 @@ def test_configuration() -> tuple[bool, list[str]]:
     messages = []
     try:
         config = load_default_mcp_config()
-        messages.append(f"✓ Configuration loaded successfully")
+        messages.append("✓ Configuration loaded successfully")
         messages.append(f"✓ Found {config.get_server_count()} server(s)")
 
         # Validate configuration
@@ -64,10 +67,6 @@ def test_server_connectivity() -> tuple[bool, list[str]]:
     messages.append("(Note: Servers may not be reachable in all environments)")
 
     try:
-        import urllib.request
-        import urllib.error
-        import socket
-
         config = load_default_mcp_config()
         all_reachable = True
 
@@ -75,16 +74,16 @@ def test_server_connectivity() -> tuple[bool, list[str]]:
             server = config.get_server(name)
             try:
                 # Try to connect with a short timeout
-                request = urllib.request.Request(
+                request = urllib_request.Request(
                     server.url, headers={"User-Agent": "MCP-Test/1.0"}
                 )
-                response = urllib.request.urlopen(request, timeout=5)
+                response = urllib_request.urlopen(request, timeout=5)
                 status = response.getcode()
                 messages.append(f"  ✓ {name}: Reachable (HTTP {status})")
-            except urllib.error.HTTPError as e:
+            except urllib_error.HTTPError as e:
                 # HTTP error is still a valid response from the server
                 messages.append(f"  ✓ {name}: Server responded (HTTP {e.code})")
-            except (urllib.error.URLError, socket.timeout, ConnectionError) as e:
+            except (urllib_error.URLError, socket.timeout, ConnectionError) as e:
                 messages.append(f"  ⚠ {name}: Not reachable ({type(e).__name__})")
                 all_reachable = False
             except Exception as e:
