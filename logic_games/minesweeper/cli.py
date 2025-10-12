@@ -36,8 +36,9 @@ def main() -> None:
 
     print("\nControls:")
     print("  Enter row col action")
-    print("  Actions: r (reveal), f (flag), u (unflag)")
+    print("  Actions: r (reveal), f (flag), u (clear mark), q (question mark), o (chord)")
     print("  Example: 3 5 r  (reveal row 3, col 5)")
+    print("  Chord reveals neighbors when adjacent flags match the number.")
     print()
 
     # Game loop
@@ -63,9 +64,9 @@ def main() -> None:
                 col = int(move_input[1])
                 action_char = move_input[2].lower()
 
-                action = {"r": "reveal", "f": "flag", "u": "unflag"}.get(action_char)
+                action = {"r": "reveal", "f": "flag", "u": "unflag", "q": "question", "o": "chord"}.get(action_char)
                 if not action:
-                    print("Action must be r, f, or u.")
+                    print("Action must be r, f, u, q, or o.")
                     continue
 
                 if game.make_move((row, col, action)):
@@ -81,14 +82,8 @@ def main() -> None:
     print("\nFinal board:")
     print("  " + " ".join(f"{i:2}" for i in range(game.cols)))
     for row in range(game.rows):
-        cells = []
-        for col in range(game.cols):
-            if game.board[row][col]:
-                cells.append(" *")
-            else:
-                num = game.numbers[row][col]
-                cells.append(f"{num:2}" if num > 0 else "  ")
-        print(f"{row:2} {' '.join(cells)}")
+        cells = " ".join(f"{game.get_cell_display(row, col):2}" for col in range(game.cols))
+        print(f"{row:2} {cells}")
 
     if game.game_won:
         print("\n🎉 Congratulations! You won!")

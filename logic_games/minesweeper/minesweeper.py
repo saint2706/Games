@@ -19,6 +19,7 @@ class CellState(Enum):
     HIDDEN = "hidden"
     REVEALED = "revealed"
     FLAGGED = "flagged"
+    QUESTION = "question"
 
 
 class Difficulty(Enum):
@@ -83,6 +84,19 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         self.cell_states = [[CellState.HIDDEN] * self.cols for _ in range(self.rows)]
         self.numbers = [[0] * self.cols for _ in range(self.rows)]
 
+    def _adjacent_positions(self, row: int, col: int) -> List[Tuple[int, int]]:
+        """Get valid adjacent positions for a cell."""
+
+        neighbors: List[Tuple[int, int]] = []
+        for dr in [-1, 0, 1]:
+            for dc in [-1, 0, 1]:
+                if dr == 0 and dc == 0:
+                    continue
+                nr, nc = row + dr, col + dc
+                if 0 <= nr < self.rows and 0 <= nc < self.cols:
+                    neighbors.append((nr, nc))
+        return neighbors
+
     def _place_mines(self, first_row: int, first_col: int) -> None:
         """Place mines on board, avoiding first click.
 
@@ -92,11 +106,8 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         """
         # Get all positions except first click and neighbors
         forbidden = {(first_row, first_col)}
-        for dr in [-1, 0, 1]:
-            for dc in [-1, 0, 1]:
-                nr, nc = first_row + dr, first_col + dc
-                if 0 <= nr < self.rows and 0 <= nc < self.cols:
-                    forbidden.add((nr, nc))
+        for nr, nc in self._adjacent_positions(first_row, first_col):
+            forbidden.add((nr, nc))
 
         available = [(r, c) for r in range(self.rows) for c in range(self.cols) if (r, c) not in forbidden]
 
@@ -122,15 +133,67 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
             Number of adjacent mines
         """
         count = 0
-        for dr in [-1, 0, 1]:
-            for dc in [-1, 0, 1]:
-                if dr == 0 and dc == 0:
-                    continue
-                nr, nc = row + dr, col + dc
-                if 0 <= nr < self.rows and 0 <= nc < self.cols:
-                    if self.board[nr][nc]:
-                        count += 1
+        for nr, nc in self._adjacent_positions(row, col):
+            if self.board[nr][nc]:
+                count += 1
         return count
+
+    def _count_adjacent_flags(self, row: int, col: int) -> int:
+        """Count flagged cells adjacent to the given position."""
+
+        return sum(1 for nr, nc in self._adjacent_positions(row, col) if self.cell_states[nr][nc] == CellState.FLAGGED)
+
+    def _reveal_all_mines(self) -> None:
+        """Reveal all mines after a loss and mark game state."""
+
+        for row in range(self.rows):
+            for col in range(self.cols):
+                if self.board[row][col]:
+                    self.cell_states[row][col] = CellState.REVEALED
+
+    def _reveal_remaining_safe_cells(self) -> None:
+        """Reveal all safe cells, typically when the game is won."""
+
+        for row in range(self.rows):
+            for col in range(self.cols):
+                if not self.board[row][col] and self.cell_states[row][col] != CellState.REVEALED:
+                    self.cell_states[row][col] = CellState.REVEALED
+                    self.revealed_count += 1
+
+    def _chord_cell(self, row: int, col: int) -> bool:
+        """Reveal surrounding cells when the number of adjacent flags matches the cell number."""
+
+        if self.cell_states[row][col] != CellState.REVEALED:
+            return False
+
+        required_flags = self.numbers[row][col]
+        if required_flags == 0:
+            return False
+
+        if self._count_adjacent_flags(row, col) != required_flags:
+            return False
+
+        success = False
+        for nr, nc in self._adjacent_positions(row, col):
+            neighbor_state = self.cell_states[nr][nc]
+            if neighbor_state == CellState.FLAGGED:
+                continue
+            if self.board[nr][nc]:
+                self.cell_states[nr][nc] = CellState.REVEALED
+                self.game_lost = True
+                self.state = GameState.FINISHED
+                self._reveal_all_mines()
+                return True
+            if neighbor_state != CellState.REVEALED:
+                self._reveal_cell(nr, nc)
+                success = True
+
+        total_cells = self.rows * self.cols
+        if not self.game_lost and self.revealed_count == total_cells - self.num_mines:
+            self.game_won = True
+            self.state = GameState.FINISHED
+            self._reveal_remaining_safe_cells()
+        return success
 
     def is_game_over(self) -> bool:
         """Check if game is over."""
@@ -146,14 +209,23 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         Returns:
             List of (row, col, action) tuples
         """
-        moves = []
+        moves: List[Tuple[int, int, str]] = []
         for row in range(self.rows):
             for col in range(self.cols):
-                if self.cell_states[row][col] == CellState.HIDDEN:
+                state = self.cell_states[row][col]
+                if state == CellState.HIDDEN:
                     moves.append((row, col, "reveal"))
                     moves.append((row, col, "flag"))
-                elif self.cell_states[row][col] == CellState.FLAGGED:
+                    moves.append((row, col, "question"))
+                elif state == CellState.FLAGGED:
                     moves.append((row, col, "unflag"))
+                    moves.append((row, col, "question"))
+                elif state == CellState.QUESTION:
+                    moves.append((row, col, "reveal"))
+                    moves.append((row, col, "flag"))
+                    moves.append((row, col, "unflag"))
+                elif state == CellState.REVEALED and self.numbers[row][col] > 0:
+                    moves.append((row, col, "chord"))
         return moves
 
     def make_move(self, move: Tuple[int, int, str]) -> bool:
@@ -179,7 +251,7 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         cell_state = self.cell_states[row][col]
 
         if action == "reveal":
-            if cell_state != CellState.HIDDEN:
+            if cell_state == CellState.FLAGGED:
                 return False
 
             # Hit a mine - game over
@@ -187,6 +259,7 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
                 self.cell_states[row][col] = CellState.REVEALED
                 self.game_lost = True
                 self.state = GameState.FINISHED
+                self._reveal_all_mines()
                 return True
 
             # Reveal cell and cascade if needed
@@ -197,22 +270,43 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
             if self.revealed_count == total_cells - self.num_mines:
                 self.game_won = True
                 self.state = GameState.FINISHED
+                self._reveal_remaining_safe_cells()
 
             return True
 
         elif action == "flag":
-            if cell_state != CellState.HIDDEN:
+            if cell_state == CellState.REVEALED:
                 return False
+            if cell_state == CellState.FLAGGED:
+                return True
+            if cell_state == CellState.QUESTION:
+                self.cell_states[row][col] = CellState.FLAGGED
+                self.flagged_positions.add((row, col))
+                return True
             self.cell_states[row][col] = CellState.FLAGGED
             self.flagged_positions.add((row, col))
             return True
 
         elif action == "unflag":
-            if cell_state != CellState.FLAGGED:
+            if cell_state == CellState.FLAGGED:
+                self.cell_states[row][col] = CellState.HIDDEN
+                self.flagged_positions.discard((row, col))
+                return True
+            if cell_state == CellState.QUESTION:
+                self.cell_states[row][col] = CellState.HIDDEN
+                return True
+            return False
+
+        elif action == "question":
+            if cell_state == CellState.REVEALED:
                 return False
-            self.cell_states[row][col] = CellState.HIDDEN
-            self.flagged_positions.discard((row, col))
+            if cell_state == CellState.FLAGGED:
+                self.flagged_positions.discard((row, col))
+            self.cell_states[row][col] = CellState.QUESTION
             return True
+
+        elif action == "chord":
+            return self._chord_cell(row, col)
 
         return False
 
@@ -223,7 +317,7 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
             row: Row index
             col: Column index
         """
-        if self.cell_states[row][col] != CellState.HIDDEN:
+        if self.cell_states[row][col] in {CellState.REVEALED, CellState.FLAGGED}:
             return
 
         self.cell_states[row][col] = CellState.REVEALED
@@ -231,13 +325,8 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
 
         # Cascade reveal if cell has no adjacent mines
         if self.numbers[row][col] == 0:
-            for dr in [-1, 0, 1]:
-                for dc in [-1, 0, 1]:
-                    if dr == 0 and dc == 0:
-                        continue
-                    nr, nc = row + dr, col + dc
-                    if 0 <= nr < self.rows and 0 <= nc < self.cols:
-                        self._reveal_cell(nr, nc)
+            for nr, nc in self._adjacent_positions(row, col):
+                self._reveal_cell(nr, nc)
 
     def get_winner(self) -> int | None:
         """Get winner if game is over."""
@@ -268,7 +357,11 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         if state == CellState.HIDDEN:
             return "·"
         elif state == CellState.FLAGGED:
+            if self.game_lost and not self.board[row][col]:
+                return "✗"
             return "F"
+        elif state == CellState.QUESTION:
+            return "?"
         elif state == CellState.REVEALED:
             if self.board[row][col]:
                 return "*"  # Mine

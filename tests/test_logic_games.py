@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from logic_games import LightBulb, LightsOutGame, MinesweeperGame, PicrossGame, SlidingPuzzleGame, SokobanGame
-from logic_games.minesweeper.minesweeper import Difficulty
-from logic_games.picross.picross import CellState
+from common.game_engine import GameState
+from logic_games import LightsOutGame, MinesweeperGame, PicrossGame, SlidingPuzzleGame, SokobanGame
+from logic_games.minesweeper.minesweeper import CellState, Difficulty
 
 
 class TestMinesweeper:
@@ -29,7 +29,7 @@ class TestMinesweeper:
     def test_first_click_safe(self) -> None:
         """Test first click is always safe."""
         game = MinesweeperGame()
-        game.state = game.state.IN_PROGRESS
+        game.state = GameState.IN_PROGRESS
         # First click should place mines
         result = game.make_move((0, 0, "reveal"))
         assert result
@@ -39,10 +39,73 @@ class TestMinesweeper:
     def test_flag_cell(self) -> None:
         """Test flagging a cell."""
         game = MinesweeperGame()
-        game.state = game.state.IN_PROGRESS
+        game.state = GameState.IN_PROGRESS
         result = game.make_move((0, 0, "flag"))
         assert result
         assert (0, 0) in game.flagged_positions
+
+    def test_question_mark_cycle(self) -> None:
+        """Test cycling through mark states."""
+        game = MinesweeperGame()
+        game.state = GameState.IN_PROGRESS
+
+        assert game.make_move((0, 0, "question"))
+        assert game.cell_states[0][0] == CellState.QUESTION
+
+        assert game.make_move((0, 0, "flag"))
+        assert game.cell_states[0][0] == CellState.FLAGGED
+        assert (0, 0) in game.flagged_positions
+
+        assert game.make_move((0, 0, "question"))
+        assert game.cell_states[0][0] == CellState.QUESTION
+        assert (0, 0) not in game.flagged_positions
+
+        assert game.make_move((0, 0, "unflag"))
+        assert game.cell_states[0][0] == CellState.HIDDEN
+
+    def test_chord_reveals_neighbors(self) -> None:
+        """Chord action should reveal adjacent hidden cells when flags match numbers."""
+
+        game = MinesweeperGame()
+        game.state = GameState.IN_PROGRESS
+        game.board = [[False] * game.cols for _ in range(game.rows)]
+        game.cell_states = [[CellState.HIDDEN] * game.cols for _ in range(game.rows)]
+        game.numbers = [[0] * game.cols for _ in range(game.rows)]
+
+        game.board[0][0] = True
+        for row in range(3):
+            for col in range(3):
+                if not game.board[row][col]:
+                    game.numbers[row][col] = game._count_adjacent_mines(row, col)
+
+        assert game.make_move((1, 1, "reveal"))
+        assert game.numbers[1][1] == 1
+        assert game.cell_states[1][1] == CellState.REVEALED
+
+        assert game.make_move((0, 0, "flag"))
+        assert game.make_move((1, 1, "chord"))
+        assert game.cell_states[2][2] == CellState.REVEALED
+
+    def test_misflag_display_after_loss(self) -> None:
+        """Misflagged cells should be indicated when the player loses."""
+
+        game = MinesweeperGame()
+        game.state = GameState.IN_PROGRESS
+        game.board = [[False] * game.cols for _ in range(game.rows)]
+        game.cell_states = [[CellState.HIDDEN] * game.cols for _ in range(game.rows)]
+        game.numbers = [[0] * game.cols for _ in range(game.rows)]
+
+        game.board[0][0] = True
+        for row in range(2):
+            for col in range(2):
+                if not game.board[row][col]:
+                    game.numbers[row][col] = game._count_adjacent_mines(row, col)
+
+        assert game.make_move((0, 1, "flag"))
+        assert game.make_move((0, 0, "reveal"))
+        assert game.game_lost
+        assert game.get_cell_display(0, 0) == "*"
+        assert game.get_cell_display(0, 1) == "✗"
 
 
 class TestSokoban:
