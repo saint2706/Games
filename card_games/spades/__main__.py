@@ -13,6 +13,13 @@ except Exception:  # pragma: no cover - Tkinter may be unavailable in some envir
 else:
     _GUI_ERRORS = (RuntimeError, TclError)
 
+    except _GUI_ERRORS as exc:
+    from tkinter import TclError
+except Exception:  # pragma: no cover - Tkinter may be unavailable in some environments.
+    _GUI_ERRORS: tuple[type[BaseException], ...] = (RuntimeError,)
+else:
+    _GUI_ERRORS = (RuntimeError, TclError)
+
 from card_games.spades.cli import game_loop
 from card_games.spades.gui import run_app
 
