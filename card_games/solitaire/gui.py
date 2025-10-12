@@ -28,7 +28,7 @@ except ImportError:  # pragma: no cover - handled gracefully by run_app()
     tk = None  # type: ignore
 
 from card_games.common.cards import Card
-from card_games.common.gui_base import GUIConfig, BaseGUI, TKINTER_AVAILABLE
+from card_games.common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 from card_games.solitaire.game import Pile, SolitaireGame
 
 CARD_WIDTH = 90

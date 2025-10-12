@@ -112,6 +112,11 @@ class DotsAndBoxes:
         """Checks if the game is over (all boxes are claimed)."""
         return all(owner is not None for owner in self.boxes.values())
 
+    def game_over(self) -> bool:
+        """Compatibility wrapper expected by older tests."""
+
+        return self.is_finished()
+
     # ------------------------------------------------------------------
     # Computer player
     def computer_turn(self) -> List[Tuple[EdgeKey, int]]:
@@ -158,6 +163,11 @@ class DotsAndBoxes:
             completed = apply_move(scoring_move)
 
         return moves
+
+    def make_computer_move(self) -> List[Tuple[EdgeKey, int]]:
+        """Execute the computer's turn and return the moves performed."""
+
+        return self.computer_turn()
 
     def _find_scoring_move(self) -> Optional[EdgeKey]:
         """Finds a move that will complete at least one box."""

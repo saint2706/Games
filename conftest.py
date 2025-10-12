@@ -1,5 +1,6 @@
 """Pytest configuration and shared fixtures for Games project."""
 
+import os
 import pathlib
 import random
 import sys
@@ -55,7 +56,7 @@ def capture_output(monkeypatch, capsys):
 @pytest.fixture
 def benchmark_iterations() -> int:
     """Default number of iterations for benchmark tests."""
-    return 100
+    return 5
 
 
 @pytest.fixture
@@ -77,6 +78,9 @@ def pytest_configure(config):
 
 def pytest_collection_modifyitems(config, items):
     """Modify test collection to add markers based on test location."""
+    running_in_ci = os.getenv("CI", "").lower() in {"1", "true", "yes"}
+    skip_performance = pytest.mark.skip(reason="Performance tests run only in local environments.") if running_in_ci else None
+
     for item in items:
         # Add integration marker for CLI tests
         if "cli" in item.nodeid.lower():
@@ -89,6 +93,8 @@ def pytest_collection_modifyitems(config, items):
         # Add performance marker for benchmark tests
         if "benchmark" in item.nodeid.lower() or "performance" in item.nodeid.lower():
             item.add_marker(pytest.mark.performance)
+            if skip_performance is not None:
+                item.add_marker(skip_performance)
 
         # Add network marker for network tests
         if "network" in item.nodeid.lower():

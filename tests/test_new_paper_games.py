@@ -1,14 +1,21 @@
+"""Additional regression tests for paper-based games."""
+
 from __future__ import annotations
 
 import random
 
 # Ensure deterministic SudokuGenerator seeding
 from common.game_engine import GameState
+from paper_games.boggle import BoggleGame, BoggleMove
 from paper_games.checkers import CheckersAI, CheckersGame, CheckersMove, CheckersPiece
+from paper_games.chess import ChessGame
 from paper_games.connect_four import ConnectFourGame, ConnectFourMove
 from paper_games.mancala import MancalaAI, MancalaGame, MancalaMove
+from paper_games.mastermind import MastermindGame, MastermindMove
 from paper_games.othello import OthelloAI, OthelloGame, OthelloMove
 from paper_games.sudoku import SudokuGenerator
+from paper_games.twenty_questions import TwentyQuestionsGame
+from paper_games.yahtzee import YahtzeeCategory, YahtzeeGame
 
 
 def test_connect_four_vertical_win() -> None:
@@ -120,11 +127,7 @@ def test_snakes_and_ladders_movement() -> None:
 
     # Next player's turn
     assert game.get_current_player() == 1
-
-
 def test_yahtzee_scoring() -> None:
-    from paper_games.yahtzee import YahtzeeGame, YahtzeeCategory, YahtzeeMove
-
     game = YahtzeeGame(num_players=1)
 
     # Test scoring with specific dice
@@ -139,11 +142,7 @@ def test_yahtzee_scoring() -> None:
     game._dice = [5, 5, 5, 5, 5]
     score = game.calculate_score(YahtzeeCategory.YAHTZEE)
     assert score == 50
-
-
 def test_mastermind_feedback() -> None:
-    from paper_games.mastermind import MastermindGame, MastermindMove
-
     game = MastermindGame(code_length=4)
     # Set a known secret code for testing
     game._secret_code = [0, 1, 2, 3]  # Red, Blue, Green, Yellow
@@ -154,11 +153,7 @@ def test_mastermind_feedback() -> None:
     black, white = game.get_feedback()[0]
     assert black == 4  # All correct
     assert white == 0
-
-
 def test_boggle_word_validation() -> None:
-    from paper_games.boggle import BoggleGame, BoggleMove
-
     game = BoggleGame(size=4)
     # Set a specific grid for testing
     game._grid = [
@@ -169,25 +164,17 @@ def test_boggle_word_validation() -> None:
     ]
 
     # "CAT" should be findable
-    move = BoggleMove(word="cat")
     # Note: may not be in simple dictionary, so just test structure
     assert game.is_word_in_grid("CAT")
-
-
+    assert BoggleMove(word="cat").word.upper() == "CAT"
 def test_twenty_questions_basic() -> None:
-    from paper_games.twenty_questions import TwentyQuestionsGame
-
     game = TwentyQuestionsGame()
     assert not game.is_game_over()
     assert game.get_questions_remaining() == 20
 
     game.ask_question("Is it alive?", True)
     assert game.get_questions_remaining() == 19
-
-
 def test_chess_basic_board() -> None:
-    from paper_games.chess import ChessGame
-
     game = ChessGame()
     # Board should be initialized
     assert len(game._board) == 8

@@ -9,23 +9,10 @@ solving the puzzle purely from the row and column hints.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
 from typing import Iterable, List, Sequence, Tuple
 
 from common.game_engine import GameEngine, GameState
-
-
-class CellState(Enum):
-    """Possible states for a Picross cell."""
-
-    UNKNOWN = "?"
-    FILLED = "█"
-    EMPTY = "·"
-
-    def render(self) -> str:
-        """Return a printable representation of the state."""
-
-        return self.value
+from logic_games.minesweeper.minesweeper import CellState
 
 
 @dataclass(frozen=True)

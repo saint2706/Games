@@ -22,16 +22,15 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from common.gui_base import BaseGUI, GUIConfig, TKINTER_AVAILABLE
+from card_games.common.cards import RANKS
+from card_games.go_fish.game import GoFishGame, Player
+from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 
 if not TKINTER_AVAILABLE:  # pragma: no cover - import guard for optional GUI
     raise RuntimeError("Tkinter is required to use the Go Fish GUI.")
 
 import tkinter as tk
 from tkinter import ttk
-
-from card_games.common.cards import RANKS
-from card_games.go_fish.game import GoFishGame, Player
 
 
 @dataclass

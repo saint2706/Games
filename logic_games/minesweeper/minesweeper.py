@@ -20,6 +20,18 @@ class CellState(Enum):
     REVEALED = "revealed"
     FLAGGED = "flagged"
     QUESTION = "question"
+    UNKNOWN = "unknown"
+    FILLED = "filled"
+    EMPTY = "empty"
+
+    def render(self) -> str:
+        """Return a printable token suitable for textual boards."""
+
+        return {
+            CellState.UNKNOWN: "?",
+            CellState.FILLED: "█",
+            CellState.EMPTY: "·",
+        }.get(self, str(self.value))
 
 
 class Difficulty(Enum):

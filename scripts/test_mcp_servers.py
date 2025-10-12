@@ -27,7 +27,7 @@ def test_configuration() -> tuple[bool, list[str]]:
     messages = []
     try:
         config = load_default_mcp_config()
-        messages.append(f"✓ Configuration loaded successfully")
+        messages.append("✓ Configuration loaded successfully")
         messages.append(f"✓ Found {config.get_server_count()} server(s)")
 
         # Validate configuration
@@ -64,9 +64,9 @@ def test_server_connectivity() -> tuple[bool, list[str]]:
     messages.append("(Note: Servers may not be reachable in all environments)")
 
     try:
-        import urllib.request
-        import urllib.error
         import socket
+        import urllib.error
+        import urllib.request
 
         config = load_default_mcp_config()
         all_reachable = True

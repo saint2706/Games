@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import random
+from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
 from common.game_engine import GameEngine, GameState

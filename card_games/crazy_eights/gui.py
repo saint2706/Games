@@ -15,7 +15,7 @@ from typing import Any, Optional
 
 from card_games.common.cards import Card, Suit
 from card_games.crazy_eights.game import CrazyEightsGame, Player
-from common.gui_base import BaseGUI, GUIConfig, TKINTER_AVAILABLE
+from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 
 if not TKINTER_AVAILABLE:  # pragma: no cover - Tkinter unavailable environments
     raise ImportError("Tkinter is required to use the Crazy Eights GUI")

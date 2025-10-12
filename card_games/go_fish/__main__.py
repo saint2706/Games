@@ -5,9 +5,9 @@ from __future__ import annotations
 import argparse
 import random
 
-from common.gui_base import TKINTER_AVAILABLE
 from card_games.go_fish.cli import game_loop
 from card_games.go_fish.game import GoFishGame
+from common.gui_base import TKINTER_AVAILABLE
 
 
 def main() -> None:

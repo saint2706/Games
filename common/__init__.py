@@ -15,7 +15,6 @@ This package provides shared functionality including:
 """
 
 from .ai_strategy import AIStrategy, HeuristicStrategy, MinimaxStrategy, RandomStrategy
-from .mcp_config_loader import MCPConfig, MCPServerConfig, load_default_mcp_config, validate_mcp_config_file
 from .architecture.engine import GameEngine, GamePhase, GameState
 from .architecture.events import Event, EventBus, EventHandler, FunctionEventHandler
 from .architecture.observer import Observable, Observer, PropertyObservable
@@ -53,6 +52,7 @@ from .educational import (
     TutorialMode,
     TutorialStep,
 )
+from .mcp_config_loader import MCPConfig, MCPServerConfig, load_default_mcp_config, validate_mcp_config_file
 
 # GUI enhancement imports (optional, only if tkinter available)
 try:

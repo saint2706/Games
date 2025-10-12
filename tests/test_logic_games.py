@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
-
 from common.game_engine import GameState
 from logic_games import LightsOutGame, MinesweeperGame, PicrossGame, SlidingPuzzleGame, SokobanGame
+from logic_games.lights_out.lights_out import LightBulb
 from logic_games.minesweeper.minesweeper import CellState, Difficulty
 
 
