@@ -33,9 +33,11 @@ python -m logic_games.minesweeper
 ## Features
 
 - Three difficulty levels
-- Flag/unflag mechanics
-- Cascade reveal for zero cells
-- Safe first click (never a mine)
+- Flag, question mark, and clear mark mechanics
+- Chording to reveal around completed numbers
+- Automatic cascade reveal for zero cells
+- Safe first click (never a mine or immediate neighbor)
+- Mine reveal and misflag indicators when the game ends
 
 ## Strategy Tips
 
