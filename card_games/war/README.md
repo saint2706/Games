@@ -1,0 +1,70 @@
+# War Card Game
+
+A simple implementation of the classic card game War.
+
+## Rules
+
+War is a simple card game typically played between two players:
+
+1. The deck is divided equally between two players (26 cards each)
+2. Each round, both players reveal their top card simultaneously
+3. The player with the higher card wins both cards and adds them to the bottom of their deck
+4. If both cards are equal, a "war" occurs:
+   - Each player places 3 cards face down
+   - Then reveals 1 card face up
+   - The higher face-up card wins all cards in play
+   - If those cards are also equal, another war occurs
+5. The game continues until one player has all the cards
+
+## Card Values
+
+- Ace is highest (value 14)
+- King = 13, Queen = 12, Jack = 11
+- Number cards have their face value (2-10)
+
+## Running the Game
+
+Play interactively:
+
+```bash
+python -m card_games.war
+```
+
+Auto-play a full game:
+
+```bash
+python -m card_games.war --auto
+```
+
+Use a specific seed for reproducible games:
+
+```bash
+python -m card_games.war --seed 42
+```
+
+## Features
+
+- Full implementation of War rules including recursive wars
+- Automatic detection of insufficient cards during war
+- Game statistics tracking (rounds played, wars fought)
+- Interactive CLI with round-by-round play
+- Auto-play mode for quick simulation
+- Deterministic games with seed support
+
+## Architecture
+
+The implementation follows the repository's architecture patterns:
+
+- `game.py` - Core game engine with no UI dependencies
+- `cli.py` - Command-line interface helpers
+- `__main__.py` - Entry point with argument parsing
+
+## Future Enhancements
+
+Potential additions:
+
+- GUI implementation using tkinter
+- Support for more than 2 players
+- Statistics tracking across multiple games
+- AI strategy analysis (though War is entirely luck-based)
+- Animation of card movements in GUI
