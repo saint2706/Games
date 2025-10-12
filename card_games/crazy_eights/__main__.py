@@ -37,7 +37,13 @@ def main() -> None:
 
     from card_games.crazy_eights.gui import CrazyEightsGUI
 
-    root = tk.Tk()
+    try:
+        root = tk.Tk()
+    except tk.TclError as exc:
+        print(f"Unable to start the Crazy Eights GUI: {exc}. Falling back to the CLI interface.")
+        game_loop(game)
+        return
+
     CrazyEightsGUI(root, game)
     root.mainloop()
 
