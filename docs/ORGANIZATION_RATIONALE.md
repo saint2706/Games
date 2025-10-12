@@ -195,14 +195,16 @@ engine base, GUI base, AI strategies)
 Before:
 
 - 3 separate MCP debug files (FINAL_MCP_DEBUG_REPORT.md, MCP_TEST_RESULTS.md, .github/MCP_DEBUG_SUMMARY.md)
-- 2 implementation documents (IMPLEMENTATION_NOTES.md, IMPLEMENTATION_SUMMARY.md)
+- Multiple implementation summary documents (IMPLEMENTATION_SUMMARY.md, Q4_2025_IMPLEMENTATION_SUMMARY.md, CARD_GAMES_IMPLEMENTATION.md, card_games/IMPLEMENTATION_SUMMARY.md)
 - Duplicate architecture info (ARCHITECTURE.md, ARCHITECTURE_STRUCTURE.txt)
+- DOCUMENTATION_CLEANUP_SUMMARY.md (historical cleanup notes)
 
 After:
 
 - MCP documentation in .github/ only (configuration-specific)
-- Single IMPLEMENTATION_NOTES.md with all implementation details
-- Single ARCHITECTURE.md with integrated structure diagrams
+- Single docs/development/IMPLEMENTATION_NOTES.md with all implementation details consolidated
+- Single docs/architecture/ARCHITECTURE.md with integrated structure diagrams
+- Historical information preserved in CHANGELOG.md
 
 **Benefits:**
 
