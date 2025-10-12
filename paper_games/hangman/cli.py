@@ -26,7 +26,7 @@ def _get_difficulty() -> str:
     ]
     menu = InteractiveMenu("Select Difficulty", options, theme=CLI_THEME)
     selection = menu.display()
-    
+
     difficulty_map = {0: "easy", 1: "medium", 2: "hard", 3: "all"}
     return difficulty_map.get(selection, "all")
 
@@ -40,13 +40,13 @@ def _get_theme() -> str | None:
     options = ["No theme (standard words)"]
     theme_list = sorted(themes.keys())
     options.extend([theme.capitalize() for theme in theme_list])
-    
+
     menu = InteractiveMenu("Select Theme", options, theme=CLI_THEME)
     selection = menu.display()
-    
+
     if selection == 0:
         return None
-    
+
     return theme_list[selection - 1] if 0 < selection <= len(theme_list) else None
 
 
@@ -54,20 +54,20 @@ def _get_art_style() -> str:
     """Prompt user to select ASCII art style."""
     styles = sorted(HANGMAN_ART_STYLES.keys())
     options = [style.capitalize() for style in styles]
-    
+
     menu = InteractiveMenu("Select ASCII Art Style", options, theme=CLI_THEME)
     selection = menu.display()
-    
+
     return styles[selection] if 0 <= selection < len(styles) else "classic"
 
 
 def _get_game_mode() -> str:
     """Prompt user to select game mode."""
     options = ["Single Player", "Multiplayer (take turns choosing words)"]
-    
+
     menu = InteractiveMenu("Select Game Mode", options, theme=CLI_THEME)
     selection = menu.display()
-    
+
     return "multiplayer" if selection == 1 else "single"
 
 

@@ -88,7 +88,7 @@ class TicTacToeGame:
             return False
 
         symbol_to_use = symbol if symbol is not None else getattr(self, "current_turn", self.human_symbol)
-        
+
         # Record the move for replay/undo
         state_before = {"board": self.board.copy(), "current_turn": getattr(self, "current_turn", self.human_symbol)}
         self.replay_manager.record_action(
@@ -98,7 +98,7 @@ class TicTacToeGame:
             data={"position": index, "symbol": symbol_to_use},
             state_before=state_before,
         )
-        
+
         self.board[index] = symbol_to_use
         return True
 

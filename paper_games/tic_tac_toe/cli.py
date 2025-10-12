@@ -99,7 +99,7 @@ def play() -> None:
         if game.current_turn == game.human_symbol:
             prompt = "Choose your move (or 'undo' to undo last move): "
             move_str = input(prompt).strip().lower()
-            
+
             # Handle undo command
             if move_str == "undo":
                 if game.can_undo():
@@ -116,7 +116,7 @@ def play() -> None:
                 else:
                     print("No moves to undo.")
                     continue
-            
+
             try:
                 position = game.parse_coordinate(move_str)
             except ValueError as exc:
