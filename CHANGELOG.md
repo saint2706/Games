@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-12
+
+### Added - Q4 2025 Consolidation & Deployment
+
+#### New Card Games (3)
+- **Cribbage**: Full implementation with pegging, The Show, and crib scoring
+  - Complete hand evaluation (15s, pairs, runs, flush, nobs)
+  - Interactive CLI with strategic discarding
+  - First to 121 points wins
+- **Euchre**: Trump-based trick-taking with 24-card deck
+  - Bower system (right and left)
+  - Partnership gameplay (4 players)
+  - Going alone mechanics
+- **Rummy 500**: Melding and laying off variant
+  - Sets and runs validation
+  - Visible discard pile
+  - Negative scoring for cards in hand
+
+#### Deployment Infrastructure
+- **PyInstaller Build Configuration**: Create standalone executables
+  - Single-file executables for Windows, macOS, and Linux
+  - UPX compression enabled
+  - Customizable spec file
+- **Nuitka Build Configuration**: Native compilation for better performance
+  - Smaller executable size
+  - Advanced optimizations
+  - Build script with configuration options
+- **Docker Support**: Complete containerization
+  - Dockerfile for easy deployment
+  - docker-compose.yml for orchestration
+  - Volume mounting for persistent statistics
+  - Non-root user for security
+- **Universal Launcher**: Menu-based game selector
+  - Color-coded interface
+  - All 32+ games accessible
+  - Error handling and graceful exits
+
+#### Crash Reporting & Error Analytics
+- **Crash Reporter Module**: Comprehensive error tracking
+  - Local crash report storage (~/.game_logs/crashes/)
+  - System information collection
+  - Opt-in telemetry placeholder
+  - Global exception handler
+  - 11 unit tests (100% passing)
+
+#### Cross-Platform Testing
+- **GitHub Actions Workflow**: Multi-platform CI/CD
+  - Build executables for Windows, macOS, Linux
+  - Test on Python 3.9, 3.10, 3.11, 3.12
+  - Docker image building and testing
+  - Automated releases on tags
+
+#### Documentation
+- **Deployment Guide** (docs/DEPLOYMENT.md): Complete deployment reference
+  - PyPI installation instructions
+  - Standalone executable usage
+  - Docker deployment guide
+  - Platform-specific considerations
+  - Troubleshooting section
+- **Build Configs README**: Build tool documentation
+- **Game READMEs**: Detailed rules for new games
+
+### Changed
+- Updated TODO.md: All Q4 2025 items marked complete (10/10)
+- Updated pyproject.toml: Added entry points for new games
+- Updated launcher: Integrated Cribbage, Euchre, and Rummy 500
+
+### Fixed
+- Launcher imports now use __main__ modules correctly
+- Docker image uses non-root user for security
+- Cross-platform compatibility issues addressed
+
 ## [1.0.0] - 2025-10-12
 
 ### Added
