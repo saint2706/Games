@@ -65,8 +65,11 @@ def strip_ansi(text: str) -> str:
     return ANSI_RE.sub("", text)
 
 
-class PyQtUnoInterface(QWidget, UnoInterface):
-    """Bridge the Uno engine with a PyQt5 graphical front-end."""
+class PyQtUnoInterface(QWidget):
+    """Bridge the Uno engine with a PyQt5 graphical front-end.
+    
+    Implements the UnoInterface protocol without direct inheritance to avoid metaclass conflicts.
+    """
 
     decision_made = pyqtSignal()
 

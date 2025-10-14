@@ -206,7 +206,6 @@ def main() -> int:
 
         if PYQT5_MIGRATED:
             print("\n* denotes games with completed PyQt5 migrations.")
-                print(f"  {game:20} {' '.join(status_parts)}")
 
         return 0
 

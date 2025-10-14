@@ -71,8 +71,12 @@ class _TrickSeatWidget:
         self.card_label.setText(card_text)
 
 
-class HeartsGUI(QMainWindow, BaseGUI):
-    """PyQt5 GUI for a round of Hearts."""
+class HeartsGUI(QMainWindow):
+    """PyQt5 GUI for a round of Hearts.
+    
+    Note: Does not inherit from BaseGUI as it's designed for Tkinter,
+    and would cause metaclass conflicts with QMainWindow.
+    """
 
     def __init__(
         self,
