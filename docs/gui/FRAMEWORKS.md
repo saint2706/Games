@@ -28,6 +28,7 @@ pip install pyqt5
 
 - Dots and Boxes (paper_games/dots_and_boxes/gui_pyqt.py)
 - Go Fish (card_games/go_fish/gui_pyqt.py)
+- Gin Rummy (card_games/gin_rummy/gui_pyqt.py)
 - Blackjack (card_games/blackjack/gui_pyqt.py)
 - Solitaire (card_games/solitaire/gui_pyqt.py)
 - Spades (card_games/spades/gui_pyqt.py)
@@ -65,6 +66,9 @@ For detailed migration instructions, see `MIGRATION_GUIDE.md`.
 | ✅ Completed | 3/14 | 21% |
 | ⏳ Remaining | 11/14 | 79% |
 
+**Completed**: Dots and Boxes, Go Fish, Gin Rummy
+
+**Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Crazy Eights, Hearts, Poker, Solitaire, Spades, Uno, War (card games)
 **Completed**: Battleship, Dots and Boxes, Go Fish
 
 **Remaining**: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War (card games)

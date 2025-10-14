@@ -209,6 +209,8 @@ QTimer.singleShot(500, self.callback)
 
 ### Games (3/14 completed)
 
+- ✅ **Completed**: Dots and Boxes, Go Fish, Gin Rummy
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 - ✅ **Completed**: Battleship, Dots and Boxes, Go Fish
 - ⏳ **Remaining**: 11 card games (Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War)
 - ✅ **Completed**: Dots and Boxes, Go Fish, Bluff
@@ -273,7 +275,7 @@ python scripts/test_gui.py --list
 
 To complete the migration:
 
-1. **Choose a game** from the remaining 13
+1. **Choose a game** from the remaining 11
 1. **Follow the migration guide** in `MIGRATION_GUIDE.md`
 1. **Reference the example** in `paper_games/dots_and_boxes/gui_pyqt.py`
 1. **Use BaseGUI** from `common/gui_base_pyqt.py` for consistency

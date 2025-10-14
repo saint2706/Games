@@ -33,7 +33,7 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 | Bluff | ⏳ Pending | - | 451 lines, multi-player |
 | Bridge | ✅ Complete | `card_games/bridge/gui_pyqt.py` | PyQt port with automated bidding/play |
 | Crazy Eights | ⏳ Pending | - | 465 lines |
-| Gin Rummy | ⏳ Pending | - | 709 lines, melding system |
+| Gin Rummy | ✅ Complete | `card_games/gin_rummy/gui_pyqt.py` | 709 lines, melding system |
 | Go Fish | ✅ Complete | `card_games/go_fish/gui_pyqt.py` | 425 lines, simplest card game GUI |
 | Hearts | ✅ Complete | `card_games/hearts/gui_pyqt.py` | 610 lines, trick-taking |
 | Poker | ⏳ Pending | - | 437 lines, betting interface |
