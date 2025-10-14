@@ -21,7 +21,7 @@ import random
 from typing import Callable, Optional, Tuple
 
 from card_games.common.cards import Card
-from card_games.common.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILABLE
+from common.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILABLE
 from card_games.solitaire.game import Pile, SolitaireGame
 
 if PYQT5_AVAILABLE:  # pragma: no cover - Import guarded by availability checks
