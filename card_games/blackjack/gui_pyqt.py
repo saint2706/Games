@@ -109,9 +109,7 @@ class BlackjackTable(QWidget):
         header_layout.setSpacing(12)
 
         title_label = QLabel("Blackjack", header)
-        title_label.setStyleSheet(
-            f"color: {_TEXT_ALERT}; font-size: 26pt; font-weight: bold; letter-spacing: 1px;"
-        )
+        title_label.setStyleSheet(f"color: {_TEXT_ALERT}; font-size: 26pt; font-weight: bold; letter-spacing: 1px;")
         header_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
         info_panel = QWidget(header)
@@ -187,9 +185,7 @@ class BlackjackTable(QWidget):
         main_layout.addWidget(controls)
 
         table_frame = QFrame(self)
-        table_frame.setStyleSheet(
-            f"background-color: {_TABLE_ACCENT}; border: 4px ridge {_TABLE_ACCENT}; border-radius: 12px;"
-        )
+        table_frame.setStyleSheet(f"background-color: {_TABLE_ACCENT}; border: 4px ridge {_TABLE_ACCENT}; border-radius: 12px;")
         table_layout = QVBoxLayout(table_frame)
         table_layout.setContentsMargins(24, 18, 24, 18)
         table_layout.setSpacing(18)
@@ -276,9 +272,7 @@ class BlackjackTable(QWidget):
             highlight = index == self.current_hand_index and self.round_active
             container = QFrame(self.player_hands_widget)
             background = _HIGHLIGHT if highlight else _ACTION_BG
-            container.setStyleSheet(
-                f"background-color: {background}; border: 3px solid {_TABLE_ACCENT}; border-radius: 12px;"
-            )
+            container.setStyleSheet(f"background-color: {background}; border: 3px solid {_TABLE_ACCENT}; border-radius: 12px;")
             hand_layout = QVBoxLayout(container)
             hand_layout.setContentsMargins(12, 12, 12, 12)
             hand_layout.setSpacing(8)
@@ -439,9 +433,7 @@ class BlackjackTable(QWidget):
         if not enabled:
             button.setStyleSheet(f"background-color: {_ACTION_BG}; color: {_TEXT_MUTED};")
         elif primary:
-            button.setStyleSheet(
-                f"background-color: {_BUTTON_BG}; color: #1c1c1c; font-weight: bold; padding: 10px 18px; border-radius: 6px;"
-            )
+            button.setStyleSheet(f"background-color: {_BUTTON_BG}; color: #1c1c1c; font-weight: bold; padding: 10px 18px; border-radius: 6px;")
         elif highlight:
             button.setStyleSheet(f"background-color: {_HIGHLIGHT}; color: {_TEXT_PRIMARY}; font-weight: bold;")
         else:

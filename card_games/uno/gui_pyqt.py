@@ -117,7 +117,7 @@ class PyQtUnoInterface(QWidget, UnoInterface):
         safe_text = html.escape(strip_ansi(message))
         hex_color = COLOR_HEX.get(color, "#f5f5f5")
         weight = "font-weight:600;" if style == Style.BRIGHT else ""
-        html_message = f'<span style="color:{hex_color}; {weight} font-family:\"Courier New\",monospace;">{safe_text}</span>'
+        html_message = f'<span style="color:{hex_color}; {weight} font-family:"Courier New",monospace;">{safe_text}</span>'
         self.log_widget.append(html_message)
         self.log_widget.verticalScrollBar().setValue(self.log_widget.verticalScrollBar().maximum())
         QApplication.processEvents()
@@ -313,10 +313,7 @@ class PyQtUnoInterface(QWidget, UnoInterface):
 
         if not player.is_human:
             return False
-        message = (
-            f"{player.name}, someone just played {card.color} {card.value}!\n\n"
-            "Do you want to JUMP IN with an identical card?"
-        )
+        message = f"{player.name}, someone just played {card.color} {card.value}!\n\n" "Do you want to JUMP IN with an identical card?"
         result = QMessageBox.question(
             self,
             "Jump In?",

@@ -170,8 +170,8 @@ This feature is out of scope for the current implementation as it requires:
 
 ## Usage Examples
 
-Pass ``--gui pyqt`` to launch the new PyQt5 interface or omit the value/choose
-``--gui tk`` for the legacy Tkinter window.
+Pass `--gui pyqt` to launch the new PyQt5 interface or omit the value/choose
+`--gui tk` for the legacy Tkinter window.
 
 ### Enable All House Rules
 

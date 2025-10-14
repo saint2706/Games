@@ -31,8 +31,8 @@ from typing import Dict, Optional, Sequence
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
-    QApplication,
     QAbstractItemView,
+    QApplication,
     QFrame,
     QGridLayout,
     QGroupBox,
@@ -43,9 +43,9 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
-    QTextEdit,
     QTableWidget,
     QTableWidgetItem,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -652,11 +652,7 @@ class HeartsGUI(QMainWindow, BaseGUI):
             return
         human_player = self.game.players[self.human_index]
         for row, player in enumerate(self.game.players):
-            penalties = sum(
-                1
-                for card in player.tricks_won
-                if card.suit == Suit.HEARTS or card == QUEEN_OF_SPADES
-            )
+            penalties = sum(1 for card in player.tricks_won if card.suit == Suit.HEARTS or card == QUEEN_OF_SPADES)
             tricks_captured = len(player.tricks_won) // 4 if player.tricks_won else 0
             name = f"{player.name} (You)" if player is human_player else player.name
 

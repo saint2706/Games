@@ -20,8 +20,8 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from PyQt5.QtCore import Qt, QTimer, QRect
-from PyQt5.QtGui import QFont, QPainter, QColor, QPen
+from PyQt5.QtCore import QRect, Qt, QTimer
+from PyQt5.QtGui import QColor, QFont, QPainter, QPen
 from PyQt5.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -421,9 +421,7 @@ class WarGUI(QWidget):
         self._last_result = result
 
         if "player1_card" in result:
-            summary_line = (
-                f"Round {self.game.rounds_played}: {result['player1_card']} vs {result['player2_card']}"
-            )
+            summary_line = f"Round {self.game.rounds_played}: {result['player1_card']} vs {result['player2_card']}"
             if result.get("round_type") == "war":
                 summary_line += " — WAR!"
             self._log_message(summary_line)
@@ -502,10 +500,7 @@ class WarGUI(QWidget):
         else:
             message = "One player captured the entire deck."
 
-        detail = (
-            f"Player {winner} wins after {rounds} rounds with {wars} wars fought.\n"
-            f"Game duration: {duration:.1f} seconds.\n{message}"
-        )
+        detail = f"Player {winner} wins after {rounds} rounds with {wars} wars fought.\n" f"Game duration: {duration:.1f} seconds.\n{message}"
 
         QMessageBox.information(self, "War - Game Over", detail)
 

@@ -14,7 +14,8 @@ except Exception:  # pragma: no cover - gracefully degrade without Tk
 
 
 try:  # pragma: no cover - optional PyQt dependency
-    from .gui_pyqt import PokerPyQtGUI, launch_gui as launch_pyqt_gui
+    from .gui_pyqt import PokerPyQtGUI
+    from .gui_pyqt import launch_gui as launch_pyqt_gui
 except Exception:  # pragma: no cover - gracefully handle missing PyQt
     PokerPyQtGUI = None  # type: ignore[assignment]
 

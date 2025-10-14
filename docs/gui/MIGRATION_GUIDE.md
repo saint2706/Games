@@ -23,27 +23,37 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 ### Games (3/14 completed)
 
 - ✅ **Completed**: Dots and Boxes, Go Fish, Gin Rummy
+
 - ⏳ **Remaining**: 11 games
+
   - Paper games: Battleship
   - Card games: Blackjack, Bluff, Bridge, Crazy Eights, Hearts, Poker, Solitaire, Spades, Uno, War
 
 - ✅ **Completed**: Battleship, Dots and Boxes, Go Fish
+
 - ⏳ **Remaining**: 11 games (card games: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War)
 
 - ✅ **Completed**: Dots and Boxes, Go Fish, Bluff
+
 - ⏳ **Remaining**: 11 games
+
   - Paper games: Battleship
   - Card games: Blackjack, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War
 
 - ✅ **Completed**: Dots and Boxes, Go Fish, Crazy Eights
+
 - ⏳ **Remaining**: 11 games
+
   - Paper games: Battleship
   - Card games: Blackjack, Bluff, Bridge, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War
 
 - ✅ **Completed**: Dots and Boxes, Go Fish, Hearts
+
 - ⏳ **Remaining**: 11 games
+
   - Paper games: Battleship
   - Card games: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Poker, Solitaire, Spades, Uno, War
+
 ## Running PyQt5 GUIs Headlessly
 
 Some contributors work in headless Linux environments where a display server is unavailable. Configure Qt to use the offscreen platform plugin before launching GUIs or running the PyQt5 test suite:

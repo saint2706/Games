@@ -5,7 +5,8 @@ from .game import HeartsGame, HeartsPlayer
 __all__ = ["HeartsGame", "HeartsPlayer"]
 
 try:  # PyQt5 implementation (preferred)
-    from .gui_pyqt import HeartsGUI as HeartsGUIPyQt, run_app as run_app_pyqt
+    from .gui_pyqt import HeartsGUI as HeartsGUIPyQt
+    from .gui_pyqt import run_app as run_app_pyqt
 
     __all__ += ["HeartsGUIPyQt", "run_app_pyqt"]
 except (ImportError, RuntimeError):

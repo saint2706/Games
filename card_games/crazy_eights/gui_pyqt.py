@@ -22,7 +22,7 @@ from collections import Counter
 from functools import partial
 from typing import Any, Optional
 
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
     QDialog,
