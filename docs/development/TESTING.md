@@ -20,9 +20,11 @@ This document describes the testing infrastructure for the Games project.
 ### Setup (First Time Only)
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+# Install package with development dependencies
+pip install -e ".[dev]"
+
+# Or install from PyPI
+pip install games-collection[dev]
 ```
 
 ### Most Common Commands
@@ -373,9 +375,8 @@ The project uses GitHub Actions for CI:
 Simulate CI environment:
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+# Install package with development dependencies
+pip install -e ".[dev]"
 
 # Run linting
 black --check .
