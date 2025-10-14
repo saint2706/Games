@@ -27,10 +27,11 @@ help:
 	@echo "  make test-integration Run only integration tests"
 	@echo ""
 	@echo "Workflows (requires act):"
-	@echo "  make workflow-ci    Run CI workflow locally"
-	@echo "  make workflow-lint  Run lint workflow locally"
-	@echo "  make workflow-test  Run test workflow locally"
-	@echo "  make workflow-list  List all available workflows"
+	@echo "  make workflow-ci       Run CI workflow locally"
+	@echo "  make workflow-lint     Run lint workflow locally"
+	@echo "  make workflow-test     Run test workflow locally"
+	@echo "  make workflow-list     List all available workflows"
+	@echo "  make workflow-validate Validate all workflow files"
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean          Remove build artifacts and cache files"
@@ -108,6 +109,9 @@ workflow-build:
 
 workflow-list:
 	./scripts/run_workflow.sh all
+
+workflow-validate:
+	python3 scripts/validate_workflows.py
 
 # Cleanup targets
 clean:

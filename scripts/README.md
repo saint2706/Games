@@ -5,9 +5,10 @@ This directory contains utility scripts for development, testing, building, and 
 ## Overview
 
 | Script | Purpose | Usage |
-| ----------------------- | -------------------------------------------- | -------------------------- |
+| ------------------------- | -------------------------------------------- | -------------------------------- |
 | `setup_act.sh` | Install act for local workflow testing | `./setup_act.sh` |
 | `run_workflow.sh` | Run GitHub Actions workflows locally | `./run_workflow.sh ci` |
+| `validate_workflows.py` | Validate GitHub Actions workflow files | `python validate_workflows.py` |
 | `run_tests.sh` | Run test suite with various options | `./run_tests.sh all` |
 | `check_complexity.sh` | Check code complexity with Radon | `./check_complexity.sh` |
 | `build_executable.sh` | Build standalone executables | `./build_executable.sh` |
@@ -91,6 +92,55 @@ Run GitHub Actions workflows locally with act for testing and debugging.
 
 - Full guide: [docs/development/LOCAL_WORKFLOWS.md](../docs/development/LOCAL_WORKFLOWS.md)
 - Quick start: [docs/development/WORKFLOW_TESTING_QUICKSTART.md](../docs/development/WORKFLOW_TESTING_QUICKSTART.md)
+
+### validate_workflows.py
+
+Comprehensive validation tool for GitHub Actions workflow files.
+
+**Usage:**
+
+```bash
+python scripts/validate_workflows.py
+
+# Or via Make
+make workflow-validate
+```
+
+**What It Validates:**
+
+- ✅ YAML syntax for all workflow files
+- ✅ JSON syntax for event payload files
+- ✅ Workflow structure (required fields, jobs, steps)
+- ✅ Script references (ensures referenced scripts exist)
+- ✅ Documentation consistency
+
+**Example Output:**
+
+```bash
+🔍 Validating GitHub Actions Workflows
+============================================================
+
+📄 Validating YAML Syntax...
+  ✓ ci.yml
+  ✓ format-and-lint.yml
+  ...
+
+📦 Validating Event Payloads...
+  ✓ push.json
+  ✓ pull_request.json
+  ...
+
+🏗️  Validating Workflow Structure...
+  ✓ ci.yml: Structure valid
+  ...
+
+✅ All validations passed! Workflows are healthy.
+```
+
+**Exit Codes:**
+
+- `0` - All validations passed
+- `1` - Validation errors found
 
 ## Testing Scripts
 
