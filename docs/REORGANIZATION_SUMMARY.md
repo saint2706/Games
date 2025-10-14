@@ -14,8 +14,8 @@ and supporting files.
 #### Created New Documentation Directories
 
 1. **docs/gui/** - All GUI-related documentation
-2. **docs/status/** - Status tracking documents
-3. **docs/workflows/** - GitHub Actions workflow documentation
+1. **docs/status/** - Status tracking documents
+1. **docs/workflows/** - GitHub Actions workflow documentation
 
 #### Moved Files
 
@@ -45,8 +45,8 @@ and supporting files.
 #### Created Documentation Hub Files
 
 1. **docs/gui/README.md** - GUI documentation hub (already existed, moved from root)
-2. **docs/status/README.md** - Status tracking hub (new)
-3. **docs/workflows/README.md** - Workflow documentation hub (new)
+1. **docs/status/README.md** - Status tracking hub (new)
+1. **docs/workflows/README.md** - Workflow documentation hub (new)
 
 #### Updated References
 
@@ -227,22 +227,27 @@ All markdown links have been checked and fixed:
 ### Potential Future Enhancements
 
 1. **Consolidate Historical Reports**
+
    - Archive old workflow reports if superseded
    - Create historical/ subdirectory if needed
 
-2. **Improve Cross-References**
+1. **Improve Cross-References**
+
    - Add "See Also" sections to related docs
    - Create documentation dependency graph
 
-3. **Add Documentation Standards**
+1. **Add Documentation Standards**
+
    - Document markdown style guide
    - Add templates for new documentation
 
-4. **Automated Link Checking**
+1. **Automated Link Checking**
+
    - Add CI check for broken links
    - Pre-commit hook for link validation
 
-5. **Documentation Search**
+1. **Documentation Search**
+
    - Add search functionality to Sphinx docs
    - Create documentation index/glossary
 

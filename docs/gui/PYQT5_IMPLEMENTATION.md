@@ -39,6 +39,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Keyboard shortcut support
 
 #### 2. PyQt5 Game Implementations
+
 #### 2. Proof of Concept Migrations
 
 **Files**:
@@ -54,7 +55,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Bluff table interface using QTextEdit logs, QTableWidget scoreboards, and QMessageBox prompts
 - Mouse event handling, button groups, and combo boxes for interactive play
 - AI opponent integration across all migrated titles
-- Timers (``QTimer.singleShot``) replacing ``tk.after`` for asynchronous turns
+- Timers (`QTimer.singleShot`) replacing `tk.after` for asynchronous turns
 - Dynamic UI updates that mirror CLI narration
 - **Dots and Boxes** (`paper_games/dots_and_boxes/gui_pyqt.py`)
   - Custom `BoardCanvas` widget with QPainter for game board rendering
@@ -77,6 +78,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Synchronizes PyQt widgets with `BlackjackGame` state flags
 
 #### 3. Testing Framework
+
 #### 3. Card Game Ports
 
 **Files**: `card_games/go_fish/gui_pyqt.py`, `card_games/war/gui_pyqt.py`
