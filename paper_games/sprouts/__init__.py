@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from .sprouts import SproutsGame
+from .sprouts import SproutsCLI, SproutsGame, SproutsInvalidMove, SproutsMove
 
-__all__ = ["SproutsGame"]
+__all__ = ["SproutsCLI", "SproutsGame", "SproutsInvalidMove", "SproutsMove"]
