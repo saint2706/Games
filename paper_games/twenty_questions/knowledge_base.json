@@ -1,0 +1,196 @@
+{
+  "objects": [
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": false,
+        "Does it have wheels?": false,
+        "Does it swim?": true,
+        "Is it a food?": false,
+        "Is it a living thing?": true,
+        "Is it a pet?": true,
+        "Is it a sport?": false,
+        "Is it a vehicle?": false,
+        "Is it an animal?": true,
+        "Is it bigger than a person?": false
+      },
+      "name": "dog"
+    },
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": false,
+        "Does it have wheels?": false,
+        "Does it swim?": false,
+        "Is it a food?": false,
+        "Is it a living thing?": true,
+        "Is it a pet?": true,
+        "Is it a sport?": false,
+        "Is it a vehicle?": false,
+        "Is it an animal?": true,
+        "Is it bigger than a person?": false
+      },
+      "name": "cat"
+    },
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": false,
+        "Does it have wheels?": false,
+        "Does it swim?": true,
+        "Is it a food?": false,
+        "Is it a living thing?": true,
+        "Is it a pet?": false,
+        "Is it a sport?": false,
+        "Is it a vehicle?": false,
+        "Is it an animal?": true,
+        "Is it bigger than a person?": true
+      },
+      "name": "elephant"
+    },
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": true,
+        "Does it have wheels?": false,
+        "Does it swim?": false,
+        "Is it a food?": false,
+        "Is it a living thing?": true,
+        "Is it a pet?": false,
+        "Is it a sport?": false,
+        "Is it a vehicle?": false,
+        "Is it an animal?": true,
+        "Is it bigger than a person?": false
+      },
+      "name": "bird"
+    },
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": false,
+        "Does it have wheels?": false,
+        "Does it swim?": true,
+        "Is it a food?": false,
+        "Is it a living thing?": true,
+        "Is it a pet?": false,
+        "Is it a sport?": false,
+        "Is it a vehicle?": false,
+        "Is it an animal?": true,
+        "Is it bigger than a person?": false
+      },
+      "name": "fish"
+    },
+    {
+      "features": {
+        "Can you eat it?": true,
+        "Does it fly?": false,
+        "Does it have wheels?": false,
+        "Does it swim?": false,
+        "Is it a food?": true,
+        "Is it a living thing?": false,
+        "Is it a pet?": false,
+        "Is it a sport?": false,
+        "Is it a vehicle?": false,
+        "Is it an animal?": false,
+        "Is it bigger than a person?": false
+      },
+      "name": "pizza"
+    },
+    {
+      "features": {
+        "Can you eat it?": true,
+        "Does it fly?": false,
+        "Does it have wheels?": false,
+        "Does it swim?": false,
+        "Is it a food?": true,
+        "Is it a living thing?": false,
+        "Is it a pet?": false,
+        "Is it a sport?": false,
+        "Is it a vehicle?": false,
+        "Is it an animal?": false,
+        "Is it bigger than a person?": false
+      },
+      "name": "apple"
+    },
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": false,
+        "Does it have wheels?": true,
+        "Does it swim?": false,
+        "Is it a food?": false,
+        "Is it a living thing?": false,
+        "Is it a pet?": false,
+        "Is it a sport?": false,
+        "Is it a vehicle?": true,
+        "Is it an animal?": false,
+        "Is it bigger than a person?": true
+      },
+      "name": "car"
+    },
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": false,
+        "Does it have wheels?": true,
+        "Does it swim?": false,
+        "Is it a food?": false,
+        "Is it a living thing?": false,
+        "Is it a pet?": false,
+        "Is it a sport?": false,
+        "Is it a vehicle?": true,
+        "Is it an animal?": false,
+        "Is it bigger than a person?": false
+      },
+      "name": "bicycle"
+    },
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": true,
+        "Does it have wheels?": true,
+        "Does it swim?": false,
+        "Is it a food?": false,
+        "Is it a living thing?": false,
+        "Is it a pet?": false,
+        "Is it a sport?": false,
+        "Is it a vehicle?": true,
+        "Is it an animal?": false,
+        "Is it bigger than a person?": true
+      },
+      "name": "airplane"
+    },
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": false,
+        "Does it have wheels?": false,
+        "Does it swim?": true,
+        "Is it a food?": false,
+        "Is it a living thing?": false,
+        "Is it a pet?": false,
+        "Is it a sport?": false,
+        "Is it a vehicle?": true,
+        "Is it an animal?": false,
+        "Is it bigger than a person?": true
+      },
+      "name": "boat"
+    },
+    {
+      "features": {
+        "Can you eat it?": false,
+        "Does it fly?": false,
+        "Does it have wheels?": false,
+        "Does it swim?": false,
+        "Is it a food?": false,
+        "Is it a living thing?": false,
+        "Is it a pet?": false,
+        "Is it a sport?": true,
+        "Is it a vehicle?": false,
+        "Is it an animal?": false,
+        "Is it bigger than a person?": false
+      },
+      "name": "soccer"
+    }
+  ]
+}
