@@ -1,7 +1,6 @@
 """Tests for PyQt5 GUI implementations.
 
-These tests verify that PyQt5-based GUI components work correctly.
-"""
+These tests verify that PyQt5-based GUI components work correctly."""
 
 from __future__ import annotations
 
@@ -9,6 +8,8 @@ import os
 import pathlib
 import sys
 import tempfile
+from importlib import import_module
+from typing import Sequence, TYPE_CHECKING
 
 import pytest
 
@@ -115,11 +116,25 @@ class TestGoFishPyQt:
 
 
 @pytest.mark.gui
+class TestBridgePyQt:
+    """Test Bridge PyQt5 GUI components."""
+
+    def test_bridge_pyqt_gui_import(self):
+        """Test that Bridge PyQt5 GUI can be imported."""
+
+        from card_games.bridge.gui_pyqt import BridgeGUI, run_gui
+
+        assert BridgeGUI is not None
+        assert callable(run_gui)
+
+
+@pytest.mark.gui
 def test_pyqt5_modules_available():
     """Test that PyQt5 GUI modules can be imported."""
     gui_modules = [
         "paper_games.dots_and_boxes.gui_pyqt",
         "card_games.go_fish.gui_pyqt",
+        "card_games.bridge.gui_pyqt",
         "common.gui_base_pyqt",
     ]
 
