@@ -369,7 +369,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
             allow_pass = False
             if not playable:
                 if self.game.draw_limit == 0:
-                    allow_pass = summary["deck_cards"] == 0 and self._draws_this_turn > 0
+                    allow_pass = summary["deck_cards"] == 0
                 else:
                     allow_pass = self._draws_this_turn >= self.game.draw_limit
             self.pass_button.setEnabled(allow_pass)
