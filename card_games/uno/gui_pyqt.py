@@ -40,7 +40,7 @@ except ImportError as exc:  # pragma: no cover - PyQt5 optional dependency
     raise ImportError("PyQt5 is required to use the Uno PyQt interface.") from exc
 
 from .sound_manager import create_sound_manager
-from .uno import COLORS, HouseRules, PlayerDecision, UnoCard, UnoGame, UnoInterface, UnoPlayer, build_players
+from .uno import COLORS, HouseRules, PlayerDecision, UnoCard, UnoGame, UnoPlayer, build_players
 
 # Emojis that match the Tkinter interface so messaging stays consistent.
 COLOR_EMOJI = {"red": "🟥", "yellow": "🟨", "green": "🟩", "blue": "🟦", None: "⬜"}
@@ -67,7 +67,7 @@ def strip_ansi(text: str) -> str:
 
 class PyQtUnoInterface(QWidget):
     """Bridge the Uno engine with a PyQt5 graphical front-end.
-    
+
     Implements the UnoInterface protocol without direct inheritance to avoid metaclass conflicts.
     """
 
@@ -120,7 +120,7 @@ class PyQtUnoInterface(QWidget):
         safe_text = html.escape(strip_ansi(message))
         hex_color = COLOR_HEX.get(color, "#f5f5f5")
         weight = "font-weight:600;" if style == Style.BRIGHT else ""
-        html_message = f'<span style="color:{hex_color}; {weight} font-family:\"Courier New\",monospace;">{safe_text}</span>'
+        html_message = f'<span style="color:{hex_color}; {weight} font-family:"Courier New",monospace;">{safe_text}</span>'
         self.log_widget.append(html_message)
         self.log_widget.verticalScrollBar().setValue(self.log_widget.verticalScrollBar().maximum())
         QApplication.processEvents()
@@ -316,10 +316,7 @@ class PyQtUnoInterface(QWidget):
 
         if not player.is_human:
             return False
-        message = (
-            f"{player.name}, someone just played {card.color} {card.value}!\n\n"
-            "Do you want to JUMP IN with an identical card?"
-        )
+        message = f"{player.name}, someone just played {card.color} {card.value}!\n\n" "Do you want to JUMP IN with an identical card?"
         result = QMessageBox.question(
             self,
             "Jump In?",

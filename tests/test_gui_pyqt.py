@@ -8,8 +8,6 @@ import os
 import pathlib
 import sys
 import tempfile
-from importlib import import_module
-from typing import Sequence, TYPE_CHECKING
 
 import pytest
 
@@ -178,6 +176,7 @@ class TestBlackjackPyQt:
         except Exception as e:
             pytest.skip(f"GUI initialization failed: {e}")
 
+
 class TestBluffPyQt:
     """Test Bluff PyQt5 GUI components."""
 
@@ -207,6 +206,7 @@ class TestBluffPyQt:
         except Exception as e:
             pytest.skip(f"GUI initialization failed: {e}")
 
+
 class TestCrazyEightsPyQt:
     """Test Crazy Eights PyQt5 GUI components."""
 
@@ -232,6 +232,7 @@ class TestCrazyEightsPyQt:
             assert window._game_over is False
         except Exception as e:
             pytest.skip(f"GUI initialization failed: {e}")
+
 
 class TestHeartsPyQt:
     """Test Hearts PyQt5 GUI components."""
@@ -264,6 +265,7 @@ class TestHeartsPyQt:
         except Exception as e:
             pytest.skip(f"GUI initialization failed: {e}")
 
+
 class TestSolitairePyQt:
     """Test Solitaire PyQt5 GUI components."""
 
@@ -290,6 +292,7 @@ class TestSolitairePyQt:
         except Exception as e:
             pytest.skip(f"GUI initialization failed: {e}")
 
+
 class TestSpadesPyQt:
     """Test Spades PyQt5 GUI components."""
 
@@ -314,6 +317,7 @@ class TestSpadesPyQt:
             assert window.human_player is not None
         except Exception as e:
             pytest.skip(f"GUI initialization failed: {e}")
+
 
 class TestUnoPyQt:
     """Test Uno PyQt5 GUI components."""

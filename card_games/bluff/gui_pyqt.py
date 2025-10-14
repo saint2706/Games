@@ -190,7 +190,7 @@ class BluffPyQtGUI(QWidget):
 
         state = self.game.public_state()
         self.turn_label.setText(f"Turn {state['turns_played'] + 1} of {state['max_turns']}")
-        card_text = "card" if state['pile_size'] == 1 else "cards"
+        card_text = "card" if state["pile_size"] == 1 else "cards"
         self.pile_label.setText(f"Pile: {state['pile_size']} {card_text}")
 
     def _update_scoreboard(self) -> None:
@@ -389,10 +389,7 @@ class BluffPyQtGUI(QWidget):
                 claim = self.game.claim_in_progress
                 if claim is None:
                     break
-                prompt = (
-                    f"{claim.claimant.name} claims the card is a {claim.claimed_rank}.\n"
-                    "Do you want to challenge the claim?"
-                )
+                prompt = f"{claim.claimant.name} claims the card is a {claim.claimed_rank}.\n" "Do you want to challenge the claim?"
                 response = QMessageBox.question(
                     self,
                     "Challenge claim?",

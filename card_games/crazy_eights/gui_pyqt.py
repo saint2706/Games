@@ -22,7 +22,7 @@ from collections import Counter
 from functools import partial
 from typing import Any, Optional
 
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
     QDialog,
@@ -44,7 +44,7 @@ from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 class CrazyEightsGUI(QMainWindow):
     """PyQt5 GUI that visualises and runs a Crazy Eights match.
-    
+
     Note: Does not inherit from BaseGUI as it's designed for Tkinter,
     and would cause metaclass conflicts with QMainWindow.
     """

@@ -716,8 +716,8 @@ python -m paper_games.battleship --grid-size 10
 
 - **Total Games**: 49 playable games (15 card games + 21 paper games + 4 dice games + 4 word games + 5 logic games)
 - **Game Categories**: 5 (Card, Paper, Dice, Word, Logic)
-- **Total Lines of Code**: ~20,000+
-- **Test Coverage**: 90%+ for most games
+- **Total Lines of Code**: ~67,500+ (Python)
+- **Test Coverage**: 30%+ overall (goal: 90%+), with 682 tests
 - **Supported Platforms**: Linux, macOS, Windows
 
 ## 🤖 AI Opponents

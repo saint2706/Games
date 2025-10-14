@@ -73,9 +73,7 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
     try:
         from card_games.hearts.gui import run_app as run_app_tk
     except (ImportError, RuntimeError) as exc:  # pragma: no cover - environment specific
-        raise SystemExit(
-            "No supported GUI backend is available. Install PyQt5 or Tkinter, or pass --cli."
-        ) from exc
+        raise SystemExit("No supported GUI backend is available. Install PyQt5 or Tkinter, or pass --cli.") from exc
 
     run_app_tk(
         player_name=args.player_name,

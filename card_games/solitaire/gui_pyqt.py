@@ -21,24 +21,24 @@ import random
 from typing import Callable, Optional, Tuple
 
 from card_games.common.cards import Card
-from common.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILABLE
 from card_games.solitaire.game import Pile, SolitaireGame
+from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 if PYQT5_AVAILABLE:  # pragma: no cover - Import guarded by availability checks
     from PyQt5.QtCore import QRectF, Qt, QTimer, pyqtSignal
-    from PyQt5.QtGui import QColor, QFont, QMouseEvent, QPaintEvent, QPainter, QPen
+    from PyQt5.QtGui import QColor, QFont, QMouseEvent, QPainter, QPaintEvent, QPen
     from PyQt5.QtWidgets import (
         QApplication,
         QFrame,
         QGridLayout,
         QHBoxLayout,
         QLabel,
+        QMainWindow,
         QMessageBox,
         QPushButton,
         QSizePolicy,
         QVBoxLayout,
         QWidget,
-        QMainWindow,
     )
 else:  # pragma: no cover - Provides placeholders when PyQt5 is missing
     QApplication = None  # type: ignore
@@ -116,16 +116,7 @@ if PYQT5_AVAILABLE:
                 "target": self._target_border,
             }.get(state, self._default_border)
             self._state = state
-            self.setStyleSheet(
-                (
-                    "QFrame {"
-                    f"background-color: {self._background};"
-                    f"border: 2px solid {color};"
-                    "border-radius: 10px;"
-                    "}"
-                )
-            )
-
+            self.setStyleSheet(("QFrame {" f"background-color: {self._background};" f"border: 2px solid {color};" "border-radius: 10px;" "}"))
 
     class PileCanvas(QWidget):
         """Custom widget that renders a solitaire pile using QPainter."""
@@ -177,10 +168,9 @@ if PYQT5_AVAILABLE:
                 return self.card_positions[-1][2]
             return None
 
-
     class SolitaireWindow(QMainWindow):
         """Main PyQt5 window that visualises and controls ``SolitaireGame``.
-        
+
         Note: Does not inherit from BaseGUI as it's designed for Tkinter,
         and would cause metaclass conflicts with QMainWindow.
         """
