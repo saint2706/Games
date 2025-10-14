@@ -168,8 +168,12 @@ if PYQT5_AVAILABLE:
                 return self.card_positions[-1][2]
             return None
 
-    class SolitaireWindow(QMainWindow, BaseGUI):
-        """Main PyQt5 window that visualises and controls ``SolitaireGame``."""
+    class SolitaireWindow(QMainWindow):
+        """Main PyQt5 window that visualises and controls ``SolitaireGame``.
+
+        Note: Does not inherit from BaseGUI as it's designed for Tkinter,
+        and would cause metaclass conflicts with QMainWindow.
+        """
 
         def __init__(
             self,

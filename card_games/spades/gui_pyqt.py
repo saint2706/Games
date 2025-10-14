@@ -48,8 +48,12 @@ class _BidDisplay:
     value_label: QLabel
 
 
-class SpadesPyQtGUI(QMainWindow, BaseGUI):
-    """Main window that coordinates a :class:`SpadesGame` session."""
+class SpadesPyQtGUI(QMainWindow):
+    """Main window that coordinates a :class:`SpadesGame` session.
+
+    Note: Does not inherit from BaseGUI as it's designed for Tkinter,
+    and would cause metaclass conflicts with QMainWindow.
+    """
 
     def __init__(self, game: Optional[SpadesGame] = None, *, player_name: str = "You") -> None:
         """Initialise the PyQt GUI and start the first round.

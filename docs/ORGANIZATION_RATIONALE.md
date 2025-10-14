@@ -73,7 +73,7 @@ Games/
 
 - Cons: Loses helpful categorization, harder to browse with many games
 - Pros: Simpler structure
-- Verdict: Too simplistic for 21+ games
+- Verdict: Too simplistic for 49+ games
 
 ❌ **By Player Count** (`single_player/`, `multiplayer/`)
 
@@ -402,7 +402,7 @@ This structure has been refined based on:
 - Standard practices in open-source projects
 - Python packaging conventions
 - User feedback and usability
-- Growth from 5 games to 21+ games
+- Growth from 5 games to 49+ games
 - Documentation needs of diverse audience (players, developers, contributors)
 
 The organization is not set in stone—it should evolve as the repository grows while maintaining these core principles.

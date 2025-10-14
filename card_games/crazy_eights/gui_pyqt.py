@@ -42,8 +42,12 @@ from card_games.crazy_eights.game import CrazyEightsGame, Player
 from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 
-class CrazyEightsGUI(QMainWindow, BaseGUI):
-    """PyQt5 GUI that visualises and runs a Crazy Eights match."""
+class CrazyEightsGUI(QMainWindow):
+    """PyQt5 GUI that visualises and runs a Crazy Eights match.
+
+    Note: Does not inherit from BaseGUI as it's designed for Tkinter,
+    and would cause metaclass conflicts with QMainWindow.
+    """
 
     def __init__(self, game: CrazyEightsGame, config: Optional[GUIConfig] = None) -> None:
         """Initialise the Crazy Eights PyQt GUI.

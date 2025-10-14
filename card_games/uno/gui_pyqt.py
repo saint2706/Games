@@ -40,7 +40,7 @@ except ImportError as exc:  # pragma: no cover - PyQt5 optional dependency
     raise ImportError("PyQt5 is required to use the Uno PyQt interface.") from exc
 
 from .sound_manager import create_sound_manager
-from .uno import COLORS, HouseRules, PlayerDecision, UnoCard, UnoGame, UnoInterface, UnoPlayer, build_players
+from .uno import COLORS, HouseRules, PlayerDecision, UnoCard, UnoGame, UnoPlayer, build_players
 
 # Emojis that match the Tkinter interface so messaging stays consistent.
 COLOR_EMOJI = {"red": "🟥", "yellow": "🟨", "green": "🟩", "blue": "🟦", None: "⬜"}
@@ -65,8 +65,11 @@ def strip_ansi(text: str) -> str:
     return ANSI_RE.sub("", text)
 
 
-class PyQtUnoInterface(QWidget, UnoInterface):
-    """Bridge the Uno engine with a PyQt5 graphical front-end."""
+class PyQtUnoInterface(QWidget):
+    """Bridge the Uno engine with a PyQt5 graphical front-end.
+
+    Implements the UnoInterface protocol without direct inheritance to avoid metaclass conflicts.
+    """
 
     decision_made = pyqtSignal()
 

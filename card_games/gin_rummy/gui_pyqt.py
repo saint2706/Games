@@ -55,8 +55,12 @@ def _format_meld(meld: Meld) -> str:
     return f"{label}: {format_cards(meld.cards)}"
 
 
-class GinRummyPyQtGUI(QMainWindow, BaseGUI):
-    """PyQt5 interface that visualises a Gin Rummy match."""
+class GinRummyPyQtGUI(QMainWindow):
+    """PyQt5 interface that visualises a Gin Rummy match.
+
+    Note: Does not inherit from BaseGUI as it's designed for Tkinter,
+    and would cause metaclass conflicts with QMainWindow.
+    """
 
     def __init__(
         self,
