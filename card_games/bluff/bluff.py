@@ -1414,16 +1414,29 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
         return
 
     if args.gui:
-        from .gui import run_gui
+        try:
+            from .gui_pyqt import run_gui as run_pyqt_gui
 
-        run_gui(
-            difficulty,
-            rounds=args.rounds,
-            seed=args.seed,
-            deck_type=deck_type,
-            record_replay=args.record_replay,
-        )
-        return
+            run_pyqt_gui(
+                difficulty,
+                rounds=args.rounds,
+                seed=args.seed,
+                deck_type=deck_type,
+                record_replay=args.record_replay,
+            )
+            return
+        except ImportError:  # pragma: no cover - PyQt5 optional dependency
+            print("PyQt5 is not available; falling back to the Tkinter GUI.")
+            from .gui import run_gui as run_tk_gui
+
+            run_tk_gui(
+                difficulty,
+                rounds=args.rounds,
+                seed=args.seed,
+                deck_type=deck_type,
+                record_replay=args.record_replay,
+            )
+            return
 
     game = BluffGame(
         difficulty,

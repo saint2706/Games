@@ -40,6 +40,21 @@ After evaluation, PyQt5 was selected over Pygame because:
 
 #### 2. Proof of Concept Migrations
 
+**Files**:
+
+- `paper_games/dots_and_boxes/gui_pyqt.py`
+- `card_games/go_fish/gui_pyqt.py`
+- `card_games/bluff/gui_pyqt.py`
+
+**Highlights**:
+
+- Custom `BoardCanvas` widget with QPainter for the Dots and Boxes board
+- Scoreboard-driven layouts for Go Fish with grouped card displays
+- Bluff table interface using QTextEdit logs, QTableWidget scoreboards, and QMessageBox prompts
+- Mouse event handling, button groups, and combo boxes for interactive play
+- AI opponent integration across all migrated titles
+- Timers (``QTimer.singleShot``) replacing ``tk.after`` for asynchronous turns
+- Dynamic UI updates that mirror CLI narration
 - **Dots and Boxes** (`paper_games/dots_and_boxes/gui_pyqt.py`)
   - Custom `BoardCanvas` widget with QPainter for game board rendering
   - Mouse event handling (click, move, hover)
@@ -72,6 +87,8 @@ After evaluation, PyQt5 was selected over Pygame because:
 
 **Test Results**:
 
+- Import and smoke tests for Dots and Boxes, Go Fish, and Bluff GUIs
+- Display-dependent tests auto-skip in headless environments
 - PyQt5 GUI import and initialization tests cover Dots and Boxes, Go Fish, and Spades
 - Display-dependent tests remain skipped automatically in headless environments
 - All code passes black formatting and ruff linting
@@ -183,6 +200,8 @@ QTimer.singleShot(500, self.callback)
 
 ### Games (3/14 completed)
 
+- ✅ **Completed**: Dots and Boxes, Go Fish, Bluff
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 - ✅ **Completed**: Dots and Boxes, Go Fish, Crazy Eights
 - ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 - ✅ **Completed**: Dots and Boxes, Go Fish, Hearts

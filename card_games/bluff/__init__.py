@@ -17,6 +17,11 @@ except Exception:  # pragma: no cover - gracefully degrade without Tk
     def run_gui(*args, **kwargs):  # type: ignore[override]
         raise RuntimeError("Tkinter is required for the bluff GUI but is not available.")
 
+try:  # pragma: no cover - optional PyQt5 dependency
+    from .gui_pyqt import BluffPyQtGUI
+except Exception:  # pragma: no cover - gracefully degrade without PyQt5
+    BluffPyQtGUI = None  # type: ignore[assignment]
+
 
 __all__ = [
     "BluffGame",
@@ -25,4 +30,5 @@ __all__ = [
     "run_cli",
     "BluffGUI",
     "run_gui",
+    "BluffPyQtGUI",
 ]

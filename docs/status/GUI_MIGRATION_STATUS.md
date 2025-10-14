@@ -22,7 +22,7 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 | Game | Status | GUI File | Notes |
 | ------------ | ---------- | ------------------------------------------ | --------------------------------- |
 | Blackjack | ⏳ Pending | - | 688 lines, table-based layout |
-| Bluff | ⏳ Pending | - | 451 lines, multi-player |
+| Bluff | ✅ Complete | `card_games/bluff/gui_pyqt.py` | PyQt5 port with log, scoreboard, and challenge dialogs |
 | Bridge | ⏳ Pending | - | 488 lines, complex bidding system |
 | Crazy Eights | ✅ Complete | `card_games/crazy_eights/gui_pyqt.py` | Feature parity with Tkinter GUI |
 | ------------ | ---------- | ------------------------------------------- | --------------------------------- |

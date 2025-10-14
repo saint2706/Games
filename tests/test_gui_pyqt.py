@@ -116,6 +116,32 @@ class TestGoFishPyQt:
 
 
 @pytest.mark.gui
+class TestBluffPyQt:
+    """Test Bluff PyQt5 GUI components."""
+
+    def test_bluff_pyqt_gui_import(self):
+        """Test that Bluff PyQt5 GUI can be imported."""
+        from card_games.bluff.gui_pyqt import BluffPyQtGUI
+
+        assert BluffPyQtGUI is not None
+
+    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
+    def test_bluff_pyqt_gui_initialization(self, qtbot):
+        """Test Bluff PyQt5 GUI initialization."""
+        try:
+            from card_games.bluff.bluff import DECK_TYPES, DIFFICULTIES, BluffGame
+            from card_games.bluff.gui_pyqt import BluffPyQtGUI
+
+            game = BluffGame(
+                DIFFICULTIES["Medium"],
+                rounds=3,
+                deck_type=DECK_TYPES["Standard"],
+            )
+            window = BluffPyQtGUI(game)
+            qtbot.addWidget(window)
+            assert window is not None
+            assert window.game is game
+            assert window._selected_card is None
 class TestCrazyEightsPyQt:
     """Test Crazy Eights PyQt5 GUI components."""
 
@@ -247,6 +273,7 @@ def test_pyqt5_modules_available():
     gui_modules = [
         "paper_games.dots_and_boxes.gui_pyqt",
         "card_games.go_fish.gui_pyqt",
+        "card_games.bluff.gui_pyqt",
         "card_games.crazy_eights.gui_pyqt",
         "card_games.hearts.gui_pyqt",
         "card_games.solitaire.gui_pyqt",

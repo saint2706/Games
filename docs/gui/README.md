@@ -17,13 +17,11 @@ The Games repository now supports **PyQt5** as its primary GUI framework, addres
    - Helper methods for common UI elements
    - Theme and sound manager integration
 
-1. **Working Example** (`paper_games/dots_and_boxes/gui_pyqt.py`)
+1. **Working Examples**
 
-   - Complete PyQt5 implementation
-   - Custom board rendering with QPainter
-   - Mouse event handling
-   - AI opponent integration
-   - Professional appearance
+   - `paper_games/dots_and_boxes/gui_pyqt.py` – Custom board rendering with QPainter
+   - `card_games/go_fish/gui_pyqt.py` – Scoreboard driven, card-request workflow
+   - `card_games/bluff/gui_pyqt.py` – Turn-based multiplayer table with claim/challenge dialogs
 
 1. **Go Fish GUI** (`card_games/go_fish/gui_pyqt.py`)
 
@@ -41,6 +39,7 @@ The Games repository now supports **PyQt5** as its primary GUI framework, addres
 
    - pytest-qt integration
    - Import and structure validation
+   - All tests passing (now covering Dots and Boxes, Go Fish, Bluff)
    - Coverage for Dots and Boxes, Go Fish, and Bridge modules
 
 1. **Documentation**
@@ -106,6 +105,7 @@ pytest tests/test_gui_pyqt.py -v
 
 - ✅ Dots and Boxes
 - ✅ Go Fish
+- ✅ Bluff
 - ✅ Crazy Eights
 - ✅ Hearts
 - ✅ Solitaire
@@ -122,7 +122,6 @@ pytest tests/test_gui_pyqt.py -v
 **Card Games**:
 
 - Blackjack
-- Bluff
 - Bridge
 - Crazy Eights
 - Gin Rummy

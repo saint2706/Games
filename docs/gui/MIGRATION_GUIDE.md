@@ -22,6 +22,11 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 
 ### Games (3/14 completed)
 
+- ✅ **Completed**: Dots and Boxes, Go Fish, Bluff
+- ⏳ **Remaining**: 11 games
+  - Paper games: Battleship
+  - Card games: Blackjack, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War
+
 - ✅ **Completed**: Dots and Boxes, Go Fish, Crazy Eights
 - ⏳ **Remaining**: 11 games
   - Paper games: Battleship
