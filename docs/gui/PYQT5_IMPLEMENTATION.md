@@ -59,19 +59,12 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Message boxes (game over, hints)
 - Dynamic UI updates
 
-#### 3. Card Game Implementations
+#### 3. Card Game Ports
 
-**File**: `card_games/go_fish/gui_pyqt.py`
+**Files**: `card_games/go_fish/gui_pyqt.py`, `card_games/war/gui_pyqt.py`
 
-- Full PyQt5 interface for Go Fish
-- Demonstrates scoreboard, control clusters, and animated highlights
-- Uses bespoke layout code (without `BaseGUI`) to showcase flexibility
-
-**File**: `card_games/bridge/gui_pyqt.py`
-
-- Bridge table migrated from Tkinter using `BaseGUI`
-- Custom `TrickDisplay` widget renders the active trick with QPainter
-- QTimer events coordinate bidding and card play sequencing
+- Go Fish GUI demonstrates rich widget layouts with scoreboards, grouped hand displays, and celebratory animations driven by `QTimer`.
+- War GUI recreates deck and pile panels, adds an auto-play controller, and introduces `WarBattleCanvas` for painting stacked cards with flashing alerts while reusing the `SaveLoadManager` for persistence dialogs.
 
 #### 4. Testing Framework
 
@@ -196,11 +189,7 @@ QTimer.singleShot(500, self.callback)
 
 ### Games (3/14 completed)
 
-- ✅ **Completed**: Dots and Boxes, Go Fish, Poker
-- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
-  - Paper games: Battleship
-  - Card games: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Solitaire, Spades, Uno, War
-- ✅ **Completed**: Dots and Boxes, Go Fish, Bridge
+- ✅ **Completed**: Dots and Boxes, Go Fish, War
 - ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 
 ## Dependencies

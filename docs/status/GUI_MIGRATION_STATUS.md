@@ -32,7 +32,7 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 | Solitaire | ⏳ Pending | - | 729 lines, most complex GUI |
 | Spades | ⏳ Pending | - | 582 lines, bidding and tricks |
 | Uno | ⏳ Pending | - | 524 lines, special cards |
-| War | ⏳ Pending | - | 622 lines, simple mechanics |
+| War | ✅ Complete | `card_games/war/gui_pyqt.py` | Flashing war canvas, Save/Load integration |
 
 ## Migration Guidelines
 

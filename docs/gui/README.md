@@ -106,8 +106,7 @@ pytest tests/test_gui_pyqt.py -v
 
 - ✅ Dots and Boxes
 - ✅ Go Fish
-- ✅ Poker
-- ✅ Bridge
+- ✅ War
 
 ### Remaining (11/14)
 
@@ -125,7 +124,6 @@ pytest tests/test_gui_pyqt.py -v
 - Solitaire
 - Spades
 - Uno
-- War
 
 ## 🛠️ For Developers
 
