@@ -105,6 +105,7 @@ pytest tests/test_gui_pyqt.py -v
 
 - ✅ Dots and Boxes
 - ✅ Go Fish
+- ✅ Blackjack
 - ✅ Bluff
 - ✅ Crazy Eights
 - ✅ Hearts
@@ -121,6 +122,7 @@ pytest tests/test_gui_pyqt.py -v
 
 **Card Games**:
 
+- Bluff
 - Blackjack
 - Bridge
 - Crazy Eights
