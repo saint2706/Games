@@ -32,6 +32,13 @@ def test_pyqt5_available() -> bool:
         return False
 
 
+PYQT5_MIGRATED = {
+    ("paper_games", "dots_and_boxes"),
+    ("card_games", "go_fish"),
+    ("card_games", "bluff"),
+}
+
+
 def list_gui_games() -> dict[str, list[str]]:
     """List all games with GUI implementations."""
     return {
@@ -118,7 +125,11 @@ def main() -> int:
                 tk_status = "✓" if tk_exists else "✗"
                 pyqt_status = "✓" if pyqt_exists else "✗"
 
-                print(f"  {game:20} [Tkinter: {tk_status}] [PyQt5: {pyqt_status}]")
+                migration_marker = " *" if (category, game) in PYQT5_MIGRATED else ""
+                print(f"  {game:20}{migration_marker} [Tkinter: {tk_status}] [PyQt5: {pyqt_status}]")
+
+        if PYQT5_MIGRATED:
+            print("\n* denotes games with completed PyQt5 migrations.")
 
         return 0
 

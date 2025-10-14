@@ -135,19 +135,21 @@ GUI Mode
 Starting the GUI
 ~~~~~~~~~~~~~~~~
 
-For a visual experience:
+For a visual experience, the ``--gui`` flag launches the PyQt5 interface (it
+automatically falls back to the classic Tkinter window if PyQt5 is not
+installed):
 
 .. code-block:: bash
 
    python -m card_games.bluff --gui
 
-**GUI Features:**
+**PyQt5 GUI Highlights:**
 
-* Visual card display
-* Click buttons to play cards and challenge
-* Event log showing all actions
-* Card counts for all players
-* Animated pile transfers
+* Rich text log rendered with Qt's ``QTextEdit``
+* Interactive card selection powered by button groups
+* Scoreboard table that tracks truths, lies, and challenge records
+* ``QMessageBox`` prompts for confirming claims and deciding challenges
+* Smooth turn transitions handled by ``QTimer.singleShot``
 
 Combining GUI with Options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

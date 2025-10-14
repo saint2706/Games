@@ -40,24 +40,21 @@ After evaluation, PyQt5 was selected over Pygame because:
 
 #### 2. Proof of Concept Migration
 
-**File**: `paper_games/dots_and_boxes/gui_pyqt.py`
+**Files**:
 
-- Complete PyQt5 implementation of Dots and Boxes game
-- Custom `BoardCanvas` widget with QPainter for game board rendering
-- Mouse event handling (click, move, hover)
-- AI opponent integration
-- Hint system
-- Score tracking
-- Professional appearance with modern widgets
+- `paper_games/dots_and_boxes/gui_pyqt.py`
+- `card_games/go_fish/gui_pyqt.py`
+- `card_games/bluff/gui_pyqt.py`
 
-**Features Demonstrated**:
+**Highlights**:
 
-- Custom painting with QPainter
-- Event handling (mouse clicks, movement, hover)
-- Layout management (QVBoxLayout, QHBoxLayout)
-- Timers (QTimer for AI delay)
-- Message boxes (game over, hints)
-- Dynamic UI updates
+- Custom `BoardCanvas` widget with QPainter for the Dots and Boxes board
+- Scoreboard-driven layouts for Go Fish with grouped card displays
+- Bluff table interface using QTextEdit logs, QTableWidget scoreboards, and QMessageBox prompts
+- Mouse event handling, button groups, and combo boxes for interactive play
+- AI opponent integration across all migrated titles
+- Timers (``QTimer.singleShot``) replacing ``tk.after`` for asynchronous turns
+- Dynamic UI updates that mirror CLI narration
 
 #### 3. Testing Framework
 
@@ -71,8 +68,8 @@ After evaluation, PyQt5 was selected over Pygame because:
 
 **Test Results**:
 
-- 4 tests passing
-- 1 test skipped (requires display - expected in headless CI)
+- Import and smoke tests for Dots and Boxes, Go Fish, and Bluff GUIs
+- Display-dependent tests auto-skip in headless environments
 - All code passes black formatting and ruff linting
 
 #### 4. Documentation
@@ -180,10 +177,10 @@ QTimer.singleShot(500, self.callback)
 - ✅ Documentation
 - ✅ Development tools
 
-### Games (1/14 completed)
+### Games (3/14 completed)
 
-- ✅ **Completed**: Dots and Boxes
-- ⏳ **Remaining**: 13 games (1 paper game, 12 card games)
+- ✅ **Completed**: Dots and Boxes, Go Fish, Bluff
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 
 ## Dependencies
 
