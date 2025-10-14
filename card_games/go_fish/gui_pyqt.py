@@ -315,7 +315,7 @@ class GoFishGUI(QWidget):
             group_layout.addWidget(count_label)
 
             # Card suits
-            suits_text = " ".join(str(card.suit.symbol) for card in cards)
+            suits_text = " ".join(str(card.suit.value) for card in cards)
             suits_label = QLabel(suits_text)
             suits_label.setStyleSheet("font-size: 16pt;")
             suits_label.setAlignment(Qt.AlignmentFlag.AlignCenter)

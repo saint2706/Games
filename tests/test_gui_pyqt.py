@@ -4,8 +4,10 @@ These tests verify that PyQt5-based GUI components work correctly."""
 
 from __future__ import annotations
 
+import os
 import pathlib
 import sys
+import tempfile
 from importlib import import_module
 from typing import Sequence, TYPE_CHECKING
 
@@ -14,6 +16,15 @@ import pytest
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+
+# Ensure PyQt can operate in headless environments
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+runtime_dir_env = os.environ.get("XDG_RUNTIME_DIR")
+runtime_dir = pathlib.Path(runtime_dir_env) if runtime_dir_env else pathlib.Path(tempfile.gettempdir()) / "qt-runtime"
+runtime_dir.mkdir(parents=True, exist_ok=True)
+if sys.platform != "win32":
+    runtime_dir.chmod(0o700)
+os.environ["XDG_RUNTIME_DIR"] = str(runtime_dir)
 
 # Check if PyQt5 is available
 try:
@@ -36,7 +47,6 @@ class TestDotsAndBoxesPyQt:
 
         assert DotsAndBoxesGUI is not None
 
-    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
     def test_dots_boxes_pyqt_gui_initialization(self, qtbot):
         """Test Dots and Boxes PyQt5 GUI initialization."""
         try:
@@ -87,7 +97,6 @@ class TestGoFishPyQt:
 
         assert GoFishGUI is not None
 
-    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
     def test_go_fish_pyqt_gui_initialization(self, qtbot):
         """Test Go Fish PyQt5 GUI initialization."""
         try:
