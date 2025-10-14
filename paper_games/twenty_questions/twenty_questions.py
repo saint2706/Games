@@ -4,11 +4,22 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import random
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
 from common.game_engine import GameEngine, GameState
+
+
+def _default_knowledge_base_path() -> Path:
+    """Return the default writable location for the knowledge base file."""
+
+    if os.name == "nt":
+        base_dir = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
+    else:
+        base_dir = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+    return base_dir / "games" / "twenty_questions" / "knowledge_base.json"
 
 
 class TwentyQuestionsKnowledgeBase:
@@ -212,7 +223,7 @@ class TwentyQuestionsKnowledgeBase:
     def __init__(self, path: Optional[Path] = None) -> None:
         """Create a knowledge base and load any persisted knowledge."""
 
-        self.path = path or Path(__file__).with_name("knowledge_base.json")
+        self.path = path or _default_knowledge_base_path()
         self.objects: Dict[str, Dict[str, bool]] = {}
         self._name_index: Dict[str, str] = {}
         self.load()
