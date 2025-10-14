@@ -424,7 +424,7 @@ pytest --cov                     # Test with coverage
 pre-commit run --all-files       # Run all hooks
 
 # Install development tools
-pip install -r requirements-dev.txt
+pip install -e ".[dev]"              # Install in editable mode
 pre-commit install
 ```
 

@@ -9,8 +9,8 @@ help:
 	@echo "======================================"
 	@echo ""
 	@echo "Setup:"
-	@echo "  make install        Install all dependencies"
-	@echo "  make install-dev    Install development dependencies"
+	@echo "  make install        Install package in editable mode"
+	@echo "  make install-dev    Install package with development dependencies"
 	@echo "  make setup-act      Install act for local workflow testing"
 	@echo ""
 	@echo "Development:"
@@ -42,10 +42,10 @@ help:
 
 # Installation targets
 install:
-	pip install -r requirements.txt
+	pip install -e .
 
-install-dev: install
-	pip install -r requirements-dev.txt
+install-dev:
+	pip install -e ".[dev]"
 	pre-commit install
 
 setup-act:

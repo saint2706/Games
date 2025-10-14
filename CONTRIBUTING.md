@@ -51,19 +51,35 @@ git remote add upstream https://github.com/saint2706/Games.git
 
 ### Install Dependencies
 
+You have two options for setting up your development environment:
+
+#### Option 1: Install from PyPI (Recommended for testing)
+
 ```bash
-# Install base dependencies
-pip install -r requirements.txt
+# Install with all development dependencies
+pip install games-collection[dev]
 
-# Install development dependencies (if available)
-pip install -r requirements-dev.txt
+# Or with GUI support
+pip install games-collection[gui,dev]
+```
 
-# Install optional dependencies for GUI support
+#### Option 2: Install from Source (For active development)
+
+```bash
+# Install in editable mode with development dependencies
+pip install -e ".[dev]"
+
+# Or with GUI support
+pip install -e ".[gui,dev]"
+```
+
+#### Optional System Dependencies
+
+For GUI support on Linux:
+
+```bash
 # On Ubuntu/Debian:
 sudo apt-get install python3-tk
-
-# For sound effects (Uno):
-pip install pygame
 ```
 
 ### Verify Installation
@@ -71,7 +87,7 @@ pip install pygame
 Run existing tests to ensure everything is working:
 
 ```bash
-python -m unittest discover -s tests -p "test_*.py"
+pytest tests/
 ```
 
 ## How to Contribute

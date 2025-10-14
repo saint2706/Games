@@ -73,12 +73,31 @@ Changelog = "https://github.com/saint2706/Games/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
+    # Core testing
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-xdist>=3.0.0",
+    "pytest-timeout>=2.1.0",
+    # GUI testing
+    "pytest-qt>=4.0.0",
+    "pyqt5",
+    # Performance testing
+    "pytest-benchmark>=4.0.0",
+    # Code quality
     "black>=24.0",
     "ruff>=0.8",
+    "mdformat>=0.7.0",
     "mypy>=1.0",
     "pre-commit>=3.0",
     "radon>=6.0",
+    # Coverage reporting
+    "coverage[toml]>=7.0.0",
+    # Mutation testing
+    "mutmut>=2.4.0",
+    # Additional utilities
+    "freezegun>=1.2.0",
+    "responses>=0.23.0",
+    "pytest-mock>=3.10.0",
 ]
 gui = [
     "pygame>=2.0",
