@@ -9,9 +9,9 @@ redoubles, declarer determination, and heuristic AI for both bidding and play.
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum
-from typing import Iterable, Optional
+from typing import Callable, Iterable, Optional
 
 from card_games.common.cards import Card, Deck, Suit
 
@@ -77,6 +77,30 @@ class Call:
     player: BridgePlayer
     call_type: CallType
     bid: Optional[Bid] = None
+    forced: bool = False
+    explanation: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class AuctionState:
+    """Immutable snapshot describing the current auction state."""
+
+    current_bid: Optional[Bid]
+    current_bidder: Optional[BridgePlayer]
+    double_partnership: Optional[str]
+    redouble_partnership: Optional[str]
+    forcing_partnership: Optional[str]
+    passes_in_row: int
+    last_non_pass_call: Optional[Call]
+
+
+@dataclass
+class TrickRecord:
+    """Record of a completed or claimed trick."""
+
+    plays: list[tuple[BridgePlayer, Card]]
+    winner: Optional[BridgePlayer]
+    claimed: bool = False
 
 
 class Vulnerability(Enum):
@@ -121,7 +145,7 @@ class BridgeGame:
             raise ValueError("Bridge requires exactly 4 players")
 
         self.players = players
-        positions = ["N", "S", "E", "W"]
+        positions = ["N", "E", "S", "W"]
         for index, player in enumerate(self.players):
             player.position = positions[index]
             player.partner_index = (index + 2) % 4
@@ -136,6 +160,12 @@ class BridgeGame:
         self.dealer_index = 0
         self.declarer_index: Optional[int] = None
         self.bidding_history: list[Call] = []
+        self.trick_history: list[TrickRecord] = []
+        self.hand_complete = False
+        # The helper is imported lazily to avoid circular imports during module load.
+        from card_games.bridge.bidding import BiddingHelper
+
+        self.bidding_helper = BiddingHelper(self)
 
     # ------------------------------------------------------------------
     # Utility helpers
@@ -205,6 +235,8 @@ class BridgeGame:
         self.lead_suit = None
         self.current_trick = []
         self.bidding_history = []
+        self.trick_history = []
+        self.hand_complete = False
 
     # ------------------------------------------------------------------
     # Bidding utilities
@@ -463,7 +495,58 @@ class BridgeGame:
 
         return self._suggest_overcall_call(player, hcp, distribution, current_bid)
 
-    def conduct_bidding(self) -> Optional[Contract]:
+    def _legal_calls_from_state(
+        self,
+        player: BridgePlayer,
+        state: AuctionState,
+    ) -> list[Call]:
+        """Return all legal calls for ``player`` given ``state``."""
+
+        legal: list[Call] = []
+        partnership = self.partnership_for(player)
+        forced = state.forcing_partnership == partnership
+        legal.append(Call(player, CallType.PASS, forced=forced))
+
+        # Generate bids at legal levels.
+        current_score = state.current_bid.score() if state.current_bid else 0
+        for level in range(1, 8):
+            for bid_suit in BidSuit:
+                bid = Bid(level, bid_suit)
+                if bid.score() > current_score:
+                    legal.append(Call(player, CallType.BID, bid=bid))
+
+        # Doubles and redoubles.
+        if state.current_bidder is not None:
+            current_partnership = self.partnership_for(state.current_bidder)
+        else:
+            current_partnership = None
+
+        if (
+            state.current_bid is not None
+            and current_partnership is not None
+            and partnership != current_partnership
+            and state.double_partnership is None
+            and state.redouble_partnership is None
+        ):
+            legal.append(Call(player, CallType.DOUBLE))
+
+        if (
+            state.current_bid is not None
+            and current_partnership is not None
+            and partnership == current_partnership
+            and state.double_partnership is not None
+            and state.redouble_partnership is None
+        ):
+            legal.append(Call(player, CallType.REDOUBLE))
+
+        return legal
+
+    def conduct_bidding(
+        self,
+        call_selector: Optional[
+            Callable[[BridgePlayer, list[Call], list[Call], AuctionState], Call]
+        ] = None,
+    ) -> Optional[Contract]:
         """Conduct the auction and establish the final contract.
 
         Returns:
@@ -476,13 +559,40 @@ class BridgeGame:
         player_index = self.dealer_index
         current_bid: Optional[Bid] = None
         current_bidder: Optional[BridgePlayer] = None
-        doubled = False
-        redoubled = False
+        double_partnership: Optional[str] = None
+        redouble_partnership: Optional[str] = None
+        forcing_partnership: Optional[str] = None
         first_bidder_by_partnership: dict[tuple[str, BidSuit], BridgePlayer] = {}
+        last_non_pass_call: Optional[Call] = None
 
         while True:
             player = self.players[player_index]
-            call = self.suggest_call(player, history.copy())
+            state = AuctionState(
+                current_bid=current_bid,
+                current_bidder=current_bidder,
+                double_partnership=double_partnership,
+                redouble_partnership=redouble_partnership,
+                forcing_partnership=forcing_partnership,
+                passes_in_row=passes_in_row,
+                last_non_pass_call=last_non_pass_call,
+            )
+            legal_calls = self._legal_calls_from_state(player, state)
+
+            if call_selector is not None:
+                call = call_selector(player, legal_calls, history.copy(), state)
+            else:
+                call = self.bidding_helper.choose_call(player, legal_calls, history.copy(), state)
+
+            # Ensure call corresponds to one of the legal templates.
+            template = None
+            for option in legal_calls:
+                if option.call_type == call.call_type and option.bid == call.bid:
+                    template = option
+                    break
+            if template is None:
+                raise ValueError("Selected call is not legal in the current context")
+            if call is not template:
+                call = replace(template, explanation=call.explanation)
 
             if call.call_type == CallType.BID and call.bid is not None:
                 if call.bid.level < 1 or call.bid.level > 7:
@@ -494,27 +604,45 @@ class BridgeGame:
                 current_bid = call.bid
                 current_bidder = player
                 passes_in_row = 0
-                doubled = False
-                redoubled = False
+                double_partnership = None
+                redouble_partnership = None
+                forcing_partnership = None
                 partnership = self.partnership_for(player)
                 first_bidder_by_partnership.setdefault((partnership, call.bid.suit), player)
+                last_non_pass_call = call
             elif call.call_type == CallType.DOUBLE and current_bidder is not None:
-                if self.partnership_for(player) == self.partnership_for(current_bidder) or doubled:
+                if (
+                    self.partnership_for(player) == self.partnership_for(current_bidder)
+                    or double_partnership is not None
+                    or redouble_partnership is not None
+                ):
                     call = Call(player, CallType.PASS)
                     passes_in_row += 1
                 else:
-                    doubled = True
-                    redoubled = False
+                    double_partnership = self.partnership_for(player)
+                    redouble_partnership = None
+                    forcing_partnership = self.partnership_for(current_bidder)
                     passes_in_row = 0
+                    last_non_pass_call = call
             elif call.call_type == CallType.REDOUBLE and current_bidder is not None:
-                if not doubled or self.partnership_for(player) != self.partnership_for(current_bidder):
+                if (
+                    double_partnership is None
+                    or self.partnership_for(player) != self.partnership_for(current_bidder)
+                    or redouble_partnership is not None
+                ):
                     call = Call(player, CallType.PASS)
                     passes_in_row += 1
                 else:
-                    redoubled = True
+                    redouble_partnership = self.partnership_for(player)
+                    forcing_partnership = double_partnership
                     passes_in_row = 0
+                    last_non_pass_call = call
             else:
                 passes_in_row += 1
+                if call.call_type == CallType.PASS and call.forced:
+                    last_non_pass_call = last_non_pass_call
+                elif call.call_type != CallType.PASS:
+                    last_non_pass_call = call
 
             history.append(call)
             player_index = (player_index + 1) % 4
@@ -539,7 +667,12 @@ class BridgeGame:
 
         trump_suit = self._bid_suit_to_card_suit(current_bid.suit)
         self.trump_suit = trump_suit
-        self.contract = Contract(current_bid, declarer, doubled=doubled, redoubled=redoubled)
+        self.contract = Contract(
+            current_bid,
+            declarer,
+            doubled=double_partnership is not None and redouble_partnership is None,
+            redoubled=redouble_partnership is not None,
+        )
         return self.contract
 
     # ------------------------------------------------------------------
@@ -583,6 +716,8 @@ class BridgeGame:
         self.current_trick.append((player, card))
         if len(self.current_trick) == 1:
             self.lead_suit = card.suit
+        if all(not contender.hand for contender in self.players):
+            self.hand_complete = True
 
     def _is_better_card(self, candidate: Card, current: Card, lead_suit: Suit) -> bool:
         """Return whether ``candidate`` wins against ``current`` given context."""
@@ -615,8 +750,11 @@ class BridgeGame:
             raise RuntimeError("Trick is not complete")
         winner, _ = self._evaluate_trick_winner()
         winner.tricks_won += 1
+        self.trick_history.append(TrickRecord(self.current_trick.copy(), winner))
         self.current_trick = []
         self.lead_suit = None
+        if all(not player.hand for player in self.players):
+            self.hand_complete = True
         return winner
 
     def get_valid_plays(self, player: BridgePlayer) -> list[Card]:
@@ -714,6 +852,64 @@ class BridgeGame:
             return 0
         return (self.declarer_index + 1) % 4
 
+    def tricks_remaining(self) -> int:
+        """Return the number of tricks that still need to be decided."""
+
+        partial = 1 if self.current_trick else 0
+        remaining = 13 - len(self.trick_history) - partial
+        return max(0, remaining)
+
+    def claim_tricks(self, player: BridgePlayer, tricks: int) -> bool:
+        """Attempt to claim ``tricks`` for ``player``'s partnership.
+
+        Args:
+            player: The player requesting the claim.
+            tricks: The number of remaining tricks they state they can take.
+
+        Returns:
+            ``True`` if the claim is accepted and the hand is ended, otherwise ``False``.
+        """
+
+        if tricks <= 0 or self.current_trick:
+            return False
+        remaining = self.tricks_remaining()
+        if tricks > remaining:
+            return False
+
+        partnership = self.partnership_for(player)
+        teammates = [seat for seat in self.players if self.partnership_for(seat) == partnership]
+        if not teammates:
+            return False
+
+        teammates[0].tricks_won += tricks
+        for _ in range(tricks):
+            self.trick_history.append(TrickRecord([], teammates[0], claimed=True))
+
+        for seat in self.players:
+            seat.hand.clear()
+
+        self.current_trick = []
+        self.lead_suit = None
+        self.hand_complete = True
+        return True
+
+    def trick_history_summary(self) -> list[str]:
+        """Return a textual description of each recorded trick."""
+
+        entries: list[str] = []
+        for index, record in enumerate(self.trick_history, start=1):
+            if record.claimed:
+                claimant = record.winner.position if record.winner is not None else "-"
+                entries.append(f"Trick {index}: Claimed by {claimant}")
+                continue
+            if not record.plays:
+                entries.append(f"Trick {index}: No cards recorded")
+                continue
+            plays = ", ".join(f"{participant.position} {card}" for participant, card in record.plays)
+            winner = record.winner.position if record.winner is not None else "-"
+            entries.append(f"Trick {index}: {plays} | Winner: {winner}")
+        return entries
+
     # ------------------------------------------------------------------
     # Scoring
     # ------------------------------------------------------------------
@@ -804,24 +1000,25 @@ class BridgeGame:
         undertricks = required - tricks_won
 
         if not doubled and not redoubled:
-            penalty = undertricks * (100 if vulnerable else 50)
-            return penalty
+            return undertricks * (100 if vulnerable else 50)
 
         penalties: list[int] = []
         for index in range(undertricks):
+            step = index + 1
             if vulnerable:
-                penalty_value = 200 if index == 0 else 300
+                penalties.append(200 if step == 1 else 300)
             else:
-                if index == 0:
-                    penalty_value = 100
-                elif index in {1, 2}:
-                    penalty_value = 200
+                if step == 1:
+                    penalties.append(100)
+                elif step in {2, 3}:
+                    penalties.append(200)
                 else:
-                    penalty_value = 300
-            penalties.append(penalty_value)
+                    penalties.append(300)
 
-        multiplier = 2 if redoubled else 1
-        return sum(penalties) * multiplier
+        total = sum(penalties)
+        if redoubled:
+            total *= 2
+        return total
 
     def calculate_score(self) -> dict[str, int]:
         """Return rubber-style scores for both partnerships.

@@ -660,7 +660,7 @@ class TestBridge:
 
         # Check positions
         positions = [p.position for p in game.players]
-        assert positions == ["N", "S", "E", "W"]
+        assert positions == ["N", "E", "S", "W"]
 
         # Check partnerships
         assert game.players[0].partner_index == 2  # N-S

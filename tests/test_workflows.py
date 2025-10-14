@@ -6,6 +6,11 @@ from pathlib import Path
 
 import pytest
 
+try:
+    import yaml  # type: ignore
+except ImportError:  # pragma: no cover - optional dependency
+    yaml = None
+
 # Get the repository root
 REPO_ROOT = Path(__file__).parent.parent
 
@@ -58,6 +63,8 @@ def test_workflow_validation_script_exists():
 
 def test_workflow_validation_passes():
     """Test that workflow validation passes."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
     import subprocess
 
     script_path = REPO_ROOT / "scripts" / "validate_workflows.py"
@@ -73,7 +80,8 @@ def test_workflow_validation_passes():
 
 def test_workflow_syntax_valid():
     """Test that all workflow files have valid YAML syntax."""
-    import yaml
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
 
     workflow_dir = REPO_ROOT / ".github" / "workflows"
     workflow_files = list(workflow_dir.glob("*.yml"))
@@ -111,7 +119,8 @@ def test_event_payload_syntax_valid():
 
 def test_workflow_structure():
     """Test that all workflows have required structure."""
-    import yaml
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
 
     workflow_dir = REPO_ROOT / ".github" / "workflows"
     workflow_files = list(workflow_dir.glob("*.yml"))
