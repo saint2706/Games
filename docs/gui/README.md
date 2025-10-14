@@ -87,11 +87,13 @@ pytest tests/test_gui_pyqt.py -v
 
 ## 📊 Migration Status
 
-### Completed (1/14)
+### Completed (3/14)
 
 - ✅ Dots and Boxes
+- ✅ Go Fish
+- ✅ War
 
-### Remaining (13/14)
+### Remaining (11/14)
 
 **Paper Games**:
 
@@ -104,13 +106,11 @@ pytest tests/test_gui_pyqt.py -v
 - Bridge
 - Crazy Eights
 - Gin Rummy
-- Go Fish
 - Hearts
 - Poker
 - Solitaire
 - Spades
 - Uno
-- War
 
 ## 🛠️ For Developers
 
