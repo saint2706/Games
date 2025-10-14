@@ -116,6 +116,29 @@ class TestGoFishPyQt:
 
 
 @pytest.mark.gui
+class TestSolitairePyQt:
+    """Test Solitaire PyQt5 GUI components."""
+
+    def test_solitaire_pyqt_gui_import(self):
+        """Test that Solitaire PyQt5 GUI can be imported."""
+
+        from card_games.solitaire.gui_pyqt import SolitaireWindow
+
+        assert SolitaireWindow is not None
+
+    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
+    def test_solitaire_pyqt_gui_initialization(self, qtbot):
+        """Test Solitaire PyQt5 GUI initialization."""
+
+        try:
+            from card_games.solitaire.game import SolitaireGame
+            from card_games.solitaire.gui_pyqt import SolitaireWindow
+
+            game = SolitaireGame()
+            window = SolitaireWindow(game)
+            qtbot.addWidget(window)
+            assert window.game is not None
+            assert window.selected_source is None
 class TestSpadesPyQt:
     """Test Spades PyQt5 GUI components."""
 
@@ -173,6 +196,7 @@ def test_pyqt5_modules_available():
     gui_modules = [
         "paper_games.dots_and_boxes.gui_pyqt",
         "card_games.go_fish.gui_pyqt",
+        "card_games.solitaire.gui_pyqt",
         "card_games.spades.gui_pyqt",
         "card_games.uno.gui_pyqt",
         "common.gui_base_pyqt",

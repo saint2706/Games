@@ -28,6 +28,9 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 | Gin Rummy | ⏳ Pending | - | 709 lines, melding system |
 | Go Fish | ✅ Complete | `card_games/go_fish/gui_pyqt.py` | 425 lines, simplest card game GUI |
 | Hearts | ⏳ Pending | - | 610 lines, trick-taking |
+| Poker | ⏳ Pending | - | 437 lines, betting interface |
+| Solitaire | ✅ Complete | `card_games/solitaire/gui_pyqt.py` | 729 lines, most complex GUI |
+| Spades | ⏳ Pending | - | 582 lines, bidding and tricks |
 | Poker | ✅ Complete | `card_games/poker/gui_pyqt.py` | 437 lines, betting interface |
 | Solitaire | ⏳ Pending | - | 729 lines, most complex GUI |
 | Spades | ✅ Complete | `card_games/spades/gui_pyqt.py` | Bidding, trick display, and scoring migrated |
@@ -73,7 +76,7 @@ Based on complexity (lines of code and features):
 1. **War** (622 lines) - Despite simple rules, has animations
 1. **Blackjack** (688 lines) - Betting and dealer logic
 1. **Gin Rummy** (709 lines) - Complex melding system
-1. **Solitaire** (729 lines) - Most complex, multiple layouts
+1. **Solitaire** (729 lines) - ✅ Completed with PyQt5 toolbar and canvas migration
 
 ## Testing
 
