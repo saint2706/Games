@@ -20,14 +20,14 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 ### Card Games (2/12 completed)
 
 | Game | Status | GUI File | Notes |
-| ------------ | ---------- | -------- | --------------------------------- |
+| ------------ | ---------- | ------------------------------------------- | --------------------------------- |
 | Blackjack | ⏳ Pending | - | 688 lines, table-based layout |
 | Bluff | ⏳ Pending | - | 451 lines, multi-player |
 | Bridge | ✅ Complete | `card_games/bridge/gui_pyqt.py` | PyQt port with automated bidding/play |
 | Crazy Eights | ⏳ Pending | - | 465 lines |
 | Gin Rummy | ⏳ Pending | - | 709 lines, melding system |
 | Go Fish | ✅ Complete | `card_games/go_fish/gui_pyqt.py` | 425 lines, simplest card game GUI |
-| Hearts | ⏳ Pending | - | 610 lines, trick-taking |
+| Hearts | ✅ Complete | `card_games/hearts/gui_pyqt.py` | 610 lines, trick-taking |
 | Poker | ⏳ Pending | - | 437 lines, betting interface |
 | Solitaire | ✅ Complete | `card_games/solitaire/gui_pyqt.py` | 729 lines, most complex GUI |
 | Spades | ⏳ Pending | - | 582 lines, bidding and tricks |

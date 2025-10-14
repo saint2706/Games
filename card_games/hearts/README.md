@@ -9,9 +9,9 @@ taking all penalty cards.
 python -m card_games.hearts
 ```
 
-Launching the module without flags opens the new Tkinter GUI. The table presents a four-seat layout with the human
-player in the south seat, three AI opponents, and a passing panel that lets you select exactly three cards before each
-round.
+Launching the module without flags opens the new PyQt5 GUI (falling back to Tkinter automatically when PyQt5 is not
+available). The table presents a four-seat layout with the human player in the south seat, three AI opponents, and a
+passing panel that lets you select exactly three cards before each round.
 
 ![Hearts GUI overview](../../docs/images/hearts_gui_overview.svg)
 
@@ -40,6 +40,7 @@ Additional optional flags:
 - `--player-name <name>` – customise the human player label in either interface.
 - `--high-contrast` – enable a theme with bold colours and higher contrast.
 - `--accessibility-mode` – enable large fonts plus screen-reader annotations.
+- `--backend {pyqt,tk}` – choose a GUI backend explicitly.
 
 ## Game Rules
 

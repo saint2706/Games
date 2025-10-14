@@ -106,6 +106,7 @@ pytest tests/test_gui_pyqt.py -v
 
 - ✅ Dots and Boxes
 - ✅ Go Fish
+- ✅ Hearts
 - ✅ Solitaire
 - ✅ Spades
 - ✅ Uno
