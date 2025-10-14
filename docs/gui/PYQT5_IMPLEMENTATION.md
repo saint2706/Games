@@ -180,10 +180,10 @@ QTimer.singleShot(500, self.callback)
 - ✅ Documentation
 - ✅ Development tools
 
-### Games (1/14 completed)
+### Games (3/14 completed)
 
-- ✅ **Completed**: Dots and Boxes
-- ⏳ **Remaining**: 13 games (1 paper game, 12 card games)
+- ✅ **Completed**: Battleship, Dots and Boxes, Go Fish
+- ⏳ **Remaining**: 11 card games (Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War)
 
 ## Dependencies
 

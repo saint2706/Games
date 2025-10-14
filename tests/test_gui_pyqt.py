@@ -29,12 +29,6 @@ pytestmark = pytest.mark.skipif(not PYQT5_AVAILABLE, reason="PyQt5 not available
 class TestDotsAndBoxesPyQt:
     """Test Dots and Boxes PyQt5 GUI components."""
 
-    def test_dots_boxes_pyqt_gui_import(self):
-        """Test that Dots and Boxes PyQt5 GUI can be imported."""
-        from paper_games.dots_and_boxes.gui_pyqt import DotsAndBoxesGUI
-
-        assert DotsAndBoxesGUI is not None
-
     @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
     def test_dots_boxes_pyqt_gui_initialization(self, qtbot):
         """Test Dots and Boxes PyQt5 GUI initialization."""
@@ -47,6 +41,28 @@ class TestDotsAndBoxesPyQt:
             assert window.game is not None
             assert window.size == 2
             assert window.player_turn is True
+        except Exception as e:
+            if "display" in str(e).lower() or "DISPLAY" in str(e):
+                pytest.skip("No display available for GUI testing")
+            raise
+
+
+@pytest.mark.gui
+class TestBattleshipPyQt:
+    """Test Battleship PyQt5 GUI components."""
+
+    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
+    def test_battleship_pyqt_gui_initialization(self, qtbot):
+        """Test Battleship PyQt5 GUI initialization."""
+        try:
+            from paper_games.battleship.gui_pyqt import BattleshipGUI
+
+            window = BattleshipGUI(size=8, fleet_type="small", difficulty="easy", salvo_mode=False)
+            qtbot.addWidget(window)
+            assert window.game is not None
+            assert window.size == 8
+            assert window.setup_phase is True
+            assert window.placing_ship_index == 0
         except Exception as e:
             if "display" in str(e).lower() or "DISPLAY" in str(e):
                 pytest.skip("No display available for GUI testing")
@@ -80,12 +96,6 @@ class TestBaseGUIPyQt:
 class TestGoFishPyQt:
     """Test Go Fish PyQt5 GUI components."""
 
-    def test_go_fish_pyqt_gui_import(self):
-        """Test that Go Fish PyQt5 GUI can be imported."""
-        from card_games.go_fish.gui_pyqt import GoFishGUI
-
-        assert GoFishGUI is not None
-
     @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
     def test_go_fish_pyqt_gui_initialization(self, qtbot):
         """Test Go Fish PyQt5 GUI initialization."""
@@ -105,10 +115,27 @@ class TestGoFishPyQt:
             raise
 
 
+GUI_IMPORT_CASES = [
+    ("paper_games.dots_and_boxes.gui_pyqt", "DotsAndBoxesGUI"),
+    ("paper_games.battleship.gui_pyqt", "BattleshipGUI"),
+    ("card_games.go_fish.gui_pyqt", "GoFishGUI"),
+]
+
+
+@pytest.mark.gui
+@pytest.mark.parametrize("module_path, attr_name", GUI_IMPORT_CASES)
+def test_pyqt_gui_imports(module_path: str, attr_name: str) -> None:
+    """Ensure core PyQt GUI modules can be imported."""
+
+    module = __import__(module_path, fromlist=[attr_name])
+    assert hasattr(module, attr_name)
+
+
 @pytest.mark.gui
 def test_pyqt5_modules_available():
     """Test that PyQt5 GUI modules can be imported."""
     gui_modules = [
+        "paper_games.battleship.gui_pyqt",
         "paper_games.dots_and_boxes.gui_pyqt",
         "card_games.go_fish.gui_pyqt",
         "common.gui_base_pyqt",

@@ -12,6 +12,13 @@ import sys
 from typing import Optional
 
 
+PYQT_MODULE_OVERRIDES = {
+    "paper_games/battleship": "paper_games.battleship.gui_pyqt",
+}
+
+TKINTER_MODULE_OVERRIDES = {}
+
+
 def test_tkinter_available() -> bool:
     """Check if tkinter is available."""
     try:
@@ -64,10 +71,11 @@ def check_gui_implementation(category: str, game: str, framework: str) -> tuple[
     Returns:
         Tuple of (exists, module_path)
     """
+    key = f"{category}/{game}"
     if framework == "tkinter":
-        module_name = f"{category}.{game}.gui"
+        module_name = TKINTER_MODULE_OVERRIDES.get(key, f"{category}.{game}.gui")
     else:  # pyqt5
-        module_name = f"{category}.{game}.gui_pyqt"
+        module_name = PYQT_MODULE_OVERRIDES.get(key, f"{category}.{game}.gui_pyqt")
 
     try:
         __import__(module_name)
