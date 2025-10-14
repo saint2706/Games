@@ -10,8 +10,9 @@ limits, Windows-style scoring, and the Vegas casino option.
 python -m card_games.solitaire [--draw-count {1,3}] [--max-recycles N] [--scoring {standard,vegas}] [--seed SEED] [--cli]
 ```
 
-By default the module launches the Tkinter GUI. Pass `--cli` to stay in the original command-line interface; all
-gameplay options apply to both modes.
+By default the module launches the PyQt5 GUI when the dependency is available. Pass `--cli` to stay in the original
+command-line interface; all gameplay options apply to every mode. The launcher automatically falls back to the
+legacy Tkinter GUI or CLI if graphical dependencies are missing.
 
 ### GUI Highlights
 
@@ -28,9 +29,9 @@ gameplay options apply to both modes.
 - `--seed` – provide a random seed for reproducible shuffles.
 - `--cli` – force the text-mode experience when Tkinter is not desired or available.
 
-> **Tkinter dependency:** Most desktop Python installations include Tkinter. If you encounter an import error on Linux,
-> install `python3-tk` (Debian/Ubuntu) or the equivalent package for your distribution. macOS users should ensure they
-> are running the framework build of Python.
+> **GUI dependencies:** Install `pip install games-collection[gui]` (or `pip install pyqt5`) for the PyQt5 interface.
+> Systems without Tkinter should install `python3-tk` (Debian/Ubuntu) or the equivalent package. macOS users should
+> ensure they are running the framework build of Python.
 
 ## Game Rules
 

@@ -27,6 +27,12 @@ pip install pyqt5
 **Available Games:**
 
 - Dots and Boxes (paper_games/dots_and_boxes/gui_pyqt.py)
+- Go Fish (card_games/go_fish/gui_pyqt.py)
+- Solitaire (card_games/solitaire/gui_pyqt.py)
+- Spades (card_games/spades/gui_pyqt.py)
+- Dots and Boxes (`paper_games/dots_and_boxes/gui_pyqt.py`)
+- Go Fish (`card_games/go_fish/gui_pyqt.py`)
+- War (`card_games/war/gui_pyqt.py`)
 
 ### Tkinter (Legacy)
 
@@ -55,12 +61,24 @@ For detailed migration instructions, see `MIGRATION_GUIDE.md`.
 
 | Status | Count | Percentage |
 | ------------ | ----- | ---------- |
-| ✅ Completed | 1/14 | 7% |
-| ⏳ Remaining | 13/14 | 93% |
+| ✅ Completed | 3/14 | 21% |
+| ⏳ Remaining | 11/14 | 79% |
 
 **Completed**: Dots and Boxes, Go Fish, Crazy Eights
 
 **Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War (card games)
+**Completed**: Dots and Boxes, Go Fish, Hearts
+
+**Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Poker, Solitaire, Spades, Uno, War (card games)
+**Completed**: Dots and Boxes, Go Fish, Solitaire
+
+**Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Spades, Uno, War (card games)
+**Completed**: Dots and Boxes, Go Fish, Spades
+
+**Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Uno, War (card games)
+**Completed**: Dots and Boxes, Go Fish, Uno
+
+**Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, War (card games)
 
 ## Using GUIs
 
