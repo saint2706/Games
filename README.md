@@ -75,6 +75,7 @@ The Games Collection supports both **Tkinter** and **PyQt5** for graphical inter
 
 - **Tkinter**: 14 games with full GUI support
 - **PyQt5**: 3 games migrated (Dots and Boxes, Go Fish, Solitaire), 11 remaining
+- **PyQt5**: 3 games migrated (Dots and Boxes, Go Fish, Uno), 11 remaining
 
 See **[GUI Migration Status](docs/status/GUI_MIGRATION_STATUS.md)** for detailed progress tracking.
 

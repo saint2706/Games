@@ -82,6 +82,18 @@ For GUI support on Linux:
 sudo apt-get install python3-tk
 ```
 
+### Set Up Pre-commit Hooks
+
+The repository uses [pre-commit](https://pre-commit.com/) to run Black, Ruff, Mdformat, and the Radon-based complexity checks.
+After installing the development dependencies, enable the hooks locally so that the same tooling runs before every commit:
+
+```bash
+pre-commit install
+
+# Run on demand across the entire codebase
+pre-commit run --all-files
+```
+
 ### Verify Installation
 
 Run existing tests to ensure everything is working:

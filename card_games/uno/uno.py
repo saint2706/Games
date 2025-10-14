@@ -1057,8 +1057,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     parser.add_argument(
         "--gui",
-        action="store_true",
-        help="Launch the Tkinter interface instead of the console version.",
+        nargs="?",
+        const="tk",
+        choices=("tk", "tkinter", "pyqt", "pyqt5"),
+        help="Launch a graphical interface. Use 'tk' (default) or 'pyqt'.",
     )
     parser.add_argument(
         "--stacking",
@@ -1099,16 +1101,33 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     rng = random.Random(args.seed)
 
     if args.gui:
-        from .gui import launch_uno_gui
+        backend_map = {"tk": "tk", "tkinter": "tk", "pyqt": "pyqt", "pyqt5": "pyqt"}
+        backend = backend_map[args.gui]
+        if backend == "pyqt":
+            try:
+                from .gui_pyqt import launch_uno_gui_pyqt
+            except ImportError as exc:  # pragma: no cover - PyQt optional dependency
+                parser.error(f"PyQt5 backend requested but not available: {exc}")
 
-        launch_uno_gui(
-            total_players,
-            bots=bot_count,
-            bot_skill=args.bot_skill,
-            seed=args.seed,
-            house_rules=house_rules,
-            team_mode=args.team_mode,
-        )
+            launch_uno_gui_pyqt(
+                total_players,
+                bots=bot_count,
+                bot_skill=args.bot_skill,
+                seed=args.seed,
+                house_rules=house_rules,
+                team_mode=args.team_mode,
+            )
+        else:
+            from .gui import launch_uno_gui
+
+            launch_uno_gui(
+                total_players,
+                bots=bot_count,
+                bot_skill=args.bot_skill,
+                seed=args.seed,
+                house_rules=house_rules,
+                team_mode=args.team_mode,
+            )
         return 0
 
     game = UnoGame(players=players, rng=rng, interface=ConsoleUnoInterface(), house_rules=house_rules, team_mode=args.team_mode)

@@ -34,13 +34,8 @@ jobs:
       - name: Install package with development dependencies
         run: pip install -e ".[dev]"
 
-      - name: Run formatters
-        run: |
-          black .
-          mdformat .
-
-      - name: Fix lint warnings
-        run: ruff check . --fix
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v7

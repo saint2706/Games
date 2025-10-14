@@ -10,6 +10,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+
 # Add project root to path
 # Note: SPECPATH is a PyInstaller builtin variable pointing to the spec file's directory
 project_root = Path(SPECPATH).parent.parent
@@ -33,11 +35,46 @@ hidden_imports = [
     'tkinter',
 ]
 
+# Collect PyQt5 resources when available so Qt plugins and translations are bundled
+pyqt5_packages = [
+    'PyQt5',
+    'PyQt5.QtCore',
+    'PyQt5.QtGui',
+    'PyQt5.QtWidgets',
+    'PyQt5.QtPrintSupport',
+]
+
+pyqt5_hidden_imports: list[str] = []
+pyqt5_datas: list[tuple[str, str]] = []
+
+try:
+    import PyQt5  # noqa: F401  # pylint: disable=unused-import
+except ModuleNotFoundError:
+    print('PyQt5 not installed - skipping PyQt5 hidden import and data collection')
+else:
+    for package in pyqt5_packages:
+        pyqt5_hidden_imports.extend(collect_submodules(package))
+        pyqt5_datas.extend(collect_data_files(package))
+
+if pyqt5_hidden_imports:
+    hidden_imports = sorted({*hidden_imports, *pyqt5_hidden_imports})
+
 # Collect all data files
 datas = [
     (str(project_root / 'README.md'), '.'),
     (str(project_root / 'LICENSE'), '.'),
 ]
+
+if pyqt5_datas:
+    combined_datas = [*datas, *pyqt5_datas]
+    seen_datas: set[tuple[str, str]] = set()
+    deduped_datas: list[tuple[str, str]] = []
+    for entry in combined_datas:
+        if entry in seen_datas:
+            continue
+        seen_datas.add(entry)
+        deduped_datas.append(entry)
+    datas = deduped_datas
 
 a = Analysis(
     [str(project_root / 'scripts' / 'launcher.py')],
