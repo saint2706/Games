@@ -23,12 +23,12 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 | ------------ | ---------- | -------- | --------------------------------- |
 | Blackjack | ⏳ Pending | - | 688 lines, table-based layout |
 | Bluff | ⏳ Pending | - | 451 lines, multi-player |
-| Bridge | ⏳ Pending | - | 488 lines, complex bidding system |
+| Bridge | ✅ Complete | `card_games/bridge/gui_pyqt.py` | PyQt port with automated bidding/play |
 | Crazy Eights | ⏳ Pending | - | 465 lines |
 | Gin Rummy | ⏳ Pending | - | 709 lines, melding system |
 | Go Fish | ✅ Complete | `card_games/go_fish/gui_pyqt.py` | 425 lines, simplest card game GUI |
 | Hearts | ⏳ Pending | - | 610 lines, trick-taking |
-| Poker | ⏳ Pending | - | 437 lines, betting interface |
+| Poker | ✅ Complete | `card_games/poker/gui_pyqt.py` | 437 lines, betting interface |
 | Solitaire | ⏳ Pending | - | 729 lines, most complex GUI |
 | Spades | ⏳ Pending | - | 582 lines, bidding and tricks |
 | Uno | ⏳ Pending | - | 524 lines, special cards |
@@ -61,7 +61,7 @@ Based on complexity (lines of code and features):
 1. **Poker** (437 lines) - Moderate complexity
 1. **Bluff** (451 lines) - Multi-player interaction
 1. **Crazy Eights** (465 lines) - Special rules
-1. **Bridge** (488 lines) - Complex bidding
+1. **Bridge** (488 lines) - Completed PyQt migration
 1. **Uno** (524 lines) - Special cards and colors
 1. **Spades** (582 lines) - Trick-taking with bidding
 1. **Hearts** (610 lines) - Trick-taking, point avoidance
