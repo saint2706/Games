@@ -11,29 +11,34 @@ The Games repository now supports **PyQt5** as its primary GUI framework, addres
 ### Implemented Components
 
 1. **Base Infrastructure** (`common/gui_base_pyqt.py`)
+
    - Abstract base class for all PyQt5 GUIs
    - Configuration system with GUIConfig
    - Helper methods for common UI elements
    - Theme and sound manager integration
 
-2. **Working Example** (`paper_games/dots_and_boxes/gui_pyqt.py`)
+1. **Working Example** (`paper_games/dots_and_boxes/gui_pyqt.py`)
+
    - Complete PyQt5 implementation
    - Custom board rendering with QPainter
    - Mouse event handling
    - AI opponent integration
    - Professional appearance
 
-3. **Test Framework** (`tests/test_gui_pyqt.py`)
+1. **Test Framework** (`tests/test_gui_pyqt.py`)
+
    - pytest-qt integration
    - Import and structure validation
    - All tests passing (4/4, 1 skipped for display)
 
-4. **Documentation**
+1. **Documentation**
+
    - `docs/GUI_MIGRATION_GUIDE.md` - Complete migration guide
    - `docs/GUI_FRAMEWORKS.md` - Framework overview
    - `docs/PYQT5_IMPLEMENTATION.md` - Implementation details
 
-5. **Developer Tools**
+1. **Developer Tools**
+
    - `scripts/test_gui.py` - Check framework availability
    - `scripts/validate_pyqt5.py` - Validate implementation
 
@@ -46,6 +51,7 @@ python scripts/test_gui.py --check-framework all
 ```
 
 Output:
+
 ```
 GUI Framework Availability:
 ----------------------------------------
@@ -66,6 +72,7 @@ python scripts/validate_pyqt5.py
 ```
 
 Output:
+
 ```
 ✅ All validations PASSED
 
@@ -81,14 +88,17 @@ pytest tests/test_gui_pyqt.py -v
 ## 📊 Migration Status
 
 ### Completed (1/14)
+
 - ✅ Dots and Boxes
 
 ### Remaining (13/14)
 
 **Paper Games**:
+
 - Battleship
 
 **Card Games**:
+
 - Blackjack
 - Bluff
 - Bridge
@@ -132,6 +142,7 @@ class MyGameGUI(BaseGUI):
 ### Migrating from Tkinter
 
 See `docs/GUI_MIGRATION_GUIDE.md` for:
+
 - Widget mapping (tkinter → PyQt5)
 - Event handling patterns
 - Layout management
@@ -141,6 +152,7 @@ See `docs/GUI_MIGRATION_GUIDE.md` for:
 ### Reference Implementation
 
 Study `paper_games/dots_and_boxes/gui_pyqt.py` for:
+
 - Custom widget creation (BoardCanvas)
 - Mouse event handling
 - QPainter for custom drawing
@@ -184,14 +196,15 @@ python scripts/test_gui.py --check-game paper_games/dots_and_boxes --framework p
 ### Why PyQt5 Over Tkinter?
 
 1. **Headless Support**: Works in CI/CD without X11 display
-2. **Cross-Platform**: Consistent behavior across OS platforms
-3. **Professional UI**: Modern widgets and appearance
-4. **Better Performance**: More efficient rendering
-5. **Rich Features**: Extensive widget library
+1. **Cross-Platform**: Consistent behavior across OS platforms
+1. **Professional UI**: Modern widgets and appearance
+1. **Better Performance**: More efficient rendering
+1. **Rich Features**: Extensive widget library
 
 ### Code Quality
 
 All code meets repository standards:
+
 - ✅ Black formatting (160 char lines)
 - ✅ Ruff linting (no errors)
 - ✅ Type hints throughout
@@ -215,11 +228,11 @@ pip install pyqt5>=5.15
 To contribute to the GUI migration:
 
 1. Choose a game from the remaining 13
-2. Follow `docs/GUI_MIGRATION_GUIDE.md`
-3. Reference `paper_games/dots_and_boxes/gui_pyqt.py`
-4. Use `common/gui_base_pyqt.py` for consistency
-5. Add tests in `tests/test_gui_pyqt.py`
-6. Run validation: `python scripts/validate_pyqt5.py`
+1. Follow `docs/GUI_MIGRATION_GUIDE.md`
+1. Reference `paper_games/dots_and_boxes/gui_pyqt.py`
+1. Use `common/gui_base_pyqt.py` for consistency
+1. Add tests in `tests/test_gui_pyqt.py`
+1. Run validation: `python scripts/validate_pyqt5.py`
 
 ## 📝 Design Decisions
 
@@ -229,6 +242,7 @@ To contribute to the GUI migration:
 - `gui_pyqt.py` - New PyQt5 version
 
 **Benefits**:
+
 - Backward compatibility during transition
 - Easy comparison and testing
 - Clear migration path
@@ -244,26 +258,28 @@ To contribute to the GUI migration:
 ## 🔮 Future Work
 
 Potential enhancements:
+
 1. Complete migration of all 13 remaining GUIs
-2. Add theme customization UI
-3. Implement network multiplayer
-4. Add game replay system
-5. Create tournament mode interface
-6. Add animation effects
+1. Add theme customization UI
+1. Implement network multiplayer
+1. Add game replay system
+1. Create tournament mode interface
+1. Add animation effects
 
 ## 📞 Support
 
 For help with GUI development:
 
 1. Read the documentation in `docs/`
-2. Study the example: `paper_games/dots_and_boxes/gui_pyqt.py`
-3. Use validation tools: `scripts/validate_pyqt5.py`
-4. Check framework availability: `scripts/test_gui.py`
-5. Open an issue on GitHub
+1. Study the example: `paper_games/dots_and_boxes/gui_pyqt.py`
+1. Use validation tools: `scripts/validate_pyqt5.py`
+1. Check framework availability: `scripts/test_gui.py`
+1. Open an issue on GitHub
 
 ## ✨ Summary
 
 The PyQt5 implementation successfully:
+
 - ✅ Resolved tkinter availability issues
 - ✅ Created robust, reusable infrastructure
 - ✅ Demonstrated working proof of concept

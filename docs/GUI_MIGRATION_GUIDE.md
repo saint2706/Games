@@ -5,10 +5,10 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 ## Why Migrate to PyQt5?
 
 1. **Better Cross-Platform Support**: PyQt5 works consistently across Linux, Windows, and macOS
-2. **More Reliable**: PyQt5 is less prone to display issues in various environments
-3. **Richer Widgets**: PyQt5 provides more sophisticated UI components
-4. **Better Documentation**: Extensive Qt documentation and examples
-5. **Professional Look**: More modern and polished appearance
+1. **More Reliable**: PyQt5 is less prone to display issues in various environments
+1. **Richer Widgets**: PyQt5 provides more sophisticated UI components
+1. **Better Documentation**: Extensive Qt documentation and examples
+1. **Professional Look**: More modern and polished appearance
 
 ## Migration Status
 
@@ -378,9 +378,9 @@ class TestMyGamePyQt:
 If you encounter issues during migration:
 
 1. Check this guide for common patterns
-2. Look at the completed migration: `paper_games/dots_and_boxes/gui_pyqt.py`
-3. Consult PyQt5 documentation
-4. Ask in the repository issues
+1. Look at the completed migration: `paper_games/dots_and_boxes/gui_pyqt.py`
+1. Consult PyQt5 documentation
+1. Ask in the repository issues
 
 ## Maintenance Notes
 

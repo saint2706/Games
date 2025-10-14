@@ -9,7 +9,7 @@ This document summarizes the PyQt5 GUI framework implementation in the Games rep
 The original issue requested:
 
 1. Debug all GUI apps to ensure they are working
-2. Move from tkinter to PyQt or Pygame
+1. Move from tkinter to PyQt or Pygame
 
 ## Solution Implemented
 
@@ -18,11 +18,11 @@ The original issue requested:
 After evaluation, PyQt5 was selected over Pygame because:
 
 1. **Better fit for turn-based games**: Most games in this repository are turn-based and benefit from traditional widget-based GUIs
-2. **Cross-platform reliability**: Works consistently across Linux, Windows, and macOS
-3. **Headless environment support**: Unlike tkinter, PyQt5 works in CI/CD environments without a display server
-4. **Professional appearance**: Modern, polished UI components
-5. **Rich documentation**: Extensive Qt documentation and community support
-6. **Type safety**: Better integration with mypy and type hints
+1. **Cross-platform reliability**: Works consistently across Linux, Windows, and macOS
+1. **Headless environment support**: Unlike tkinter, PyQt5 works in CI/CD environments without a display server
+1. **Professional appearance**: Modern, polished UI components
+1. **Rich documentation**: Extensive Qt documentation and community support
+1. **Type safety**: Better integration with mypy and type hints
 
 ### Implementation Components
 
@@ -223,23 +223,23 @@ python scripts/test_gui.py --list
 ## Benefits Achieved
 
 1. **Headless Environment Support**: PyQt5 works in CI/CD without X11
-2. **Better Cross-Platform**: Consistent behavior across OS platforms
-3. **Professional UI**: Modern appearance and widgets
-4. **Maintainability**: Clean architecture with BaseGUI pattern
-5. **Extensibility**: Easy to add new games following the pattern
-6. **Documentation**: Comprehensive guides for migration
-7. **Testing**: Proper test infrastructure with pytest-qt
+1. **Better Cross-Platform**: Consistent behavior across OS platforms
+1. **Professional UI**: Modern appearance and widgets
+1. **Maintainability**: Clean architecture with BaseGUI pattern
+1. **Extensibility**: Easy to add new games following the pattern
+1. **Documentation**: Comprehensive guides for migration
+1. **Testing**: Proper test infrastructure with pytest-qt
 
 ## Next Steps for Contributors
 
 To complete the migration:
 
 1. **Choose a game** from the remaining 13
-2. **Follow the migration guide** in `docs/GUI_MIGRATION_GUIDE.md`
-3. **Reference the example** in `paper_games/dots_and_boxes/gui_pyqt.py`
-4. **Use BaseGUI** from `common/gui_base_pyqt.py` for consistency
-5. **Add tests** in `tests/test_gui_pyqt.py`
-6. **Update documentation** as needed
+1. **Follow the migration guide** in `docs/GUI_MIGRATION_GUIDE.md`
+1. **Reference the example** in `paper_games/dots_and_boxes/gui_pyqt.py`
+1. **Use BaseGUI** from `common/gui_base_pyqt.py` for consistency
+1. **Add tests** in `tests/test_gui_pyqt.py`
+1. **Update documentation** as needed
 
 ## Design Decisions
 
@@ -297,11 +297,11 @@ PyQt5 generally performs better than tkinter:
 Potential improvements:
 
 1. Add more games to PyQt5
-2. Create automated migration tool
-3. Add GUI themes/skins
-4. Implement multiplayer over network
-5. Add game replays/recordings
-6. Create tournament mode UI
+1. Create automated migration tool
+1. Add GUI themes/skins
+1. Implement multiplayer over network
+1. Add game replays/recordings
+1. Create tournament mode UI
 
 ## Conclusion
 
