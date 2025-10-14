@@ -24,6 +24,11 @@ creates GitHub releases when version tags are pushed.
 1. Test executable (platform-specific)
 1. Upload artifacts
 
+**Notes:**
+
+- Dependencies now install the GUI extra (`pip install -e ".[gui]"`) so PyQt5 and Qt plugins are available before running PyInstaller.
+- The smoke test launches a headless PyQt5 GUI using `./dist/games-collection --game dots_and_boxes --gui-framework pyqt5 --smoke-test` (with `QT_QPA_PLATFORM=offscreen`) to confirm Qt resources are bundled.
+
 **Artifacts:**
 
 - `games-collection-pyinstaller-ubuntu-latest-py3.11`
