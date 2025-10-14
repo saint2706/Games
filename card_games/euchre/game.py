@@ -440,11 +440,12 @@ class EuchreGame:
             else:
                 self.team2_score += points
         else:
-            # Euchred - defenders get 2 points
+            # Euchred - defenders get points (4 if setting a lone maker)
+            points = 4 if self.going_alone else 2
             if defending_team == 1:
-                self.team1_score += 2
+                self.team1_score += points
             else:
-                self.team2_score += 2
+                self.team2_score += points
 
         self.tricks_won = [0, 0]
         self.phase = GamePhase.SCORE

@@ -152,6 +152,21 @@ def test_defenders_euchre_maker_gain_two_points() -> None:
     assert game.team1_score == 0
 
 
+def test_euchred_lone_maker_penalized_four_points() -> None:
+    """Defenders should gain four points when setting a lone maker."""
+
+    game = EuchreGame()
+    game.maker = 1
+    game.going_alone = True
+    game.alone_player = 0
+    game.tricks_won = [2, 3]
+
+    game._score_hand()
+
+    assert game.team1_score == 0
+    assert game.team2_score == 4
+
+
 def test_basic_ai_prefers_bowers_and_tracks_cards() -> None:
     """The helper AI prioritises bowers and records played cards."""
 
