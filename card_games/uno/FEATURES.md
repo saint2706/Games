@@ -170,23 +170,26 @@ This feature is out of scope for the current implementation as it requires:
 
 ## Usage Examples
 
+Pass ``--gui pyqt`` to launch the new PyQt5 interface or omit the value/choose
+``--gui tk`` for the legacy Tkinter window.
+
 ### Enable All House Rules
 
 ```bash
-python -m card_games.uno --gui --stacking --seven-zero --jump-in
+python -m card_games.uno --gui pyqt --stacking --seven-zero --jump-in
 ```
 
 ### Team Mode with Stacking
 
 ```bash
-python -m card_games.uno --gui --team-mode --stacking --players 4
+python -m card_games.uno --gui pyqt --team-mode --stacking --players 4
 ```
 
 ### Play with Sound Effects (requires pygame)
 
 ```bash
 pip install pygame
-python -m card_games.uno --gui --seven-zero
+python -m card_games.uno --gui pyqt --seven-zero
 # Sound effects will play if sound files are present in sounds/ directory
 ```
 
