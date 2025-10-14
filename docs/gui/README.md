@@ -103,8 +103,11 @@ pytest tests/test_gui_pyqt.py -v
 
 ### Completed (3/14)
 
+- ✅ Battleship
 - ✅ Dots and Boxes
 - ✅ Go Fish
+
+### Remaining (11/14)
 - ✅ Blackjack
 - ✅ Bluff
 - ✅ Crazy Eights

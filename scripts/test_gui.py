@@ -18,6 +18,13 @@ from typing import Dict, List, Optional
 FRAMEWORK_SUFFIXES: Dict[str, str] = {"tkinter": "gui", "pyqt5": "gui_pyqt"}
 
 
+PYQT_MODULE_OVERRIDES = {
+    "paper_games/battleship": "paper_games.battleship.gui_pyqt",
+}
+
+TKINTER_MODULE_OVERRIDES = {}
+
+
 def test_tkinter_available() -> bool:
     """Check if tkinter is available."""
     try:
@@ -123,6 +130,11 @@ def check_gui_implementation(category: str, game: str, framework: str) -> tuple[
     Returns:
         Tuple of (exists, module_path)
     """
+    key = f"{category}/{game}"
+    if framework == "tkinter":
+        module_name = TKINTER_MODULE_OVERRIDES.get(key, f"{category}.{game}.gui")
+    else:  # pyqt5
+        module_name = PYQT_MODULE_OVERRIDES.get(key, f"{category}.{game}.gui_pyqt")
     module_suffix = FRAMEWORK_SUFFIXES.get(framework)
     if module_suffix is None:
         raise ValueError(f"Unknown framework '{framework}'")

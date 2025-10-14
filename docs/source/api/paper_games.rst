@@ -43,6 +43,16 @@ Graphical user interface for Battleship.
    :undoc-members:
    :show-inheritance:
 
+Battleship PyQt GUI
+~~~~~~~~~~~~~~~~~~~
+
+PyQt5 graphical user interface for Battleship.
+
+.. automodule:: paper_games.battleship.gui_pyqt
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Dots and Boxes
 --------------
 

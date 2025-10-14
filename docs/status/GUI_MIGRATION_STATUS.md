@@ -10,12 +10,12 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 
 ## Status by Category
 
-### Paper Games (1/2 completed)
+### Paper Games (2/2 completed)
 
 | Game | Status | GUI File | Notes |
 | -------------- | ----------- | ---------------------------------------- | ----------------------------------------------- |
 | Dots and Boxes | ✅ Complete | `paper_games/dots_and_boxes/gui_pyqt.py` | Proof of concept migration |
-| Battleship | ⏳ Pending | - | Complex board with drag-and-drop ship placement |
+| Battleship | ✅ Complete | `paper_games/battleship/gui_pyqt.py` | Drag/preview placement and salvo support |
 
 ### Card Games (2/12 completed)
 
