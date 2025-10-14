@@ -7,7 +7,7 @@ import random
 
 from card_games.go_fish.cli import game_loop
 from card_games.go_fish.game import GoFishGame
-from common.gui_base import TKINTER_AVAILABLE
+from common.gui_framework import load_run_gui
 
 
 def main() -> None:
@@ -19,6 +19,12 @@ def main() -> None:
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument("--cli", action="store_true", help="Launch the text-based interface")
     mode_group.add_argument("--gui", action="store_true", help="Launch the graphical interface (default)")
+    parser.add_argument(
+        "--gui-framework",
+        choices=["auto", "pyqt5", "tkinter"],
+        default="auto",
+        help="Select the GUI backend (default: auto, preferring PyQt5 when available).",
+    )
     args = parser.parse_args()
 
     rng = None
@@ -26,46 +32,30 @@ def main() -> None:
         rng = random.Random(args.seed)
 
     player_names = args.names if args.names else None
-    game = GoFishGame(num_players=args.players, player_names=player_names, rng=rng)
+    game_kwargs = {"num_players": args.players, "player_names": player_names, "rng": rng}
 
     use_gui = args.gui or not args.cli
 
-    if use_gui and not TKINTER_AVAILABLE:
-        print("Tkinter is not available on this system. Falling back to the CLI interface.")
-        use_gui = False
-
     if use_gui:
-        if launch_gui(game):
+        try:
+            run_gui, _ = load_run_gui("card_games.go_fish", args.gui_framework)
+        except RuntimeError as exc:
+            if args.gui_framework == "auto":
+                print(f"{exc} Falling back to the CLI interface.")
+                use_gui = False
+            else:
+                raise RuntimeError(str(exc)) from exc
+        else:
+            game = GoFishGame(**game_kwargs)
+            result = run_gui(game=game)
+            if isinstance(result, int) and result != 0:
+                import sys
+
+                sys.exit(result)
             return
-        print("Falling back to the CLI interface.")
 
+    game = GoFishGame(**game_kwargs)
     game_loop(game)
-
-
-def launch_gui(game: GoFishGame) -> bool:
-    """Launch the Tkinter GUI for Go Fish if possible.
-
-    Args:
-        game: The Go Fish engine instance to visualize and control.
-
-    Returns:
-        ``True`` if the GUI was successfully launched, ``False`` when Tkinter
-        failed to initialize (for example, in headless environments).
-    """
-
-    import tkinter as tk
-
-    from card_games.go_fish.gui import GoFishGUI
-
-    try:
-        root = tk.Tk()
-    except tk.TclError as error:
-        print(f"Unable to initialize the Tkinter GUI: {error}")
-        return False
-
-    GoFishGUI(root, game)
-    root.mainloop()
-    return True
 
 
 if __name__ == "__main__":

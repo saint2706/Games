@@ -65,6 +65,17 @@ PyQt5:   ✓ Available
 python scripts/test_gui.py --list
 ```
 
+### Choose a GUI Backend When Launching Games
+
+Pass `--gui-framework {auto,pyqt5,tkinter}` to rely on the shared helper. Auto mode prefers PyQt5 when possible and
+falls back to Tkinter or the CLI with a helpful message that suggests installing `games-collection[gui]` when neither
+framework is available.
+
+```bash
+python -m card_games.go_fish --gui-framework auto
+python -m paper_games.dots_and_boxes --gui --gui-framework pyqt5
+```
+
 ### Validate PyQt5 Implementation
 
 ```bash
@@ -188,7 +199,7 @@ pytest tests/test_gui_pyqt.py --cov=common.gui_base_pyqt --cov=paper_games.dots_
 python scripts/validate_pyqt5.py
 
 # Check specific game
-python scripts/test_gui.py --check-game paper_games/dots_and_boxes --framework pyqt5
+python scripts/test_gui.py --check-game paper_games/dots_and_boxes --framework all
 ```
 
 ## 🎯 Key Benefits

@@ -423,3 +423,27 @@ class GoFishGUI(BaseGUI):
         self.ask_button.configure(state=tk.DISABLED)
         self.opponent_combo.configure(state="disabled")
         self.rank_combo.configure(state="disabled")
+
+
+def run_app(game: GoFishGame) -> None:
+    """Launch the Tkinter GUI for Go Fish using an existing game instance.
+
+    Args:
+        game: The Go Fish engine to display and control.
+
+    Raises:
+        RuntimeError: If the Tkinter root window cannot be initialized.
+    """
+
+    if not TKINTER_AVAILABLE:  # pragma: no cover - runtime guard
+        raise RuntimeError("Tkinter is required to launch the Go Fish GUI.")
+
+    tcl_error = getattr(tk, "TclError", Exception)
+    try:
+        root = tk.Tk()
+    except tcl_error as error:  # pragma: no cover - depends on system display
+        raise RuntimeError(f"Unable to initialize the Tkinter GUI: {error}") from error
+
+    GoFishGUI(root, game)
+    root.mainloop()
+

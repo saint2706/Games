@@ -31,17 +31,19 @@ python -m paper_games.dots_and_boxes --size 4
 
 ### Graphical Interface (GUI)
 
-Launch the GUI (requires tkinter):
+Launch the GUI (auto-selects PyQt5 when available, otherwise Tkinter):
 
 ```bash
-python -m paper_games.dots_and_boxes --gui --size 3
+python -m paper_games.dots_and_boxes --gui --gui-framework auto --size 3
 ```
 
 Enable move hints in GUI:
 
 ```bash
-python -m paper_games.dots_and_boxes --gui --hints
+python -m paper_games.dots_and_boxes --gui --gui-framework auto --hints
 ```
+
+> 💡 Tip: Install `games-collection[gui]` to automatically fetch PyQt5 when Tkinter is unavailable.
 
 ### Tournament Mode
 
@@ -111,7 +113,7 @@ game = DotsAndBoxes(size=3)
 # Play in CLI
 play(size=4)
 
-# Play in GUI (requires tkinter)
+# Play in GUI (Tkinter)
 run_gui(size=3, show_hints=True)
 
 # Run a tournament
@@ -126,7 +128,8 @@ join_game(host="localhost", port=5555, player_name="Bob")
 ## Requirements
 
 - Python 3.8+
-- tkinter (optional, for GUI - usually included with Python)
+- tkinter or PyQt5 (optional, for GUI)
+- Install `games-collection[gui]` to add PyQt5 support automatically
 - No external dependencies for CLI mode
 
 ## Implementation Details

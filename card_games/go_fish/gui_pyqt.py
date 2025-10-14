@@ -369,11 +369,13 @@ class GoFishGUI(QWidget):
         self.log_widget.append(message)
 
 
-def run_gui(num_players: int = 2) -> int:
+def run_gui(game: Optional[GoFishGame] = None, num_players: int = 2) -> int:
     """Launch the PyQt5 GUI for Go Fish.
 
     Args:
-        num_players: Number of players (2-6)
+        game: Optional pre-configured game instance. When omitted, a new game is
+            created using ``num_players``.
+        num_players: Number of players (2-6) when creating a new game.
 
     Returns:
         Exit code
@@ -381,8 +383,8 @@ def run_gui(num_players: int = 2) -> int:
     import sys
 
     app = QApplication(sys.argv)
-    game = GoFishGame(num_players=num_players)
-    window = GoFishGUI(game)
+    active_game = game or GoFishGame(num_players=num_players)
+    window = GoFishGUI(active_game)
     window.show()
     return app.exec()
 

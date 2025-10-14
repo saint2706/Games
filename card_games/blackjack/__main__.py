@@ -19,15 +19,7 @@ from typing import Iterable
 
 from card_games.blackjack.cli import game_loop
 from card_games.blackjack.game import BlackjackGame
-
-# Attempt to import the GUI components, but degrade gracefully if Tkinter is not available.
-try:  # pragma: no cover - optional GUI dependency
-    from card_games.blackjack.gui import run_app
-
-    _GUI_IMPORT_ERROR: Exception | None = None
-except ImportError as exc:  # pragma: no cover - degrade gracefully without Tk
-    run_app = None
-    _GUI_IMPORT_ERROR = exc
+from common.gui_framework import load_run_gui
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -43,10 +35,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--min-bet", type=int, default=10, help="Minimum bet size (default: 10)")
     parser.add_argument("--decks", type=int, default=6, help="Number of decks in the shoe (default: 6)")
     parser.add_argument("--seed", type=int, help="Optional random seed for deterministic shuffles")
+    parser.add_argument("--cli", action="store_true", help="Launch the text-based interface instead of the graphical table.")
     parser.add_argument(
-        "--cli",
-        action="store_true",
-        help="Launch the text-based interface instead of the graphical table.",
+        "--gui-framework",
+        choices=["auto", "pyqt5", "tkinter"],
+        default="auto",
+        help="Select the GUI backend (default: auto, preferring PyQt5 when available).",
     )
     return parser
 
@@ -75,11 +69,19 @@ def main(argv: Iterable[str] | None = None) -> None:
     if args.cli:
         game = BlackjackGame(bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng)
         game_loop(game)
-    else:
-        if run_app is None:
-            # If GUI is requested but not available, raise an error.
-            raise RuntimeError("Tkinter is required for the blackjack GUI but is not available.") from _GUI_IMPORT_ERROR
-        run_app(bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng)
+        return
+
+    try:
+        run_gui, _ = load_run_gui("card_games.blackjack", args.gui_framework)
+    except RuntimeError as exc:
+        if args.gui_framework == "auto":
+            print(f"{exc} Launching the CLI interface instead.")
+            game = BlackjackGame(bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng)
+            game_loop(game)
+            return
+        raise RuntimeError(str(exc)) from exc
+
+    run_gui(bankroll=args.bankroll, min_bet=args.min_bet, decks=args.decks, rng=rng)
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry point

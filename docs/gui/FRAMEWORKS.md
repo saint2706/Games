@@ -68,10 +68,10 @@ For detailed migration instructions, see `MIGRATION_GUIDE.md`.
 
 ```bash
 # Using module syntax (recommended)
-python -m paper_games.dots_and_boxes --gui
+python -m paper_games.dots_and_boxes --gui --gui-framework auto
 
 # Using entry point (if installed via pip)
-games-dots-and-boxes --gui
+games-dots-and-boxes --gui --gui-framework auto
 ```
 
 ### Checking Framework Availability
@@ -86,7 +86,7 @@ python scripts/test_gui.py --check-framework all
 python scripts/test_gui.py --list
 
 # Check specific game
-python scripts/test_gui.py --check-game paper_games/dots_and_boxes --framework pyqt5
+python scripts/test_gui.py --check-game paper_games/dots_and_boxes --framework all
 ```
 
 ## For Developers

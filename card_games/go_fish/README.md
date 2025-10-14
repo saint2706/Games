@@ -16,23 +16,25 @@ Go Fish is a card game where players try to collect sets of four cards of the sa
 
 ## Running the Game
 
-Launch the animated GUI (default):
+Launch the animated GUI (default, automatically preferring PyQt5 when available):
 
 ```bash
-python -m card_games.go_fish
+python -m card_games.go_fish --gui-framework auto
 ```
 
-Use the classic CLI instead:
+Use the classic CLI instead (also used automatically when no GUI framework is installed):
 
 ```bash
 python -m card_games.go_fish --cli
 ```
 
-Explicitly request the GUI (useful after testing the CLI):
+Force a specific GUI backend:
 
 ```bash
-python -m card_games.go_fish --gui
+python -m card_games.go_fish --gui-framework tkinter
 ```
+
+> 💡 Tip: Install `games-collection[gui]` to add PyQt5 support automatically if your platform does not bundle Tkinter.
 
 Play with more players:
 

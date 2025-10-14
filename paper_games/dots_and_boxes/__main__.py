@@ -4,6 +4,7 @@ import argparse
 import sys
 
 from . import host_game, join_game, play, play_tournament
+from common.gui_framework import load_run_gui
 
 # This script allows the game to be run directly from the command line.
 if __name__ == "__main__":
@@ -15,10 +16,12 @@ if __name__ == "__main__":
         choices=[2, 3, 4, 5, 6],
         help="Board size (2x2 to 6x6). Default is 2.",
     )
+    parser.add_argument("--gui", action="store_true", help="Launch the graphical interface instead of CLI.")
     parser.add_argument(
-        "--gui",
-        action="store_true",
-        help="Launch the graphical interface instead of CLI.",
+        "--gui-framework",
+        choices=["auto", "pyqt5", "tkinter"],
+        default="auto",
+        help="Select the GUI backend (default: auto, preferring PyQt5 when available).",
     )
     parser.add_argument(
         "--hints",
@@ -64,11 +67,16 @@ if __name__ == "__main__":
         play_tournament(size=args.size, num_games=args.tournament)
     elif args.gui:
         try:
-            from . import run_gui
+            run_gui, _ = load_run_gui("paper_games.dots_and_boxes", args.gui_framework)
+        except RuntimeError as exc:
+            if args.gui_framework == "auto":
+                print(f"{exc} Falling back to the CLI interface.", file=sys.stderr)
+                play(size=args.size)
+                return
+            raise RuntimeError(str(exc)) from exc
 
-            run_gui(size=args.size, show_hints=args.hints)
-        except ImportError:
-            print("Error: GUI requires tkinter. Install it or use CLI mode (without --gui).", file=sys.stderr)
-            sys.exit(1)
+        result = run_gui(size=args.size, show_hints=args.hints)
+        if isinstance(result, int) and result != 0:
+            sys.exit(result)
     else:
         play(size=args.size)

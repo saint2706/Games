@@ -1,39 +1,22 @@
-#!/usr/bin/env python
-"""Script to test GUI applications with different frameworks.
-
-This utility helps developers test GUI applications with both tkinter and PyQt5
-to ensure consistency during the migration process.
-"""
+"""Utilities to introspect GUI framework support across the game collection."""
 
 from __future__ import annotations
 
 import argparse
 import sys
-from typing import Optional
+from pathlib import Path
+from typing import Iterable, Tuple
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-def test_tkinter_available() -> bool:
-    """Check if tkinter is available."""
-    try:
-        import tkinter  # noqa: F401
-
-        return True
-    except ImportError:
-        return False
-
-
-def test_pyqt5_available() -> bool:
-    """Check if PyQt5 is available."""
-    try:
-        from PyQt5 import QtWidgets  # noqa: F401
-
-        return True
-    except ImportError:
-        return False
+from common.gui_framework import available_frameworks, load_run_gui
 
 
 def list_gui_games() -> dict[str, list[str]]:
-    """List all games with GUI implementations."""
+    """Return the games that advertise GUI implementations."""
+
     return {
         "paper_games": ["dots_and_boxes", "battleship"],
         "card_games": [
@@ -53,54 +36,51 @@ def list_gui_games() -> dict[str, list[str]]:
     }
 
 
-def check_gui_implementation(category: str, game: str, framework: str) -> tuple[bool, Optional[str]]:
-    """Check if a game has a GUI implementation for the given framework.
-
-    Args:
-        category: Game category (paper_games or card_games)
-        game: Game name
-        framework: GUI framework (tkinter or pyqt5)
-
-    Returns:
-        Tuple of (exists, module_path)
-    """
-    if framework == "tkinter":
-        module_name = f"{category}.{game}.gui"
-    else:  # pyqt5
-        module_name = f"{category}.{game}.gui_pyqt"
+def check_gui_implementation(module_base: str, framework: str) -> Tuple[bool, str]:
+    """Check whether the requested GUI framework can be imported for a game."""
 
     try:
-        __import__(module_name)
-        return True, module_name
-    except (ImportError, RuntimeError):
-        # RuntimeError can occur when a GUI module checks for tkinter availability
-        return False, None
+        _, resolved = load_run_gui(module_base, framework)
+    except RuntimeError as exc:
+        return False, str(exc)
+    return True, resolved
+
+
+def print_framework_status(selected: Iterable[str]) -> None:
+    """Display framework availability information."""
+
+    detected = set(available_frameworks())
+    print("GUI Framework Availability:")
+    print("-" * 40)
+    for framework in selected:
+        display = "PyQt5" if framework == "pyqt5" else "Tkinter"
+        status = "✓ Available" if framework in detected else "✗ Not available"
+        print(f"{display}: {status}")
 
 
 def main() -> int:
-    """Main entry point."""
-    parser = argparse.ArgumentParser(description="Test GUI applications with different frameworks")
+    """Entry point for the GUI diagnostic utility."""
+
+    parser = argparse.ArgumentParser(description="Inspect GUI framework support for the bundled games")
     parser.add_argument("--list", action="store_true", help="List all games with GUI support")
-    parser.add_argument("--check-framework", choices=["tkinter", "pyqt5", "all"], help="Check framework availability")
+    parser.add_argument(
+        "--check-framework",
+        choices=["tkinter", "pyqt5", "all"],
+        help="Check framework availability",
+    )
     parser.add_argument("--check-game", help="Check if specific game has GUI support (format: category/game)")
-    parser.add_argument("--framework", choices=["tkinter", "pyqt5"], default="pyqt5", help="Framework to check")
+    parser.add_argument(
+        "--framework",
+        choices=["auto", "tkinter", "pyqt5", "all"],
+        default="auto",
+        help="Framework to check when using --check-game",
+    )
 
     args = parser.parse_args()
 
     if args.check_framework:
-        print("GUI Framework Availability:")
-        print("-" * 40)
-
-        if args.check_framework in ("tkinter", "all"):
-            tkinter_available = test_tkinter_available()
-            status = "✓ Available" if tkinter_available else "✗ Not available"
-            print(f"Tkinter: {status}")
-
-        if args.check_framework in ("pyqt5", "all"):
-            pyqt5_available = test_pyqt5_available()
-            status = "✓ Available" if pyqt5_available else "✗ Not available"
-            print(f"PyQt5:   {status}")
-
+        targets = ["tkinter", "pyqt5"] if args.check_framework == "all" else [args.check_framework]
+        print_framework_status(targets)
         return 0
 
     if args.list:
@@ -111,9 +91,9 @@ def main() -> int:
         for category, game_list in games.items():
             print(f"\n{category.upper().replace('_', ' ')}:")
             for game in sorted(game_list):
-                # Check both frameworks
-                tk_exists, _ = check_gui_implementation(category, game, "tkinter")
-                pyqt_exists, _ = check_gui_implementation(category, game, "pyqt5")
+                module_base = f"{category}.{game}"
+                tk_exists, _ = check_gui_implementation(module_base, "tkinter")
+                pyqt_exists, _ = check_gui_implementation(module_base, "pyqt5")
 
                 tk_status = "✓" if tk_exists else "✗"
                 pyqt_status = "✓" if pyqt_exists else "✗"
@@ -129,15 +109,26 @@ def main() -> int:
             print("Error: Game must be in format 'category/game' (e.g., 'paper_games/dots_and_boxes')")
             return 1
 
-        exists, module_path = check_gui_implementation(category, game, args.framework)
+        module_base = f"{category}.{game}"
 
-        if exists:
-            print(f"✓ {game} has {args.framework} GUI support")
-            print(f"  Module: {module_path}")
-            return 0
+        if args.framework == "all":
+            frameworks: Iterable[str] = ("pyqt5", "tkinter")
+        elif args.framework == "auto":
+            frameworks = ("auto",)
         else:
-            print(f"✗ {game} does not have {args.framework} GUI support")
-            return 1
+            frameworks = (args.framework,)
+
+        all_success = True
+        for framework in frameworks:
+            success, details = check_gui_implementation(module_base, framework)
+            if success:
+                resolved = details if framework == "auto" else framework
+                print(f"✓ {game} can load the {resolved} GUI (requested: {framework}).")
+            else:
+                all_success = False
+                print(f"✗ {game} {framework} check failed: {details}")
+
+        return 0 if all_success else 1
 
     parser.print_help()
     return 0
