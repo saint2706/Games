@@ -19,13 +19,25 @@ Crazy Eights is a shedding game where players try to get rid of all their cards:
 
 ## Running the Game
 
-Launch the Tkinter GUI (default):
+Launch the GUI (auto-detects PyQt5, then Tkinter):
 
 ```bash
 python -m card_games.crazy_eights
 ```
 
-Run the command-line interface instead of the GUI:
+Force the PyQt5 GUI:
+
+```bash
+python -m card_games.crazy_eights --gui-framework pyqt5
+```
+
+Force the legacy Tkinter GUI:
+
+```bash
+python -m card_games.crazy_eights --gui-framework tkinter
+```
+
+Run the command-line interface instead of any GUI:
 
 ```bash
 python -m card_games.crazy_eights --cli
@@ -56,7 +68,8 @@ python -m card_games.crazy_eights --seed 42
 ```
 
 > **Note:** The GUI requires Tkinter, which is typically bundled with standard Python installations on Windows and
-> macOS. Linux users may need to install `python3-tk` from their package manager.
+> macOS. Linux users may need to install `python3-tk` from their package manager. The new PyQt5 interface is preferred
+> when `pyqt5` is installed (see `pip install -e ".[gui]"`).
 
 ## Features
 
@@ -100,7 +113,7 @@ The implementation follows the repository's architecture patterns:
 
 Potential additions:
 
-- GUI implementation with card animations
+- Enhanced PyQt5 visuals with subtle card animations
 - AI opponent with suit tracking
 - Multi-round tournament mode
 - Statistics tracking (win rates, average game length)

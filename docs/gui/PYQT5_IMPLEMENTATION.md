@@ -183,6 +183,8 @@ QTimer.singleShot(500, self.callback)
 
 ### Games (3/14 completed)
 
+- ✅ **Completed**: Dots and Boxes, Go Fish, Crazy Eights
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 - ✅ **Completed**: Dots and Boxes, Go Fish, Hearts
 - ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 - ✅ **Completed**: Dots and Boxes, Go Fish, Solitaire
