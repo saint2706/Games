@@ -6,8 +6,7 @@
     "collect-coverage": true,
     "python-version": "3.12",
     "include-slow-tests": false,
-    "upload-to-codecov": false,
-    "test-pypi": true
+    "upload-to-codecov": false
   },
   "ref": "refs/heads/master",
   "repository": {
