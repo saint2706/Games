@@ -5,8 +5,8 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 ## Overview
 
 - **Total Games**: 14
-- **Completed**: 2 (14%)
-- **Remaining**: 12 (86%)
+- **Completed**: 3 (21%)
+- **Remaining**: 11 (79%)
 
 ## Status by Category
 
@@ -17,7 +17,7 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 | Dots and Boxes | ✅ Complete | `paper_games/dots_and_boxes/gui_pyqt.py` | Proof of concept migration |
 | Battleship | ⏳ Pending | - | Complex board with drag-and-drop ship placement |
 
-### Card Games (1/12 completed)
+### Card Games (2/12 completed)
 
 | Game | Status | GUI File | Notes |
 | ------------ | ---------- | -------- | --------------------------------- |
@@ -29,7 +29,7 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 | Go Fish | ✅ Complete | `card_games/go_fish/gui_pyqt.py` | 425 lines, simplest card game GUI |
 | Hearts | ⏳ Pending | - | 610 lines, trick-taking |
 | Poker | ⏳ Pending | - | 437 lines, betting interface |
-| Solitaire | ⏳ Pending | - | 729 lines, most complex GUI |
+| Solitaire | ✅ Complete | `card_games/solitaire/gui_pyqt.py` | 729 lines, most complex GUI |
 | Spades | ⏳ Pending | - | 582 lines, bidding and tricks |
 | Uno | ⏳ Pending | - | 524 lines, special cards |
 | War | ⏳ Pending | - | 622 lines, simple mechanics |
@@ -69,7 +69,7 @@ Based on complexity (lines of code and features):
 1. **War** (622 lines) - Despite simple rules, has animations
 1. **Blackjack** (688 lines) - Betting and dealer logic
 1. **Gin Rummy** (709 lines) - Complex melding system
-1. **Solitaire** (729 lines) - Most complex, multiple layouts
+1. **Solitaire** (729 lines) - ✅ Completed with PyQt5 toolbar and canvas migration
 
 ## Testing
 
