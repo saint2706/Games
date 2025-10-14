@@ -11,9 +11,15 @@ from __future__ import annotations
 import random
 from typing import Optional
 
-from card_games.bridge.game import BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
+from card_games.bridge.game import AuctionState, BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
 from card_games.common.cards import Card, Suit
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
+
+if TKINTER_AVAILABLE:
+    from tkinter import messagebox, simpledialog
+else:  # pragma: no cover - GUI fallback when Tk is unavailable
+    messagebox = None  # type: ignore
+    simpledialog = None  # type: ignore
 
 SUIT_DISPLAY_ORDER = {
     Suit.SPADES: 0,
@@ -38,8 +44,8 @@ class BridgeGUI(BaseGUI):
         super().__init__(root, config)
         self.players = [
             BridgePlayer(name="North AI", is_ai=True),
-            BridgePlayer(name="South Player", is_ai=False),
             BridgePlayer(name="East AI", is_ai=True),
+            BridgePlayer(name="South Player", is_ai=False),
             BridgePlayer(name="West AI", is_ai=True),
         ]
         self.game = BridgeGame(
@@ -54,6 +60,7 @@ class BridgeGUI(BaseGUI):
         self.opening_lead_played = False
         self.hand_complete = False
         self.current_valid_cards: Optional[list[Card]] = None
+        self.current_selection_player: Optional[BridgePlayer] = self.players[2]
         self.hand_vars = {player.position: tk.StringVar() for player in self.players}
         self.vulnerability_var = tk.StringVar()
         self.contract_var = tk.StringVar()
@@ -117,10 +124,10 @@ class BridgeGUI(BaseGUI):
         self.trick_canvas.grid(row=0, column=0, padx=8, pady=8, sticky="nsew")
         east_frame = tk.Frame(play_area, bg=bg)
         east_frame.grid(row=1, column=2, pady=12)
-        self._create_seat_widget(east_frame, self.players[2])
+        self._create_seat_widget(east_frame, self.players[1])
         south_frame = tk.Frame(play_area, bg=bg)
         south_frame.grid(row=2, column=1, pady=12)
-        self._create_seat_widget(south_frame, self.players[1])
+        self._create_seat_widget(south_frame, self.players[2])
         self.card_button_frame = tk.Frame(south_frame, bg=bg)
         self.card_button_frame.pack(pady=(8, 0))
         sidebar = tk.Frame(main, bg=bg)
@@ -160,6 +167,10 @@ class BridgeGUI(BaseGUI):
             font=(self.config.font_family, self.config.font_size),
             foreground=fg,
         ).pack(anchor="w", padx=16)
+        button_frame = tk.Frame(footer, bg=bg)
+        button_frame.pack(anchor="e", padx=16)
+        ttk.Button(button_frame, text="Review Tricks", command=self._show_trick_history_dialog).pack(side="left", padx=6)
+        ttk.Button(button_frame, text="Claim Tricks", command=self._handle_claim_dialog).pack(side="left", padx=6)
 
     def update_display(self) -> None:
         """Synchronize the UI with the current game state."""
@@ -171,7 +182,7 @@ class BridgeGUI(BaseGUI):
         """Deal cards, conduct bidding, and prepare for play."""
         self._clear_log()
         self.game.deal_cards()
-        self.contract = self.game.conduct_bidding()
+        self.contract = self.game.conduct_bidding(call_selector=self._select_call)
         self.dummy_index = None
         self.active_player_index = None
         self.awaiting_human_play = False
@@ -198,6 +209,133 @@ class BridgeGUI(BaseGUI):
         self.status_var.set("Opening lead in progress...")
         self.update_display()
         self.root.after(500, self._advance_turn)
+
+    def _select_call(
+        self,
+        player: BridgePlayer,
+        legal_calls: list[Call],
+        history: list[Call],
+        state: AuctionState,
+    ) -> Call:
+        """Determine a call for ``player`` during the auction."""
+
+        if player.is_ai:
+            call = self.game.bidding_helper.choose_call(player, legal_calls, history.copy(), state)
+            entry = self._format_call(call)
+            if call.explanation:
+                entry += f" [{call.explanation}]"
+            self._append_log(f"{player.position} calls {entry}")
+            return call
+        return self._prompt_call_dialog(player, legal_calls, history, state)
+
+    def _prompt_call_dialog(
+        self,
+        player: BridgePlayer,
+        legal_calls: list[Call],
+        history: list[Call],
+        state: AuctionState,
+    ) -> Call:
+        """Ask the human player for a call via a dialog box."""
+
+        if simpledialog is None:
+            return legal_calls[0]
+
+        while True:
+            options = []
+            for index, option in enumerate(legal_calls, start=1):
+                text = self._format_call(option)
+                if option.forced:
+                    text += " (forced)"
+                options.append(f"{index}. {text}")
+            prompt = "\n".join(
+                [
+                    f"Your turn, {player.name} ({player.position}).",
+                    "Select a call by number or enter a bid (e.g. 2H, 3NT, X, XX, PASS).",
+                    "Type 'history' to review the auction or 'suggest' for a hint.",
+                    "",
+                    *options,
+                ]
+            )
+            response = simpledialog.askstring("Bridge Bidding", prompt, parent=self.root)
+            if response is None:
+                continue
+            lowered = response.strip().lower()
+            if not lowered:
+                continue
+            if lowered in {"history", "h"}:
+                message = "\n".join(self._format_call(call) for call in history) or "No calls yet."
+                if messagebox is not None:
+                    messagebox.showinfo("Auction History", message, parent=self.root)
+                continue
+            if lowered in {"suggest", "s"}:
+                suggestion = self.game.bidding_helper.choose_call(player, legal_calls, history.copy(), state)
+                suggestion_text = self._format_call(suggestion)
+                if suggestion.explanation:
+                    suggestion_text += f"\nExplanation: {suggestion.explanation}"
+                if messagebox is not None:
+                    messagebox.showinfo("Suggested Call", suggestion_text, parent=self.root)
+                continue
+            matched = self._parse_bidding_input(response, legal_calls)
+            if matched is None:
+                if messagebox is not None:
+                    messagebox.showinfo("Invalid", "Input did not match a legal call.", parent=self.root)
+                continue
+            return matched
+
+    def _parse_bidding_input(self, text: str, legal_calls: list[Call]) -> Optional[Call]:
+        """Return the matching call from ``legal_calls`` for ``text``."""
+
+        cleaned = text.strip().upper()
+        if not cleaned:
+            return None
+        if cleaned.isdigit():
+            index = int(cleaned) - 1
+            if 0 <= index < len(legal_calls):
+                return legal_calls[index]
+            return None
+        mapping = {
+            "P": CallType.PASS,
+            "PASS": CallType.PASS,
+            "X": CallType.DOUBLE,
+            "DOUBLE": CallType.DOUBLE,
+            "XX": CallType.REDOUBLE,
+            "REDOUBLE": CallType.REDOUBLE,
+        }
+        if cleaned in mapping:
+            desired = mapping[cleaned]
+            for option in legal_calls:
+                if option.call_type == desired:
+                    return option
+            return None
+        level = ""
+        suit = ""
+        for char in cleaned:
+            if char.isdigit():
+                level += char
+            else:
+                suit += char
+        if not level or not suit:
+            return None
+        try:
+            level_value = int(level)
+        except ValueError:
+            return None
+        suit_key = suit.replace("NT", "N")
+        suit_map = {
+            "C": BidSuit.CLUBS,
+            "D": BidSuit.DIAMONDS,
+            "H": BidSuit.HEARTS,
+            "S": BidSuit.SPADES,
+            "N": BidSuit.NO_TRUMP,
+        }
+        bid_suit = suit_map.get(suit_key)
+        if bid_suit is None:
+            return None
+        for option in legal_calls:
+            if option.call_type == CallType.BID and option.bid is not None:
+                if option.bid.level == level_value and option.bid.suit == bid_suit:
+                    return option
+        return None
 
     def _create_seat_widget(self, container: tk.Frame, player: BridgePlayer) -> None:
         """Create labels representing a player seat."""
@@ -294,14 +432,16 @@ class BridgeGUI(BaseGUI):
         if self.hand_complete or self.contract is None or self.active_player_index is None:
             return
         player = self.players[self.active_player_index]
-        if player.is_ai:
+        controller = self._controller_for_player(player)
+        if controller.is_ai:
             self.status_var.set(f"{player.name} thinking...")
             self.root.after(600, lambda: self._play_ai_turn(player))
         else:
             self.awaiting_human_play = True
+            self.current_selection_player = player
             valid = self.game.get_valid_plays(player)
             self.current_valid_cards = valid
-            self.status_var.set("Your turn - select a card to play.")
+            self.status_var.set(f"{player.position} - choose a card to play.")
             self.update_display()
 
     def _play_ai_turn(self, player: BridgePlayer) -> None:
@@ -320,6 +460,7 @@ class BridgeGUI(BaseGUI):
             return
         self.awaiting_human_play = False
         self.current_valid_cards = None
+        self.current_selection_player = self.players[2]
         self._finalize_play_for_card(player, card)
 
     def _finalize_play_for_card(self, player: BridgePlayer, card: Card) -> None:
@@ -382,9 +523,9 @@ class BridgeGUI(BaseGUI):
             return
         for widget in self.card_button_frame.winfo_children():
             widget.destroy()
-        south = self.players[1]
+        target = self.current_selection_player or self.players[2]
         sorted_cards = sorted(
-            south.hand,
+            target.hand,
             key=lambda card: (SUIT_DISPLAY_ORDER[card.suit], -card.value),
         )
         valid_cards = set(self.current_valid_cards or [])
@@ -420,12 +561,18 @@ class BridgeGUI(BaseGUI):
         """Return a printable auction entry."""
         if call.call_type == CallType.BID and call.bid is not None:
             symbol = SUIT_SYMBOLS.get(call.bid.suit, "")
-            return f"{call.player.position}: {call.bid.level}{symbol}"
-        if call.call_type == CallType.DOUBLE:
-            return f"{call.player.position}: Double"
-        if call.call_type == CallType.REDOUBLE:
-            return f"{call.player.position}: Redouble"
-        return f"{call.player.position}: Pass"
+            text = f"{call.player.position}: {call.bid.level}{symbol}"
+        elif call.call_type == CallType.DOUBLE:
+            text = f"{call.player.position}: Double"
+        elif call.call_type == CallType.REDOUBLE:
+            text = f"{call.player.position}: Redouble"
+        else:
+            text = f"{call.player.position}: Pass"
+        if call.forced and call.call_type == CallType.PASS:
+            text += " (forced)"
+        if call.explanation:
+            text += f" [{call.explanation}]"
+        return text
 
     def _format_contract(self, contract: Contract) -> str:
         """Return a human-friendly description of the contract."""
@@ -436,6 +583,53 @@ class BridgeGUI(BaseGUI):
         elif contract.doubled:
             suffix = " X"
         return f"{contract.bid.level}{symbol}{suffix}"
+
+    def _controller_for_player(self, player: BridgePlayer) -> BridgePlayer:
+        """Return the controlling seat for ``player``'s plays."""
+
+        if self.contract is None:
+            return player
+        dummy = self.players[self.contract.declarer.partner_index]
+        if player == dummy:
+            return self.contract.declarer
+        return player
+
+    def _handle_claim_dialog(self) -> None:
+        """Allow the human player to claim remaining tricks."""
+
+        if self.hand_complete or self.contract is None or simpledialog is None or messagebox is None:
+            return
+        if self.game.current_trick:
+            messagebox.showinfo("Claim", "Finish the current trick before claiming.", parent=self.root)
+            return
+        remaining = self.game.tricks_remaining()
+        if remaining <= 0:
+            messagebox.showinfo("Claim", "No tricks remain to claim.", parent=self.root)
+            return
+        value = simpledialog.askinteger(
+            "Claim Tricks",
+            f"Enter the number of tricks to claim (1-{remaining})",
+            minvalue=1,
+            maxvalue=remaining,
+            parent=self.root,
+        )
+        if value is None:
+            return
+        claimant = self.players[2]
+        if self.game.claim_tricks(claimant, value):
+            self._append_log(f"Claimed {value} tricks by {claimant.position}")
+            self._finalize_hand()
+        else:
+            messagebox.showinfo("Claim", "Claim could not be processed.", parent=self.root)
+
+    def _show_trick_history_dialog(self) -> None:
+        """Display the recorded trick history in a dialog."""
+
+        if messagebox is None:
+            return
+        summary = self.game.trick_history_summary()
+        text = "\n".join(summary) if summary else "No completed tricks yet."
+        messagebox.showinfo("Trick History", text, parent=self.root)
 
     def _append_log(self, message: str) -> None:
         """Append ``message`` to the deal log."""
