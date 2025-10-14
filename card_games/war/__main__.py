@@ -40,7 +40,8 @@ def main() -> None:
     parser.add_argument("--show-stats", action="store_true", help="Show player statistics and exit")
     parser.add_argument("--leaderboard", action="store_true", help="Show leaderboard and exit")
     parser.add_argument("--player", type=str, help="Player name to show stats for (use with --show-stats)")
-    parser.add_argument("--gui", action="store_true", help="Launch the graphical interface instead of the CLI")
+    parser.add_argument("--gui", action="store_true", help="Launch the Tkinter GUI instead of the CLI")
+    parser.add_argument("--pyqt", action="store_true", help="Launch the PyQt GUI instead of the CLI")
     parser.add_argument("--enable-sounds", action="store_true", help="Enable sound effects in GUI mode (if supported)")
     args = parser.parse_args()
 
@@ -54,6 +55,19 @@ def main() -> None:
             player_name = args.player or "Player 1"
             stats.display_player_stats(player_name)
             return
+
+    if args.gui and args.pyqt:
+        parser.error("Choose either --gui or --pyqt, not both.")
+
+    if args.pyqt:
+        try:
+            from card_games.war.gui_pyqt import run_gui as run_pyqt_gui
+        except ImportError as exc:  # pragma: no cover - optional GUI dependency
+            parser.error(f"PyQt5 GUI mode is unavailable: {exc}")
+
+        game = _build_game(args.seed)
+        run_pyqt_gui(game=game)
+        return
 
     if args.gui:
         if not GUI_AVAILABLE:

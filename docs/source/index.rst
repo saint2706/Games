@@ -67,7 +67,7 @@ Features
 * **Card Games**: Texas Hold'em Poker, Blackjack, Bluff/Cheat, Uno
 * **Paper Games**: Tic-Tac-Toe, Battleship, Hangman, Dots and Boxes, Nim, Unscramble
 * **AI Opponents**: Multiple difficulty levels with different personalities
-* **GUI Support**: Tkinter-based interfaces for many games
+* **GUI Support**: PyQt5 interfaces (with Tkinter fallbacks during migration)
 * **CLI Support**: Rich command-line interfaces with colorful output
 * **Extensible**: Well-documented code makes it easy to add new games
 

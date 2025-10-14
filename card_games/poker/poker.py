@@ -1125,6 +1125,12 @@ def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--seed", type=int, help="Optional random seed for deterministic play.")
     parser.add_argument("--gui", action="store_true", help="Launch the graphical interface.")
     parser.add_argument(
+        "--gui-framework",
+        choices=["tkinter", "pyqt5"],
+        default="tkinter",
+        help="Select the GUI framework to launch when using --gui.",
+    )
+    parser.add_argument(
         "--variant",
         choices=["texas-holdem", "omaha"],
         default="texas-holdem",
@@ -1167,9 +1173,17 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
     )
 
     if getattr(args, "gui", False):
-        from .gui import launch_gui
+        if getattr(args, "gui_framework", "tkinter") == "pyqt5":
+            try:
+                from .gui_pyqt import launch_gui as launch_pyqt_gui
+            except ImportError as exc:  # pragma: no cover - optional dependency
+                raise RuntimeError("PyQt5 is required for the PyQt poker GUI but is not available.") from exc
 
-        launch_gui(match, rng=rng)
+            launch_pyqt_gui(match, rng=rng)
+        else:
+            from .gui import launch_gui as launch_tk_gui
+
+            launch_tk_gui(match, rng=rng)
     else:
         match.play_cli()
 
