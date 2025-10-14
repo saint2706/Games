@@ -378,7 +378,7 @@ class TestMyGamePyQt:
 If you encounter issues during migration:
 
 1. Check this guide for common patterns
-1. Look at the completed migration: `paper_games/dots_and_boxes/gui_pyqt.py`
+1. Review completed migrations such as `paper_games/dots_and_boxes/gui_pyqt.py`, `card_games/go_fish/gui_pyqt.py`, and `card_games/spades/gui_pyqt.py`
 1. Consult PyQt5 documentation
 1. Ask in the repository issues
 
