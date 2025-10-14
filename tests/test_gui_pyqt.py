@@ -1,18 +1,30 @@
 """Tests for PyQt5 GUI implementations.
 
-These tests verify that PyQt5-based GUI components work correctly.
-"""
+These tests verify that PyQt5-based GUI components work correctly."""
 
 from __future__ import annotations
 
+import os
 import pathlib
 import sys
+import tempfile
+from importlib import import_module
+from typing import Sequence, TYPE_CHECKING
 
 import pytest
 
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+
+# Ensure PyQt can operate in headless environments
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+runtime_dir_env = os.environ.get("XDG_RUNTIME_DIR")
+runtime_dir = pathlib.Path(runtime_dir_env) if runtime_dir_env else pathlib.Path(tempfile.gettempdir()) / "qt-runtime"
+runtime_dir.mkdir(parents=True, exist_ok=True)
+if sys.platform != "win32":
+    runtime_dir.chmod(0o700)
+os.environ["XDG_RUNTIME_DIR"] = str(runtime_dir)
 
 # Check if PyQt5 is available
 try:
@@ -35,7 +47,6 @@ class TestDotsAndBoxesPyQt:
 
         assert DotsAndBoxesGUI is not None
 
-    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
     def test_dots_boxes_pyqt_gui_initialization(self, qtbot):
         """Test Dots and Boxes PyQt5 GUI initialization."""
         try:
@@ -86,7 +97,6 @@ class TestGoFishPyQt:
 
         assert GoFishGUI is not None
 
-    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
     def test_go_fish_pyqt_gui_initialization(self, qtbot):
         """Test Go Fish PyQt5 GUI initialization."""
         try:
@@ -128,6 +138,29 @@ class TestSpadesPyQt:
             assert window is not None
             assert window.game is not None
             assert window.human_player is not None
+class TestUnoPyQt:
+    """Test Uno PyQt5 GUI components."""
+
+    def test_uno_pyqt_gui_import(self):
+        """Ensure the Uno PyQt5 GUI can be imported."""
+
+        from card_games.uno.gui_pyqt import PyQtUnoInterface
+
+        assert PyQtUnoInterface is not None
+
+    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
+    def test_uno_pyqt_gui_initialization(self, qtbot):
+        """Test Uno PyQt5 GUI initialization."""
+
+        try:
+            from card_games.uno.gui_pyqt import PyQtUnoInterface
+            from card_games.uno.uno import UnoPlayer
+
+            players = [UnoPlayer("You", is_human=True), UnoPlayer("Bot", personality="balanced")]
+            window = PyQtUnoInterface(players)
+            qtbot.addWidget(window)
+            assert window is not None
+            assert len(window.players) == 2
         except Exception as e:
             if "display" in str(e).lower() or "DISPLAY" in str(e):
                 pytest.skip("No display available for GUI testing")
@@ -141,6 +174,7 @@ def test_pyqt5_modules_available():
         "paper_games.dots_and_boxes.gui_pyqt",
         "card_games.go_fish.gui_pyqt",
         "card_games.spades.gui_pyqt",
+        "card_games.uno.gui_pyqt",
         "common.gui_base_pyqt",
     ]
 
