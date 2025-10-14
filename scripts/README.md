@@ -9,6 +9,7 @@ This directory contains utility scripts for development, testing, building, and 
 | `setup_act.sh` | Install act for local workflow testing | `./setup_act.sh` |
 | `run_workflow.sh` | Run GitHub Actions workflows locally | `./run_workflow.sh ci` |
 | `validate_workflows.py` | Validate GitHub Actions workflow files | `python validate_workflows.py` |
+| `workflow_info.py` | Display workflow information | `python workflow_info.py` |
 | `run_tests.sh` | Run test suite with various options | `./run_tests.sh all` |
 | `check_complexity.sh` | Check code complexity with Radon | `./check_complexity.sh` |
 | `build_executable.sh` | Build standalone executables | `./build_executable.sh` |
@@ -141,6 +142,55 @@ make workflow-validate
 
 - `0` - All validations passed
 - `1` - Validation errors found
+
+### workflow_info.py
+
+Display detailed information about GitHub Actions workflows.
+
+**Usage:**
+
+```bash
+# List all workflows
+python scripts/workflow_info.py
+
+# Show info for specific workflow
+python scripts/workflow_info.py ci.yml
+
+# Show verbose information
+python scripts/workflow_info.py ci.yml -v
+
+# Via Make
+make workflow-info
+```
+
+**What It Shows:**
+
+- 🎯 Trigger events
+- 🔒 Required permissions
+- 🌍 Environment variables
+- ⚙️ Jobs and dependencies
+- 🔌 Actions used (verbose mode)
+
+**Example Output:**
+
+```bash
+📋 CI
+============================================================
+File: ci.yml
+
+🎯 Triggers: push, pull_request
+
+🔒 Permissions:
+   • contents: read
+
+⚙️  Jobs (2):
+   lint:
+      Runs on: ubuntu-latest
+      Steps: 7
+   test:
+      Runs on: ubuntu-latest
+      Steps: 7
+```
 
 ## Testing Scripts
 

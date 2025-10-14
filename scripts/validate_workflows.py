@@ -40,6 +40,7 @@ class WorkflowValidator:
         self.validate_event_payloads()
         self.validate_workflow_structure()
         self.validate_script_references()
+        self.validate_actions()
         self.validate_documentation()
 
         print("\n" + "=" * 60)
@@ -201,6 +202,59 @@ class WorkflowValidator:
         elif isinstance(obj, list):
             for item in obj:
                 self._find_script_refs(item, refs)
+
+    def validate_actions(self) -> None:
+        """Validate GitHub Actions usage and versions."""
+        print("\n🔌 Validating Actions Usage...")
+
+        workflow_files = sorted(self.workflow_dir.glob("*.yml"))
+        actions_found: dict[str, set[str]] = {}
+
+        for yml_file in workflow_files:
+            try:
+                with open(yml_file) as f:
+                    workflow = yaml.safe_load(f)
+
+                if isinstance(workflow, dict):
+                    self._find_actions(workflow, actions_found)
+
+            except Exception:
+                pass  # Already validated
+
+        # Report actions usage
+        if actions_found:
+            for action, versions in sorted(actions_found.items()):
+                versions_str = ", ".join(sorted(versions))
+                print(f"  ✓ {action}: {versions_str}")
+
+                # Check for common outdated actions
+                if "actions/checkout" in action:
+                    if any(v.startswith("v") and int(v[1]) < 4 for v in versions if v.startswith("v")):
+                        self.warnings.append(f"Consider updating {action} to v5 (current: {versions_str})")
+                elif "actions/setup-python" in action:
+                    if any(v.startswith("v") and int(v[1]) < 5 for v in versions if v.startswith("v")):
+                        self.warnings.append(f"Consider updating {action} to v6 (current: {versions_str})")
+        else:
+            print("  ⚠ No actions found in workflows")
+
+    def _find_actions(self, obj: Any, actions: dict[str, set[str]]) -> None:
+        """Recursively find GitHub Actions usage in workflow YAML."""
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                if key == "uses" and isinstance(value, str):
+                    # Extract action name and version
+                    parts = value.split("@")
+                    if len(parts) == 2:
+                        action_name = parts[0]
+                        action_version = parts[1]
+                        if action_name not in actions:
+                            actions[action_name] = set()
+                        actions[action_name].add(action_version)
+                else:
+                    self._find_actions(value, actions)
+        elif isinstance(obj, list):
+            for item in obj:
+                self._find_actions(item, actions)
 
     def validate_documentation(self) -> None:
         """Validate that documentation matches workflows."""

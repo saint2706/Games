@@ -32,6 +32,7 @@ help:
 	@echo "  make workflow-test     Run test workflow locally"
 	@echo "  make workflow-list     List all available workflows"
 	@echo "  make workflow-validate Validate all workflow files"
+	@echo "  make workflow-info     Show workflow information"
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean          Remove build artifacts and cache files"
@@ -112,6 +113,9 @@ workflow-list:
 
 workflow-validate:
 	python3 scripts/validate_workflows.py
+
+workflow-info:
+	python3 scripts/workflow_info.py
 
 # Cleanup targets
 clean:
