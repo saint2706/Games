@@ -46,8 +46,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-tk libgl1 libxkbcommon-x11-0
-          sudo mkdir -p /tmp/qt-runtime
-          sudo chmod 700 /tmp/qt-runtime
+          sudo rm -rf /tmp/qt-runtime
+          mkdir -p /tmp/qt-runtime
+          chmod 700 /tmp/qt-runtime
 
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
