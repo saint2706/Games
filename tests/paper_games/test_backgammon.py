@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from paper_games.backgammon.backgammon import BAR, BEAR_OFF, BackgammonGame, Move
 
 
@@ -29,6 +31,21 @@ def test_hit_and_reentry() -> None:
     assert (reentry_move,) in valid_reentries
     assert game.make_move((reentry_move,))
     assert game.bars[-1] == 0
+
+
+def test_higher_die_required_when_only_one_checker_can_move() -> None:
+    """When only one die can be used, the move must use the higher value die."""
+
+    game = BackgammonGame()
+    points = _blank_board()
+    points[17] = (-1, 2)
+    game.load_position(points, bars={1: 1, -1: 0}, bear_off={1: 0, -1: 0}, current_player=1)
+    game.set_dice([6, 1])
+
+    moves = game.get_valid_moves()
+    assert moves, "Expected at least one legal move"
+    assert any(sequence and sequence[0].die == 6 for sequence in moves)
+    assert all(not sequence or sequence[0].die == 6 for sequence in moves)
 
 
 def test_bearing_off_completes_game() -> None:
@@ -67,6 +84,22 @@ def test_doubling_cube_flow() -> None:
     assert game_two.is_game_over()
     assert game_two.get_winner() == 1
     assert game_two.scores[1] == 1
+
+
+def test_make_move_blocked_while_double_pending() -> None:
+    """A move cannot be played until a pending double is resolved."""
+
+    game = BackgammonGame()
+    points = _blank_board()
+    points[0] = (1, 1)
+    game.load_position(points, bars={1: 0, -1: 0}, bear_off={1: 14, -1: 0}, current_player=1)
+    game.set_dice([1])
+    move = (Move(0, BEAR_OFF, 1, False),)
+    assert move in game.get_valid_moves()
+
+    game.offer_double()
+    with pytest.raises(RuntimeError):
+        game.make_move(move)
 
 
 def test_gammon_and_backgammon_scoring() -> None:

@@ -137,7 +137,11 @@ class BackgammonGame(GameEngine[Tuple[Move, ...], int]):
         if not sequences:
             return []
         max_moves = max(len(sequence) for sequence in sequences)
-        return [sequence for sequence in sequences if len(sequence) == max_moves]
+        best_sequences = [sequence for sequence in sequences if len(sequence) == max_moves]
+        if max_moves == 1 and best_sequences:
+            highest_die_played = max(move.die for sequence in best_sequences for move in sequence)
+            best_sequences = [sequence for sequence in best_sequences if sequence and sequence[0].die == highest_die_played]
+        return best_sequences
 
     def _generate_sequences(
         self,
@@ -285,6 +289,8 @@ class BackgammonGame(GameEngine[Tuple[Move, ...], int]):
     def make_move(self, move: Tuple[Move, ...]) -> bool:
         """Apply the provided move sequence if it is legal."""
 
+        if self.pending_double_from is not None:
+            raise RuntimeError("Cannot move while a doubling decision is pending.")
         legal_moves = self.get_valid_moves()
         if move not in legal_moves:
             return False
