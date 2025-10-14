@@ -26,7 +26,9 @@ pip install pyqt5
 
 **Available Games:**
 
-- Dots and Boxes (paper_games/dots_and_boxes/gui_pyqt.py)
+- Dots and Boxes (`paper_games/dots_and_boxes/gui_pyqt.py`)
+- Go Fish (`card_games/go_fish/gui_pyqt.py`)
+- War (`card_games/war/gui_pyqt.py`)
 
 ### Tkinter (Legacy)
 
