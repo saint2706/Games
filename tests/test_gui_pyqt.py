@@ -1,12 +1,13 @@
 """Tests for PyQt5 GUI implementations.
 
-These tests verify that PyQt5-based GUI components work correctly.
-"""
+These tests verify that PyQt5-based GUI components work correctly."""
 
 from __future__ import annotations
 
 import pathlib
 import sys
+from importlib import import_module
+from typing import Sequence, TYPE_CHECKING
 
 import pytest
 

@@ -14,6 +14,19 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
+def _configure_qt_environment() -> None:
+    """Ensure Qt uses an offscreen platform plugin for headless testing."""
+
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    if not os.environ.get("XDG_RUNTIME_DIR"):
+        runtime_dir = pathlib.Path("/tmp/qt-runtime")
+        runtime_dir.mkdir(parents=True, exist_ok=True)
+        os.environ["XDG_RUNTIME_DIR"] = str(runtime_dir)
+
+
+_configure_qt_environment()
+
+
 @pytest.fixture
 def fixed_random() -> Generator[random.Random, None, None]:
     """Provide a seeded random number generator for reproducible tests."""
