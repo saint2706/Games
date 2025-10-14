@@ -33,9 +33,9 @@ The Games repository now supports **PyQt5** as its primary GUI framework, addres
 
 1. **Documentation**
 
-   - `docs/GUI_MIGRATION_GUIDE.md` - Complete migration guide
-   - `docs/GUI_FRAMEWORKS.md` - Framework overview
-   - `docs/PYQT5_IMPLEMENTATION.md` - Implementation details
+   - `MIGRATION_GUIDE.md` - Complete migration guide
+   - `FRAMEWORKS.md` - Framework overview
+   - `PYQT5_IMPLEMENTATION.md` - Implementation details
 
 1. **Developer Tools**
 
@@ -141,7 +141,7 @@ class MyGameGUI(BaseGUI):
 
 ### Migrating from Tkinter
 
-See `docs/GUI_MIGRATION_GUIDE.md` for:
+See `MIGRATION_GUIDE.md` for:
 
 - Widget mapping (tkinter → PyQt5)
 - Event handling patterns
@@ -164,9 +164,9 @@ Study `paper_games/dots_and_boxes/gui_pyqt.py` for:
 
 | Document | Purpose |
 |----------|---------|
-| `docs/GUI_MIGRATION_GUIDE.md` | Step-by-step migration from tkinter to PyQt5 |
-| `docs/GUI_FRAMEWORKS.md` | Framework overview and guidelines |
-| `docs/PYQT5_IMPLEMENTATION.md` | Complete implementation summary |
+| `MIGRATION_GUIDE.md` | Step-by-step migration from tkinter to PyQt5 |
+| `FRAMEWORKS.md` | Framework overview and guidelines |
+| `PYQT5_IMPLEMENTATION.md` | Complete implementation summary |
 | This file | Quick reference |
 
 ## 🧪 Testing
@@ -228,7 +228,7 @@ pip install pyqt5>=5.15
 To contribute to the GUI migration:
 
 1. Choose a game from the remaining 13
-1. Follow `docs/GUI_MIGRATION_GUIDE.md`
+1. Follow `MIGRATION_GUIDE.md`
 1. Reference `paper_games/dots_and_boxes/gui_pyqt.py`
 1. Use `common/gui_base_pyqt.py` for consistency
 1. Add tests in `tests/test_gui_pyqt.py`
