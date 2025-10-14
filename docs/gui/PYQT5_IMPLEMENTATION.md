@@ -38,7 +38,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Accessibility features
 - Keyboard shortcut support
 
-#### 2. Proof of Concept Migration
+#### 2. Proof of Concept Migrations
 
 **Files**:
 
@@ -55,8 +55,27 @@ After evaluation, PyQt5 was selected over Pygame because:
 - AI opponent integration across all migrated titles
 - Timers (``QTimer.singleShot``) replacing ``tk.after`` for asynchronous turns
 - Dynamic UI updates that mirror CLI narration
+- **Dots and Boxes** (`paper_games/dots_and_boxes/gui_pyqt.py`)
+  - Custom `BoardCanvas` widget with QPainter for game board rendering
+  - Mouse event handling (click, move, hover)
+  - AI opponent integration, hints, and score tracking
+- **Go Fish** (`card_games/go_fish/gui_pyqt.py`)
+  - Scoreboard and control panels implemented with Qt layouts
+  - Animated feedback via timers for book celebrations
+  - Scrollable hand view with grouped ranks
+- **Spades** (`card_games/spades/gui_pyqt.py`)
+  - Bidding, trick tracking, and scoring panels reconstructed with `QGroupBox`
+  - Keyboard shortcuts, accessibility tooltips, and timer-driven AI sequencing
+  - Log and breakdown panels built with `QTextEdit`
 
-#### 3. Testing Framework
+#### 3. Card Game Ports
+
+**Files**: `card_games/go_fish/gui_pyqt.py`, `card_games/war/gui_pyqt.py`
+
+- Go Fish GUI demonstrates rich widget layouts with scoreboards, grouped hand displays, and celebratory animations driven by `QTimer`.
+- War GUI recreates deck and pile panels, adds an auto-play controller, and introduces `WarBattleCanvas` for painting stacked cards with flashing alerts while reusing the `SaveLoadManager` for persistence dialogs.
+
+#### 4. Testing Framework
 
 **File**: `tests/test_gui_pyqt.py`
 
@@ -70,9 +89,11 @@ After evaluation, PyQt5 was selected over Pygame because:
 
 - Import and smoke tests for Dots and Boxes, Go Fish, and Bluff GUIs
 - Display-dependent tests auto-skip in headless environments
+- PyQt5 GUI import and initialization tests cover Dots and Boxes, Go Fish, and Spades
+- Display-dependent tests remain skipped automatically in headless environments
 - All code passes black formatting and ruff linting
 
-#### 4. Documentation
+#### 5. Documentation
 
 **Migration Guide**: `MIGRATION_GUIDE.md`
 
@@ -91,7 +112,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Developer guidelines
 - FAQ section
 
-#### 5. Development Tools
+#### 6. Development Tools
 
 **Test Script**: `scripts/test_gui.py`
 
@@ -181,6 +202,16 @@ QTimer.singleShot(500, self.callback)
 
 - ✅ **Completed**: Dots and Boxes, Go Fish, Bluff
 - ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
+- ✅ **Completed**: Dots and Boxes, Go Fish, Crazy Eights
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
+- ✅ **Completed**: Dots and Boxes, Go Fish, Hearts
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
+- ✅ **Completed**: Dots and Boxes, Go Fish, Solitaire
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
+- ✅ **Completed**: Dots and Boxes, Go Fish, Spades
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
+- ✅ **Completed**: Dots and Boxes, Go Fish, Uno
+- ⏳ **Remaining**: 13 games (1 paper game, 12 card games)
 
 ## Dependencies
 
