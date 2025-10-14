@@ -167,7 +167,7 @@ class PokerPyQtGUI(QWidget):
         self.btn_call = QPushButton("Call/Check")
         self.btn_call.clicked.connect(self._handle_call_or_check)
         self.btn_raise = QPushButton("Bet/Raise")
-        self.btn_raise.clicked.connect(lambda: self.handle_user_action(ActionType.RAISE))
+        self.btn_raise.clicked.connect(self._handle_bet_or_raise)
         self.btn_all_in = QPushButton("All-in")
         self.btn_all_in.clicked.connect(lambda: self.handle_user_action(ActionType.ALL_IN))
 
@@ -178,6 +178,7 @@ class PokerPyQtGUI(QWidget):
 
         main_layout.addWidget(actions_widget, 3, 0)
         self._set_action_buttons_enabled(False)
+        self._raise_button_action: Optional[ActionType] = None
 
     def start_hand(self) -> None:
         """Start a new hand and reset UI state."""
@@ -268,7 +269,13 @@ class PokerPyQtGUI(QWidget):
         self.btn_fold.setEnabled(ActionType.FOLD in options)
         self.btn_call.setText("Check" if to_call <= 0 else f"Call ({min(to_call, player.chips)})")
         self.btn_call.setEnabled(ActionType.CHECK in options or ActionType.CALL in options)
-        self.btn_raise.setEnabled(ActionType.RAISE in options or ActionType.BET in options)
+        if ActionType.RAISE in options:
+            self._raise_button_action = ActionType.RAISE
+        elif ActionType.BET in options:
+            self._raise_button_action = ActionType.BET
+        else:
+            self._raise_button_action = None
+        self.btn_raise.setEnabled(self._raise_button_action is not None)
         self.btn_all_in.setEnabled(ActionType.ALL_IN in options)
 
     def _handle_call_or_check(self) -> None:
@@ -276,6 +283,12 @@ class PokerPyQtGUI(QWidget):
         to_call = self.match.table.current_bet - self.match.user.current_bet
         action = ActionType.CHECK if to_call <= 0 else ActionType.CALL
         self.handle_user_action(action)
+
+    def _handle_bet_or_raise(self) -> None:
+        """Dispatch a bet when opening the action, otherwise a raise."""
+        if self._raise_button_action is None:
+            return
+        self.handle_user_action(self._raise_button_action)
 
     def handle_user_action(self, action_type: ActionType) -> None:
         """Handle an action chosen by the user."""
