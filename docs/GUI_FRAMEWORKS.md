@@ -17,6 +17,7 @@ PyQt5 is the recommended GUI framework for the Games repository because:
 - ✅ Extensive documentation and community support
 
 **Installation:**
+
 ```bash
 pip install games-collection[gui]
 # or
@@ -24,6 +25,7 @@ pip install pyqt5
 ```
 
 **Available Games:**
+
 - Dots and Boxes (paper_games/dots_and_boxes/gui_pyqt.py)
 
 ### Tkinter (Legacy)
@@ -38,6 +40,7 @@ Tkinter was the original GUI framework used in this repository. However, it has 
 - ❌ Limited widget set
 
 **Available Games:**
+
 - Bridge (card_games/bridge/gui.py)
 - Gin Rummy (card_games/gin_rummy/gui.py)
 - Spades (card_games/spades/gui.py)
@@ -47,9 +50,11 @@ Tkinter was the original GUI framework used in this repository. However, it has 
 See `docs/GUI_MIGRATION_GUIDE.md` for detailed migration instructions.
 
 ### Completed Migrations
+
 - [x] Dots and Boxes → PyQt5
 
 ### In Progress / Planned
+
 - [ ] Battleship → PyQt5
 - [ ] Blackjack → PyQt5
 - [ ] Bluff → PyQt5

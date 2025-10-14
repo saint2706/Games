@@ -72,6 +72,7 @@ Test the publish workflow locally using `act`:
 ## Manual Trigger
 
 The workflow can also be triggered manually via GitHub Actions UI:
+
 1. Go to Actions tab
 1. Select "Publish to PyPI" workflow
 1. Click "Run workflow"
@@ -130,6 +131,7 @@ Follow [Semantic Versioning](https://semver.org/):
 - **PATCH** (x.x.1): Bug fixes, backward compatible
 
 Examples:
+
 - `1.0.0` → `1.0.1`: Bug fix
 - `1.0.1` → `1.1.0`: New game added
 - `1.1.0` → `2.0.0`: API breaking change

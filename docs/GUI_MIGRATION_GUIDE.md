@@ -5,19 +5,21 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 ## Why Migrate to PyQt5?
 
 1. **Better Cross-Platform Support**: PyQt5 works consistently across Linux, Windows, and macOS
-2. **More Reliable**: PyQt5 is less prone to display issues in various environments
-3. **Richer Widgets**: PyQt5 provides more sophisticated UI components
-4. **Better Documentation**: Extensive Qt documentation and examples
-5. **Professional Look**: More modern and polished appearance
+1. **More Reliable**: PyQt5 is less prone to display issues in various environments
+1. **Richer Widgets**: PyQt5 provides more sophisticated UI components
+1. **Better Documentation**: Extensive Qt documentation and examples
+1. **Professional Look**: More modern and polished appearance
 
 ## Migration Status
 
 ### Completed
+
 - ✅ PyQt5 base infrastructure (`common/gui_base_pyqt.py`)
 - ✅ Dots and Boxes game (`paper_games/dots_and_boxes/gui_pyqt.py`)
 - ✅ Test framework for PyQt5 GUIs
 
 ### Remaining
+
 - Card games: blackjack, bluff, bridge, crazy_eights, gin_rummy, go_fish, hearts, poker, solitaire, spades, uno, war
 - Paper games: battleship
 
@@ -39,6 +41,7 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 ### 2. Event Handling
 
 **Tkinter:**
+
 ```python
 button = tk.Button(parent, text="Click", command=self.on_click)
 canvas.bind("<Button-1>", self.on_mouse_click)
@@ -46,6 +49,7 @@ canvas.bind("<Motion>", self.on_mouse_move)
 ```
 
 **PyQt5:**
+
 ```python
 button = QPushButton("Click", parent)
 button.clicked.connect(self.on_click)
@@ -62,11 +66,13 @@ def mouseMoveEvent(self, event):
 ### 3. Layout Management
 
 **Tkinter (pack):**
+
 ```python
 label.pack(side=tk.LEFT, padx=10, pady=5)
 ```
 
 **PyQt5 (layout managers):**
+
 ```python
 layout = QHBoxLayout()
 layout.addWidget(label)
@@ -77,11 +83,13 @@ parent.setLayout(layout)
 ### 4. Timers
 
 **Tkinter:**
+
 ```python
 self.root.after(500, self.callback)
 ```
 
 **PyQt5:**
+
 ```python
 QTimer.singleShot(500, self.callback)
 ```
@@ -89,12 +97,14 @@ QTimer.singleShot(500, self.callback)
 ### 5. Message Boxes
 
 **Tkinter:**
+
 ```python
 messagebox.showinfo("Title", "Message")
 messagebox.showerror("Error", "Error message")
 ```
 
 **PyQt5:**
+
 ```python
 QMessageBox.information(self, "Title", "Message")
 QMessageBox.critical(self, "Error", "Error message")
@@ -103,6 +113,7 @@ QMessageBox.critical(self, "Error", "Error message")
 ## Example Migration: Dots and Boxes
 
 ### Before (Tkinter)
+
 ```python
 import tkinter as tk
 from tkinter import messagebox
@@ -126,6 +137,7 @@ def run_gui(size: int = 2):
 ```
 
 ### After (PyQt5)
+
 ```python
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
 from PyQt5.QtCore import Qt, QTimer
@@ -265,6 +277,7 @@ if app is None:
 ### 2. Canvas Drawing
 
 PyQt5 doesn't have a simple Canvas widget. You need to:
+
 - Subclass QWidget
 - Override `paintEvent()`
 - Use QPainter for drawing
@@ -272,6 +285,7 @@ PyQt5 doesn't have a simple Canvas widget. You need to:
 ### 3. Variable Observers
 
 Tkinter has `StringVar`, `IntVar`, etc. with `trace()`. PyQt5 uses:
+
 - Signals/slots
 - Property change events
 - Manual updates
@@ -360,9 +374,9 @@ class TestMyGamePyQt:
 If you encounter issues during migration:
 
 1. Check this guide for common patterns
-2. Look at the completed migration: `paper_games/dots_and_boxes/gui_pyqt.py`
-3. Consult PyQt5 documentation
-4. Ask in the repository issues
+1. Look at the completed migration: `paper_games/dots_and_boxes/gui_pyqt.py`
+1. Consult PyQt5 documentation
+1. Ask in the repository issues
 
 ## Maintenance Notes
 
