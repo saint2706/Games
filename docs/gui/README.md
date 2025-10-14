@@ -106,6 +106,7 @@ pytest tests/test_gui_pyqt.py -v
 
 - ✅ Dots and Boxes
 - ✅ Go Fish
+- ✅ Uno
 - ✅ War
 
 ### Remaining (11/14)
@@ -123,6 +124,7 @@ pytest tests/test_gui_pyqt.py -v
 - Hearts
 - Solitaire
 - Spades
+- War
 - Uno
 
 ## 🛠️ For Developers
@@ -286,7 +288,7 @@ To contribute to the GUI migration:
 
 Potential enhancements:
 
-1. Complete migration of all 13 remaining GUIs
+1. Complete migration of all 11 remaining GUIs
 1. Add theme customization UI
 1. Implement network multiplayer
 1. Add game replay system

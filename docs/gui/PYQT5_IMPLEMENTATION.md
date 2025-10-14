@@ -189,8 +189,8 @@ QTimer.singleShot(500, self.callback)
 
 ### Games (3/14 completed)
 
-- ✅ **Completed**: Dots and Boxes, Go Fish, War
-- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
+- ✅ **Completed**: Dots and Boxes, Go Fish, Uno
+- ⏳ **Remaining**: 13 games (1 paper game, 12 card games)
 
 ## Dependencies
 

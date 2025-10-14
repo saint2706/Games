@@ -116,27 +116,29 @@ class TestGoFishPyQt:
 
 
 @pytest.mark.gui
-class TestWarPyQt:
-    """Test War PyQt5 GUI components."""
+class TestUnoPyQt:
+    """Test Uno PyQt5 GUI components."""
 
-    def test_war_pyqt_gui_import(self):
-        """Test that War PyQt5 GUI can be imported."""
-        from card_games.war.gui_pyqt import WarGUI
+    def test_uno_pyqt_gui_import(self):
+        """Ensure the Uno PyQt5 GUI can be imported."""
 
-        assert WarGUI is not None
+        from card_games.uno.gui_pyqt import PyQtUnoInterface
+
+        assert PyQtUnoInterface is not None
 
     @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
-    def test_war_pyqt_gui_initialization(self, qtbot):
-        """Test War PyQt5 GUI initialization."""
-        try:
-            from card_games.war.game import WarGame
-            from card_games.war.gui_pyqt import WarGUI
+    def test_uno_pyqt_gui_initialization(self, qtbot):
+        """Test Uno PyQt5 GUI initialization."""
 
-            game = WarGame()
-            window = WarGUI(game)
+        try:
+            from card_games.uno.gui_pyqt import PyQtUnoInterface
+            from card_games.uno.uno import UnoPlayer
+
+            players = [UnoPlayer("You", is_human=True), UnoPlayer("Bot", personality="balanced")]
+            window = PyQtUnoInterface(players)
             qtbot.addWidget(window)
             assert window is not None
-            assert window.game is not None
+            assert len(window.players) == 2
         except Exception as e:
             if "display" in str(e).lower() or "DISPLAY" in str(e):
                 pytest.skip("No display available for GUI testing")
@@ -149,7 +151,7 @@ def test_pyqt5_modules_available():
     gui_modules = [
         "paper_games.dots_and_boxes.gui_pyqt",
         "card_games.go_fish.gui_pyqt",
-        "card_games.war.gui_pyqt",
+        "card_games.uno.gui_pyqt",
         "common.gui_base_pyqt",
     ]
 

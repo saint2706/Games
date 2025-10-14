@@ -23,3 +23,11 @@ try:
 except ImportError:
     # tkinter not available, GUI components won't be exported
     pass
+
+try:
+    from .gui_pyqt import PyQtUnoInterface, launch_uno_gui_pyqt
+
+    __all__.extend(["PyQtUnoInterface", "launch_uno_gui_pyqt"])
+except ImportError:
+    # PyQt5 not available, PyQt GUI components won't be exported
+    pass
