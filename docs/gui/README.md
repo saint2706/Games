@@ -65,6 +65,9 @@ PyQt5:   ✓ Available
 python scripts/test_gui.py --list
 ```
 
+This command now introspects the `card_games` and `paper_games` packages to detect both Tkinter (`gui.py`) and PyQt5 (`gui_pyqt.py`) implementations.
+Whenever a new GUI module is added, it is automatically included in the output without requiring manual updates to `scripts/test_gui.py`.
+
 ### Validate PyQt5 Implementation
 
 ```bash
