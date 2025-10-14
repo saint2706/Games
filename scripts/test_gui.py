@@ -202,11 +202,10 @@ def main() -> int:
                     status_parts.append(f"[{label}: {symbol}]")
 
                 migration_marker = " *" if (category, game) in PYQT5_MIGRATED else ""
-                print(f"  {game:20}{migration_marker} [Tkinter: {tk_status}] [PyQt5: {pyqt_status}]")
+                print(f"  {game:20}{migration_marker} {' '.join(status_parts)}")
 
         if PYQT5_MIGRATED:
             print("\n* denotes games with completed PyQt5 migrations.")
-                print(f"  {game:20} {' '.join(status_parts)}")
 
         return 0
 
