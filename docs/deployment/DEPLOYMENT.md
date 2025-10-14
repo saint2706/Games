@@ -41,6 +41,10 @@ This guide covers different deployment methods for the Games Collection.
 - Python 3.11
 - Python 3.12
 
+## Release Validation
+
+All PyPI releases are gated by an automated smoke test that runs in GitHub Actions whenever a release is published or the workflow is dispatched manually. The workflow builds the source and wheel distributions, installs the generated wheel into an isolated virtual environment, and verifies two representative entry points: `games-collection --help` and `python -m card_games.go_fish --gui-framework pyqt5 --help`. The PyPI upload proceeds only if these commands succeed, ensuring that the published artifacts are installable and expose their CLI help correctly.
+
 ## Installation from PyPI
 
 ### Standard Installation

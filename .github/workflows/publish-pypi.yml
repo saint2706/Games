@@ -34,6 +34,31 @@ jobs:
       - name: Build distribution packages
         run: python -m build
 
+      - name: Smoke test built package
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv .venv-smoke
+          source .venv-smoke/bin/activate
+          python -m pip install --upgrade pip
+          pip install dist/*.whl
+
+          SMOKE_LOG=smoke-test.log
+          {
+            echo '### games-collection --help'
+            games-collection --help
+            echo
+            echo '### python -m card_games.go_fish --gui-framework pyqt5 --help'
+            python -m card_games.go_fish --gui-framework pyqt5 --help
+          } 2>&1 | tee "$SMOKE_LOG"
+
+          {
+            echo '## Smoke test output'
+            echo '```'
+            cat "$SMOKE_LOG"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload distribution packages
         uses: actions/upload-artifact@v4
         with:
