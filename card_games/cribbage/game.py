@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from random import Random
-from typing import Optional
+from typing import Any, Iterable, Optional, Sequence
 
 from card_games.common.cards import RANK_TO_VALUE, Card, Deck
 
@@ -65,45 +65,62 @@ class CribbageGame:
     current_player: int = 1
     winner: Optional[int] = None
     deck: Deck = field(default_factory=Deck)
+    pegging_history: list[dict[str, Any]] = field(default_factory=list)
+    passed_players: set[int] = field(default_factory=set)
+    last_player_to_play: Optional[int] = None
+    sequence_id: int = 0
+    rng: Optional[Random] = None
 
-    def __init__(self, rng: Optional[Random] = None) -> None:
-        """Initialize a new Cribbage game.
+    def __init__(self, dealer: int = 1, rng: Optional[Random] = None) -> None:
+        """Initialize a new Cribbage game."""
 
-        Args:
-            rng: Optional Random instance for deterministic games
-        """
         self.player1_hand = []
         self.player2_hand = []
         self.crib = []
         self.starter = None
         self.player1_score = 0
         self.player2_score = 0
-        self.dealer = 1
+        self.dealer = dealer
         self.phase = GamePhase.DEAL
         self.play_sequence = []
         self.play_count = 0
         self.current_player = 1
         self.winner = None
         self.deck = Deck()
-        self.deck.shuffle(rng=rng)
-        self._deal_hands()
+        self.pegging_history = []
+        self.passed_players = set()
+        self.last_player_to_play = None
+        self.sequence_id = 0
+        self.rng = rng
+        self.start_new_hand(dealer=dealer)
 
-    def _deal_hands(self) -> None:
-        """Deal 6 cards to each player."""
-        self.player1_hand = [self.deck.cards.pop() for _ in range(6)]
-        self.player2_hand = [self.deck.cards.pop() for _ in range(6)]
+    def start_new_hand(self, *, dealer: Optional[int] = None, rng: Optional[Random] = None) -> None:
+        """Deal new hands and reset per-hand state while keeping scores."""
+
+        if dealer is not None:
+            self.dealer = dealer
+
+        self.deck = Deck()
+        self.deck.shuffle(rng=rng or self.rng)
+
+        self.player1_hand = self.deck.deal(6)
+        self.player2_hand = self.deck.deal(6)
+        self.crib = []
+        self.starter = None
+        self.play_sequence = []
+        self.play_count = 0
+        self.current_player = 2 if self.dealer == 1 else 1
         self.phase = GamePhase.DISCARD
+        self.pegging_history = []
+        self.passed_players = set()
+        self.last_player_to_play = None
+        self.sequence_id = 0
 
-    def _card_value(self, card: Card) -> int:
-        """Get the point value of a card for counting.
+    @staticmethod
+    def card_point_value(card: Card) -> int:
+        """Return the pegging value of ``card`` (aces low, face cards ten)."""
 
-        Args:
-            card: The card to evaluate
-
-        Returns:
-            Point value (1-10)
-        """
-        if card.rank in ["J", "Q", "K"]:
+        if card.rank in {"J", "Q", "K"}:
             return 10
         if card.rank == "A":
             return 1
@@ -112,237 +129,345 @@ class CribbageGame:
         return int(card.rank)
 
     def discard_to_crib(self, player: int, cards: list[Card]) -> bool:
-        """Discard 2 cards to the crib.
+        """Discard exactly two cards to the crib for ``player``."""
 
-        Args:
-            player: Player number (1 or 2)
-            cards: Two cards to discard
-
-        Returns:
-            True if successful, False otherwise
-        """
-        if self.phase != GamePhase.DISCARD:
+        if self.phase != GamePhase.DISCARD or len(cards) != 2:
             return False
 
-        if len(cards) != 2:
-            return False
-
-        hand = self.player1_hand if player == 1 else self.player2_hand
-
+        hand = self._hand(player)
         if not all(card in hand for card in cards):
             return False
 
-        # Remove from hand and add to crib
         for card in cards:
             hand.remove(card)
             self.crib.append(card)
 
-        # Check if both players have discarded
         if len(self.crib) == 4:
             self._start_play()
 
         return True
 
     def _start_play(self) -> None:
-        """Start the play (pegging) phase."""
-        # Cut for starter
-        if len(self.deck.cards) > 0:
-            self.starter = self.deck.cards.pop()
+        """Start the pegging phase by cutting a starter card."""
+
+        if self.deck.cards:
+            self.starter = self.deck.deal(1)[0]
+            if self.starter.rank == "J":
+                self._award_points(self.dealer, 2)
+                self.pegging_history.append(
+                    {
+                        "type": "starter",
+                        "player": self.dealer,
+                        "card": self.starter,
+                        "points": 2,
+                        "events": ["His heels for 2"],
+                        "sequence": self.sequence_id,
+                    }
+                )
         self.phase = GamePhase.PLAY
-        # Non-dealer plays first
+        self.play_sequence = []
+        self.play_count = 0
+        self.sequence_id = 0
+        self.pegging_history = []
+        self.passed_players = set()
+        self.last_player_to_play = None
         self.current_player = 2 if self.dealer == 1 else 1
 
     def can_play_card(self, player: int, card: Card) -> bool:
-        """Check if a card can be played.
+        """Return ``True`` if ``player`` may legally play ``card``."""
 
-        Args:
-            player: Player number
-            card: Card to play
-
-        Returns:
-            True if card can be played
-        """
-        if self.phase != GamePhase.PLAY:
+        if self.phase != GamePhase.PLAY or player != self.current_player:
             return False
 
-        if player != self.current_player:
-            return False
-
-        hand = self.player1_hand if player == 1 else self.player2_hand
+        hand = self._hand(player)
         if card not in hand:
             return False
 
-        # Check if playing this card would exceed 31
-        new_count = self.play_count + self._card_value(card)
-        return new_count <= 31
+        return self.card_point_value(card) + self.play_count <= 31
 
-    def play_card(self, player: int, card: Card) -> dict[str, any]:
-        """Play a card during the pegging phase.
+    def legal_plays(self, player: int) -> list[Card]:
+        """Return all cards ``player`` may legally play at this moment."""
 
-        Args:
-            player: Player number
-            card: Card to play
+        if self.phase != GamePhase.PLAY:
+            return []
 
-        Returns:
-            Dictionary with play results and points scored
-        """
+        return [
+            card
+            for card in self._hand(player)
+            if self.card_point_value(card) + self.play_count <= 31
+        ]
+
+    def can_player_play(self, player: int) -> bool:
+        """Return ``True`` if ``player`` has any legal pegging play."""
+
+        return bool(self.legal_plays(player))
+
+
+    def play_card(self, player: int, card: Card) -> dict[str, Any]:
+        """Play ``card`` for ``player`` during pegging."""
+
         if not self.can_play_card(player, card):
             return {"success": False, "points": 0}
 
-        hand = self.player1_hand if player == 1 else self.player2_hand
+        hand = self._hand(player)
         hand.remove(card)
 
         self.play_sequence.append((player, card))
-        self.play_count += self._card_value(card)
+        self.play_count += self.card_point_value(card)
 
-        points = self._score_play()
+        sequence_cards = [c for _, c in self.play_sequence]
+        points, events = self.pegging_points_for_sequence(sequence_cards, self.play_count)
 
-        # Add points to player's score
-        if player == 1:
-            self.player1_score += points
+        self._award_points(player, points)
+
+        self.last_player_to_play = player
+        count_after_play = self.play_count
+        sequence_end = False
+        end_reason = None
+
+        self.pegging_history.append(
+            {
+                "type": "play",
+                "player": player,
+                "card": card,
+                "count": count_after_play,
+                "points": points,
+                "events": events,
+                "sequence": self.sequence_id,
+            }
+        )
+
+        other = 2 if player == 1 else 1
+
+        if count_after_play == 31:
+            sequence_end = True
+            end_reason = "31"
+            self._reset_sequence()
+            next_player = player if self._player_has_cards(player) else other
+            self.current_player = next_player if next_player is not None else player
         else:
-            self.player2_score += points
+            self.current_player = other
 
-        # Check for win
-        if self.player1_score >= 121:
-            self.winner = 1
-            self.phase = GamePhase.GAME_OVER
-        elif self.player2_score >= 121:
-            self.winner = 2
-            self.phase = GamePhase.GAME_OVER
-
-        # Switch players
-        self.current_player = 2 if player == 1 else 1
-
-        # Check if play should end
         if not self.player1_hand and not self.player2_hand:
             self.phase = GamePhase.SHOW
 
         return {
             "success": True,
             "points": points,
-            "count": self.play_count,
+            "events": events,
+            "count": count_after_play,
+            "sequence_end": sequence_end,
+            "end_reason": end_reason,
             "game_over": self.phase == GamePhase.GAME_OVER,
         }
 
-    def _score_play(self) -> int:
-        """Score the current play sequence.
+    def player_go(self, player: int) -> dict[str, Any]:
+        """Handle a "go" declaration from ``player`` during pegging."""
 
-        Returns:
-            Points scored
-        """
+        if self.phase != GamePhase.PLAY or player != self.current_player:
+            return {"success": False, "reason": "not_turn"}
+
+        if player in self.passed_players:
+            return {"success": False, "reason": "already_passed"}
+
+        if self.can_player_play(player):
+            return {"success": False, "reason": "card_available"}
+
+        self.passed_players.add(player)
+        other = 2 if player == 1 else 1
+        result: dict[str, Any] = {
+            "success": True,
+            "awarded": 0,
+            "awarded_to": None,
+            "sequence_end": False,
+        }
+
+        if self.can_player_play(other) and other not in self.passed_players:
+            self.current_player = other
+            result["next_player"] = other
+            return result
+
+        awarded_to = self.last_player_to_play
+        events: list[str] = []
+        if awarded_to and self.play_count not in (0, 31):
+            self._award_points(awarded_to, 1)
+            result["awarded"] = 1
+            result["awarded_to"] = awarded_to
+            events.append("Go for 1")
+
+        self.pegging_history.append(
+            {
+                "type": "go",
+                "player": player,
+                "awarded_to": awarded_to,
+                "points": result["awarded"],
+                "events": events,
+                "sequence": self.sequence_id,
+            }
+        )
+
+        self._reset_sequence()
+        result["sequence_end"] = True
+
+        if awarded_to and self._player_has_cards(awarded_to):
+            self.current_player = awarded_to
+        elif self._player_has_cards(other):
+            self.current_player = other
+        elif self._player_has_cards(player):
+            self.current_player = player
+        else:
+            self.current_player = None
+
+        result["next_player"] = self.current_player
+
+        if not self.player1_hand and not self.player2_hand:
+            self.phase = GamePhase.SHOW
+
+        return result
+
+    def _reset_sequence(self) -> None:
+        """Clear the active pegging sequence for a new count."""
+
+        self.play_sequence = []
+        self.play_count = 0
+        self.passed_players = set()
+        self.last_player_to_play = None
+        self.sequence_id += 1
+
+    def _award_points(self, player: int, points: int) -> None:
+        """Award ``points`` to ``player`` and check for a win."""
+
+        if points <= 0:
+            return
+
+        if player == 1:
+            self.player1_score += points
+            if self.player1_score >= 121:
+                self.winner = 1
+        else:
+            self.player2_score += points
+            if self.player2_score >= 121:
+                self.winner = 2
+
+        if self.winner:
+            self.phase = GamePhase.GAME_OVER
+
+    def _player_has_cards(self, player: Optional[int]) -> bool:
+        if player is None:
+            return False
+        return bool(self._hand(player))
+
+    def _hand(self, player: int) -> list[Card]:
+        return self.player1_hand if player == 1 else self.player2_hand
+
+    def remaining_deck(self) -> list[Card]:
+        """Return a copy of the undealt portion of the deck."""
+
+        return list(self.deck.cards)
+
+    @classmethod
+    def pegging_points_for_sequence(
+        cls, sequence: Sequence[Card], total: int
+    ) -> tuple[int, list[str]]:
+        """Return points and descriptive events for a pegging sequence."""
+
         points = 0
+        events: list[str] = []
 
-        # Score for reaching 15
-        if self.play_count == 15:
+        if total == 15:
             points += 2
-
-        # Score for reaching 31
-        if self.play_count == 31:
+            events.append("15 for 2")
+        if total == 31:
             points += 2
+            events.append("31 for 2")
 
-        # Score for pairs
-        if len(self.play_sequence) >= 2:
-            last_card = self.play_sequence[-1][1]
-            # Check for pair (2 points)
-            if self.play_sequence[-2][1].rank == last_card.rank:
-                points += 2
-                # Check for three of a kind (6 points total)
-                if len(self.play_sequence) >= 3 and self.play_sequence[-3][1].rank == last_card.rank:
-                    points += 4
-                    # Check for four of a kind (12 points total)
-                    if len(self.play_sequence) >= 4 and self.play_sequence[-4][1].rank == last_card.rank:
-                        points += 6
+        same_rank = cls._count_trailing_same_rank(sequence)
+        if same_rank >= 2:
+            pair_points = same_rank * (same_rank - 1)
+            points += pair_points
+            events.append(cls._pair_event_description(same_rank, pair_points))
 
-        # Score for runs (3+ cards in sequence)
-        run_length = self._check_run()
+        run_length = cls._trailing_run_length(sequence)
         if run_length >= 3:
             points += run_length
+            events.append(f"Run of {run_length}")
 
-        return points
+        return points, events
 
-    def _check_run(self) -> int:
-        """Check for runs in the play sequence.
-
-        Returns:
-            Length of the run, or 0 if no run
-        """
-        if len(self.play_sequence) < 3:
+    @staticmethod
+    def _count_trailing_same_rank(sequence: Sequence[Card]) -> int:
+        if not sequence:
             return 0
 
-        # Check runs of different lengths
-        for length in range(len(self.play_sequence), 2, -1):
-            cards = [self.play_sequence[-i][1] for i in range(length, 0, -1)]
-            values = sorted([RANK_TO_VALUE[c.rank] for c in cards])
-            is_run = all(values[i] + 1 == values[i + 1] for i in range(len(values) - 1))
-            if is_run:
-                return length
+        last_rank = sequence[-1].rank
+        count = 0
+        for card in reversed(sequence):
+            if card.rank == last_rank:
+                count += 1
+            else:
+                break
+        return count
 
+    @staticmethod
+    def _pair_event_description(count: int, points: int) -> str:
+        if count == 2:
+            return "Pair for 2"
+        if count == 3:
+            return "Three of a kind for 6"
+        return "Four of a kind for 12"
+
+    @staticmethod
+    def _trailing_run_length(sequence: Sequence[Card]) -> int:
+        for length in range(len(sequence), 2, -1):
+            window = sequence[-length:]
+            ranks = [card.rank for card in window]
+            if len(set(ranks)) != length:
+                continue
+            values = sorted(RANK_TO_VALUE[rank] for rank in ranks)
+            if all(values[i] + 1 == values[i + 1] for i in range(len(values) - 1)):
+                return length
         return 0
 
-    def score_hand(self, hand: list[Card], is_crib: bool = False) -> int:
-        """Score a hand for The Show.
+    def score_hand(
+        self, hand: list[Card], is_crib: bool = False, starter: Optional[Card] = None
+    ) -> int:
+        """Score ``hand`` using ``starter`` if provided (else ``self.starter``)."""
 
-        Args:
-            hand: The hand to score
-            is_crib: Whether this is the crib (affects flush scoring)
-
-        Returns:
-            Total points
-        """
-        if not self.starter:
+        starter_card = starter or self.starter
+        if not starter_card:
             return 0
 
+        return self.score_hand_static(hand, starter_card, is_crib)
+
+    @classmethod
+    def score_hand_static(
+        cls, hand: Sequence[Card], starter: Card, is_crib: bool = False
+    ) -> int:
+        all_cards = list(hand) + [starter]
+
         points = 0
-        all_cards = hand + [self.starter]
-
-        # Score 15s (2 points each)
-        points += self._score_fifteens(all_cards)
-
-        # Score pairs (2 points each)
-        points += self._score_pairs(all_cards)
-
-        # Score runs
-        points += self._score_runs(all_cards)
-
-        # Score flush (4 or 5 points)
-        flush_points = self._score_flush(hand, is_crib)
-        points += flush_points
-
-        # Score nobs (jack of same suit as starter, 1 point)
-        points += self._score_nobs(hand)
-
+        points += cls._score_fifteens(all_cards)
+        points += cls._score_pairs(all_cards)
+        points += cls._score_runs(all_cards)
+        points += cls._score_flush(hand, starter, is_crib)
+        points += cls._score_nobs(hand, starter)
         return points
 
-    def _score_fifteens(self, cards: list[Card]) -> int:
-        """Score all combinations that sum to 15.
-
-        Args:
-            cards: Cards to check
-
-        Returns:
-            Points scored (2 per fifteen)
-        """
+    @staticmethod
+    def _score_fifteens(cards: Sequence[Card]) -> int:
         count = 0
         n = len(cards)
-
-        # Check all subsets
-        for i in range(1, 2**n):
-            subset_sum = sum(self._card_value(cards[j]) for j in range(n) if (i >> j) & 1)
-            if subset_sum == 15:
+        for mask in range(1, 1 << n):
+            total = 0
+            for idx in range(n):
+                if mask >> idx & 1:
+                    total += CribbageGame.card_point_value(cards[idx])
+            if total == 15:
                 count += 1
-
         return count * 2
 
-    def _score_pairs(self, cards: list[Card]) -> int:
-        """Score pairs in the hand.
-
-        Args:
-            cards: Cards to check
-
-        Returns:
-            Points scored (2 per pair)
-        """
+    @staticmethod
+    def _score_pairs(cards: Sequence[Card]) -> int:
         points = 0
         for i in range(len(cards)):
             for j in range(i + 1, len(cards)):
@@ -350,93 +475,54 @@ class CribbageGame:
                     points += 2
         return points
 
-    def _score_runs(self, cards: list[Card]) -> int:
-        """Score runs in the hand.
+    @staticmethod
+    def _score_runs(cards: Sequence[Card]) -> int:
+        from itertools import combinations
 
-        Args:
-            cards: Cards to check
-
-        Returns:
-            Points scored
-        """
-        # Check for runs of length 5, 4, then 3
-        for run_length in [5, 4, 3]:
-            if len(cards) < run_length:
-                continue
-
-            # Check all combinations of run_length cards
-            from itertools import combinations
-
-            for combo in combinations(cards, run_length):
-                values = sorted([RANK_TO_VALUE[c.rank] for c in combo])
-                is_run = all(values[i] + 1 == values[i + 1] for i in range(len(values) - 1))
-                if is_run:
-                    # Count how many such runs exist
-                    count = sum(
-                        1
-                        for c in combinations(cards, run_length)
-                        if all(
-                            sorted([RANK_TO_VALUE[card.rank] for card in c])[i] + 1 == sorted([RANK_TO_VALUE[card.rank] for card in c])[i + 1]
-                            for i in range(run_length - 1)
-                        )
-                    )
-                    return run_length * count
-
+        best_length = 0
+        count = 0
+        for length in range(5, 2, -1):
+            combos = [combo for combo in combinations(cards, length) if CribbageGame._is_run(combo)]
+            if combos:
+                best_length = length
+                count = len(combos)
+                break
+        if best_length:
+            return best_length * count
         return 0
 
-    def _score_flush(self, hand: list[Card], is_crib: bool) -> int:
-        """Score flush in the hand.
+    @staticmethod
+    def _is_run(cards: Sequence[Card]) -> bool:
+        ranks = [card.rank for card in cards]
+        if len(set(ranks)) != len(cards):
+            return False
+        values = sorted(RANK_TO_VALUE[rank] for rank in ranks)
+        return all(values[i] + 1 == values[i + 1] for i in range(len(values) - 1))
 
-        Args:
-            hand: The hand to check
-            is_crib: Whether this is the crib
-
-        Returns:
-            Points scored (4 or 5)
-        """
+    @staticmethod
+    def _score_flush(hand: Sequence[Card], starter: Card, is_crib: bool) -> int:
         if len(hand) < 4:
             return 0
 
-        # Check if all cards in hand are same suit
         first_suit = hand[0].suit
-        if all(card.suit == first_suit for card in hand):
-            # For crib, all 5 cards (including starter) must be same suit
-            if is_crib:
-                if self.starter and self.starter.suit == first_suit:
-                    return 5
-                return 0
-            else:
-                # For regular hand, 4 same suit = 4 points, 5 = 5 points
-                if self.starter and self.starter.suit == first_suit:
-                    return 5
-                return 4
-
-        return 0
-
-    def _score_nobs(self, hand: list[Card]) -> int:
-        """Score nobs (jack of same suit as starter).
-
-        Args:
-            hand: The hand to check
-
-        Returns:
-            Points scored (0 or 1)
-        """
-        if not self.starter:
+        if any(card.suit != first_suit for card in hand):
             return 0
 
-        for card in hand:
-            if card.rank == "J" and card.suit == self.starter.suit:
-                return 1
+        if is_crib:
+            return 5 if starter.suit == first_suit else 0
 
+        return 5 if starter.suit == first_suit else 4
+
+    @staticmethod
+    def _score_nobs(hand: Sequence[Card], starter: Card) -> int:
+        for card in hand:
+            if card.rank == "J" and card.suit == starter.suit:
+                return 1
         return 0
 
-    def get_state_summary(self) -> dict[str, any]:
-        """Get a summary of the current game state.
+    def get_state_summary(self) -> dict[str, Any]:
+        """Return a serialisable snapshot of the current game state."""
 
-        Returns:
-            Dictionary with game state information
-        """
         return {
             "player1_score": self.player1_score,
             "player2_score": self.player2_score,
@@ -450,4 +536,17 @@ class CribbageGame:
             "starter": str(self.starter) if self.starter else None,
             "winner": self.winner,
             "game_over": self.phase == GamePhase.GAME_OVER,
+            "pegging_history": [
+                {
+                    "type": entry.get("type"),
+                    "player": entry.get("player"),
+                    "card": str(entry.get("card")) if entry.get("card") else None,
+                    "count": entry.get("count"),
+                    "points": entry.get("points", 0),
+                    "events": entry.get("events", []),
+                    "sequence": entry.get("sequence"),
+                    "awarded_to": entry.get("awarded_to"),
+                }
+                for entry in self.pegging_history
+            ],
         }
