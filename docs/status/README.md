@@ -12,8 +12,8 @@ Tracks the progress of migrating game GUIs from tkinter to PyQt5.
 **Status:**
 
 - Total Games: 14
-- Completed: 2 (14%)
-- Remaining: 12 (86%)
+- Completed: 3 (21%)
+- Remaining: 11 (79%)
 
 **Categories:**
 

@@ -10,29 +10,44 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 
 ## Status by Category
 
-### Paper Games (1/2 completed)
+### Paper Games (2/2 completed)
 
 | Game | Status | GUI File | Notes |
 | -------------- | ----------- | ---------------------------------------- | ----------------------------------------------- |
 | Dots and Boxes | ✅ Complete | `paper_games/dots_and_boxes/gui_pyqt.py` | Proof of concept migration |
-| Battleship | ⏳ Pending | - | Complex board with drag-and-drop ship placement |
+| Battleship | ✅ Complete | `paper_games/battleship/gui_pyqt.py` | Drag/preview placement and salvo support |
 
 ### Card Games (2/12 completed)
 
 | Game | Status | GUI File | Notes |
 | ------------ | ---------- | -------- | --------------------------------- |
+| Blackjack | ✅ Complete | `card_games/blackjack/gui_pyqt.py` | PyQt table with betting and animations |
+| Bluff | ⏳ Pending | - | 451 lines, multi-player |
+| ------------ | ---------- | ------------------------------------------ | --------------------------------- |
+| Blackjack | ⏳ Pending | - | 688 lines, table-based layout |
+| Bluff | ✅ Complete | `card_games/bluff/gui_pyqt.py` | PyQt5 port with log, scoreboard, and challenge dialogs |
+| Bridge | ⏳ Pending | - | 488 lines, complex bidding system |
+| Crazy Eights | ✅ Complete | `card_games/crazy_eights/gui_pyqt.py` | Feature parity with Tkinter GUI |
+| ------------ | ---------- | ------------------------------------------- | --------------------------------- |
 | Blackjack | ⏳ Pending | - | 688 lines, table-based layout |
 | Bluff | ⏳ Pending | - | 451 lines, multi-player |
-| Bridge | ⏳ Pending | - | 488 lines, complex bidding system |
+| Bridge | ✅ Complete | `card_games/bridge/gui_pyqt.py` | PyQt port with automated bidding/play |
 | Crazy Eights | ⏳ Pending | - | 465 lines |
 | Gin Rummy | ✅ Complete | `card_games/gin_rummy/gui_pyqt.py` | 709 lines, melding system |
 | Go Fish | ✅ Complete | `card_games/go_fish/gui_pyqt.py` | 425 lines, simplest card game GUI |
-| Hearts | ⏳ Pending | - | 610 lines, trick-taking |
+| Hearts | ✅ Complete | `card_games/hearts/gui_pyqt.py` | 610 lines, trick-taking |
 | Poker | ⏳ Pending | - | 437 lines, betting interface |
-| Solitaire | ⏳ Pending | - | 729 lines, most complex GUI |
+| Solitaire | ✅ Complete | `card_games/solitaire/gui_pyqt.py` | 729 lines, most complex GUI |
 | Spades | ⏳ Pending | - | 582 lines, bidding and tricks |
+| Poker | ✅ Complete | `card_games/poker/gui_pyqt.py` | 437 lines, betting interface |
+| Solitaire | ⏳ Pending | - | 729 lines, most complex GUI |
+| Spades | ✅ Complete | `card_games/spades/gui_pyqt.py` | Bidding, trick display, and scoring migrated |
 | Uno | ⏳ Pending | - | 524 lines, special cards |
+| Spades | ⏳ Pending | - | 582 lines, bidding and tricks |
+| Uno | ✅ Complete | `card_games/uno/gui_pyqt.py` | Mirrors Tk interface with PyQt widgets |
 | War | ⏳ Pending | - | 622 lines, simple mechanics |
+| Uno | ⏳ Pending | - | 524 lines, special cards |
+| War | ✅ Complete | `card_games/war/gui_pyqt.py` | Flashing war canvas, Save/Load integration |
 
 ## Migration Guidelines
 
@@ -57,19 +72,19 @@ For detailed migration instructions, see:
 
 Based on complexity (lines of code and features):
 
-1. **Go Fish** (425 lines) - Simplest card game
+1. **Go Fish** (425 lines) - Simplest card game ✅ Complete
 1. **Poker** (437 lines) - Moderate complexity
 1. **Bluff** (451 lines) - Multi-player interaction
 1. **Crazy Eights** (465 lines) - Special rules
-1. **Bridge** (488 lines) - Complex bidding
+1. **Bridge** (488 lines) - Completed PyQt migration
 1. **Uno** (524 lines) - Special cards and colors
-1. **Spades** (582 lines) - Trick-taking with bidding
+1. **Spades** (582 lines) - Trick-taking with bidding ✅ Complete
 1. **Hearts** (610 lines) - Trick-taking, point avoidance
 1. **Battleship** (617 lines) - Complex board interaction
 1. **War** (622 lines) - Despite simple rules, has animations
 1. **Blackjack** (688 lines) - Betting and dealer logic
 1. **Gin Rummy** (709 lines) - Complex melding system
-1. **Solitaire** (729 lines) - Most complex, multiple layouts
+1. **Solitaire** (729 lines) - ✅ Completed with PyQt5 toolbar and canvas migration
 
 ## Testing
 

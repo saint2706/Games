@@ -9,6 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+#### Packaging (2025-10-16)
+
+- **PyInstaller configuration** now collects PyQt5 hidden imports and Qt plugin data so GUI resources ship with the standalone builds.
+- **build-executables workflow** installs the GUI extra and runs a PyQt5 smoke test (`--gui-framework pyqt5 --smoke-test`) to validate bundles on every platform.
+
 #### Documentation Reorganization (2025-10-14)
 
 - **Restructured documentation** for better organization and discoverability

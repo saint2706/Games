@@ -7,7 +7,15 @@ import random
 
 from card_games.solitaire.cli import game_loop
 from card_games.solitaire.game import SolitaireGame
-from card_games.solitaire.gui import run_app
+from card_games.solitaire.gui import run_app as run_app_tk
+
+try:  # pragma: no cover - Optional dependency import
+    from card_games.solitaire import gui_pyqt as gui_pyqt_module
+
+    PYQT_AVAILABLE = gui_pyqt_module.PYQT5_AVAILABLE
+except Exception:  # pragma: no cover - PyQt5 missing
+    gui_pyqt_module = None  # type: ignore[assignment]
+    PYQT_AVAILABLE = False
 
 
 def main() -> None:
@@ -39,34 +47,45 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    if args.cli:
+    def make_game() -> SolitaireGame:
         rng = random.Random(args.seed) if args.seed is not None else None
-        game = SolitaireGame(
+        return SolitaireGame(
             draw_count=args.draw_count,
             max_recycles=args.max_recycles,
             scoring_mode=args.scoring,
             rng=rng,
         )
-        game_loop(game)
+
+    if args.cli:
+        game_loop(make_game())
         return
 
+    if PYQT_AVAILABLE and gui_pyqt_module is not None:
+        try:
+            gui_pyqt_module.run_app(
+                draw_count=args.draw_count,
+                max_recycles=args.max_recycles,
+                scoring_mode=args.scoring,
+                seed=args.seed,
+            )
+            return
+        except RuntimeError as exc:
+            print(f"PyQt5 GUI unavailable ({exc}). Trying Tkinter fallback...")
+    elif not PYQT_AVAILABLE:
+        print("PyQt5 GUI unavailable (PyQt5 not installed). Trying Tkinter fallback...")
+
     try:
-        run_app(
+        run_app_tk(
             draw_count=args.draw_count,
             max_recycles=args.max_recycles,
             scoring_mode=args.scoring,
             seed=args.seed,
         )
+        return
     except RuntimeError as exc:
-        print(f"GUI unavailable ({exc}). Falling back to CLI mode.")
-        rng = random.Random(args.seed) if args.seed is not None else None
-        game = SolitaireGame(
-            draw_count=args.draw_count,
-            max_recycles=args.max_recycles,
-            scoring_mode=args.scoring,
-            rng=rng,
-        )
-        game_loop(game)
+        print(f"Tkinter GUI unavailable ({exc}). Falling back to CLI mode.")
+
+    game_loop(make_game())
 
 
 if __name__ == "__main__":

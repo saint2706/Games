@@ -132,7 +132,9 @@ All GitHub Actions are using current versions:
 
 ## Integration with CI
 
-The validation can be integrated into CI workflows:
+The primary CI workflow (`.github/workflows/ci.yml`) now includes an automated `validate-workflows` job that runs `python scripts/validate_workflows.py` on every push and pull request. The job publishes its full output to the GitHub Actions step summary for easy inspection and leverages a checksum cache of the `.github/workflows` directory so it can skip execution when workflow files are unchanged. This ensures the validation rules are continuously enforced without adding unnecessary runtime.
+
+The validation can also be integrated into other CI workflows:
 
 ```yaml
 - name: Validate workflows

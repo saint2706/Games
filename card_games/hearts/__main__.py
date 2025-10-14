@@ -33,6 +33,12 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Enable additional accessibility aids such as larger fonts and screen-reader labels.",
     )
+    parser.add_argument(
+        "--backend",
+        choices=["pyqt", "tk"],
+        default="pyqt",
+        help="GUI backend to use when launching the graphical interface.",
+    )
     return parser
 
 
@@ -49,12 +55,29 @@ def main(argv: Optional[Sequence[str]] = None) -> None:
         game_loop()
         return
 
-    try:
-        from card_games.hearts.gui import run_app
-    except (ImportError, RuntimeError) as exc:  # pragma: no cover - environment specific
-        raise SystemExit("The Hearts GUI requires a working Tkinter installation. Install Tkinter or pass --cli.") from exc
+    backend = args.backend
 
-    run_app(
+    if backend == "pyqt":
+        try:
+            from card_games.hearts.gui_pyqt import run_app as run_app_pyqt
+
+            run_app_pyqt(
+                player_name=args.player_name,
+                high_contrast=args.high_contrast,
+                accessibility_mode=args.accessibility_mode,
+            )
+            return
+        except (ImportError, RuntimeError):
+            print("PyQt5 backend unavailable, attempting Tkinter fallback…")
+
+    try:
+        from card_games.hearts.gui import run_app as run_app_tk
+    except (ImportError, RuntimeError) as exc:  # pragma: no cover - environment specific
+        raise SystemExit(
+            "No supported GUI backend is available. Install PyQt5 or Tkinter, or pass --cli."
+        ) from exc
+
+    run_app_tk(
         player_name=args.player_name,
         high_contrast=args.high_contrast,
         accessibility_mode=args.accessibility_mode,

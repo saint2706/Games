@@ -7,6 +7,8 @@ It's used as the entry point for standalone executables.
 
 from __future__ import annotations
 
+import argparse
+import sys
 from typing import Callable
 
 # Try to use colorama if available, fall back to plain text
@@ -32,6 +34,116 @@ except ImportError:
     class Style:
         BRIGHT = ""
         RESET_ALL = ""
+
+
+GAME_MAP: dict[str, tuple[str, Callable[[], None]]] = {
+    "1": ("poker", lambda: __import__("card_games.poker.__main__", fromlist=["main"]).main()),
+    "2": ("blackjack", lambda: __import__("card_games.blackjack.__main__", fromlist=["main"]).main()),
+    "3": ("uno", lambda: __import__("card_games.uno.__main__", fromlist=["main"]).main()),
+    "4": ("hearts", lambda: __import__("card_games.hearts.__main__", fromlist=["main"]).main()),
+    "5": ("spades", lambda: __import__("card_games.spades.__main__", fromlist=["main"]).main()),
+    "6": ("bridge", lambda: __import__("card_games.bridge.__main__", fromlist=["main"]).main()),
+    "7": ("gin_rummy", lambda: __import__("card_games.gin_rummy.__main__", fromlist=["main"]).main()),
+    "8": ("solitaire", lambda: __import__("card_games.solitaire.__main__", fromlist=["main"]).main()),
+    "9": ("bluff", lambda: __import__("card_games.bluff.__main__", fromlist=["main"]).main()),
+    "10": ("war", lambda: __import__("card_games.war.__main__", fromlist=["main"]).main()),
+    "11": ("go_fish", lambda: __import__("card_games.go_fish.__main__", fromlist=["main"]).main()),
+    "12": ("crazy_eights", lambda: __import__("card_games.crazy_eights.__main__", fromlist=["main"]).main()),
+    "13": ("cribbage", lambda: __import__("card_games.cribbage.__main__", fromlist=["main"]).main()),
+    "14": ("euchre", lambda: __import__("card_games.euchre.__main__", fromlist=["main"]).main()),
+    "15": ("rummy500", lambda: __import__("card_games.rummy500.__main__", fromlist=["main"]).main()),
+    "16": ("tic_tac_toe", lambda: __import__("paper_games.tic_tac_toe.__main__", fromlist=["main"]).main()),
+    "17": ("battleship", lambda: __import__("paper_games.battleship.__main__", fromlist=["main"]).main()),
+    "18": ("checkers", lambda: __import__("paper_games.checkers.__main__", fromlist=["main"]).main()),
+    "19": ("connect_four", lambda: __import__("paper_games.connect_four.__main__", fromlist=["main"]).main()),
+    "20": ("othello", lambda: __import__("paper_games.othello.__main__", fromlist=["main"]).main()),
+    "21": ("dots_and_boxes", lambda: __import__("paper_games.dots_and_boxes.__main__", fromlist=["main"]).main()),
+    "22": ("hangman", lambda: __import__("paper_games.hangman.__main__", fromlist=["main"]).main()),
+    "23": ("nim", lambda: __import__("paper_games.nim.__main__", fromlist=["main"]).main()),
+    "24": ("sudoku", lambda: __import__("paper_games.sudoku.__main__", fromlist=["main"]).main()),
+    "25": ("mancala", lambda: __import__("paper_games.mancala.__main__", fromlist=["main"]).main()),
+    "26": ("craps", lambda: __import__("dice_games.craps.__main__", fromlist=["main"]).main()),
+    "27": ("bunco", lambda: __import__("dice_games.bunco.__main__", fromlist=["main"]).main()),
+    "28": ("liars_dice", lambda: __import__("dice_games.liars_dice.__main__", fromlist=["main"]).main()),
+    "29": ("unscramble", lambda: __import__("word_games.unscramble.__main__", fromlist=["main"]).main()),
+    "30": ("wordle", lambda: __import__("word_games.wordle.__main__", fromlist=["main"]).main()),
+    "31": ("mastermind", lambda: __import__("logic_games.mastermind.__main__", fromlist=["main"]).main()),
+    "32": ("codebreaker", lambda: __import__("logic_games.codebreaker.__main__", fromlist=["main"]).main()),
+}
+
+SLUG_TO_ENTRY = {value[0]: value for value in GAME_MAP.values()}
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments for automation and smoke tests."""
+
+    parser = argparse.ArgumentParser(description='Games Collection launcher')
+    parser.add_argument('--game', help='Game identifier (menu number or slug, e.g., dots_and_boxes).')
+    parser.add_argument(
+        '--gui-framework',
+        choices=['tkinter', 'pyqt5'],
+        help='Preferred GUI framework when launching programmatically.',
+    )
+    parser.add_argument(
+        '--smoke-test',
+        action='store_true',
+        help='Run a non-interactive smoke test (used by CI to validate bundles).',
+    )
+    return parser.parse_args()
+
+
+def get_game_entry(identifier: str) -> tuple[str, Callable[[], None]] | None:
+    """Return the launcher entry for a menu choice or slug."""
+
+    key = identifier.strip().lower()
+    if key in GAME_MAP:
+        return GAME_MAP[key]
+
+    normalized_key = key.replace('-', '_')
+    return SLUG_TO_ENTRY.get(normalized_key)
+
+
+def run_pyqt_smoke_test(game_slug: str) -> int:
+    """Launch a PyQt5 GUI briefly to ensure resources are bundled."""
+
+    try:
+        from PyQt5.QtCore import QTimer
+        from PyQt5.QtWidgets import QApplication
+    except ImportError as exc:  # pragma: no cover - PyInstaller smoke tests only
+        raise RuntimeError('PyQt5 is required for PyQt5 smoke tests') from exc
+
+    app = QApplication.instance() or QApplication([])
+
+    if game_slug == 'dots_and_boxes':
+        from paper_games.dots_and_boxes.gui_pyqt import DotsAndBoxesGUI
+
+        window = DotsAndBoxesGUI(size=2, show_hints=False)
+    elif game_slug == 'go_fish':
+        from card_games.go_fish.game import GoFishGame
+        from card_games.go_fish.gui_pyqt import GoFishGUI
+
+        window = GoFishGUI(GoFishGame(num_players=2))
+    else:  # pragma: no cover - only called with supported games
+        raise ValueError(f"Unsupported PyQt5 smoke test for '{game_slug}'")
+
+    window.show()
+    QTimer.singleShot(0, window.close)
+    QTimer.singleShot(0, app.quit)
+    return app.exec()
+
+
+def run_smoke_test(game_identifier: str, gui_framework: str | None) -> int:
+    """Run the CI smoke test for the requested game and framework."""
+
+    entry = get_game_entry(game_identifier)
+    if entry is None:
+        raise ValueError(f"Unknown game identifier '{game_identifier}'")
+
+    game_slug, _ = entry
+    if gui_framework == 'pyqt5':
+        return run_pyqt_smoke_test(game_slug)
+
+    return 0
 
 
 def print_header() -> None:
@@ -117,46 +229,11 @@ def launch_game(choice: str) -> bool:
     Returns:
         True to continue, False to exit
     """
-    game_map: dict[str, tuple[str, Callable[[], None]]] = {
-        "1": ("poker", lambda: __import__("card_games.poker.__main__", fromlist=["main"]).main()),
-        "2": ("blackjack", lambda: __import__("card_games.blackjack.__main__", fromlist=["main"]).main()),
-        "3": ("uno", lambda: __import__("card_games.uno.__main__", fromlist=["main"]).main()),
-        "4": ("hearts", lambda: __import__("card_games.hearts.__main__", fromlist=["main"]).main()),
-        "5": ("spades", lambda: __import__("card_games.spades.__main__", fromlist=["main"]).main()),
-        "6": ("bridge", lambda: __import__("card_games.bridge.__main__", fromlist=["main"]).main()),
-        "7": ("gin_rummy", lambda: __import__("card_games.gin_rummy.__main__", fromlist=["main"]).main()),
-        "8": ("solitaire", lambda: __import__("card_games.solitaire.__main__", fromlist=["main"]).main()),
-        "9": ("bluff", lambda: __import__("card_games.bluff.__main__", fromlist=["main"]).main()),
-        "10": ("war", lambda: __import__("card_games.war.__main__", fromlist=["main"]).main()),
-        "11": ("go_fish", lambda: __import__("card_games.go_fish.__main__", fromlist=["main"]).main()),
-        "12": ("crazy_eights", lambda: __import__("card_games.crazy_eights.__main__", fromlist=["main"]).main()),
-        "13": ("cribbage", lambda: __import__("card_games.cribbage.__main__", fromlist=["main"]).main()),
-        "14": ("euchre", lambda: __import__("card_games.euchre.__main__", fromlist=["main"]).main()),
-        "15": ("rummy500", lambda: __import__("card_games.rummy500.__main__", fromlist=["main"]).main()),
-        "16": ("tic_tac_toe", lambda: __import__("paper_games.tic_tac_toe.__main__", fromlist=["main"]).main()),
-        "17": ("battleship", lambda: __import__("paper_games.battleship.__main__", fromlist=["main"]).main()),
-        "18": ("checkers", lambda: __import__("paper_games.checkers.__main__", fromlist=["main"]).main()),
-        "19": ("connect_four", lambda: __import__("paper_games.connect_four.__main__", fromlist=["main"]).main()),
-        "20": ("othello", lambda: __import__("paper_games.othello.__main__", fromlist=["main"]).main()),
-        "21": ("dots_and_boxes", lambda: __import__("paper_games.dots_and_boxes.__main__", fromlist=["main"]).main()),
-        "22": ("hangman", lambda: __import__("paper_games.hangman.__main__", fromlist=["main"]).main()),
-        "23": ("nim", lambda: __import__("paper_games.nim.__main__", fromlist=["main"]).main()),
-        "24": ("sudoku", lambda: __import__("paper_games.sudoku.__main__", fromlist=["main"]).main()),
-        "25": ("mancala", lambda: __import__("paper_games.mancala.__main__", fromlist=["main"]).main()),
-        "26": ("craps", lambda: __import__("dice_games.craps.__main__", fromlist=["main"]).main()),
-        "27": ("bunco", lambda: __import__("dice_games.bunco.__main__", fromlist=["main"]).main()),
-        "28": ("liars_dice", lambda: __import__("dice_games.liars_dice.__main__", fromlist=["main"]).main()),
-        "29": ("unscramble", lambda: __import__("word_games.unscramble.__main__", fromlist=["main"]).main()),
-        "30": ("wordle", lambda: __import__("word_games.wordle.__main__", fromlist=["main"]).main()),
-        "31": ("mastermind", lambda: __import__("logic_games.mastermind.__main__", fromlist=["main"]).main()),
-        "32": ("codebreaker", lambda: __import__("logic_games.codebreaker.__main__", fromlist=["main"]).main()),
-    }
-
     if choice == "0":
         return False
 
-    if choice in game_map:
-        game_name, launcher = game_map[choice]
+    if choice in GAME_MAP:
+        game_name, launcher = GAME_MAP[choice]
         if HAS_COLORAMA:
             print(f"\n{Fore.GREEN}Launching {game_name}...{Style.RESET_ALL}\n")
         else:
@@ -179,6 +256,30 @@ def launch_game(choice: str) -> bool:
 
 def main() -> None:
     """Main launcher loop."""
+    args = parse_args()
+
+    if args.smoke_test:
+        if args.game is None:
+            print('Smoke tests require --game to be specified.', file=sys.stderr)
+            sys.exit(1)
+
+        exit_code = run_smoke_test(args.game, args.gui_framework)
+        sys.exit(exit_code)
+
+    if args.game:
+        entry = get_game_entry(args.game)
+        if entry is None:
+            print(f"Unknown game identifier '{args.game}'.", file=sys.stderr)
+            sys.exit(1)
+
+        game_slug, launcher = entry
+        if args.gui_framework == 'pyqt5':
+            exit_code = run_pyqt_smoke_test(game_slug)
+            sys.exit(exit_code)
+
+        launcher()
+        return
+
     while True:
         print_header()
         print_menu()
