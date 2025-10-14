@@ -196,6 +196,10 @@ QTimer.singleShot(500, self.callback)
 
 ### Games (3/14 completed)
 
+- ✅ **Completed**: Dots and Boxes, Go Fish, Poker
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
+  - Paper games: Battleship
+  - Card games: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Solitaire, Spades, Uno, War
 - ✅ **Completed**: Dots and Boxes, Go Fish, Bridge
 - ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 
