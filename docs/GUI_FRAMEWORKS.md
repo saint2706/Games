@@ -17,6 +17,7 @@ PyQt5 is the recommended GUI framework for the Games repository because:
 - ✅ Extensive documentation and community support
 
 **Installation:**
+
 ```bash
 pip install games-collection[gui]
 # or
@@ -24,6 +25,7 @@ pip install pyqt5
 ```
 
 **Available Games:**
+
 - Dots and Boxes (paper_games/dots_and_boxes/gui_pyqt.py)
 
 ### Tkinter (Legacy)
@@ -38,31 +40,27 @@ Tkinter was the original GUI framework used in this repository. However, it has 
 - ❌ Limited widget set
 
 **Available Games:**
+
 - Bridge (card_games/bridge/gui.py)
 - Gin Rummy (card_games/gin_rummy/gui.py)
 - Spades (card_games/spades/gui.py)
 
 ## Migration Status
 
-See `docs/GUI_MIGRATION_GUIDE.md` for detailed migration instructions.
+**For up-to-date migration status, see [MIGRATION_STATUS.md](../MIGRATION_STATUS.md) in the repository root.**
 
-### Completed Migrations
-- [x] Dots and Boxes → PyQt5
+For detailed migration instructions, see `docs/GUI_MIGRATION_GUIDE.md`.
 
-### In Progress / Planned
-- [ ] Battleship → PyQt5
-- [ ] Blackjack → PyQt5
-- [ ] Bluff → PyQt5
-- [ ] Bridge → PyQt5
-- [ ] Crazy Eights → PyQt5
-- [ ] Gin Rummy → PyQt5
-- [ ] Go Fish → PyQt5
-- [ ] Hearts → PyQt5
-- [ ] Poker → PyQt5
-- [ ] Solitaire → PyQt5
-- [ ] Spades → PyQt5
-- [ ] Uno → PyQt5
-- [ ] War → PyQt5
+### Quick Summary
+
+| Status       | Count | Percentage |
+| ------------ | ----- | ---------- |
+| ✅ Completed | 1/14  | 7%         |
+| ⏳ Remaining | 13/14 | 93%        |
+
+**Completed**: Dots and Boxes
+
+**Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Go Fish, Hearts, Poker, Solitaire, Spades, Uno, War (card games)
 
 ## Using GUIs
 
@@ -133,11 +131,11 @@ class MyGameGUI(BaseGUI):
         )
         super().__init__(config=config)
         self.build_layout()
-    
+
     def build_layout(self):
         # Implement your layout
         pass
-    
+
     def update_display(self):
         # Update UI based on game state
         pass
@@ -153,11 +151,11 @@ class TestMyGamePyQt:
     def test_import(self):
         from my_game.gui_pyqt import MyGameGUI
         assert MyGameGUI is not None
-    
+
     @pytest.mark.skipif(not has_display(), reason="Requires display")
     def test_initialization(self, qtbot):
         from my_game.gui_pyqt import MyGameGUI
-        
+
         window = MyGameGUI()
         qtbot.addWidget(window)
         assert window is not None

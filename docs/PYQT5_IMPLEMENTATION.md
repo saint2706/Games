@@ -7,6 +7,7 @@ This document summarizes the PyQt5 GUI framework implementation in the Games rep
 ## Problem Statement
 
 The original issue requested:
+
 1. Debug all GUI apps to ensure they are working
 2. Move from tkinter to PyQt or Pygame
 
@@ -28,6 +29,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 #### 1. Base Infrastructure
 
 **File**: `common/gui_base_pyqt.py`
+
 - Abstract base class `BaseGUI` for PyQt5 applications
 - `GUIConfig` dataclass for configuration
 - Helper methods for common UI elements (headers, labels, buttons, etc.)
@@ -39,6 +41,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 #### 2. Proof of Concept Migration
 
 **File**: `paper_games/dots_and_boxes/gui_pyqt.py`
+
 - Complete PyQt5 implementation of Dots and Boxes game
 - Custom `BoardCanvas` widget with QPainter for game board rendering
 - Mouse event handling (click, move, hover)
@@ -48,6 +51,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Professional appearance with modern widgets
 
 **Features Demonstrated**:
+
 - Custom painting with QPainter
 - Event handling (mouse clicks, movement, hover)
 - Layout management (QVBoxLayout, QHBoxLayout)
@@ -58,6 +62,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 #### 3. Testing Framework
 
 **File**: `tests/test_gui_pyqt.py`
+
 - pytest-qt integration for GUI testing
 - Tests for import verification
 - Tests for initialization (with display detection)
@@ -65,6 +70,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Module availability checks
 
 **Test Results**:
+
 - 4 tests passing
 - 1 test skipped (requires display - expected in headless CI)
 - All code passes black formatting and ruff linting
@@ -72,6 +78,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 #### 4. Documentation
 
 **Migration Guide**: `docs/GUI_MIGRATION_GUIDE.md`
+
 - Comprehensive tkinter to PyQt5 migration guide
 - Widget mapping table
 - Event handling patterns
@@ -80,6 +87,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Step-by-step migration process
 
 **Framework Documentation**: `docs/GUI_FRAMEWORKS.md`
+
 - Overview of available frameworks
 - Migration status tracking
 - Usage instructions
@@ -89,12 +97,14 @@ After evaluation, PyQt5 was selected over Pygame because:
 #### 5. Development Tools
 
 **Test Script**: `scripts/test_gui.py`
+
 - Check framework availability (tkinter, PyQt5)
 - List all games with GUI support
 - Check specific game implementations
 - Framework compatibility verification
 
 **Usage Examples**:
+
 ```bash
 # Check framework availability
 python scripts/test_gui.py --check-framework all
@@ -117,14 +127,14 @@ class BoardCanvas(QWidget):
     def __init__(self, gui, size: int):
         super().__init__()
         self.setMouseTracking(True)
-        
+
     def paintEvent(self, event):
         painter = QPainter(self)
         # Custom drawing logic
-        
+
     def mousePressEvent(self, event):
         # Handle clicks
-        
+
     def mouseMoveEvent(self, event):
         # Handle hover effects
 ```
@@ -160,35 +170,25 @@ QTimer.singleShot(500, self.callback)
 
 ## Migration Status
 
-### Completed
-- ✅ PyQt5 base infrastructure
+**For detailed game-by-game migration status, see [MIGRATION_STATUS.md](../MIGRATION_STATUS.md) in the repository root.**
+
+### Infrastructure (Complete)
+
+- ✅ PyQt5 base infrastructure (`common/gui_base_pyqt.py`)
 - ✅ Dots and Boxes (proof of concept)
 - ✅ Test framework
 - ✅ Documentation
 - ✅ Development tools
 
-### Remaining Work (13 games)
+### Games (1/14 completed)
 
-**Paper Games** (1):
-- Battleship
-
-**Card Games** (12):
-- Blackjack
-- Bluff
-- Bridge
-- Crazy Eights
-- Gin Rummy
-- Go Fish
-- Hearts
-- Poker
-- Solitaire
-- Spades
-- Uno
-- War
+- ✅ **Completed**: Dots and Boxes
+- ⏳ **Remaining**: 13 games (1 paper game, 12 card games)
 
 ## Dependencies
 
 Updated `pyproject.toml`:
+
 ```toml
 [project.optional-dependencies]
 gui = [
@@ -200,6 +200,7 @@ gui = [
 ## Code Quality
 
 All new code meets repository standards:
+
 - ✅ Black formatting (160 char line length)
 - ✅ Ruff linting (no errors)
 - ✅ Type hints on all functions
@@ -245,6 +246,7 @@ To complete the migration:
 ### Why Keep Both Versions?
 
 During the transition period, both tkinter and PyQt5 versions coexist:
+
 - Ensures backward compatibility
 - Allows gradual migration
 - Lets users choose their preferred framework
@@ -253,6 +255,7 @@ During the transition period, both tkinter and PyQt5 versions coexist:
 ### Why Not Modify Existing Files?
 
 Creating separate `gui_pyqt.py` files instead of modifying `gui.py`:
+
 - Reduces risk of breaking existing functionality
 - Allows side-by-side comparison
 - Makes rollback easier if needed
@@ -261,6 +264,7 @@ Creating separate `gui_pyqt.py` files instead of modifying `gui.py`:
 ### Why BaseGUI Pattern?
 
 The BaseGUI abstract class provides:
+
 - Consistent API across all games
 - Shared utilities (logging, theming, shortcuts)
 - Reduced code duplication
@@ -269,6 +273,7 @@ The BaseGUI abstract class provides:
 ## Performance Considerations
 
 PyQt5 generally performs better than tkinter:
+
 - More efficient rendering
 - Better memory management
 - Hardware acceleration support
@@ -277,10 +282,12 @@ PyQt5 generally performs better than tkinter:
 ## Compatibility
 
 **Minimum Requirements**:
+
 - Python 3.9+
 - PyQt5 5.15+
 
 **Tested On**:
+
 - Ubuntu 22.04 (GitHub Actions)
 - Python 3.12.3
 - PyQt5 5.15.11
@@ -288,6 +295,7 @@ PyQt5 generally performs better than tkinter:
 ## Future Enhancements
 
 Potential improvements:
+
 1. Add more games to PyQt5
 2. Create automated migration tool
 3. Add GUI themes/skins
@@ -298,6 +306,7 @@ Potential improvements:
 ## Conclusion
 
 This implementation successfully:
+
 - ✅ Debugged GUI issues (tkinter not available in CI)
 - ✅ Migrated to a more robust framework (PyQt5)
 - ✅ Provided complete documentation

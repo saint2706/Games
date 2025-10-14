@@ -67,6 +67,36 @@ python -m paper_games.tic_tac_toe
 - **Standalone Executables**: Download from [Releases](https://github.com/saint2706/Games/releases)
 - **Complete Guide**: See [docs/deployment/DEPLOYMENT.md](docs/deployment/DEPLOYMENT.md)
 
+## GUI Frameworks
+
+The Games Collection supports both **Tkinter** and **PyQt5** for graphical interfaces. We are in the process of migrating all GUIs to PyQt5 for better cross-platform support and reliability.
+
+### Current Status
+
+- **Tkinter**: 14 games with full GUI support
+- **PyQt5**: 1 game migrated (Dots and Boxes), 13 remaining
+
+See **[MIGRATION_STATUS.md](MIGRATION_STATUS.md)** for detailed progress tracking.
+
+### Using GUIs
+
+Most games support a `--gui` flag to launch the graphical interface:
+
+```bash
+# Tkinter GUIs (current)
+python -m card_games.blackjack --gui
+python -m paper_games.battleship --gui
+
+# PyQt5 GUIs (new)
+python -m paper_games.dots_and_boxes --gui-framework pyqt5
+```
+
+For more information, see:
+
+- [GUI Migration Guide](docs/GUI_MIGRATION_GUIDE.md) - How to migrate a game to PyQt5
+- [GUI Frameworks Documentation](docs/GUI_FRAMEWORKS.md) - Framework comparison and usage
+- [PyQt5 Implementation Summary](docs/PYQT5_IMPLEMENTATION.md) - Technical details
+
 ## Repository layout
 
 ```text
@@ -249,13 +279,13 @@ after the configured number of table rotations, wins the match.
 
 Difficulty levels tune the number of opponents, deck count, and AI personalities:
 
-| Difficulty | Bots | Decks | Personality |
+| Difficulty | Bots | Decks | Personality                                   |
 | ---------- | ---- | ----- | --------------------------------------------- |
-| Noob | 1 | 1 | Cautious, rarely bluffs |
-| Easy | 2 | 1 | Even tempered with light deception |
-| Medium | 2 | 2 | Balanced mix of bluffing and scrutiny |
-| Hard | 3 | 2 | Bolder bluffs and sharper challenges |
-| Insane | 4 | 3 | Aggressive liars who constantly police rivals |
+| Noob       | 1    | 1     | Cautious, rarely bluffs                       |
+| Easy       | 2    | 1     | Even tempered with light deception            |
+| Medium     | 2    | 2     | Balanced mix of bluffing and scrutiny         |
+| Hard       | 3    | 2     | Bolder bluffs and sharper challenges          |
+| Insane     | 4    | 3     | Aggressive liars who constantly police rivals |
 
 Fire up a five-rotation match on the default "Noob" setting from the terminal:
 
@@ -317,6 +347,7 @@ This project follows high code quality standards with automated tooling:
 ### Documentation
 
 - **[GAMES.md](GAMES.md)** - Complete catalog of all available games
+- **[MIGRATION_STATUS.md](MIGRATION_STATUS.md)** - GUI migration status (Tkinter → PyQt5)
 - **[docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)** - Architecture patterns and base class
   usage
 - **[docs/development/CODE_QUALITY.md](docs/development/CODE_QUALITY.md)** - Code standards, tools, and guidelines
@@ -324,6 +355,7 @@ This project follows high code quality standards with automated tooling:
 - **[docs/development/IMPLEMENTATION_NOTES.md](docs/development/IMPLEMENTATION_NOTES.md)** - Detailed implementation
   notes
 - **[docs/planning/TODO.md](docs/planning/TODO.md)** - Roadmap and future plans
+- **[docs/GUI_MIGRATION_GUIDE.md](docs/GUI_MIGRATION_GUIDE.md)** - Guide for migrating GUIs to PyQt5
 - **[common/README.md](common/README.md)** - Common module documentation
 - **[examples/](examples/)** - Example implementations using base classes
 

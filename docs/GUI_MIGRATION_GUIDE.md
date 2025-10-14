@@ -12,33 +12,40 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 
 ## Migration Status
 
-### Completed
+**For detailed game-by-game migration status, see [MIGRATION_STATUS.md](../MIGRATION_STATUS.md) in the repository root.**
+
+### Infrastructure (Complete)
+
 - ✅ PyQt5 base infrastructure (`common/gui_base_pyqt.py`)
 - ✅ Dots and Boxes game (`paper_games/dots_and_boxes/gui_pyqt.py`)
 - ✅ Test framework for PyQt5 GUIs
 
-### Remaining
-- Card games: blackjack, bluff, bridge, crazy_eights, gin_rummy, go_fish, hearts, poker, solitaire, spades, uno, war
-- Paper games: battleship
+### Games (1/14 completed)
+
+- ✅ **Completed**: Dots and Boxes
+- ⏳ **Remaining**: 13 games
+  - Paper games: Battleship
+  - Card games: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Go Fish, Hearts, Poker, Solitaire, Spades, Uno, War
 
 ## Quick Start for Migration
 
 ### 1. Basic Widget Mapping
 
-| Tkinter | PyQt5 | Notes |
-|---------|-------|-------|
-| `tk.Tk()` | `QApplication` + `QWidget`/`QMainWindow` | PyQt5 uses QApplication globally |
-| `tk.Frame` | `QWidget` or `QFrame` | QFrame has borders, QWidget doesn't |
-| `tk.Label` | `QLabel` | Similar API |
-| `tk.Button` | `QPushButton` | Use `.clicked.connect()` instead of `command=` |
-| `tk.Canvas` | Custom `QWidget` with `paintEvent()` | More powerful but requires custom painting |
-| `tk.Entry` | `QLineEdit` | Similar functionality |
-| `scrolledtext.ScrolledText` | `QTextEdit` | Set readonly with `.setReadOnly(True)` |
-| `ttk.Style` | `QStyleSheet` or `QStyle` | Use CSS-like syntax |
+| Tkinter                     | PyQt5                                    | Notes                                          |
+| --------------------------- | ---------------------------------------- | ---------------------------------------------- |
+| `tk.Tk()`                   | `QApplication` + `QWidget`/`QMainWindow` | PyQt5 uses QApplication globally               |
+| `tk.Frame`                  | `QWidget` or `QFrame`                    | QFrame has borders, QWidget doesn't            |
+| `tk.Label`                  | `QLabel`                                 | Similar API                                    |
+| `tk.Button`                 | `QPushButton`                            | Use `.clicked.connect()` instead of `command=` |
+| `tk.Canvas`                 | Custom `QWidget` with `paintEvent()`     | More powerful but requires custom painting     |
+| `tk.Entry`                  | `QLineEdit`                              | Similar functionality                          |
+| `scrolledtext.ScrolledText` | `QTextEdit`                              | Set readonly with `.setReadOnly(True)`         |
+| `ttk.Style`                 | `QStyleSheet` or `QStyle`                | Use CSS-like syntax                            |
 
 ### 2. Event Handling
 
 **Tkinter:**
+
 ```python
 button = tk.Button(parent, text="Click", command=self.on_click)
 canvas.bind("<Button-1>", self.on_mouse_click)
@@ -46,6 +53,7 @@ canvas.bind("<Motion>", self.on_mouse_move)
 ```
 
 **PyQt5:**
+
 ```python
 button = QPushButton("Click", parent)
 button.clicked.connect(self.on_click)
@@ -62,11 +70,13 @@ def mouseMoveEvent(self, event):
 ### 3. Layout Management
 
 **Tkinter (pack):**
+
 ```python
 label.pack(side=tk.LEFT, padx=10, pady=5)
 ```
 
 **PyQt5 (layout managers):**
+
 ```python
 layout = QHBoxLayout()
 layout.addWidget(label)
@@ -77,11 +87,13 @@ parent.setLayout(layout)
 ### 4. Timers
 
 **Tkinter:**
+
 ```python
 self.root.after(500, self.callback)
 ```
 
 **PyQt5:**
+
 ```python
 QTimer.singleShot(500, self.callback)
 ```
@@ -89,12 +101,14 @@ QTimer.singleShot(500, self.callback)
 ### 5. Message Boxes
 
 **Tkinter:**
+
 ```python
 messagebox.showinfo("Title", "Message")
 messagebox.showerror("Error", "Error message")
 ```
 
 **PyQt5:**
+
 ```python
 QMessageBox.information(self, "Title", "Message")
 QMessageBox.critical(self, "Error", "Error message")
@@ -103,6 +117,7 @@ QMessageBox.critical(self, "Error", "Error message")
 ## Example Migration: Dots and Boxes
 
 ### Before (Tkinter)
+
 ```python
 import tkinter as tk
 from tkinter import messagebox
@@ -111,11 +126,11 @@ class DotsAndBoxesGUI:
     def __init__(self, root: tk.Tk, size: int = 2):
         self.root = root
         self.root.title(f"Dots and Boxes ({size}x{size})")
-        
+
         self.canvas = tk.Canvas(self.root, width=300, height=300, bg="white")
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self._on_click)
-        
+
         button = tk.Button(self.root, text="New Game", command=self._new_game)
         button.pack()
 
@@ -126,6 +141,7 @@ def run_gui(size: int = 2):
 ```
 
 ### After (PyQt5)
+
 ```python
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
 from PyQt5.QtCore import Qt, QTimer
@@ -136,11 +152,11 @@ class BoardCanvas(QWidget):
         super().__init__()
         self.gui = gui
         self.setFixedSize(300, 300)
-        
+
     def paintEvent(self, event):
         painter = QPainter(self)
         # Custom drawing code here
-        
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.gui._on_click(event)
@@ -149,15 +165,15 @@ class DotsAndBoxesGUI(QWidget):
     def __init__(self, size: int = 2):
         super().__init__()
         self.setWindowTitle(f"Dots and Boxes ({size}x{size})")
-        
+
         layout = QVBoxLayout()
         self.canvas = BoardCanvas(self, size)
         layout.addWidget(self.canvas)
-        
+
         button = QPushButton("New Game")
         button.clicked.connect(self._new_game)
         layout.addWidget(button)
-        
+
         self.setLayout(layout)
 
 def run_gui(size: int = 2):
@@ -242,12 +258,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--gui-framework", choices=["tkinter", "pyqt5"], default="pyqt5")
     args = parser.parse_args()
-    
+
     if args.gui_framework == "pyqt5":
         from .gui_pyqt import run_gui
     else:
         from .gui import run_gui
-    
+
     run_gui()
 ```
 
@@ -265,6 +281,7 @@ if app is None:
 ### 2. Canvas Drawing
 
 PyQt5 doesn't have a simple Canvas widget. You need to:
+
 - Subclass QWidget
 - Override `paintEvent()`
 - Use QPainter for drawing
@@ -272,6 +289,7 @@ PyQt5 doesn't have a simple Canvas widget. You need to:
 ### 3. Variable Observers
 
 Tkinter has `StringVar`, `IntVar`, etc. with `trace()`. PyQt5 uses:
+
 - Signals/slots
 - Property change events
 - Manual updates
@@ -298,7 +316,7 @@ result = messagebox.askyesno("Question", "Continue?")
 
 # PyQt5
 reply = QMessageBox.question(self, "Question", "Continue?",
-                             QMessageBox.StandardButton.Yes | 
+                             QMessageBox.StandardButton.Yes |
                              QMessageBox.StandardButton.No)
 result = reply == QMessageBox.StandardButton.Yes
 ```
@@ -319,11 +337,11 @@ class MyGameGUI(BaseGUI):
         )
         super().__init__(config=config)
         self.build_layout()
-    
+
     def build_layout(self):
         # Implement your layout
         pass
-    
+
     def update_display(self):
         # Update UI based on game state
         pass
@@ -339,11 +357,11 @@ class TestMyGamePyQt:
     def test_import(self):
         from my_game.gui_pyqt import MyGameGUI
         assert MyGameGUI is not None
-    
+
     @pytest.mark.skipif(not has_display(), reason="Requires display")
     def test_initialization(self, qtbot):
         from my_game.gui_pyqt import MyGameGUI
-        
+
         window = MyGameGUI()
         qtbot.addWidget(window)
         assert window is not None
