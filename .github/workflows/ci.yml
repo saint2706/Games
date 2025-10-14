@@ -18,6 +18,63 @@ env:
   XDG_RUNTIME_DIR: /tmp/qt-runtime
 
 jobs:
+  validate-workflows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Prepare workflow validation cache directory
+        run: mkdir -p .github/workflows/.workflow-validation-cache
+
+      - name: Check workflow validation cache
+        id: workflow-cache
+        uses: actions/cache@v4
+        with:
+          path: .github/workflows/.workflow-validation-cache
+          key: workflow-validation-${{ hashFiles('.github/workflows/*.yml', '.github/workflows/events/**') }}
+
+      - name: Set up Python
+        if: steps.workflow-cache.outputs.cache-hit != 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install workflow validation dependencies
+        if: steps.workflow-cache.outputs.cache-hit != 'true'
+        run: pip install PyYAML
+
+      - name: Run workflow validator
+        id: run-workflow-validator
+        if: steps.workflow-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/validate_workflows.py | tee workflow-validation.log
+
+      - name: Publish workflow validation summary
+        if: steps.workflow-cache.outputs.cache-hit != 'true' && (success() || failure())
+        run: |
+          {
+            echo "### Workflow Validation";
+            echo;
+            if [ -f workflow-validation.log ]; then
+              cat workflow-validation.log;
+            else
+              echo "Workflow validation log not found. The validator step may have been skipped or failed before producing output.";
+            fi;
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Workflow validation skipped
+        if: steps.workflow-cache.outputs.cache-hit == 'true'
+        run: |
+          {
+            echo "### Workflow Validation";
+            echo;
+            echo "Workflow files unchanged since the last successful validation. Skipping validation run.";
+          } >> "$GITHUB_STEP_SUMMARY"
+
   lint:
     runs-on: ubuntu-latest
 
