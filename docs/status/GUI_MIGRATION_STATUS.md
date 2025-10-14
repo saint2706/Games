@@ -5,8 +5,8 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 ## Overview
 
 - **Total Games**: 14
-- **Completed**: 2 (14%)
-- **Remaining**: 12 (86%)
+- **Completed**: 3 (21%)
+- **Remaining**: 11 (79%)
 
 ## Status by Category
 
@@ -17,7 +17,7 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 | Dots and Boxes | ✅ Complete | `paper_games/dots_and_boxes/gui_pyqt.py` | Proof of concept migration |
 | Battleship | ⏳ Pending | - | Complex board with drag-and-drop ship placement |
 
-### Card Games (1/12 completed)
+### Card Games (2/12 completed)
 
 | Game | Status | GUI File | Notes |
 | ------------ | ---------- | -------- | --------------------------------- |
@@ -31,7 +31,7 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 | Poker | ⏳ Pending | - | 437 lines, betting interface |
 | Solitaire | ⏳ Pending | - | 729 lines, most complex GUI |
 | Spades | ⏳ Pending | - | 582 lines, bidding and tricks |
-| Uno | ⏳ Pending | - | 524 lines, special cards |
+| Uno | ✅ Complete | `card_games/uno/gui_pyqt.py` | Mirrors Tk interface with PyQt widgets |
 | War | ⏳ Pending | - | 622 lines, simple mechanics |
 
 ## Migration Guidelines

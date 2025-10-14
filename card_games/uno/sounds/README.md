@@ -74,10 +74,10 @@ You can record or generate sounds using:
 
 1. Place sound files in this directory
 
-1. Launch the game with GUI mode:
+1. Launch the game with GUI mode (use ``--gui pyqt`` for the PyQt5 interface or omit the value for Tkinter):
 
    ```bash
-   python -m card_games.uno --gui
+   python -m card_games.uno --gui pyqt
    ```
 
 1. Sounds will play automatically during gameplay
