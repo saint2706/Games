@@ -247,6 +247,7 @@ class CribbageGame:
             self.current_player = next_player if next_player is not None else player
         else:
             self.current_player = other
+            self.passed_players.discard(other)
 
         if not self.player1_hand and not self.player2_hand:
             self.phase = GamePhase.SHOW
@@ -337,7 +338,7 @@ class CribbageGame:
     def _award_points(self, player: int, points: int) -> None:
         """Award ``points`` to ``player`` and check for a win."""
 
-        if points <= 0:
+        if points <= 0 or self.winner is not None:
             return
 
         if player == 1:
