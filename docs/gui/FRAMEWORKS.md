@@ -49,14 +49,14 @@ Tkinter was the original GUI framework used in this repository. However, it has 
 
 **For up-to-date migration status, see [MIGRATION_STATUS.md](../MIGRATION_STATUS.md) in the repository root.**
 
-For detailed migration instructions, see `docs/GUI_MIGRATION_GUIDE.md`.
+For detailed migration instructions, see `MIGRATION_GUIDE.md`.
 
 ### Quick Summary
 
-| Status       | Count | Percentage |
+| Status | Count | Percentage |
 | ------------ | ----- | ---------- |
-| ✅ Completed | 1/14  | 7%         |
-| ⏳ Remaining | 13/14 | 93%        |
+| ✅ Completed | 1/14 | 7% |
+| ⏳ Remaining | 13/14 | 93% |
 
 **Completed**: Dots and Boxes
 
@@ -173,7 +173,7 @@ Yes, tkinter GUIs are still available for games that haven't been migrated yet. 
 
 ### Q: How do I migrate my game from tkinter to PyQt5?
 
-See `docs/GUI_MIGRATION_GUIDE.md` for a comprehensive guide with examples.
+See `MIGRATION_GUIDE.md` for a comprehensive guide with examples.
 
 ### Q: What about web-based GUIs?
 

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+#### Documentation Reorganization (2025-10-14)
+
+- **Restructured documentation** for better organization and discoverability
+  - Moved 11 files from root to organized subdirectories
+  - Created dedicated directories: docs/gui/, docs/workflows/, docs/status/
+  - Created 3 new documentation hub README files
+  - Updated 6+ files with corrected references
+  - Fixed all broken documentation links
+- **Root directory cleanup**: Reduced from 11 to 4 essential markdown files
+  - Kept: README.md, CONTRIBUTING.md, GAMES.md, CHANGELOG.md
+  - Organized: GUI docs, workflow docs, status tracking, enhancements
+- **Improved navigation**: Each documentation area now has a README hub
+- **No breaking changes**: All code, tests, and imports remain unchanged
+
+See [REORGANIZATION_SUMMARY.md](docs/REORGANIZATION_SUMMARY.md) for complete details.
+
 ## [1.1.0] - 2025-10-12
 
 ### Added - Q4 2025 Consolidation & Deployment

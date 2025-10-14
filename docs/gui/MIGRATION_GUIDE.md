@@ -31,16 +31,16 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 
 ### 1. Basic Widget Mapping
 
-| Tkinter                     | PyQt5                                    | Notes                                          |
+| Tkinter | PyQt5 | Notes |
 | --------------------------- | ---------------------------------------- | ---------------------------------------------- |
-| `tk.Tk()`                   | `QApplication` + `QWidget`/`QMainWindow` | PyQt5 uses QApplication globally               |
-| `tk.Frame`                  | `QWidget` or `QFrame`                    | QFrame has borders, QWidget doesn't            |
-| `tk.Label`                  | `QLabel`                                 | Similar API                                    |
-| `tk.Button`                 | `QPushButton`                            | Use `.clicked.connect()` instead of `command=` |
-| `tk.Canvas`                 | Custom `QWidget` with `paintEvent()`     | More powerful but requires custom painting     |
-| `tk.Entry`                  | `QLineEdit`                              | Similar functionality                          |
-| `scrolledtext.ScrolledText` | `QTextEdit`                              | Set readonly with `.setReadOnly(True)`         |
-| `ttk.Style`                 | `QStyleSheet` or `QStyle`                | Use CSS-like syntax                            |
+| `tk.Tk()` | `QApplication` + `QWidget`/`QMainWindow` | PyQt5 uses QApplication globally |
+| `tk.Frame` | `QWidget` or `QFrame` | QFrame has borders, QWidget doesn't |
+| `tk.Label` | `QLabel` | Similar API |
+| `tk.Button` | `QPushButton` | Use `.clicked.connect()` instead of `command=` |
+| `tk.Canvas` | Custom `QWidget` with `paintEvent()` | More powerful but requires custom painting |
+| `tk.Entry` | `QLineEdit` | Similar functionality |
+| `scrolledtext.ScrolledText` | `QTextEdit` | Set readonly with `.setReadOnly(True)` |
+| `ttk.Style` | `QStyleSheet` or `QStyle` | Use CSS-like syntax |
 
 ### 2. Event Handling
 

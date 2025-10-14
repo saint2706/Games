@@ -77,7 +77,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 
 #### 4. Documentation
 
-**Migration Guide**: `docs/GUI_MIGRATION_GUIDE.md`
+**Migration Guide**: `MIGRATION_GUIDE.md`
 
 - Comprehensive tkinter to PyQt5 migration guide
 - Widget mapping table
@@ -86,7 +86,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Common gotchas and solutions
 - Step-by-step migration process
 
-**Framework Documentation**: `docs/GUI_FRAMEWORKS.md`
+**Framework Documentation**: `FRAMEWORKS.md`
 
 - Overview of available frameworks
 - Migration status tracking
@@ -235,7 +235,7 @@ python scripts/test_gui.py --list
 To complete the migration:
 
 1. **Choose a game** from the remaining 13
-1. **Follow the migration guide** in `docs/GUI_MIGRATION_GUIDE.md`
+1. **Follow the migration guide** in `MIGRATION_GUIDE.md`
 1. **Reference the example** in `paper_games/dots_and_boxes/gui_pyqt.py`
 1. **Use BaseGUI** from `common/gui_base_pyqt.py` for consistency
 1. **Add tests** in `tests/test_gui_pyqt.py`

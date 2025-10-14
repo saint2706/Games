@@ -43,20 +43,6 @@ Welcome to the Games documentation! This guide will help you navigate all availa
   - Performance benchmarking
   - Mutation testing
 
-- **[development/LOCAL_WORKFLOWS.md](development/LOCAL_WORKFLOWS.md)** - Local workflow testing
-
-  - Running GitHub Actions locally with act
-  - Debugging workflows before pushing
-  - Testing CI/CD changes locally
-  - Using Docker containers for testing
-
-- **[development/WORKFLOW_TESTING_QUICKSTART.md](development/WORKFLOW_TESTING_QUICKSTART.md)** - Quick start for
-  workflow testing
-
-  - 5-minute setup guide
-  - Basic usage examples
-  - Common commands and patterns
-
 - **[development/IMPLEMENTATION_NOTES.md](development/IMPLEMENTATION_NOTES.md)** - Implementation details
 
   - Code quality improvements
@@ -65,6 +51,37 @@ Welcome to the Games documentation! This guide will help you navigate all availa
   - Architecture system
   - CLI enhancements
   - Five new card games implementation
+
+- **[development/ENHANCEMENTS_APPLIED.md](development/ENHANCEMENTS_APPLIED.md)** - Applied enhancements
+
+  - Infrastructure enhancements
+  - Save/load functionality
+  - Replay/undo functionality
+  - CLI enhancements
+
+#### 🎨 GUI Development
+
+- **[gui/README.md](gui/README.md)** - GUI framework documentation hub
+- **[gui/FRAMEWORKS.md](gui/FRAMEWORKS.md)** - Framework overview and guidelines
+- **[gui/MIGRATION_GUIDE.md](gui/MIGRATION_GUIDE.md)** - tkinter to PyQt5 migration guide
+- **[gui/PYQT5_IMPLEMENTATION.md](gui/PYQT5_IMPLEMENTATION.md)** - PyQt5 implementation summary
+- **[gui/GUI_ENHANCEMENTS.md](gui/GUI_ENHANCEMENTS.md)** - GUI enhancements and improvements
+
+#### 🔄 GitHub Actions Workflows
+
+- **[workflows/README.md](workflows/README.md)** - Workflow documentation hub
+- **[workflows/VALIDATION_REPORT.md](workflows/VALIDATION_REPORT.md)** - Workflow validation results
+- **[workflows/VALIDATION_SUMMARY.md](workflows/VALIDATION_SUMMARY.md)** - Validation implementation summary
+- **[workflows/DEBUG_REPORT.md](workflows/DEBUG_REPORT.md)** - Workflow debugging and failure analysis
+- **[workflows/FIX_SUMMARY.md](workflows/FIX_SUMMARY.md)** - Workflow fixes and resolutions
+- **[development/LOCAL_WORKFLOWS.md](development/LOCAL_WORKFLOWS.md)** - Local workflow testing with act
+- **[development/WORKFLOW_TESTING_QUICKSTART.md](development/WORKFLOW_TESTING_QUICKSTART.md)** - Workflow testing quick start
+- **[development/WORKFLOW_VALIDATION.md](development/WORKFLOW_VALIDATION.md)** - Workflow validation guide
+
+#### 📊 Status Tracking
+
+- **[status/README.md](status/README.md)** - Status tracking hub
+- **[status/GUI_MIGRATION_STATUS.md](status/GUI_MIGRATION_STATUS.md)** - GUI migration progress tracking
 
 #### 🗺️ Planning & Roadmap
 
@@ -77,33 +94,33 @@ Welcome to the Games documentation! This guide will help you navigate all availa
 
 **For Players:**
 
-1. **[Tutorial Series](source/tutorials/index.rst)** - Learn how to play each game
-   - 🎮 [Poker Tutorial](source/tutorials/poker_tutorial.rst) - Texas Hold'em and Omaha
-   - 🃏 [Bluff Tutorial](source/tutorials/bluff_tutorial.rst) - Master the art of deception
-   - 🎰 [Blackjack Tutorial](source/tutorials/blackjack_tutorial.rst) - Beat the dealer
-   - 🎴 [Uno Tutorial](source/tutorials/uno_tutorial.rst) - Classic card game
-   - ✏️ [Paper Games Tutorial](source/tutorials/paper_games_tutorial.rst) - Tic-Tac-Toe, Battleship, and more
+- **[Tutorial Series](source/tutorials/index.rst)** - Learn how to play each game
+  - 🎮 [Poker Tutorial](source/tutorials/poker_tutorial.rst) - Texas Hold'em and Omaha
+  - 🃏 [Bluff Tutorial](source/tutorials/bluff_tutorial.rst) - Master the art of deception
+  - 🎰 [Blackjack Tutorial](source/tutorials/blackjack_tutorial.rst) - Beat the dealer
+  - 🎴 [Uno Tutorial](source/tutorials/uno_tutorial.rst) - Classic card game
+  - ✏️ [Paper Games Tutorial](source/tutorials/paper_games_tutorial.rst) - Tic-Tac-Toe, Battleship, and more
 
 **For Developers:**
 
-2. **[Architecture Documentation](source/architecture/index.rst)** - Detailed design documentation
+- **[Architecture Documentation](source/architecture/index.rst)** - Detailed design documentation
 
-   - 🏗️ [Architecture Overview](source/architecture/index.rst) - Design patterns and principles
-   - ♠️ [Poker Architecture](source/architecture/poker_architecture.rst) - Deep dive with diagrams
-   - 🎭 [Bluff Architecture](source/architecture/bluff_architecture.rst) - Game mechanics and AI
-   - 🤖 [AI Strategies](source/architecture/ai_strategies.rst) - Algorithms explained
+  - 🏗️ [Architecture Overview](source/architecture/index.rst) - Design patterns and principles
+  - ♠️ [Poker Architecture](source/architecture/poker_architecture.rst) - Deep dive with diagrams
+  - 🎭 [Bluff Architecture](source/architecture/bluff_architecture.rst) - Game mechanics and AI
+  - 🤖 [AI Strategies](source/architecture/ai_strategies.rst) - Algorithms explained
 
-1. **[Code Examples](source/examples/index.rst)** - Learn by doing
+- **[Code Examples](source/examples/index.rst)** - Learn by doing
 
-   - 30+ practical code examples
-   - Common patterns and best practices
-   - Custom game creation
-   - AI integration
+  - 30+ practical code examples
+  - Common patterns and best practices
+  - Custom game creation
+  - AI integration
 
-1. **[API Reference](source/api/)** - Complete module documentation
+- **[API Reference](source/api/)** - Complete module documentation
 
-   - [Card Games API](source/api/card_games.rst)
-   - [Paper Games API](source/api/paper_games.rst)
+  - [Card Games API](source/api/card_games.rst)
+  - [Paper Games API](source/api/paper_games.rst)
 
 #### 📚 Specialized Guides
 
@@ -170,16 +187,36 @@ docs/
 │   ├── CODE_QUALITY.md                 # Code quality standards and tools
 │   ├── TESTING.md                      # Testing guide and best practices
 │   ├── IMPLEMENTATION_NOTES.md         # Detailed implementation notes
+│   ├── ENHANCEMENTS_APPLIED.md         # Infrastructure enhancements applied
 │   ├── ANALYTICS_INTEGRATION_GUIDE.md  # Analytics integration guide
 │   ├── CLI_UTILS.md                    # CLI utilities guide
 │   ├── EDUCATIONAL_FEATURES.md         # Educational features
 │   ├── EDUCATIONAL_QUICKSTART.md       # Quick start for educators
-│   └── NEW_GAMES_IMPLEMENTATION.md     # Implementation of dice, word, logic games
+│   ├── NEW_GAMES_IMPLEMENTATION.md     # Implementation of dice, word, logic games
+│   ├── LOCAL_WORKFLOWS.md              # Local workflow testing
+│   ├── WORKFLOW_TESTING_QUICKSTART.md  # Workflow testing quick start
+│   ├── WORKFLOW_VALIDATION.md          # Workflow validation guide
+│   └── BUILD_EXECUTABLES_WORKFLOW.md   # Build executables workflow
 ├── deployment/                         # Deployment documentation
 │   ├── DEPLOYMENT.md                   # Deployment and release guide
 │   └── PYPI_RELEASE.md                 # PyPI release process
 ├── planning/                           # Planning and roadmap
 │   └── TODO.md                         # Future plans and features
+├── gui/                                # GUI framework documentation
+│   ├── README.md                       # GUI documentation hub
+│   ├── FRAMEWORKS.md                   # Framework overview
+│   ├── MIGRATION_GUIDE.md              # tkinter to PyQt5 migration
+│   ├── PYQT5_IMPLEMENTATION.md         # PyQt5 implementation details
+│   └── GUI_ENHANCEMENTS.md             # GUI enhancements
+├── workflows/                          # GitHub Actions workflow docs
+│   ├── README.md                       # Workflow documentation hub
+│   ├── VALIDATION_REPORT.md            # Workflow validation results
+│   ├── VALIDATION_SUMMARY.md           # Validation implementation
+│   ├── DEBUG_REPORT.md                 # Workflow debugging
+│   └── FIX_SUMMARY.md                  # Workflow fixes
+├── status/                             # Status tracking
+│   ├── README.md                       # Status tracking hub
+│   └── GUI_MIGRATION_STATUS.md         # GUI migration progress
 ├── images/                             # Documentation images
 │   ├── battleship_gui_game.png         # Battleship gameplay screenshot
 │   ├── battleship_gui_setup.png        # Battleship setup screenshot

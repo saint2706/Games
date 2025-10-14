@@ -76,7 +76,7 @@ The Games Collection supports both **Tkinter** and **PyQt5** for graphical inter
 - **Tkinter**: 14 games with full GUI support
 - **PyQt5**: 1 game migrated (Dots and Boxes), 13 remaining
 
-See **[MIGRATION_STATUS.md](MIGRATION_STATUS.md)** for detailed progress tracking.
+See **[GUI Migration Status](docs/status/GUI_MIGRATION_STATUS.md)** for detailed progress tracking.
 
 ### Using GUIs
 
@@ -93,9 +93,10 @@ python -m paper_games.dots_and_boxes --gui-framework pyqt5
 
 For more information, see:
 
-- [GUI Migration Guide](docs/GUI_MIGRATION_GUIDE.md) - How to migrate a game to PyQt5
-- [GUI Frameworks Documentation](docs/GUI_FRAMEWORKS.md) - Framework comparison and usage
-- [PyQt5 Implementation Summary](docs/PYQT5_IMPLEMENTATION.md) - Technical details
+- [GUI Migration Guide](docs/gui/MIGRATION_GUIDE.md) - How to migrate a game to PyQt5
+- [GUI Frameworks Documentation](docs/gui/FRAMEWORKS.md) - Framework comparison and usage
+- [PyQt5 Implementation Summary](docs/gui/PYQT5_IMPLEMENTATION.md) - Technical details
+- [GUI Documentation Hub](docs/gui/README.md) - Complete GUI documentation
 
 ## Repository layout
 
@@ -279,13 +280,13 @@ after the configured number of table rotations, wins the match.
 
 Difficulty levels tune the number of opponents, deck count, and AI personalities:
 
-| Difficulty | Bots | Decks | Personality                                   |
+| Difficulty | Bots | Decks | Personality |
 | ---------- | ---- | ----- | --------------------------------------------- |
-| Noob       | 1    | 1     | Cautious, rarely bluffs                       |
-| Easy       | 2    | 1     | Even tempered with light deception            |
-| Medium     | 2    | 2     | Balanced mix of bluffing and scrutiny         |
-| Hard       | 3    | 2     | Bolder bluffs and sharper challenges          |
-| Insane     | 4    | 3     | Aggressive liars who constantly police rivals |
+| Noob | 1 | 1 | Cautious, rarely bluffs |
+| Easy | 2 | 1 | Even tempered with light deception |
+| Medium | 2 | 2 | Balanced mix of bluffing and scrutiny |
+| Hard | 3 | 2 | Bolder bluffs and sharper challenges |
+| Insane | 4 | 3 | Aggressive liars who constantly police rivals |
 
 Fire up a five-rotation match on the default "Noob" setting from the terminal:
 
@@ -347,7 +348,8 @@ This project follows high code quality standards with automated tooling:
 ### Documentation
 
 - **[GAMES.md](GAMES.md)** - Complete catalog of all available games
-- **[MIGRATION_STATUS.md](MIGRATION_STATUS.md)** - GUI migration status (Tkinter → PyQt5)
+- **[docs/status/GUI_MIGRATION_STATUS.md](docs/status/GUI_MIGRATION_STATUS.md)** - GUI migration status (Tkinter →
+  PyQt5)
 - **[docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)** - Architecture patterns and base class
   usage
 - **[docs/development/CODE_QUALITY.md](docs/development/CODE_QUALITY.md)** - Code standards, tools, and guidelines
@@ -355,7 +357,8 @@ This project follows high code quality standards with automated tooling:
 - **[docs/development/IMPLEMENTATION_NOTES.md](docs/development/IMPLEMENTATION_NOTES.md)** - Detailed implementation
   notes
 - **[docs/planning/TODO.md](docs/planning/TODO.md)** - Roadmap and future plans
-- **[docs/GUI_MIGRATION_GUIDE.md](docs/GUI_MIGRATION_GUIDE.md)** - Guide for migrating GUIs to PyQt5
+- **[docs/gui/README.md](docs/gui/README.md)** - GUI framework documentation hub
+- **[docs/workflows/README.md](docs/workflows/README.md)** - GitHub Actions workflow documentation
 - **[common/README.md](common/README.md)** - Common module documentation
 - **[examples/](examples/)** - Example implementations using base classes
 
