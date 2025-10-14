@@ -24,6 +24,8 @@ permissions:
 
 env:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  QT_QPA_PLATFORM: offscreen
+  XDG_RUNTIME_DIR: /tmp/qt-runtime
 
 jobs:
   coverage:
@@ -43,7 +45,9 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-tk
+          sudo apt-get install -y python3-tk libgl1 libxkbcommon-x11-0
+          sudo mkdir -p /tmp/qt-runtime
+          sudo chmod 700 /tmp/qt-runtime
 
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
