@@ -14,9 +14,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Gin Rummy launcher")
     parser.add_argument(
         "--mode",
-        choices=["cli", "gui"],
+        choices=["cli", "gui", "pyqt"],
         default="cli",
-        help="Launch either the text-based CLI or the graphical interface.",
+        help="Launch the CLI, the Tkinter GUI, or the PyQt GUI.",
     )
     parser.add_argument(
         "--player-name",
@@ -39,8 +39,18 @@ def main(argv: Sequence[str] | None = None) -> None:
         from card_games.gin_rummy.gui import run_app
 
         run_app(player_name=args.player_name, opponent_name=args.opponent_name)
-    else:
-        game_loop()
+        return
+
+    if args.mode == "pyqt":
+        try:
+            from card_games.gin_rummy.gui_pyqt import run_pyqt_app
+        except ImportError as exc:  # pragma: no cover - optional dependency
+            raise RuntimeError("PyQt5 is not available for the Gin Rummy GUI") from exc
+
+        run_pyqt_app(player_name=args.player_name, opponent_name=args.opponent_name)
+        return
+
+    game_loop()
 
 
 if __name__ == "__main__":

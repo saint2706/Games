@@ -180,10 +180,10 @@ QTimer.singleShot(500, self.callback)
 - ✅ Documentation
 - ✅ Development tools
 
-### Games (1/14 completed)
+### Games (3/14 completed)
 
-- ✅ **Completed**: Dots and Boxes
-- ⏳ **Remaining**: 13 games (1 paper game, 12 card games)
+- ✅ **Completed**: Dots and Boxes, Go Fish, Gin Rummy
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 
 ## Dependencies
 
@@ -234,7 +234,7 @@ python scripts/test_gui.py --list
 
 To complete the migration:
 
-1. **Choose a game** from the remaining 13
+1. **Choose a game** from the remaining 11
 1. **Follow the migration guide** in `MIGRATION_GUIDE.md`
 1. **Reference the example** in `paper_games/dots_and_boxes/gui_pyqt.py`
 1. **Use BaseGUI** from `common/gui_base_pyqt.py` for consistency
