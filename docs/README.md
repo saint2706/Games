@@ -11,7 +11,7 @@ Welcome to the Games documentation! This guide will help you navigate all availa
 
 #### 📖 Game Catalog
 
-- **[GAMES.md](../GAMES.md)** - Complete catalog of all 21 available games with features and usage
+- **[GAMES.md](../GAMES.md)** - Complete catalog of all 49 available games with features and usage
 
 #### 📐 Architecture & Design
 
