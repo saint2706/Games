@@ -129,11 +129,11 @@ class MyGameGUI(BaseGUI):
         )
         super().__init__(config=config)
         self.build_layout()
-    
+
     def build_layout(self):
         # Build your UI here
         pass
-    
+
     def update_display(self):
         # Update UI based on game state
         pass
@@ -160,14 +160,27 @@ Study `paper_games/dots_and_boxes/gui_pyqt.py` for:
 - Layout management
 - Game logic integration
 
+### Development Workflow
+
+Install the development dependencies and register the shared pre-commit hooks so your local environment matches CI formatting and
+linting:
+
+```bash
+pip install -e ".[dev]"
+pre-commit install
+
+# Optional: run all hooks before pushing changes
+pre-commit run --all-files
+```
+
 ## 📚 Documentation
 
-| Document | Purpose |
-|----------|---------|
-| `MIGRATION_GUIDE.md` | Step-by-step migration from tkinter to PyQt5 |
-| `FRAMEWORKS.md` | Framework overview and guidelines |
-| `PYQT5_IMPLEMENTATION.md` | Complete implementation summary |
-| This file | Quick reference |
+| Document                  | Purpose                                      |
+| ------------------------- | -------------------------------------------- |
+| `MIGRATION_GUIDE.md`      | Step-by-step migration from tkinter to PyQt5 |
+| `FRAMEWORKS.md`           | Framework overview and guidelines            |
+| `PYQT5_IMPLEMENTATION.md` | Complete implementation summary              |
+| This file                 | Quick reference                              |
 
 ## 🧪 Testing
 

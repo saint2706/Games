@@ -22,11 +22,10 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (
     QApplication,
     QComboBox,
-    QFrame,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
