@@ -34,6 +34,16 @@ Use this for manually-triggered workflows with inputs:
 
 This simulates manually running a workflow with specific input parameters.
 
+### release.json
+
+Use this for workflows triggered by release events:
+
+```bash
+./scripts/run_workflow.sh publish --event .github/workflows/events/release.json
+```
+
+This simulates publishing a release tagged as `v1.0.0`.
+
 ## Customizing Event Payloads
 
 You can create your own event files based on these examples:
