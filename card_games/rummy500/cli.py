@@ -399,8 +399,23 @@ def game_loop(game: Rummy500Game) -> None:
                         f"Player {player} draws {decision.take_count} card(s) from the discard pile"
                     )
                 else:
-                    game.draw_card()
-                    print(f"Player {player} draws from the deck")
+                    drew_from_deck = game.draw_card()
+                    if drew_from_deck:
+                        print(f"Player {player} draws from the deck")
+                    else:
+                        forced = False
+                        if game.discard_pile:
+                            forced = game.draw_card(from_discard=True, take_count=1)
+                        if forced:
+                            print(
+                                f"Player {player} draws the top discard because the deck is empty."
+                            )
+                        else:
+                            print(
+                                "No cards are available to draw. Ending the round due to an empty stock."
+                            )
+                            game.end_round_due_to_empty_stock()
+                            continue
 
         if game.phase == GamePhase.MELD and game.phase != GamePhase.GAME_OVER:
             player = game.current_player

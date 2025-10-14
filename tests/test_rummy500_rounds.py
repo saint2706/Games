@@ -100,3 +100,20 @@ def test_negative_deadwood_scoring_applied() -> None:
     assert game.discard(0, c("4", Suit.CLUBS))
     assert game.scores == [0, -20]
 
+
+def test_empty_stock_forces_round_end() -> None:
+    """An empty stock with no discard options should end the round and score hands."""
+
+    game = Rummy500Game(num_players=2)
+    game.phase = GamePhase.DRAW
+    game.deck.cards = []
+    game.discard_pile = []
+    game.hands[0] = [c("A", Suit.SPADES)]
+    game.hands[1] = [c("5", Suit.HEARTS)]
+
+    game.end_round_due_to_empty_stock()
+
+    assert game.scores == [-15, -5]
+    assert game.phase == GamePhase.DRAW
+    assert not game.melds
+

@@ -451,6 +451,27 @@ class Rummy500Game:
         meld.add_cards(player, cards)
         return True
 
+    def end_round_due_to_empty_stock(self) -> None:
+        """End the round when no cards can be drawn from the stock or discard piles.
+
+        Returns:
+            None
+        """
+
+        if self.phase == GamePhase.GAME_OVER:
+            return
+
+        self._score_round()
+        if any(score >= 500 for score in self.scores):
+            self.phase = GamePhase.GAME_OVER
+            self.winner = self.scores.index(max(self.scores))
+            return
+
+        scores_snapshot = self.scores[:]
+        rng = getattr(self, "_rng", None)
+        self.__init__(self.num_players, rng=rng)
+        self.scores = scores_snapshot
+
     def go_out(self, player: int) -> bool:
         """End the round if *player* has emptied their hand during the meld phase."""
 
