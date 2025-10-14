@@ -139,6 +139,29 @@ Use the convenience script to run workflows:
 ./scripts/run_workflow.sh all
 ```
 
+## GUI Workflow Environment Variables
+
+Some workflows (CI, manual tests, coverage, and mutation testing) exercise PyQt-based GUI code. When running these workflows
+locally with `act`, configure the environment to use Qt's offscreen platform plugin and provide a writable XDG runtime
+directory:
+
+```bash
+mkdir -p /tmp/qt-runtime
+chmod 700 /tmp/qt-runtime
+
+act --env QT_QPA_PLATFORM=offscreen --env XDG_RUNTIME_DIR=/tmp/qt-runtime
+```
+
+You can also place the variables in an `.env` file for reuse:
+
+```ini
+QT_QPA_PLATFORM=offscreen
+XDG_RUNTIME_DIR=/tmp/qt-runtime
+```
+
+Ensuring these variables are present prevents Qt from trying to access a real display server, allowing PyQt tests to run
+headlessly both locally and in GitHub Actions.
+
 ## Running Specific Workflows
 
 ### Available Workflows

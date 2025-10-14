@@ -21,6 +21,19 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 - ✅ Test framework for PyQt5 GUIs
 
 ### Games (3/14 completed)
+## Running PyQt5 GUIs Headlessly
+
+Some contributors work in headless Linux environments where a display server is unavailable. Configure Qt to use the offscreen platform plugin before launching GUIs or running the PyQt5 test suite:
+
+```bash
+export QT_QPA_PLATFORM=offscreen
+export XDG_RUNTIME_DIR=/tmp/qt-runtime
+mkdir -p "$XDG_RUNTIME_DIR"
+```
+
+The pytest configuration in this repository sets these variables automatically, but local shells and ad-hoc scripts still need them to ensure Qt can initialize without access to a windowing system.
+
+### Games (1/14 completed)
 
 - ✅ **Completed**: Dots and Boxes, Go Fish, Poker
 - ⏳ **Remaining**: 11 games
@@ -378,7 +391,7 @@ class TestMyGamePyQt:
 If you encounter issues during migration:
 
 1. Check this guide for common patterns
-1. Look at the completed migration: `paper_games/dots_and_boxes/gui_pyqt.py`
+1. Look at completed migrations: `paper_games/dots_and_boxes/gui_pyqt.py`, `card_games/go_fish/gui_pyqt.py`, `card_games/bridge/gui_pyqt.py`
 1. Consult PyQt5 documentation
 1. Ask in the repository issues
 

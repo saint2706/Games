@@ -27,6 +27,8 @@ pip install pyqt5
 **Available Games:**
 
 - Dots and Boxes (paper_games/dots_and_boxes/gui_pyqt.py)
+- Go Fish (card_games/go_fish/gui_pyqt.py)
+- Bridge (card_games/bridge/gui_pyqt.py)
 
 ### Tkinter (Legacy)
 
@@ -61,6 +63,9 @@ For detailed migration instructions, see `MIGRATION_GUIDE.md`.
 **Completed**: Dots and Boxes, Go Fish, Poker
 
 **Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Solitaire, Spades, Uno, War (card games)
+**Completed**: Dots and Boxes, Go Fish, Bridge
+
+**Remaining**: Battleship (paper games), Blackjack, Bluff, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War (card games)
 
 ## Using GUIs
 
