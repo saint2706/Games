@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from .pentago import PentagoGame
+from .pentago import PentagoAI, PentagoCLI, PentagoGame, PentagoMove
 
-__all__ = ["PentagoGame"]
+__all__ = ["PentagoAI", "PentagoCLI", "PentagoGame", "PentagoMove"]
