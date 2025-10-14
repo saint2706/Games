@@ -604,14 +604,22 @@ def run_gui(config: Optional[GUIConfig] = None) -> bool:
             theme_name="dark",
         )
 
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication(sys.argv)
+    try:
+        app = QApplication.instance()
+        if app is None:
+            app = QApplication(sys.argv)
+    except Exception as error:  # pragma: no cover - environment dependent
+        print(f"Failed to initialize PyQt5 application: {error}")
+        return False
 
     window = BridgeGUI(config=config)
     window.show()
 
-    app.exec()
+    try:
+        app.exec()
+    except Exception as error:  # pragma: no cover - environment dependent
+        print(f"PyQt5 event loop terminated unexpectedly: {error}")
+        return False
     return True
 
 
