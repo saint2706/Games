@@ -76,7 +76,7 @@ The Games Collection supports both **Tkinter** and **PyQt5** for graphical inter
 - **Tkinter**: 14 games with full GUI support
 - **PyQt5**: 1 game migrated (Dots and Boxes), 13 remaining
 
-See **[MIGRATION_STATUS.md](MIGRATION_STATUS.md)** for detailed progress tracking.
+See **[GUI Migration Status](docs/status/GUI_MIGRATION_STATUS.md)** for detailed progress tracking.
 
 ### Using GUIs
 
