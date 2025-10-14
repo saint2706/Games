@@ -24,7 +24,14 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from .battleship import DEFAULT_FLEET, EXTENDED_FLEET, SMALL_FLEET, BattleshipGame, Coordinate
+from .battleship import (
+    DEFAULT_FLEET,
+    EXTENDED_FLEET,
+    SMALL_FLEET,
+    BattleshipGame,
+    Board,
+    Coordinate,
+)
 
 
 @dataclass
@@ -136,9 +143,8 @@ class BoardCanvas(QGraphicsView):
         self.scene.clear()
         view_size = self.MARGIN * 2 + self.CELL_SIZE * self.size
         self.scene.setSceneRect(0, 0, view_size, view_size)
-        board = None
-        if self.gui.game is not None:
-            board = self.gui.game.player_board if self.is_player else self.gui.game.opponent_board
+        board = self.gui._board_for_canvas(self)
+        show_ships = self.gui._should_show_ships(self)
 
         # Draw background
         self.scene.addRect(
@@ -158,15 +164,12 @@ class BoardCanvas(QGraphicsView):
                 rect = (x, y, self.CELL_SIZE, self.CELL_SIZE)
 
                 fill_color = self.theme.background
+                shot = None
                 if board is not None:
                     coord = (row, col)
-                    shot = board.shots.get(coord) if coord in board.shots else None
-                    is_preview = (
-                        self.is_player
-                        and self.gui.setup_phase
-                        and coord in self.gui.preview_coords
-                    )
-                    if self.is_player and coord in board.occupied:
+                    shot = board.shots.get(coord)
+                    is_preview = self.gui._is_preview_cell(self, coord)
+                    if show_ships and coord in board.occupied:
                         fill_color = self.theme.ship
                     if is_preview:
                         fill_color = self.theme.preview
@@ -255,6 +258,7 @@ class BattleshipGUI(QWidget):
 
         self.game: Optional[BattleshipGame] = None
         self.setup_phase = True
+        self.setup_player = 1
         self.current_player = 1
         self.placing_ship_index = 0
         self.ship_orientation = "h"
@@ -336,38 +340,112 @@ class BattleshipGUI(QWidget):
         main_layout.addWidget(controls)
 
     # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    def _is_setup_canvas(self, canvas: BoardCanvas) -> bool:
+        """Return whether the given canvas is currently used for ship placement."""
+
+        if not self.setup_phase:
+            return False
+        if not self.two_player:
+            return canvas.is_player
+        if self.setup_player == 1:
+            return canvas.is_player
+        return not canvas.is_player
+
+    def _current_setup_board(self) -> Optional[Board]:
+        """Return the board that is currently being configured during setup."""
+
+        if self.game is None:
+            return None
+        return self.game.player_board if self.setup_player == 1 else self.game.opponent_board
+
+    def _board_for_canvas(self, canvas: BoardCanvas) -> Optional[Board]:
+        """Return the Battleship board associated with the provided canvas."""
+
+        if self.game is None:
+            return None
+        return self.game.player_board if canvas.is_player else self.game.opponent_board
+
+    def _should_show_ships(self, canvas: BoardCanvas) -> bool:
+        """Determine whether ship locations should be shown on the canvas."""
+
+        if self.game is None:
+            return False
+        if not self.two_player:
+            return canvas.is_player
+        if self.setup_phase:
+            return (self.setup_player == 1 and canvas.is_player) or (
+                self.setup_player == 2 and not canvas.is_player
+            )
+        return canvas.is_player
+
+    def _is_preview_cell(self, canvas: BoardCanvas, coord: Coordinate) -> bool:
+        """Return whether the coordinate should display the placement preview."""
+
+        return self.setup_phase and self._is_setup_canvas(canvas) and coord in self.preview_coords
+
+    def _update_canvas_interactivity(self) -> None:
+        """Enable or disable canvases based on the current setup phase."""
+
+        if not self.setup_phase:
+            self.player_canvas.setEnabled(True)
+            self.opponent_canvas.setEnabled(True)
+            return
+
+        self.player_canvas.setEnabled(self._is_setup_canvas(self.player_canvas))
+        self.opponent_canvas.setEnabled(self._is_setup_canvas(self.opponent_canvas))
+
+    # ------------------------------------------------------------------
     # Event handlers from BoardCanvas
     # ------------------------------------------------------------------
     def handle_board_hover(self, canvas: BoardCanvas, coord: Optional[Coordinate]) -> None:
         """Handle hover events from the board."""
 
-        if canvas.is_player and self.setup_phase:
-            if coord is None or self.placing_ship_index >= len(self.fleet):
-                self.preview_coords.clear()
-            else:
-                ship_name, ship_length = self.fleet[self.placing_ship_index]
-                row, col = coord
-                preview: Set[Coordinate] = set()
-                if self.ship_orientation == "h":
-                    preview = {(row, col + i) for i in range(ship_length)}
-                else:
-                    preview = {(row + i, col) for i in range(ship_length)}
-                if self.game and all(
-                    self.game.player_board.in_bounds(c) and c not in self.game.player_board.occupied
-                    for c in preview
-                ):
-                    self.preview_coords = preview
-                else:
-                    self.preview_coords.clear()
-            self.player_canvas.draw_board()
-        else:
+        if not self.setup_phase or self.game is None:
             canvas.draw_board()
+            return
+        if not self._is_setup_canvas(canvas):
+            canvas.draw_board()
+            return
+
+        if coord is None or self.placing_ship_index >= len(self.fleet):
+            if self.preview_coords:
+                self.preview_coords.clear()
+                self.player_canvas.draw_board()
+                self.opponent_canvas.draw_board()
+            else:
+                canvas.draw_board()
+            return
+
+        board = self._current_setup_board()
+        if board is None:
+            return
+
+        ship_length = self.fleet[self.placing_ship_index][1]
+        row, col = coord
+        preview: Set[Coordinate] = set()
+        if self.ship_orientation == "h":
+            preview = {(row, col + i) for i in range(ship_length)}
+        else:
+            preview = {(row + i, col) for i in range(ship_length)}
+
+        if all(board.in_bounds(c) and c not in board.occupied for c in preview):
+            self.preview_coords = preview
+        else:
+            self.preview_coords.clear()
+
+        self.player_canvas.draw_board()
+        self.opponent_canvas.draw_board()
 
     def handle_board_leave(self, canvas: BoardCanvas) -> None:
         """Handle cursor leaving a board."""
 
-        if canvas.is_player and self.setup_phase:
+        if self.setup_phase and self._is_setup_canvas(canvas) and self.preview_coords:
             self.preview_coords.clear()
+            self.player_canvas.draw_board()
+            self.opponent_canvas.draw_board()
+            return
         canvas.draw_board()
 
     def handle_board_click(self, canvas: BoardCanvas, coord: Optional[Coordinate]) -> None:
@@ -376,18 +454,22 @@ class BattleshipGUI(QWidget):
         if self.game is None or coord is None:
             return
 
-        if canvas.is_player:
-            if not self.setup_phase or self.placing_ship_index >= len(self.fleet):
+        if self.setup_phase and self._is_setup_canvas(canvas):
+            if self.placing_ship_index >= len(self.fleet):
+                return
+            board = self._current_setup_board()
+            if board is None:
                 return
             ship_name, ship_length = self.fleet[self.placing_ship_index]
             try:
-                self.game.player_board.place_ship(ship_name, ship_length, coord, self.ship_orientation)
+                board.place_ship(ship_name, ship_length, coord, self.ship_orientation)
             except ValueError as exc:
                 QMessageBox.warning(self, "Invalid Placement", str(exc))
                 return
             self.placing_ship_index += 1
             self.preview_coords.clear()
             self.player_canvas.draw_board()
+            self.opponent_canvas.draw_board()
             if self.placing_ship_index >= len(self.fleet):
                 self._finish_player_setup()
             self._update_status()
@@ -444,29 +526,46 @@ class BattleshipGUI(QWidget):
         self.orientation_button.setText(text)
         self.preview_coords.clear()
         self.player_canvas.draw_board()
+        self.opponent_canvas.draw_board()
         self._update_status()
 
     def _place_ships_randomly(self) -> None:
-        if self.game is None:
+        if self.game is None or not self.setup_phase:
             return
-        self.game.player_board.occupied.clear()
-        self.game.player_board.ships.clear()
-        self.game.player_board.shots.clear()
-        self.game.player_board.randomly_place_ships(self.fleet, self.game.rng)
+        board = self._current_setup_board()
+        if board is None:
+            return
+        board.occupied.clear()
+        board.ships.clear()
+        board.shots.clear()
+        board.randomly_place_ships(self.fleet, self.game.rng)
         self.placing_ship_index = len(self.fleet)
         self.preview_coords.clear()
         self.player_canvas.draw_board()
+        self.opponent_canvas.draw_board()
         self._finish_player_setup()
         self._update_status()
 
     def _finish_player_setup(self) -> None:
         if self.game is None:
             return
+        if self.two_player and self.setup_player == 1:
+            self.setup_player = 2
+            self.placing_ship_index = 0
+            self.ship_orientation = "h"
+            self.orientation_button.setText("Orientation: Horizontal")
+            self.preview_coords.clear()
+            self._update_canvas_interactivity()
+            self.player_canvas.draw_board()
+            self.opponent_canvas.draw_board()
+            return
+
         self.setup_phase = False
         self.setup_controls.setVisible(False)
         if not self.two_player:
             self.game.opponent_board.randomly_place_ships(self.fleet, self.game.rng)
-        self.opponent_canvas.setEnabled(True)
+        self.preview_coords.clear()
+        self._update_canvas_interactivity()
         self.player_canvas.draw_board()
         self.opponent_canvas.draw_board()
         self._start_player_turn()
@@ -526,6 +625,7 @@ class BattleshipGUI(QWidget):
             salvo_mode=self.salvo_mode,
         )
         self.setup_phase = True
+        self.setup_player = 1
         self.current_player = 1
         self.placing_ship_index = 0
         self.ship_orientation = "h"
@@ -536,7 +636,7 @@ class BattleshipGUI(QWidget):
         self.setWindowTitle(self._window_title())
         self.setup_controls.setVisible(True)
         self.orientation_button.setText("Orientation: Horizontal")
-        self.opponent_canvas.setEnabled(False)
+        self._update_canvas_interactivity()
         self.player_canvas.draw_board()
         self.opponent_canvas.draw_board()
         self._update_status()
@@ -546,11 +646,16 @@ class BattleshipGUI(QWidget):
             if self.placing_ship_index < len(self.fleet):
                 ship_name, ship_length = self.fleet[self.placing_ship_index]
                 orientation = "Horizontal" if self.ship_orientation == "h" else "Vertical"
-                self.status_label.setText(
-                    f"Place your {ship_name} (length {ship_length}) — {orientation}"
-                )
+                if self.two_player:
+                    prompt = f"Player {self.setup_player}: place your {ship_name}"
+                else:
+                    prompt = f"Place your {ship_name}"
+                self.status_label.setText(f"{prompt} (length {ship_length}) — {orientation}")
             else:
-                self.status_label.setText("Ready to start! Click to begin.")
+                if self.two_player and self.setup_player == 1:
+                    self.status_label.setText("Player 1 ready — Pass to Player 2 for placement.")
+                else:
+                    self.status_label.setText("Ready to start! Click to begin.")
             return
 
         if self.current_player == 1:
