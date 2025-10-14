@@ -354,6 +354,8 @@ This project follows high code quality standards with automated tooling:
 - **Type Hints:** Comprehensive type annotations throughout
 - **Testing:** 90%+ test coverage target with pytest
 - **Complexity Analysis:** Code complexity monitoring and enforcement
+- **Copilot Instructions:** Custom instructions for GitHub Copilot coding agent in `.github/copilot-instructions.md` and
+  `.github/instructions/`
 
 ### Documentation
 
@@ -371,6 +373,8 @@ This project follows high code quality standards with automated tooling:
 - **[docs/workflows/README.md](docs/workflows/README.md)** - GitHub Actions workflow documentation
 - **[common/README.md](common/README.md)** - Common module documentation
 - **[examples/](examples/)** - Example implementations using base classes
+- **[.github/COPILOT_INSTRUCTIONS_GUIDE.md](.github/COPILOT_INSTRUCTIONS_GUIDE.md)** - GitHub Copilot instructions
+  setup guide
 
 ### Quick Start for Development
 
