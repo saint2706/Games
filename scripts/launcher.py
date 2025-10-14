@@ -77,17 +77,17 @@ SLUG_TO_ENTRY = {value[0]: value for value in GAME_MAP.values()}
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments for automation and smoke tests."""
 
-    parser = argparse.ArgumentParser(description='Games Collection launcher')
-    parser.add_argument('--game', help='Game identifier (menu number or slug, e.g., dots_and_boxes).')
+    parser = argparse.ArgumentParser(description="Games Collection launcher")
+    parser.add_argument("--game", help="Game identifier (menu number or slug, e.g., dots_and_boxes).")
     parser.add_argument(
-        '--gui-framework',
-        choices=['tkinter', 'pyqt5'],
-        help='Preferred GUI framework when launching programmatically.',
+        "--gui-framework",
+        choices=["tkinter", "pyqt5"],
+        help="Preferred GUI framework when launching programmatically.",
     )
     parser.add_argument(
-        '--smoke-test',
-        action='store_true',
-        help='Run a non-interactive smoke test (used by CI to validate bundles).',
+        "--smoke-test",
+        action="store_true",
+        help="Run a non-interactive smoke test (used by CI to validate bundles).",
     )
     return parser.parse_args()
 
@@ -99,7 +99,7 @@ def get_game_entry(identifier: str) -> tuple[str, Callable[[], None]] | None:
     if key in GAME_MAP:
         return GAME_MAP[key]
 
-    normalized_key = key.replace('-', '_')
+    normalized_key = key.replace("-", "_")
     return SLUG_TO_ENTRY.get(normalized_key)
 
 
@@ -110,15 +110,15 @@ def run_pyqt_smoke_test(game_slug: str) -> int:
         from PyQt5.QtCore import QTimer
         from PyQt5.QtWidgets import QApplication
     except ImportError as exc:  # pragma: no cover - PyInstaller smoke tests only
-        raise RuntimeError('PyQt5 is required for PyQt5 smoke tests') from exc
+        raise RuntimeError("PyQt5 is required for PyQt5 smoke tests") from exc
 
     app = QApplication.instance() or QApplication([])
 
-    if game_slug == 'dots_and_boxes':
+    if game_slug == "dots_and_boxes":
         from paper_games.dots_and_boxes.gui_pyqt import DotsAndBoxesGUI
 
         window = DotsAndBoxesGUI(size=2, show_hints=False)
-    elif game_slug == 'go_fish':
+    elif game_slug == "go_fish":
         from card_games.go_fish.game import GoFishGame
         from card_games.go_fish.gui_pyqt import GoFishGUI
 
@@ -140,7 +140,7 @@ def run_smoke_test(game_identifier: str, gui_framework: str | None) -> int:
         raise ValueError(f"Unknown game identifier '{game_identifier}'")
 
     game_slug, _ = entry
-    if gui_framework == 'pyqt5':
+    if gui_framework == "pyqt5":
         return run_pyqt_smoke_test(game_slug)
 
     return 0
@@ -260,7 +260,7 @@ def main() -> None:
 
     if args.smoke_test:
         if args.game is None:
-            print('Smoke tests require --game to be specified.', file=sys.stderr)
+            print("Smoke tests require --game to be specified.", file=sys.stderr)
             sys.exit(1)
 
         exit_code = run_smoke_test(args.game, args.gui_framework)
@@ -273,7 +273,7 @@ def main() -> None:
             sys.exit(1)
 
         game_slug, launcher = entry
-        if args.gui_framework == 'pyqt5':
+        if args.gui_framework == "pyqt5":
             exit_code = run_pyqt_smoke_test(game_slug)
             sys.exit(exit_code)
 

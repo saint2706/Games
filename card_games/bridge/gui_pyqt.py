@@ -10,8 +10,8 @@ the legacy implementation.
 
 from __future__ import annotations
 
-import sys
 import random
+import sys
 from typing import Iterable, Optional
 
 from card_games.bridge.game import (
@@ -24,12 +24,12 @@ from card_games.bridge.game import (
     Vulnerability,
 )
 from card_games.common.cards import Card, Suit
-from common.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILABLE
+from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 if not PYQT5_AVAILABLE:  # pragma: no cover - module should not import without PyQt5
     raise ImportError("PyQt5 is required for the Bridge PyQt GUI")
 
-from PyQt5.QtCore import QTimer, Qt, QRectF
+from PyQt5.QtCore import QRectF, Qt, QTimer
 from PyQt5.QtGui import QColor, QFont, QPainter, QTextCursor
 from PyQt5.QtWidgets import (
     QApplication,
@@ -43,7 +43,6 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
 
 SUIT_DISPLAY_ORDER = {
     Suit.SPADES: 0,
@@ -366,9 +365,7 @@ class BridgeGUI(BaseGUI):
             if self.contract_label is not None:
                 self.contract_label.setText(f"Contract: {contract_text}")
             if self.declarer_label is not None:
-                self.declarer_label.setText(
-                    f"Declarer: {self.contract.declarer.position} | Dummy: {dummy.position}"
-                )
+                self.declarer_label.setText(f"Declarer: {self.contract.declarer.position} | Dummy: {dummy.position}")
 
         ns_tricks = sum(player.tricks_won for player in self.players if player.position in {"N", "S"})
         ew_tricks = sum(player.tricks_won for player in self.players if player.position in {"E", "W"})
@@ -494,9 +491,7 @@ class BridgeGUI(BaseGUI):
                 result_text = f"Contract down {required - declarer_tricks}."
         self._set_status(result_text)
         self._append_log(result_text)
-        self._append_log(
-            "Scores - North/South: {north_south} | East/West: {east_west}".format(**scores)
-        )
+        self._append_log("Scores - North/South: {north_south} | East/West: {east_west}".format(**scores))
         self.update_display()
 
     def _refresh_card_buttons(self) -> None:

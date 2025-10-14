@@ -375,9 +375,7 @@ class BattleshipGUI(QWidget):
         if not self.two_player:
             return canvas.is_player
         if self.setup_phase:
-            return (self.setup_player == 1 and canvas.is_player) or (
-                self.setup_player == 2 and not canvas.is_player
-            )
+            return (self.setup_player == 1 and canvas.is_player) or (self.setup_player == 2 and not canvas.is_player)
         return canvas.is_player
 
     def _is_preview_cell(self, canvas: BoardCanvas, coord: Coordinate) -> bool:
@@ -575,9 +573,7 @@ class BattleshipGUI(QWidget):
             return
         self.current_player = 1
         self.shots_remaining = self.game.get_salvo_count("player") if self.salvo_mode else 1
-        self.salvo_label.setText(
-            f"Shots remaining: {self.shots_remaining}" if self.salvo_mode else ""
-        )
+        self.salvo_label.setText(f"Shots remaining: {self.shots_remaining}" if self.salvo_mode else "")
         self._update_status()
 
     def _begin_ai_turn(self) -> None:
@@ -660,20 +656,14 @@ class BattleshipGUI(QWidget):
 
         if self.current_player == 1:
             if self.salvo_mode:
-                self.status_label.setText(
-                    f"Your turn — {self.shots_remaining} shot(s) remaining"
-                )
+                self.status_label.setText(f"Your turn — {self.shots_remaining} shot(s) remaining")
             else:
                 self.status_label.setText("Your turn — Select a target square")
         else:
             if self.two_player:
                 self.status_label.setText("Player 2's turn")
             else:
-                turn_msg = (
-                    f"AI firing {self.ai_shots_pending} shot(s)..."
-                    if self.salvo_mode
-                    else "AI is thinking..."
-                )
+                turn_msg = f"AI firing {self.ai_shots_pending} shot(s)..." if self.salvo_mode else "AI is thinking..."
                 self.status_label.setText(turn_msg)
 
     # ------------------------------------------------------------------

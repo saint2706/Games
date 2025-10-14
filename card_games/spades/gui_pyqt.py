@@ -38,7 +38,7 @@ from PyQt5.QtWidgets import (
 
 from card_games.common.cards import Card
 from card_games.spades.game import SpadesGame, SpadesPlayer
-from common.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILABLE
+from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 
 @dataclass
@@ -336,9 +336,7 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
             self.breakdown_widget.clear()
 
         if self.log_widget is not None:
-            self._log_message(
-                f"\nRound {self.game.round_number} begins. Leader: {self.game.players[self.leader_index].name}."
-            )
+            self._log_message(f"\nRound {self.game.round_number} begins. Leader: {self.game.players[self.leader_index].name}.")
 
         self.update_display()
         self._prompt_next_bidder()
@@ -578,12 +576,8 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
             plays = ", ".join(f"{player.name} {card}" for player, card in trick)
             lines.append(f"  Trick {index}: {plays}")
         lines.append("")
-        lines.append(
-            f"Partnership 1 ({self.team_names[0]}): {round_scores[0]} this round, {self.game.team_scores[0]} total, {self.game.bags[0]} bags"
-        )
-        lines.append(
-            f"Partnership 2 ({self.team_names[1]}): {round_scores[1]} this round, {self.game.team_scores[1]} total, {self.game.bags[1]} bags"
-        )
+        lines.append(f"Partnership 1 ({self.team_names[0]}): {round_scores[0]} this round, {self.game.team_scores[0]} total, {self.game.bags[0]} bags")
+        lines.append(f"Partnership 2 ({self.team_names[1]}): {round_scores[1]} this round, {self.game.team_scores[1]} total, {self.game.bags[1]} bags")
 
         self.phase = "Round complete"
         self.status_text = "Round complete. Review the breakdown or press Ctrl+N for the next round."

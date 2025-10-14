@@ -108,6 +108,7 @@ pytest tests/test_gui_pyqt.py -v
 - ✅ Go Fish
 
 ### Remaining (11/14)
+
 - ✅ Blackjack
 - ✅ Bluff
 - ✅ Crazy Eights
@@ -202,12 +203,12 @@ pre-commit run --all-files
 
 ## 📚 Documentation
 
-| Document                  | Purpose                                      |
+| Document | Purpose |
 | ------------------------- | -------------------------------------------- |
-| `MIGRATION_GUIDE.md`      | Step-by-step migration from tkinter to PyQt5 |
-| `FRAMEWORKS.md`           | Framework overview and guidelines            |
-| `PYQT5_IMPLEMENTATION.md` | Complete implementation summary              |
-| This file                 | Quick reference                              |
+| `MIGRATION_GUIDE.md` | Step-by-step migration from tkinter to PyQt5 |
+| `FRAMEWORKS.md` | Framework overview and guidelines |
+| `PYQT5_IMPLEMENTATION.md` | Complete implementation summary |
+| This file | Quick reference |
 
 ## 🧪 Testing
 

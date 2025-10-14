@@ -8,8 +8,6 @@ import os
 import pathlib
 import sys
 import tempfile
-from importlib import import_module
-from typing import Sequence, TYPE_CHECKING
 
 import pytest
 

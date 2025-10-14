@@ -14,7 +14,6 @@ import pkgutil
 import sys
 from typing import Dict, List, Optional
 
-
 FRAMEWORK_SUFFIXES: Dict[str, str] = {"tkinter": "gui", "pyqt5": "gui_pyqt"}
 
 
@@ -52,25 +51,6 @@ PYQT5_MIGRATED = {
 }
 
 
-def list_gui_games() -> dict[str, list[str]]:
-    """List all games with GUI implementations."""
-    return {
-        "paper_games": ["dots_and_boxes", "battleship"],
-        "card_games": [
-            "blackjack",
-            "bluff",
-            "bridge",
-            "crazy_eights",
-            "gin_rummy",
-            "go_fish",
-            "hearts",
-            "poker",
-            "solitaire",
-            "spades",
-            "uno",
-            "war",
-        ],
-    }
 def discover_gui_games(package_name: str) -> dict[str, list[str]]:
     """Discover GUI implementations for the provided package.
 
