@@ -127,14 +127,14 @@ class BoardCanvas(QWidget):
     def __init__(self, gui, size: int):
         super().__init__()
         self.setMouseTracking(True)
-        
+
     def paintEvent(self, event):
         painter = QPainter(self)
         # Custom drawing logic
-        
+
     def mousePressEvent(self, event):
         # Handle clicks
-        
+
     def mouseMoveEvent(self, event):
         # Handle hover effects
 ```
@@ -170,34 +170,20 @@ QTimer.singleShot(500, self.callback)
 
 ## Migration Status
 
-### Completed
+**For detailed game-by-game migration status, see [MIGRATION_STATUS.md](../MIGRATION_STATUS.md) in the repository root.**
 
-- ✅ PyQt5 base infrastructure
+### Infrastructure (Complete)
+
+- ✅ PyQt5 base infrastructure (`common/gui_base_pyqt.py`)
 - ✅ Dots and Boxes (proof of concept)
 - ✅ Test framework
 - ✅ Documentation
 - ✅ Development tools
 
-### Remaining Work (13 games)
+### Games (1/14 completed)
 
-**Paper Games** (1):
-
-- Battleship
-
-**Card Games** (12):
-
-- Blackjack
-- Bluff
-- Bridge
-- Crazy Eights
-- Gin Rummy
-- Go Fish
-- Hearts
-- Poker
-- Solitaire
-- Spades
-- Uno
-- War
+- ✅ **Completed**: Dots and Boxes
+- ⏳ **Remaining**: 13 games (1 paper game, 12 card games)
 
 ## Dependencies
 

@@ -77,10 +77,40 @@ class TestBaseGUIPyQt:
 
 
 @pytest.mark.gui
+class TestGoFishPyQt:
+    """Test Go Fish PyQt5 GUI components."""
+
+    def test_go_fish_pyqt_gui_import(self):
+        """Test that Go Fish PyQt5 GUI can be imported."""
+        from card_games.go_fish.gui_pyqt import GoFishGUI
+
+        assert GoFishGUI is not None
+
+    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
+    def test_go_fish_pyqt_gui_initialization(self, qtbot):
+        """Test Go Fish PyQt5 GUI initialization."""
+        try:
+            from card_games.go_fish.game import GoFishGame
+            from card_games.go_fish.gui_pyqt import GoFishGUI
+
+            game = GoFishGame(num_players=2)
+            window = GoFishGUI(game)
+            qtbot.addWidget(window)
+            assert window is not None
+            assert window.game is not None
+            assert len(window.player_rows) == 2
+        except Exception as e:
+            if "display" in str(e).lower() or "DISPLAY" in str(e):
+                pytest.skip("No display available for GUI testing")
+            raise
+
+
+@pytest.mark.gui
 def test_pyqt5_modules_available():
     """Test that PyQt5 GUI modules can be imported."""
     gui_modules = [
         "paper_games.dots_and_boxes.gui_pyqt",
+        "card_games.go_fish.gui_pyqt",
         "common.gui_base_pyqt",
     ]
 

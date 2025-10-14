@@ -12,31 +12,35 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 
 ## Migration Status
 
-### Completed
+**For detailed game-by-game migration status, see [MIGRATION_STATUS.md](../MIGRATION_STATUS.md) in the repository root.**
+
+### Infrastructure (Complete)
 
 - ✅ PyQt5 base infrastructure (`common/gui_base_pyqt.py`)
 - ✅ Dots and Boxes game (`paper_games/dots_and_boxes/gui_pyqt.py`)
 - ✅ Test framework for PyQt5 GUIs
 
-### Remaining
+### Games (1/14 completed)
 
-- Card games: blackjack, bluff, bridge, crazy_eights, gin_rummy, go_fish, hearts, poker, solitaire, spades, uno, war
-- Paper games: battleship
+- ✅ **Completed**: Dots and Boxes
+- ⏳ **Remaining**: 13 games
+  - Paper games: Battleship
+  - Card games: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Go Fish, Hearts, Poker, Solitaire, Spades, Uno, War
 
 ## Quick Start for Migration
 
 ### 1. Basic Widget Mapping
 
-| Tkinter | PyQt5 | Notes |
-|---------|-------|-------|
-| `tk.Tk()` | `QApplication` + `QWidget`/`QMainWindow` | PyQt5 uses QApplication globally |
-| `tk.Frame` | `QWidget` or `QFrame` | QFrame has borders, QWidget doesn't |
-| `tk.Label` | `QLabel` | Similar API |
-| `tk.Button` | `QPushButton` | Use `.clicked.connect()` instead of `command=` |
-| `tk.Canvas` | Custom `QWidget` with `paintEvent()` | More powerful but requires custom painting |
-| `tk.Entry` | `QLineEdit` | Similar functionality |
-| `scrolledtext.ScrolledText` | `QTextEdit` | Set readonly with `.setReadOnly(True)` |
-| `ttk.Style` | `QStyleSheet` or `QStyle` | Use CSS-like syntax |
+| Tkinter                     | PyQt5                                    | Notes                                          |
+| --------------------------- | ---------------------------------------- | ---------------------------------------------- |
+| `tk.Tk()`                   | `QApplication` + `QWidget`/`QMainWindow` | PyQt5 uses QApplication globally               |
+| `tk.Frame`                  | `QWidget` or `QFrame`                    | QFrame has borders, QWidget doesn't            |
+| `tk.Label`                  | `QLabel`                                 | Similar API                                    |
+| `tk.Button`                 | `QPushButton`                            | Use `.clicked.connect()` instead of `command=` |
+| `tk.Canvas`                 | Custom `QWidget` with `paintEvent()`     | More powerful but requires custom painting     |
+| `tk.Entry`                  | `QLineEdit`                              | Similar functionality                          |
+| `scrolledtext.ScrolledText` | `QTextEdit`                              | Set readonly with `.setReadOnly(True)`         |
+| `ttk.Style`                 | `QStyleSheet` or `QStyle`                | Use CSS-like syntax                            |
 
 ### 2. Event Handling
 
@@ -122,11 +126,11 @@ class DotsAndBoxesGUI:
     def __init__(self, root: tk.Tk, size: int = 2):
         self.root = root
         self.root.title(f"Dots and Boxes ({size}x{size})")
-        
+
         self.canvas = tk.Canvas(self.root, width=300, height=300, bg="white")
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self._on_click)
-        
+
         button = tk.Button(self.root, text="New Game", command=self._new_game)
         button.pack()
 
@@ -148,11 +152,11 @@ class BoardCanvas(QWidget):
         super().__init__()
         self.gui = gui
         self.setFixedSize(300, 300)
-        
+
     def paintEvent(self, event):
         painter = QPainter(self)
         # Custom drawing code here
-        
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.gui._on_click(event)
@@ -161,15 +165,15 @@ class DotsAndBoxesGUI(QWidget):
     def __init__(self, size: int = 2):
         super().__init__()
         self.setWindowTitle(f"Dots and Boxes ({size}x{size})")
-        
+
         layout = QVBoxLayout()
         self.canvas = BoardCanvas(self, size)
         layout.addWidget(self.canvas)
-        
+
         button = QPushButton("New Game")
         button.clicked.connect(self._new_game)
         layout.addWidget(button)
-        
+
         self.setLayout(layout)
 
 def run_gui(size: int = 2):
@@ -254,12 +258,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--gui-framework", choices=["tkinter", "pyqt5"], default="pyqt5")
     args = parser.parse_args()
-    
+
     if args.gui_framework == "pyqt5":
         from .gui_pyqt import run_gui
     else:
         from .gui import run_gui
-    
+
     run_gui()
 ```
 
@@ -312,7 +316,7 @@ result = messagebox.askyesno("Question", "Continue?")
 
 # PyQt5
 reply = QMessageBox.question(self, "Question", "Continue?",
-                             QMessageBox.StandardButton.Yes | 
+                             QMessageBox.StandardButton.Yes |
                              QMessageBox.StandardButton.No)
 result = reply == QMessageBox.StandardButton.Yes
 ```
@@ -333,11 +337,11 @@ class MyGameGUI(BaseGUI):
         )
         super().__init__(config=config)
         self.build_layout()
-    
+
     def build_layout(self):
         # Implement your layout
         pass
-    
+
     def update_display(self):
         # Update UI based on game state
         pass
@@ -353,11 +357,11 @@ class TestMyGamePyQt:
     def test_import(self):
         from my_game.gui_pyqt import MyGameGUI
         assert MyGameGUI is not None
-    
+
     @pytest.mark.skipif(not has_display(), reason="Requires display")
     def test_initialization(self, qtbot):
         from my_game.gui_pyqt import MyGameGUI
-        
+
         window = MyGameGUI()
         qtbot.addWidget(window)
         assert window is not None
