@@ -254,17 +254,21 @@ class TestGamePyQt:
 Update the game's `__main__.py` or CLI to use PyQt5 version:
 
 ```python
+from common.gui_frameworks import launch_preferred_gui
+from .gui import run_app as run_tk_gui
+from .gui_pyqt import run_gui as run_pyqt_gui
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--gui-framework", choices=["tkinter", "pyqt5"], default="pyqt5")
     args = parser.parse_args()
 
-    if args.gui_framework == "pyqt5":
-        from .gui_pyqt import run_gui
-    else:
-        from .gui import run_gui
-
-    run_gui()
+    launch_preferred_gui(
+        preferred=args.gui_framework,
+        tkinter_launcher=lambda: run_tk_gui(),
+        pyqt_launcher=lambda: run_pyqt_gui(),
+    )
 ```
 
 ## Common Gotchas

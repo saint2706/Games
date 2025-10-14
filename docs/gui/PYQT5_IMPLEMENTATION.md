@@ -38,7 +38,7 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Accessibility features
 - Keyboard shortcut support
 
-#### 2. Proof of Concept Migration
+#### 2. PyQt5 Game Implementations
 
 **File**: `paper_games/dots_and_boxes/gui_pyqt.py`
 
@@ -58,6 +58,13 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Timers (QTimer for AI delay)
 - Message boxes (game over, hints)
 - Dynamic UI updates
+
+**File**: `card_games/blackjack/gui_pyqt.py`
+
+- Full blackjack table interface with betting controls and action buttons
+- QGraphicsView-based card rendering that mirrors the Tkinter canvas
+- QTimer-driven dealer animations and round delays
+- Synchronizes PyQt widgets with `BlackjackGame` state flags
 
 #### 3. Testing Framework
 

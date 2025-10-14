@@ -106,11 +106,38 @@ class TestGoFishPyQt:
 
 
 @pytest.mark.gui
+class TestBlackjackPyQt:
+    """Test Blackjack PyQt5 GUI components."""
+
+    def test_blackjack_pyqt_gui_import(self):
+        """Test that Blackjack PyQt5 GUI can be imported."""
+        from card_games.blackjack.gui_pyqt import BlackjackTable
+
+        assert BlackjackTable is not None
+
+    @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
+    def test_blackjack_pyqt_gui_initialization(self, qtbot):
+        """Test Blackjack PyQt5 GUI initialization."""
+        try:
+            from card_games.blackjack.gui_pyqt import BlackjackTable
+
+            window = BlackjackTable(bankroll=200, min_bet=10, decks=4)
+            qtbot.addWidget(window)
+            assert window.game.min_bet == 10
+            assert window.round_active is False
+        except Exception as e:
+            if "display" in str(e).lower() or "DISPLAY" in str(e):
+                pytest.skip("No display available for GUI testing")
+            raise
+
+
+@pytest.mark.gui
 def test_pyqt5_modules_available():
     """Test that PyQt5 GUI modules can be imported."""
     gui_modules = [
         "paper_games.dots_and_boxes.gui_pyqt",
         "card_games.go_fish.gui_pyqt",
+        "card_games.blackjack.gui_pyqt",
         "common.gui_base_pyqt",
     ]
 
