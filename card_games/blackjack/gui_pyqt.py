@@ -608,9 +608,11 @@ class BlackjackTable(QWidget):
         if self._dealer_timer.isActive():
             self._dealer_timer.stop()
 
-        outcomes = self.game.settle_round()
+        outcomes_by_player = self.game.settle_round()
+        player_outcomes = outcomes_by_player.get(self.game.player, [])
+
         messages: list[str] = []
-        for idx, (hand, outcome) in enumerate(zip(self.game.player.hands, outcomes), start=1):
+        for idx, (hand, outcome) in enumerate(zip(self.game.player.hands, player_outcomes), start=1):
             descriptor = self._describe_outcome(hand, outcome)
             label = f"Hand {idx}: " if len(self.game.player.hands) > 1 else ""
             messages.append(f"{label}{descriptor}")
