@@ -154,7 +154,7 @@ The project includes several workflows you can run locally:
 | Mutation | `./scripts/run_workflow.sh mutation` | Run mutation tests |
 | Build | `./scripts/run_workflow.sh build` | Build executables |
 | CodeQL | `./scripts/run_workflow.sh codeql` | Security analysis |
-| PyPI Publishing | `./scripts/run_workflow.sh publish` | Test PyPI publishing (dry run) |
+| PyPI Publishing | `./scripts/run_workflow.sh publish --job build` | Test package build (publish requires credentials) |
 
 ### Running Specific Jobs
 
@@ -194,8 +194,10 @@ You can also provide custom event payloads:
 # Run a workflow_dispatch workflow with inputs
 ./scripts/run_workflow.sh test --event .github/workflows/events/workflow_dispatch.json
 
-# Run a release workflow (automatically detected for publish workflow)
-./scripts/run_workflow.sh publish
+# Test package build locally (publish workflow, build job only)
+./scripts/run_workflow.sh publish --job build --event .github/workflows/events/release.json
+
+# Note: Full publish requires PyPI credentials and should only run on GitHub Actions
 ```
 
 ## Advanced Usage
@@ -254,7 +256,7 @@ You can override these defaults with command-line flags.
 
 #### .secrets
 
-For workflows that require secrets (like publishing to PyPI):
+For workflows that require secrets:
 
 1. Copy the example file: `cp .secrets.example .secrets`
 1. Add your secrets to `.secrets`
@@ -266,6 +268,8 @@ Example `.secrets` file:
 GITHUB_TOKEN=ghp_your_token_here
 CODECOV_TOKEN=your_codecov_token
 ```
+
+**Note**: The PyPI publishing workflow uses GitHub's trusted publishing (OIDC) and does not require API tokens. Publishing only occurs on GitHub Actions when a release is created. Local testing is limited to the build step.
 
 ### Environment Variables
 
