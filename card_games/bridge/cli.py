@@ -324,15 +324,15 @@ def game_loop() -> None:
             if dummy.is_ai:
                 display_hand(dummy)
 
-        if game.hand_complete:
-            break
-
         if len(game.current_trick) == 4:
             winner = game.complete_trick()
             print(f"{winner.position} wins the trick")
             current_player_idx = game.players.index(winner)
         else:
             current_player_idx = (current_player_idx + 1) % 4
+
+        if game.hand_complete:
+            break
 
     print("\n" + "=" * 60)
     print("RESULTS")
