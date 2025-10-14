@@ -6,6 +6,67 @@ Hold'em and Blackjack to strategy games like Checkers and Chess, word puzzles, d
 
 **📖 See [GAMES.md](GAMES.md) for a complete catalog of all available games.**
 
+## Installation
+
+### From PyPI (Recommended)
+
+The easiest way to install the Games Collection is via pip:
+
+```bash
+# Standard installation
+pip install games-collection
+
+# With GUI support
+pip install games-collection[gui]
+
+# For development
+pip install games-collection[dev]
+```
+
+After installation, you can run games using the `games-*` commands:
+
+```bash
+# Card games
+games-poker
+games-blackjack
+games-uno
+games-war
+
+# Paper games
+games-tic-tac-toe
+games-battleship
+games-checkers
+
+# Dice games
+games-craps
+games-bunco
+
+# See all available games
+pip show games-collection
+```
+
+### From Source
+
+For development or testing the latest changes:
+
+```bash
+git clone https://github.com/saint2706/Games.git
+cd Games
+
+# Install in editable mode with development dependencies
+pip install -e ".[dev]"
+
+# Run games using Python module syntax
+python -m card_games.war
+python -m paper_games.tic_tac_toe
+```
+
+### Other Options
+
+- **Docker**: See [docs/deployment/DEPLOYMENT.md](docs/deployment/DEPLOYMENT.md#docker-deployment)
+- **Standalone Executables**: Download from [Releases](https://github.com/saint2706/Games/releases)
+- **Complete Guide**: See [docs/deployment/DEPLOYMENT.md](docs/deployment/DEPLOYMENT.md)
+
 ## Repository layout
 
 ```text
@@ -269,8 +330,11 @@ This project follows high code quality standards with automated tooling:
 ### Quick Start for Development
 
 ```bash
-# Install development dependencies
+# Install the package in editable mode with development dependencies
 pip install -e ".[dev]"
+
+# Or install from PyPI for testing
+pip install games-collection[dev]
 
 # Install pre-commit hooks
 pre-commit install

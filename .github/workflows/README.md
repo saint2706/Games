@@ -56,8 +56,11 @@ The `.github/dependabot.yml` configuration enables automated dependency updates:
 To run checks locally before pushing:
 
 ```bash
-# Install tools
-pip install black mdformat ruff pytest
+# Option 1: Install the package with development tools
+pip install games-collection[dev]
+
+# Option 2: Install from source in editable mode
+pip install -e ".[dev]"
 
 # Run linting checks
 black --check .

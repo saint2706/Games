@@ -417,11 +417,11 @@ docker ps
 
 #### Tests fail with import errors
 
-The workflow may not be installing dependencies correctly. Check:
+The workflow may not be installing the package correctly. Check:
 
-1. The workflow's installation steps
-1. The Python version matches your requirements
-1. All dependencies are in `requirements.txt` and `requirements-dev.txt`
+1. The workflow's installation steps use `pip install -e ".[dev]"`
+1. The Python version matches your requirements (3.9+)
+1. All dependencies are properly declared in `pyproject.toml`
 
 #### Secrets not working
 

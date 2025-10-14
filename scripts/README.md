@@ -290,11 +290,14 @@ See `make help` for all available targets.
 
 ### Python Scripts
 
-Require Python 3.9+ and dependencies from `requirements.txt` and `requirements-dev.txt`:
+Require Python 3.9+ and the games-collection package:
 
 ```bash
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+# Option 1: Install from PyPI
+pip install games-collection[dev]
+
+# Option 2: Install from source
+pip install -e ".[dev]"
 ```
 
 ### Bash Scripts
