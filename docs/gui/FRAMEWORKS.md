@@ -55,12 +55,12 @@ For detailed migration instructions, see `MIGRATION_GUIDE.md`.
 
 | Status | Count | Percentage |
 | ------------ | ----- | ---------- |
-| ✅ Completed | 1/14 | 7% |
-| ⏳ Remaining | 13/14 | 93% |
+| ✅ Completed | 3/14 | 21% |
+| ⏳ Remaining | 11/14 | 79% |
 
-**Completed**: Dots and Boxes
+**Completed**: Dots and Boxes, Go Fish, Hearts
 
-**Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Go Fish, Hearts, Poker, Solitaire, Spades, Uno, War (card games)
+**Remaining**: Battleship (paper games), Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Poker, Solitaire, Spades, Uno, War (card games)
 
 ## Using GUIs
 
