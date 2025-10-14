@@ -106,6 +106,7 @@ pytest tests/test_gui_pyqt.py -v
 
 - ✅ Dots and Boxes
 - ✅ Go Fish
+- ✅ Spades
 - ✅ Uno
 - ✅ War
 
@@ -123,6 +124,7 @@ pytest tests/test_gui_pyqt.py -v
 - Gin Rummy
 - Hearts
 - Solitaire
+- Uno
 - Spades
 - War
 - Uno

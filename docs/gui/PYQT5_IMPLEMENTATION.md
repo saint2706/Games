@@ -38,26 +38,20 @@ After evaluation, PyQt5 was selected over Pygame because:
 - Accessibility features
 - Keyboard shortcut support
 
-#### 2. Proof of Concept Migration
+#### 2. Proof of Concept Migrations
 
-**File**: `paper_games/dots_and_boxes/gui_pyqt.py`
-
-- Complete PyQt5 implementation of Dots and Boxes game
-- Custom `BoardCanvas` widget with QPainter for game board rendering
-- Mouse event handling (click, move, hover)
-- AI opponent integration
-- Hint system
-- Score tracking
-- Professional appearance with modern widgets
-
-**Features Demonstrated**:
-
-- Custom painting with QPainter
-- Event handling (mouse clicks, movement, hover)
-- Layout management (QVBoxLayout, QHBoxLayout)
-- Timers (QTimer for AI delay)
-- Message boxes (game over, hints)
-- Dynamic UI updates
+- **Dots and Boxes** (`paper_games/dots_and_boxes/gui_pyqt.py`)
+  - Custom `BoardCanvas` widget with QPainter for game board rendering
+  - Mouse event handling (click, move, hover)
+  - AI opponent integration, hints, and score tracking
+- **Go Fish** (`card_games/go_fish/gui_pyqt.py`)
+  - Scoreboard and control panels implemented with Qt layouts
+  - Animated feedback via timers for book celebrations
+  - Scrollable hand view with grouped ranks
+- **Spades** (`card_games/spades/gui_pyqt.py`)
+  - Bidding, trick tracking, and scoring panels reconstructed with `QGroupBox`
+  - Keyboard shortcuts, accessibility tooltips, and timer-driven AI sequencing
+  - Log and breakdown panels built with `QTextEdit`
 
 #### 3. Card Game Ports
 
@@ -78,8 +72,8 @@ After evaluation, PyQt5 was selected over Pygame because:
 
 **Test Results**:
 
-- 4 tests passing
-- 1 test skipped (requires display - expected in headless CI)
+- PyQt5 GUI import and initialization tests cover Dots and Boxes, Go Fish, and Spades
+- Display-dependent tests remain skipped automatically in headless environments
 - All code passes black formatting and ruff linting
 
 #### 5. Documentation
@@ -189,6 +183,8 @@ QTimer.singleShot(500, self.callback)
 
 ### Games (3/14 completed)
 
+- ✅ **Completed**: Dots and Boxes, Go Fish, Spades
+- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
 - ✅ **Completed**: Dots and Boxes, Go Fish, Uno
 - ⏳ **Remaining**: 13 games (1 paper game, 12 card games)
 
