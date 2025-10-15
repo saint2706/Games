@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pathlib
 import tempfile
-from datetime import datetime
+from datetime import date, datetime
 
 import pytest
 
@@ -326,6 +326,32 @@ class TestPlayerProfile:
         assert "Level: 1" in summary
         assert "Total Games: 2" in summary
         assert "uno" in summary.lower()
+
+    def test_daily_challenge_progress(self):
+        """Daily challenge tracking should update streaks and avoid duplicates."""
+
+        profile = PlayerProfile(player_id="test_player", display_name="Test Player")
+
+        unlocked_first = profile.record_daily_challenge("challenge1", date(2024, 1, 1))
+        assert profile.daily_challenge_progress.total_completed == 1
+        assert profile.daily_challenge_progress.current_streak == 1
+        assert profile.daily_challenge_progress.best_streak == 1
+        assert profile.daily_challenge_progress.is_completed(date(2024, 1, 1))
+        assert "daily_challenge_first_completion" in unlocked_first
+
+        unlocked_second = profile.record_daily_challenge("challenge2", date(2024, 1, 2))
+        assert profile.daily_challenge_progress.total_completed == 2
+        assert profile.daily_challenge_progress.current_streak == 2
+        assert profile.daily_challenge_progress.best_streak == 2
+        assert "daily_challenge_first_completion" not in unlocked_second
+
+        repeat = profile.record_daily_challenge("challenge_duplicate", date(2024, 1, 2))
+        assert repeat == []
+        assert profile.daily_challenge_progress.total_completed == 2
+
+        profile.record_daily_challenge("challenge3", date(2024, 1, 4))
+        assert profile.daily_challenge_progress.current_streak == 1
+        assert profile.daily_challenge_progress.best_streak == 2
 
 
 class TestHelperFunctions:

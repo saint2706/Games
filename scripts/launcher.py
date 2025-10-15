@@ -11,6 +11,8 @@ import argparse
 import sys
 from typing import Callable, Dict, List, Optional
 
+from common.challenges import get_default_challenge_manager
+from common.daily_challenges import DailyChallengeScheduler, DailyChallengeSelection
 from common.profile_service import ProfileService, ProfileServiceError, get_profile_service
 from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata
 from common.tutorial_session import TutorialSession
@@ -159,23 +161,40 @@ def run_smoke_test(game_identifier: str, gui_framework: str | None) -> int:
     return 0
 
 
-def print_header(service: ProfileService) -> None:
+def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) -> None:
     """Print the launcher header."""
     profile = service.active_profile
     profile_line = f"Active Profile: {profile.display_name} (Level {profile.level})"
     xp_line = f"XP: {profile.experience} | Next Level: {profile.experience_to_next_level()} XP"
+    selection = scheduler.get_challenge_for_date()
+    progress = profile.daily_challenge_progress
+    completed = progress.is_completed(selection.target_date)
+    status_label = "Completed" if completed else "Available"
+    streak_line = (
+        f"Streak: {progress.current_streak} (Best {progress.best_streak})"
+        f" | Total Completed: {progress.total_completed}"
+    )
+    summary_line = f"Daily Challenge: {selection.summary()} [{status_label}]"
+    if HAS_COLORAMA:
+        status_color = Fore.GREEN if completed else Fore.YELLOW
+    else:
+        status_color = ""
     if HAS_COLORAMA:
         print(f"\n{Fore.CYAN}{Style.BRIGHT}{'=' * 60}")
         print(f"{Fore.CYAN}{Style.BRIGHT}{'GAMES COLLECTION':^60}")
         print(f"{Fore.CYAN}{Style.BRIGHT}{'=' * 60}{Style.RESET_ALL}\n")
         print(f"{Fore.MAGENTA}{profile_line}{Style.RESET_ALL}")
         print(f"{Fore.MAGENTA}{xp_line}{Style.RESET_ALL}\n")
+        print(f"{status_color}{summary_line}{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}{streak_line}{Style.RESET_ALL}\n")
     else:
         print("\n" + "=" * 60)
         print(f"{'GAMES COLLECTION':^60}")
         print("=" * 60 + "\n")
         print(profile_line)
-        print(xp_line + "\n")
+        print(xp_line)
+        print(summary_line)
+        print(streak_line + "\n")
 
 
 def print_menu(service: ProfileService) -> None:
@@ -227,6 +246,12 @@ def print_menu(service: ProfileService) -> None:
             ("T", "Tutorial catalogue"),
         ],
     }
+
+    if HAS_COLORAMA:
+        print(f"{Fore.CYAN}Daily Activities:{Style.RESET_ALL}")
+    else:
+        print("Daily Activities:")
+    print("  D. Play today's daily challenge\n")
 
     if HAS_COLORAMA:
         print(f"{Fore.GREEN}Profile Options:{Style.RESET_ALL}")
@@ -539,11 +564,113 @@ def launch_tutorial_browser(service: ProfileService) -> None:
             print(launch_message)
         _run_tutorial_session(session, metadata)
 
-def launch_game(choice: str, service: ProfileService) -> bool:
+
+def _print_completion_message(unlocked: List[str]) -> None:
+    """Display confirmation for recording a daily challenge completion."""
+
+    message = "Daily challenge completion recorded!"
+    if HAS_COLORAMA:
+        print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+    else:
+        print(message)
+
+    if not unlocked:
+        return
+
+    badge_line = "Unlocked achievements: " + ", ".join(unlocked)
+    if HAS_COLORAMA:
+        print(f"{Fore.MAGENTA}{badge_line}{Style.RESET_ALL}")
+    else:
+        print(badge_line)
+
+
+def _run_sudoku_daily_challenge(
+    service: ProfileService,
+    selection: DailyChallengeSelection,
+) -> None:
+    """Launch the Sudoku CLI configured for the selected challenge."""
+
+    challenge = selection.challenge
+    builder = challenge.metadata.get("build_puzzle")
+    if not callable(builder):
+        print("This Sudoku challenge is missing puzzle configuration.")
+        return
+
+    puzzle = builder()
+    try:
+        from paper_games.sudoku.sudoku import SudokuCLI, SudokuPuzzle
+    except ImportError as exc:  # pragma: no cover - optional dependency guard
+        print(f"Unable to load Sudoku CLI: {exc}")
+        return
+
+    def _on_complete(puzzle_obj: SudokuPuzzle) -> None:
+        is_valid = True
+        if challenge.validate:
+            try:
+                is_valid = bool(challenge.validate(puzzle_obj))
+            except Exception as exc:  # pragma: no cover - defensive path
+                print(f"Validation error: {exc}")
+                is_valid = False
+        if not is_valid:
+            print("Completion could not be validated; progress not recorded.")
+            return
+        unlocked = service.record_daily_challenge_completion(challenge.id, when=selection.target_date)
+        _print_completion_message(unlocked)
+
+    SudokuCLI(puzzle=puzzle, on_complete=_on_complete).run()
+
+
+def _handle_daily_challenge(service: ProfileService, scheduler: DailyChallengeScheduler) -> None:
+    """Display information about today's daily challenge and offer to launch it."""
+
+    selection = scheduler.get_challenge_for_date()
+    challenge = selection.challenge
+    pack = selection.pack
+    progress = service.active_profile.daily_challenge_progress
+    completed = progress.is_completed(selection.target_date)
+
+    difficulty = challenge.difficulty.value.title()
+    header = f"\nDaily Challenge – {selection.target_date.isoformat()}"
+    details = [
+        header,
+        "-" * len(header),
+        f"Pack: {pack.name}",
+        f"Difficulty: {difficulty}",
+        f"Title: {challenge.title}",
+        "",
+        challenge.description,
+        "",
+        f"Goal: {challenge.goal}",
+    ]
+    print("\n".join(details))
+
+    if completed:
+        print("\nYou've already completed today's challenge. Great job!")
+        input("Press Enter to return to the menu…")
+        return
+
+    game_id = challenge.metadata.get("game_id")
+    if game_id == "sudoku":
+        _run_sudoku_daily_challenge(service, selection)
+        input("\nPress Enter to return to the menu…")
+        return
+
+    print("\nPlay the corresponding game and return here when finished.")
+    confirm = input("Mark this challenge as completed? [y/N]: ").strip().lower()
+    if confirm == "y":
+        unlocked = service.record_daily_challenge_completion(challenge.id, when=selection.target_date)
+        _print_completion_message(unlocked)
+    else:
+        print("Progress not recorded. You can come back later today.")
+    input("Press Enter to return to the menu…")
+
+
+def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeScheduler) -> bool:
     """Launch the selected game.
 
     Args:
         choice: The menu choice number
+        scheduler: Daily challenge scheduler for handling special entries
 
     Returns:
         True to continue, False to exit
@@ -570,6 +697,9 @@ def launch_game(choice: str, service: ProfileService) -> bool:
         return True
     if normalized == "t":
         launch_tutorial_browser(service)
+        return True
+    if normalized == "d":
+        _handle_daily_challenge(service, scheduler)
         return True
 
     if normalized in GAME_MAP:
@@ -599,6 +729,9 @@ def main() -> None:
     args = parse_args()
 
     profile_service = get_profile_service()
+    challenge_manager = get_default_challenge_manager()
+    schedule_path = profile_service.profile_dir.parent / "daily_challenges.json"
+    scheduler = DailyChallengeScheduler(challenge_manager, storage_path=schedule_path)
 
     try:
         if args.profile:
@@ -647,12 +780,12 @@ def main() -> None:
             return
 
     while True:
-        print_header(profile_service)
+        print_header(profile_service, scheduler)
         print_menu(profile_service)
 
         try:
             choice = input("Enter your choice: ").strip()
-            if not launch_game(choice, profile_service):
+            if not launch_game(choice, profile_service, scheduler):
                 if HAS_COLORAMA:
                     print(f"\n{Fore.CYAN}Thank you for playing!{Style.RESET_ALL}\n")
                 else:

@@ -144,7 +144,7 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [ ] Add achievement system across all games
 - [ ] Create unified profile and progression system
 - [ ] Implement cross-game tutorial system using existing documentation
-- [ ] Add daily challenges with rotation across different games
+- [x] Add daily challenges with rotation across different games
 - [ ] Create game recommendation system based on play history
 - [ ] Implement cross-game leaderboard integration
 
@@ -205,7 +205,7 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 
 - [ ] Add friend system and invitations
 - [ ] Implement achievements and badges
-- [ ] Create daily challenges and special events
+- [x] Create daily challenges and special events
 - [ ] Add social media sharing for game results
 - [ ] Implement tournament organization tools
 - [ ] Create clan/guild system for teams
@@ -383,7 +383,7 @@ This section provides a timeline-based view of planned development, organizing t
 
 - [ ] Complete remaining low-priority card games (Canasta, Pinochle)
 - [ ] Implement cross-game tutorial system
-- [ ] Add daily challenges with rotation across games
+- [x] Add daily challenges with rotation across games
 - [ ] Create game recommendation system based on play history
 - [ ] Create interactive game theory visualizations
 - [ ] Add step-by-step playback with AI reasoning annotations
@@ -441,7 +441,7 @@ This section provides a timeline-based view of planned development, organizing t
 - [ ] Add auto-update functionality
 - [ ] Implement cross-game leaderboard integration
 - [ ] Create clan/guild system for teams
-- [ ] Add daily challenges and special events
+- [x] Add daily challenges and special events
 
 **Deliverables**: Community platform, Additional distribution channels, Events system
 

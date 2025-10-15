@@ -451,6 +451,43 @@ python -m card_games.blackjack.cli --help
 
 The Nim game's educational features are demonstrated in the CLI when the AI explains its moves.
 
+## Daily Challenge Rotation
+
+The collection now includes a rotating **daily challenge** system that surfaces curated scenarios across games.
+
+- Use `common.daily_challenges.DailyChallengeScheduler` to deterministically select a challenge for a given date.
+- Selections are persisted to `~/.games/daily_challenges.json` (or the profile directory you pass in) so all launchers
+  display the same rotation for that day.
+- Challenge metadata exposes builder callbacks (for example Sudoku boards) that allow CLIs to load bespoke states and run
+  automated validation.
+
+Example:
+
+```python
+from datetime import date
+
+from common import DailyChallengeScheduler, get_default_challenge_manager
+
+manager = get_default_challenge_manager()
+scheduler = DailyChallengeScheduler(manager)
+
+selection = scheduler.get_challenge_for_date(date.today())
+print(selection.summary())
+```
+
+### Launcher integration
+
+The main CLI launcher (`scripts/launcher.py`) now exposes a **D. Daily Challenge** menu entry. Selecting it shows the current
+challenge description, launches specialised experiences (for example an auto-configured Sudoku board), and records
+completion through `ProfileService.record_daily_challenge_completion` so streaks are preserved across sessions.
+
+### Persistence and streak tracking
+
+- `PlayerProfile` stores challenge history in `daily_challenge_progress` and unlocks new achievements for first completion
+  and multi-day streaks.
+- Achievements are registered under the virtual game id `daily_challenge`, making it easy to surface new milestones in
+  dashboards or GUIs.
+
 ## Future Enhancements
 
 Potential additions to educational features:
