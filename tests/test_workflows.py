@@ -274,8 +274,7 @@ def test_build_executables_has_correct_triggers():
     assert "v*" in triggers["push"]["tags"], "build-executables should trigger on 'v*' tags"
 
     # Should also have workflow_dispatch for manual triggers
-    assert "workflow_dispatch" in triggers or triggers.get("workflow_dispatch") is None, \
-        "build-executables should have 'workflow_dispatch' trigger"
+    assert "workflow_dispatch" in triggers or triggers.get("workflow_dispatch") is None, "build-executables should have 'workflow_dispatch' trigger"
 
 
 def test_create_release_job_has_tag_condition():
@@ -294,8 +293,7 @@ def test_create_release_job_has_tag_condition():
 
     # Verify the job has the correct condition
     assert "if" in create_release_job, "create-release job should have an 'if' condition"
-    assert "startsWith(github.ref, 'refs/tags/v')" in create_release_job["if"], \
-        "create-release should only run on version tag pushes"
+    assert "startsWith(github.ref, 'refs/tags/v')" in create_release_job["if"], "create-release should only run on version tag pushes"
 
 
 def test_create_release_uses_git_tag():
