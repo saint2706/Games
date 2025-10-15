@@ -5,8 +5,9 @@ This module tests that version numbers are consistent across the package.
 
 from __future__ import annotations
 
-import tomllib
 from pathlib import Path
+
+import tomllib
 
 
 def test_version_consistency():
@@ -33,9 +34,7 @@ def test_version_consistency():
             raise ValueError("Could not find __version__ in scripts/__init__.py")
 
     # Verify they match
-    assert (
-        pyproject_version == scripts_version
-    ), f"Version mismatch: pyproject.toml has {pyproject_version} but scripts/__init__.py has {scripts_version}"
+    assert pyproject_version == scripts_version, f"Version mismatch: pyproject.toml has {pyproject_version} but scripts/__init__.py has {scripts_version}"
 
 
 def test_version_format():
