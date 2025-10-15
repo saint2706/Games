@@ -105,12 +105,31 @@ All event files should include repository information:
 }
 ```
 
+## Limitations with Local Testing
+
+### Environments
+
+Some workflows use GitHub Environments (e.g., `publish-pypi.yml` uses the `pypi` environment). When testing locally with `act`:
+
+- Environment protection rules are not enforced
+- Environment secrets are not available (unless configured in `.secrets`)
+- Environment variables need to be set manually with `--env`
+
+**Note**: The PyPI publishing workflow (`publish-pypi.yml`) uses trusted publishing (OIDC) which only works on GitHub Actions, not locally. Local testing is limited to the `build` job:
+
+```bash
+./scripts/run_workflow.sh publish --job build --event .github/workflows/events/release.json
+```
+
+For more details on environment configuration, see [PYPI_RELEASE.md](../../../docs/deployment/PYPI_RELEASE.md).
+
 ## Tips
 
 - Keep your custom event files in this directory for consistency
 - Use descriptive filenames: `push-hotfix.json`, `pr-from-fork.json`, etc.
 - Test with different event types to ensure workflow flexibility
 - Refer to actual GitHub webhook payloads in the Actions UI for accuracy
+- For workflows using environments, test locally with individual jobs or skip environment-dependent steps
 
 ## Related Documentation
 

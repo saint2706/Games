@@ -67,16 +67,21 @@ jobs:
 
   publish-to-pypi:
     name: Publish to PyPI
+    # Only publish on release events (not on workflow_dispatch)
     if: github.event_name == 'release' && github.event.action == 'published'
     needs: [build]
     runs-on: ubuntu-latest
 
+    # GitHub Environment configuration required:
+    # 1. Create 'pypi' environment in repository Settings > Environments
+    # 2. Configure PyPI trusted publishing with this environment name
+    # 3. No secrets needed - uses OIDC (id-token: write permission)
     environment:
       name: pypi
       url: https://pypi.org/p/games-collection
 
     permissions:
-      id-token: write
+      id-token: write  # Required for PyPI trusted publishing (OIDC)
 
     steps:
       - name: Download distribution packages
@@ -90,12 +95,14 @@ jobs:
 
   github-release:
     name: Sign and upload to GitHub Release
+    # Only run on release events, after successful PyPI publish
+    if: github.event_name == 'release' && github.event.action == 'published'
     needs: [publish-to-pypi]
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write
-      id-token: write
+      contents: write  # Required to upload release assets
+      id-token: write  # Required for Sigstore signing
 
     steps:
       - name: Download distribution packages

@@ -4,6 +4,8 @@ This document describes how to release the games-collection package to PyPI.
 
 ## Prerequisites
 
+### 1. PyPI Account and Trusted Publishing
+
 1. **PyPI Account**: Create an account at https://pypi.org
 1. **Trusted Publishing**: Configure trusted publishing (OIDC) in PyPI project settings:
    - Go to PyPI project settings for `games-collection`
@@ -13,6 +15,27 @@ This document describes how to release the games-collection package to PyPI.
    - Repository: `Games`
    - Workflow: `publish-pypi.yml`
    - Environment: `pypi`
+
+### 2. GitHub Environment Configuration
+
+The workflow requires a GitHub environment named `pypi` to be configured:
+
+1. Go to repository **Settings** > **Environments**
+1. Click **New environment**
+1. Enter name: `pypi`
+1. Click **Configure environment**
+1. (Optional) Add protection rules:
+   - **Required reviewers**: Add reviewers who must approve deployments
+   - **Wait timer**: Add delay before deployment proceeds
+   - **Deployment branches**: Restrict to specific branches (e.g., `main` or tags matching `v*`)
+1. Click **Save protection rules**
+
+**Important Notes**:
+
+- The environment name **must** be `pypi` to match PyPI trusted publishing configuration
+- No environment secrets are needed - the workflow uses OpenID Connect (OIDC) for authentication
+- Protection rules are optional but recommended for production deployments
+- The workflow will fail if the environment doesn't exist or access is denied
 
 ## Automated Release Process
 
@@ -110,11 +133,47 @@ After the release is published:
 - Ensure all required files (LICENSE, README.md) exist
 - Verify Python version compatibility (>=3.9)
 
+### Jobs Are Skipped After Build
+
+If the `build` job succeeds but `publish-to-pypi` and `github-release` jobs are skipped:
+
+1. **Check Event Type**:
+
+   - These jobs only run on `release` events with action `published`
+   - They will be skipped on `workflow_dispatch` (manual trigger)
+   - This is intentional security behavior
+
+1. **Verify Environment Exists**:
+
+   - Go to repository **Settings** > **Environments**
+   - Confirm the `pypi` environment exists
+   - If missing, see "GitHub Environment Configuration" in Prerequisites section
+
+1. **Check Environment Protection Rules**:
+
+   - If environment has required reviewers, deployment needs approval
+   - Check the Actions tab for pending approval requests
+   - Reviewers will receive notification to approve the deployment
+
+1. **Review Workflow Logs**:
+   - Go to Actions tab and select the workflow run
+   - Check for error messages or warnings
+   - Look for "Environment protection rules" or "Waiting for approval" messages
+
 ### Publishing Fails
 
 - Verify trusted publishing is configured correctly in PyPI
 - Check that the workflow has `id-token: write` permission
 - Ensure the release tag matches the version in `pyproject.toml`
+- Confirm the PyPI trusted publishing configuration matches:
+  - Workflow name: `publish-pypi.yml`
+  - Environment name: `pypi`
+
+### Environment Configuration Issues
+
+- **Error: "Environment not found"**: Create the `pypi` environment (see Prerequisites)
+- **Error: "Deployment rejected"**: Check environment protection rules and required reviewers
+- **Jobs pending indefinitely**: Required reviewer approval may be needed
 
 ### Package Version Already Exists
 
