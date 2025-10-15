@@ -12,47 +12,20 @@ This guide explains how to migrate GUI applications from Tkinter to PyQt5 in the
 
 ## Migration Status
 
-**For detailed game-by-game migration status, see [MIGRATION_STATUS.md](../MIGRATION_STATUS.md) in the repository root.**
+The Tkinter → PyQt5 migration effort is complete. For the authoritative status table, see [GUI_MIGRATION_STATUS.md](../status/GUI_MIGRATION_STATUS.md).
 
-### Infrastructure (Complete)
+### Infrastructure (✅ Complete)
 
-- ✅ PyQt5 base infrastructure (`common/gui_base_pyqt.py`)
-- ✅ Dots and Boxes game (`paper_games/dots_and_boxes/gui_pyqt.py`)
-- ✅ Test framework for PyQt5 GUIs
+- PyQt5 base infrastructure (`common/gui_base_pyqt.py`)
+- Headless-friendly test framework for PyQt5 GUIs
+- Documentation, tooling, and developer quickstarts
 
-### Games (3/14 completed)
+### Games (16/16 migrated)
 
-- ✅ **Completed**: Dots and Boxes, Go Fish, Gin Rummy
+- **Paper Games (2/2):** Battleship, Dots and Boxes
+- **Card Games (14/14):** Blackjack, Bluff, Bridge, Canasta, Crazy Eights, Gin Rummy, Go Fish, Hearts, Pinochle, Poker, Solitaire, Spades, Uno, War
 
-- ⏳ **Remaining**: 11 games
-
-  - Paper games: Battleship
-  - Card games: Blackjack, Bluff, Bridge, Crazy Eights, Hearts, Poker, Solitaire, Spades, Uno, War
-
-- ✅ **Completed**: Battleship, Dots and Boxes, Go Fish
-
-- ⏳ **Remaining**: 11 games (card games: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War)
-
-- ✅ **Completed**: Dots and Boxes, Go Fish, Bluff
-
-- ⏳ **Remaining**: 11 games
-
-  - Paper games: Battleship
-  - Card games: Blackjack, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War
-
-- ✅ **Completed**: Dots and Boxes, Go Fish, Crazy Eights
-
-- ⏳ **Remaining**: 11 games
-
-  - Paper games: Battleship
-  - Card games: Blackjack, Bluff, Bridge, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War
-
-- ✅ **Completed**: Dots and Boxes, Go Fish, Hearts
-
-- ⏳ **Remaining**: 11 games
-
-  - Paper games: Battleship
-  - Card games: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Poker, Solitaire, Spades, Uno, War
+🎉 **All games with GUI support now ship with PyQt5 implementations that maintain feature parity with their Tkinter counterparts.**
 
 ## Running PyQt5 GUIs Headlessly
 
@@ -65,13 +38,6 @@ mkdir -p "$XDG_RUNTIME_DIR"
 ```
 
 The pytest configuration in this repository sets these variables automatically, but local shells and ad-hoc scripts still need them to ensure Qt can initialize without access to a windowing system.
-
-### Games (1/14 completed)
-
-- ✅ **Completed**: Dots and Boxes, Go Fish, Poker
-- ⏳ **Remaining**: 11 games
-  - Paper games: Battleship
-  - Card games: Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Solitaire, Spades, Uno, War
 
 ## Quick Start for Migration
 

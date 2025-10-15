@@ -9,6 +9,7 @@ Major implementations completed in 2025:
 
 ### Infrastructure & Quality
 
+- ✅ Tkinter → PyQt5 GUI migration for all supported games (16/16) with updated tooling and docs
 - ✅ Complete code quality system (pre-commit hooks, complexity analysis, type hints)
 - ✅ Professional testing infrastructure (pytest, coverage, mutation testing, GUI testing)
 - ✅ Comprehensive documentation system (Sphinx, API docs, tutorials, architecture guides)
@@ -58,8 +59,8 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 ### Low Priority
 
-- [ ] **Canasta** - Implement melding with wild cards, minimum point requirements, and partnership scoring
-- [ ] **Pinochle** - Double-deck trick-taking game with complex bidding and melding phases
+- [x] **Canasta** - Implemented with full melding rules, PyQt5 GUI, and comprehensive CLI/GUI parity
+- [x] **Pinochle** - Partnership trick-taking implementation with bidding, melding, and PyQt5/Tkinter interfaces
 - [x] **Crazy Eights** - Shedding game similar to Uno but with standard deck mechanics ✅ **NEW**
 
 ## 📝 New Paper & Pencil Games
@@ -97,12 +98,25 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 - [x] **Liar's Dice** - Bluffing game similar to Bluff but with dice
 - [x] **Bunco** - Party dice game with rounds and team scoring
 
+**Next steps:**
+
+- [ ] Add adaptive AI opponents for Farkle and Liar's Dice leveraging `common/ai_strategy.py`
+- [ ] Implement Bunco tournament brackets and scoring summaries in CLI and GUI front-ends
+- [ ] Expand Craps betting options (odds bets, place bets) with analytics tracking hooks
+
 ### Trivia & Word Games
 
-- [x] **Trivia Quiz** - Multiple choice questions from various categories with API integration
+- [x] **Trivia Quiz** - Multiple choice questions from various categories using curated local question sets (API integration pending)
 - [x] **Crossword Generator** - Create and solve crossword puzzles with clue system
 - [x] **Anagrams** - Word rearrangement game with scoring system
 - [x] **WordBuilder** - Tile-based word building game (avoiding trademark issues)
+
+**Next steps:**
+
+- [ ] Integrate external trivia APIs with caching and offline fallback logic
+- [ ] Support user-generated crossword packs with import/export utilities
+- [ ] Add authoritative dictionary validation and tile bag configuration to WordBuilder
+- [ ] Explore synchronous or asynchronous online multiplayer for cooperative/versus word play
 
 ### Logic & Puzzle Games
 
@@ -112,19 +126,29 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 - [x] **Lights Out** - Toggle-based puzzle with graph theory solution
 - [x] **Picross/Nonograms** - Picture logic puzzles with row/column hints
 
+**Next steps:**
+
+- [ ] Add PyQt5/Tkinter GUIs for logic games using `common/gui_base.py` and `common/gui_base_pyqt.py`
+- [ ] Implement progressive level packs and difficulty unlocks across puzzle titles
+- [ ] Provide in-game hint systems tied to the tutorial registry helpers
+- [ ] Track per-puzzle leaderboards and completion analytics via `common/analytics`
+- [ ] Generate larger or custom puzzle sets with configurable parameters
+
 ## ✨ Feature Enhancements for Existing Games
 
 ### Apply Enhanced Features to More Games
 
 Many infrastructure improvements exist but aren't yet applied to all games:
 
-- [ ] Add enhanced GUI features (themes, sounds, animations) to all card games
+- [x] Add enhanced GUI features (themes, sounds, animations) to all card games via `common/gui_base_pyqt.py`, shared themes, and soundscapes
 - [x] **Implement save/load functionality in games** ✅ - War game now supports save/load using `SaveLoadManager`
 - [x] **Add replay/undo functionality to strategy games** ✅ - Tic-tac-toe now supports undo using `ReplayManager`
 - [ ] Apply event-driven architecture to remaining games for better state management
 - [x] **Integrate CLI enhancements into games** ✅ - Hangman now uses `InteractiveMenu`, `ASCIIArt`, `RichText`
 - [x] **Universal statistics system for card games** ✅ **NEW** - `card_games/common/stats.py` wrapper created and
   integrated into War game
+
+- [ ] Expand save/load integration beyond War so additional card and board games persist matches by default
 
 **See `ENHANCEMENTS_APPLIED.md` for detailed documentation of implemented features.**
 
@@ -141,12 +165,14 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 
 - [x] **Implement universal statistics tracking system** ✅ **PARTIAL** - Created `card_games/common/stats.py` wrapper,
   integrated into War game as example
-- [ ] Add achievement system across all games
-- [ ] Create unified profile and progression system
-- [ ] Implement cross-game tutorial system using existing documentation
+- [x] Add achievement system across all games ✅ - `common/achievements.py` and `common/achievements_registry.py` provide shared unlock tracking and notifications
+- [x] Create unified profile and progression system ✅ - `common/profile.py` persists player progress, achievements, and challenge streaks
+- [x] Implement cross-game tutorial system using existing documentation ✅ - `common/tutorial_registry.py` federates tutorials, hints, and probability calculators
 - [x] Add daily challenges with rotation across different games
-- [ ] Create game recommendation system based on play history
+- [x] Create game recommendation system based on play history ✅ - `common/recommendation_service.py` blends analytics-driven suggestions
 - [ ] Implement cross-game leaderboard integration
+- [ ] Broaden achievement catalog coverage to more games beyond the initial Tic-Tac-Toe, Hangman, Nim, and daily challenge sets
+- [ ] Surface profile, achievement, and recommendation data inside the launcher UI for easier discovery
 
 ## 🏗️ Technical Improvements
 
