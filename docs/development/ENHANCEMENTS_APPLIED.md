@@ -4,11 +4,12 @@ This document summarizes the infrastructure enhancements that have been applied 
 
 ## Overview
 
-Three games have been enhanced to demonstrate different infrastructure capabilities:
+Four games have been enhanced to demonstrate different infrastructure capabilities:
 
 1. **War (Card Game)** - Save/Load Functionality
 1. **Tic-Tac-Toe (Paper Game)** - Replay/Undo Functionality
 1. **Hangman (Paper Game)** - CLI Enhancements
+1. **Hearts & Spades (Card Games)** - GUI Preference Persistence
 
 ## 1. War Game - Save/Load Functionality
 
@@ -114,6 +115,51 @@ Enhanced user experience:
 python -m paper_games.hangman
 # Navigate menus with arrow keys
 # See colored feedback during gameplay
+```
+
+## 4. Hearts & Spades - GUI Preference Persistence
+
+### Changes Made
+
+**File: `card_games/hearts/gui.py`**
+
+- Added persistent preference loading via `SettingsManager`
+- Introduced a GUI "Preferences" menu for selecting themes, toggling sounds, and enabling/disabling animations
+- Added helpers to update or reset preferences programmatically (used by tests and the menu actions)
+
+**File: `card_games/spades/gui.py`**
+
+- Mirrored the Hearts GUI enhancements for preference loading and menu controls
+- Exposed helpers to update/reset preferences and ensured menu state stays in sync with stored values
+
+**File: `card_games/hearts/__main__.py`**
+
+- Surfaced new CLI switches (`--theme`, `--sounds/--no-sounds`, `--animations/--no-animations`, `--reset-preferences`)
+- CLI switches persist the selection so the GUI picks them up on the next launch
+
+**File: `card_games/spades/__main__.py`**
+
+- Added the same CLI switches and persistence logic as the Hearts entry point (with backend auto-detection retained)
+
+**File: `tests/test_gui_preferences.py`**
+
+- Added Tkinter-aware smoke tests that verify preferences load correctly and that helper methods persist new settings without raising errors
+
+### Usage
+
+- Launch either GUI and open **Preferences → Theme** to select between *Light*, *Dark*, and *High Contrast*
+- Toggle **Enable sounds** or **Enable animations** in the same menu; settings persist across sessions
+- Use CLI flags to preconfigure preferences, for example:
+
+```bash
+python -m card_games.hearts --theme high_contrast --no-sounds
+python -m card_games.spades --backend tk --animations --sounds
+```
+
+### Testing
+
+```bash
+pytest tests/test_gui_preferences.py -k "preferences"
 ```
 
 ## Architecture Systems Demonstrated
