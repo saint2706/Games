@@ -175,3 +175,34 @@ def test_workflow_documentation_exists():
         doc_path = docs_dir / doc
         assert doc_path.exists(), f"Documentation {doc} should exist"
         assert doc_path.is_file(), f"Documentation {doc} should be a file"
+
+
+def test_build_executables_has_artifacts_verification():
+    """Test that build-executables workflow has artifacts verification steps."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "build-executables.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    # Check that create-release job exists
+    assert "create-release" in workflow["jobs"], "build-executables should have create-release job"
+
+    create_release_job = workflow["jobs"]["create-release"]
+    steps = create_release_job["steps"]
+    step_names = [step.get("name") for step in steps]
+
+    # Verify the artifacts verification steps exist
+    assert "List artifacts" in step_names, "create-release should have 'List artifacts' step"
+    assert "Verify artifacts exist" in step_names, "create-release should have 'Verify artifacts exist' step"
+
+    # Verify the order: List artifacts and Verify artifacts should come after Download all artifacts
+    download_idx = step_names.index("Download all artifacts")
+    list_idx = step_names.index("List artifacts")
+    verify_idx = step_names.index("Verify artifacts exist")
+    create_release_idx = step_names.index("Create Release")
+
+    assert list_idx > download_idx, "List artifacts should come after Download all artifacts"
+    assert verify_idx > list_idx, "Verify artifacts exist should come after List artifacts"
+    assert create_release_idx > verify_idx, "Create Release should come after Verify artifacts exist"

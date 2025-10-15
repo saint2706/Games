@@ -74,6 +74,8 @@ creates GitHub releases when version tags are pushed.
 
 1. Check out repository
 1. Download all artifacts from build jobs
+1. List artifacts (for debugging)
+1. Verify all expected artifacts exist
 1. Create GitHub release with artifacts attached
 
 ## Why create-release is "Skipped"
@@ -318,13 +320,15 @@ git push origin v1.0.0
 
 ### Issue: "Release creation failed"
 
-**Cause:** Missing permissions or tag already exists
+**Cause:** Missing permissions, tag already exists, or missing artifacts
 
 **Solution:**
 
 1. Ensure workflow has `contents: write` permission ✅
+1. Check the "List artifacts" and "Verify artifacts exist" step logs to see if all expected artifacts are present
 1. Delete existing tag if needed: `git tag -d v1.0.0 && git push origin :refs/tags/v1.0.0`
 1. Create new tag with different version
+1. If artifacts are missing, check that all build-pyinstaller jobs completed successfully
 
 ## Version Tagging Best Practices
 
