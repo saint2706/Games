@@ -61,13 +61,37 @@ These files provide targeted guidance for specific types of files:
   - Use threading for AI moves to keep GUI responsive
   - Support keyboard navigation and accessibility features
 
-### Additional Instruction Files
+### Agent-Specific Instructions
 
 **File**: `.github/AGENTS.md`
 
-An alternative instruction file format that GitHub Copilot also recognizes. This file has similar content to
-`copilot-instructions.md` but is slightly less detailed. Both files are maintained for compatibility with different AI
-coding assistants.
+Specialized instruction file following OpenAI Codex best practices. This file provides:
+
+- Clear role definition for AI coding agents
+- Actionable code templates and patterns
+- Step-by-step development workflow
+- Explicit validation requirements
+- Success criteria for code changes
+- Quick reference commands
+
+This file follows OpenAI Codex best practices including:
+1. Clear role and context definition
+2. Specific, measurable requirements
+3. Copy-paste code examples
+4. Error prevention guidelines
+5. Validation checklists
+
+**File**: `.github/instructions/AGENTS.md`
+
+Path-specific agent instructions that complement the repository-wide AGENTS.md. This file provides:
+
+- Instructions for different file types (tests, GUI, games)
+- File-type-specific patterns and templates
+- Validation checklists by file type
+- Quick reference commands for each file type
+- Integration guidance with repository-wide instructions
+
+Both AGENTS.md files are maintained alongside copilot-instructions.md for compatibility with different AI coding assistants and to provide specialized guidance following OpenAI Codex best practices.
 
 ## How Copilot Uses These Instructions
 
@@ -149,13 +173,20 @@ pytest tests/test_mcp_config.py -v
 ```
 .github/
 ├── copilot-instructions.md              # Main repository-wide instructions
-├── AGENTS.md                            # Alternative format (compatibility)
+├── AGENTS.md                            # OpenAI Codex best practices (repository-wide)
 ├── COPILOT_INSTRUCTIONS_GUIDE.md       # This file (documentation)
 └── instructions/                        # Path-specific instructions
-    ├── test-files.instructions.md
-    ├── game-implementations.instructions.md
-    └── gui-files.instructions.md
+    ├── test-files.instructions.md       # Test file requirements
+    ├── game-implementations.instructions.md  # Game implementation requirements
+    ├── gui-files.instructions.md        # GUI file requirements
+    └── AGENTS.md                        # Path-specific agent instructions
 ```
+
+**Note**: AGENTS.md files are placed at both levels:
+- `.github/AGENTS.md` - Repository-wide agent instructions
+- `.github/instructions/AGENTS.md` - Path-specific agent instructions
+
+This dual placement ensures AI coding agents have comprehensive context regardless of which file they're working on.
 
 ## Impact on Development
 
