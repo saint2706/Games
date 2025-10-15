@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import random
 from enum import Enum
-from typing import List, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 from common.game_engine import GameEngine, GameState
 
@@ -66,16 +66,39 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
     Move format: (row, col, action) where action is 'reveal' or 'flag'
     """
 
-    def __init__(self, difficulty: Difficulty = Difficulty.BEGINNER) -> None:
+    def __init__(
+        self,
+        difficulty: Difficulty = Difficulty.BEGINNER,
+        *,
+        custom_rows: Optional[int] = None,
+        custom_cols: Optional[int] = None,
+        custom_mines: Optional[int] = None,
+    ) -> None:
         """Initialize Minesweeper game.
 
         Args:
-            difficulty: Game difficulty level
+            difficulty: Game difficulty level used when no custom dimensions are provided.
+            custom_rows: Optional number of rows for custom boards.
+            custom_cols: Optional number of columns for custom boards.
+            custom_mines: Optional mine count for custom boards.
         """
-        self.difficulty = difficulty
-        self.rows = difficulty.rows
-        self.cols = difficulty.cols
-        self.num_mines = difficulty.mines
+
+        if any(value is not None for value in (custom_rows, custom_cols, custom_mines)):
+            if custom_rows is None or custom_cols is None or custom_mines is None:
+                raise ValueError("Custom rows, cols and mines must all be provided together.")
+            if custom_rows <= 0 or custom_cols <= 0:
+                raise ValueError("Custom board dimensions must be positive.")
+            if custom_mines <= 0 or custom_mines >= custom_rows * custom_cols:
+                raise ValueError("Custom mine count must be positive and less than total cells.")
+            self.difficulty = difficulty
+            self.rows = int(custom_rows)
+            self.cols = int(custom_cols)
+            self.num_mines = int(custom_mines)
+        else:
+            self.difficulty = difficulty
+            self.rows = difficulty.rows
+            self.cols = difficulty.cols
+            self.num_mines = difficulty.mines
         self.reset()
 
     def reset(self) -> None:
