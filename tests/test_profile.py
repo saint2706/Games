@@ -286,22 +286,9 @@ class TestPlayerProfile:
         """Test achievement integration with profile."""
         profile = PlayerProfile(player_id="test_player", display_name="Test Player")
 
-        # Register an achievement
-        ach = Achievement(
-            id="first_win",
-            name="First Win",
-            description="Win your first game",
-            category=AchievementCategory.PROGRESSION,
-            condition=lambda stats: stats.get("wins", 0) >= 1,
-        )
-        profile.achievement_manager.register_achievement(ach)
+        assert "first_win" in profile.achievement_manager.achievements
 
-        # Record a win
-        profile.record_game("uno", "win")
-
-        # Check achievement
-        stats = {"wins": profile.total_wins()}
-        unlocked = profile.achievement_manager.check_achievements(stats)
+        unlocked = profile.record_game("uno", "win")
 
         assert "first_win" in unlocked
         assert profile.achievement_manager.is_unlocked("first_win")

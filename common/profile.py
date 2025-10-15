@@ -10,9 +10,10 @@ import json
 import pathlib
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from common.achievements import AchievementManager
+from common.achievements_registry import get_achievement_registry
 
 
 @dataclass
@@ -158,6 +159,13 @@ class PlayerProfile:
     experience: int = 0
     preferences: Dict = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        """Register all known achievements and enable notifications."""
+
+        registry = get_achievement_registry()
+        registry.register_all(self.achievement_manager)
+        registry.enable_cli_notifications()
+
     def get_game_profile(self, game_id: str) -> GameProfile:
         """Get or create a game-specific profile.
 
@@ -171,7 +179,14 @@ class PlayerProfile:
             self.game_profiles[game_id] = GameProfile(game_id=game_id)
         return self.game_profiles[game_id]
 
-    def record_game(self, game_id: str, result: str, playtime: Optional[float] = None, experience_gained: int = 0) -> None:
+    def record_game(
+        self,
+        game_id: str,
+        result: str,
+        playtime: Optional[float] = None,
+        experience_gained: int = 0,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> List[str]:
         """Record a game result and update profile.
 
         Args:
@@ -179,15 +194,29 @@ class PlayerProfile:
             result: Game result ('win', 'loss', or 'draw').
             playtime: Optional playtime in seconds.
             experience_gained: Experience points gained.
+            metadata: Optional supplemental statistics (e.g., perfect game flag).
+
+        Returns:
+            List of newly unlocked achievement identifiers.
         """
         self.last_active = datetime.now().isoformat()
 
         profile = self.get_game_profile(game_id)
         profile.record_game(result, playtime)
 
+        self._update_custom_stats(profile, metadata)
+
         # Add experience
         if experience_gained > 0:
             self.add_experience(experience_gained)
+
+        stats = self._build_achievement_stats(game_id, metadata)
+        unlocked = self.achievement_manager.check_achievements(stats)
+
+        registry = get_achievement_registry()
+        registry.notify_unlocks(unlocked, self.achievement_manager, player_id=self.player_id, game_id=game_id, stats=stats)
+
+        return unlocked
 
     def add_experience(self, amount: int) -> bool:
         """Add experience points and check for level up.
@@ -247,6 +276,45 @@ class PlayerProfile:
             Total number of wins.
         """
         return sum(profile.wins for profile in self.game_profiles.values())
+
+    def _update_custom_stats(self, profile: GameProfile, metadata: Optional[Dict[str, Any]]) -> None:
+        """Update per-game custom statistics using optional metadata."""
+
+        if not metadata:
+            return
+
+        if metadata.get("perfect_game"):
+            profile.custom_stats["perfect_games"] = profile.custom_stats.get("perfect_games", 0) + 1
+
+        profile.custom_stats.setdefault("last_metadata", metadata.copy())
+
+    def _build_achievement_stats(self, game_id: str, metadata: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Assemble the statistics payload passed to the achievement manager."""
+
+        game_profile = self.get_game_profile(game_id)
+        perfect_games_total = sum(p.custom_stats.get("perfect_games", 0) for p in self.game_profiles.values())
+
+        stats: Dict[str, Any] = {
+            "player_id": self.player_id,
+            "game_id": game_id,
+            "games_played": self.total_games_played(),
+            "wins": self.total_wins(),
+            "win_streak": game_profile.win_streak,
+            "best_win_streak": game_profile.best_win_streak,
+            "perfect_games": perfect_games_total,
+            "game_games_played": game_profile.games_played,
+            "game_wins": game_profile.wins,
+            "game_losses": game_profile.losses,
+            "game_draws": game_profile.draws,
+            "game_win_streak": game_profile.win_streak,
+            "game_best_win_streak": game_profile.best_win_streak,
+            "game_perfect_games": game_profile.custom_stats.get("perfect_games", 0),
+        }
+
+        if metadata:
+            stats["metadata"] = metadata.copy()
+
+        return stats
 
     def total_playtime(self) -> float:
         """Calculate total playtime across all games.
