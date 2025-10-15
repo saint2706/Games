@@ -18,7 +18,6 @@ from common.educational import StrategyTip, StrategyTipProvider, TutorialStep
 from common.game_engine import GameEngine
 from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata
 
-
 GameFactory = Callable[[Dict[str, Any]], GameEngine[Any, Any]]
 
 

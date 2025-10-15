@@ -7,8 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from common.educational import StrategyTip, StrategyTipProvider, TutorialMode, TutorialStep
 from common.game_engine import GameEngine, GameState
-from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata, TutorialRegistration
-from common.tutorial_registry import SimpleProgressProbabilityCalculator
+from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, SimpleProgressProbabilityCalculator, TutorialMetadata, TutorialRegistration
 from logic_games.progression import LOGIC_PUZZLE_SERVICE, LevelPack, LogicPuzzleDefinition, LogicPuzzleService, PuzzleDifficulty
 
 
@@ -187,4 +186,3 @@ def test_leaderboard_tracking_uses_analytics() -> None:
 
 def test_global_service_registered_games() -> None:
     assert LOGIC_PUZZLE_SERVICE.registered_games(), "Default logic games should be registered"
-

@@ -9,11 +9,9 @@ from .lights_out import LightsOutGame
 from .minesweeper.minesweeper import Difficulty as MinesweeperDifficulty
 from .minesweeper.minesweeper import MinesweeperGame
 from .picross import PicrossGame
+from .progression import LOGIC_PUZZLE_SERVICE, LevelPack, LogicPuzzleDefinition, PuzzleDifficulty
 from .sliding_puzzle import SlidingPuzzleGame
 from .sokoban import SokobanGame
-
-from .progression import LOGIC_PUZZLE_SERVICE, LevelPack, LogicPuzzleDefinition, PuzzleDifficulty
-
 
 _REGISTERED = False
 

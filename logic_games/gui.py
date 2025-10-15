@@ -6,12 +6,12 @@ import time
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
+from common.gui_base import TKINTER_AVAILABLE, tk, ttk
 from common.gui_base import BaseGUI as TkBaseGUI
 from common.gui_base import GUIConfig as TkGUIConfig
-from common.gui_base import TKINTER_AVAILABLE, tk, ttk
+from common.gui_base_pyqt import PYQT5_AVAILABLE
 from common.gui_base_pyqt import BaseGUI as QtBaseGUI
 from common.gui_base_pyqt import GUIConfig as QtGUIConfig
-from common.gui_base_pyqt import PYQT5_AVAILABLE
 from common.i18n import _
 
 from .progression import LOGIC_PUZZLE_SERVICE, LogicPuzzleService, PuzzleDifficulty
@@ -85,9 +85,7 @@ class _LogicGameGUIController:
             return _("No completions have been recorded yet. Be the first!")
         rows = [_("Leaderboard:")]
         for entry in leaderboard:
-            rows.append(
-                f"{entry['player']} – {entry['wins']} wins ({entry['win_rate']:.0f}% win rate, {entry['average_duration']:.1f}s avg)"
-            )
+            rows.append(f"{entry['player']} – {entry['wins']} wins ({entry['win_rate']:.0f}% win rate, {entry['average_duration']:.1f}s avg)")
         return "\n".join(rows)
 
     # ------------------------------------------------------------------
@@ -105,9 +103,9 @@ class _LogicGameGUIController:
             None,
         )
         difficulty_name = diff.display_name if diff else self.state.active_difficulty
-        return _(
-            "Started {difficulty} puzzle for {game}. Use the hint button to consult the tutorial registry."
-        ).format(difficulty=difficulty_name, game=definition.display_name)
+        return _("Started {difficulty} puzzle for {game}. Use the hint button to consult the tutorial registry.").format(
+            difficulty=difficulty_name, game=definition.display_name
+        )
 
     def complete_puzzle(self) -> str:
         if not self.state.active_game or not self.state.active_difficulty:
@@ -132,9 +130,9 @@ class _LogicGameGUIController:
         )
         self.state.session_start = None
         self._active_engine = None
-        return _(
-            "Recorded completion in {duration:.1f}s with {mistakes} mistakes. Keep solving to unlock the next pack!"
-        ).format(duration=duration, mistakes=mistakes)
+        return _("Recorded completion in {duration:.1f}s with {mistakes} mistakes. Keep solving to unlock the next pack!").format(
+            duration=duration, mistakes=mistakes
+        )
 
     def request_hint(self) -> str:
         if not self.state.active_game or not self.state.active_difficulty:
