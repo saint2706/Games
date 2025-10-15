@@ -199,34 +199,30 @@ QTimer.singleShot(500, self.callback)
 
 ## Migration Status
 
-**For detailed game-by-game migration status, see [MIGRATION_STATUS.md](../MIGRATION_STATUS.md) in the repository root.**
+**For detailed game-by-game migration status, see [GUI_MIGRATION_STATUS.md](../status/GUI_MIGRATION_STATUS.md).**
 
 ### Infrastructure (Complete)
 
 - ✅ PyQt5 base infrastructure (`common/gui_base_pyqt.py`)
-- ✅ Dots and Boxes (proof of concept)
 - ✅ Test framework
 - ✅ Documentation
 - ✅ Development tools
 
-### Games (3/14 completed)
+### Games (16/16 completed - 100%)
 
-- ✅ **Completed**: Dots and Boxes, Go Fish, Gin Rummy
-- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
-- ✅ **Completed**: Battleship, Dots and Boxes, Go Fish
-- ⏳ **Remaining**: 11 card games (Blackjack, Bluff, Bridge, Crazy Eights, Gin Rummy, Hearts, Poker, Solitaire, Spades, Uno, War)
-- ✅ **Completed**: Dots and Boxes, Go Fish, Bluff
-- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
-- ✅ **Completed**: Dots and Boxes, Go Fish, Crazy Eights
-- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
-- ✅ **Completed**: Dots and Boxes, Go Fish, Hearts
-- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
-- ✅ **Completed**: Dots and Boxes, Go Fish, Solitaire
-- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
-- ✅ **Completed**: Dots and Boxes, Go Fish, Spades
-- ⏳ **Remaining**: 11 games (1 paper game, 10 card games)
-- ✅ **Completed**: Dots and Boxes, Go Fish, Uno
-- ⏳ **Remaining**: 13 games (1 paper game, 12 card games)
+**Paper Games (2/2):**
+
+- ✅ Dots and Boxes (proof of concept)
+- ✅ Battleship
+
+**Card Games (14/14):**
+
+- ✅ Blackjack, Bluff, Bridge, Canasta
+- ✅ Crazy Eights, Gin Rummy, Go Fish, Hearts
+- ✅ Pinochle, Poker, Solitaire, Spades
+- ✅ Uno, War
+
+🎉 **Migration Complete!** All games with GUI support have been successfully migrated to PyQt5.
 
 ## Dependencies
 
@@ -273,14 +269,14 @@ python scripts/test_gui.py --list
 1. **Documentation**: Comprehensive guides for migration
 1. **Testing**: Proper test infrastructure with pytest-qt
 
-## Next Steps for Contributors
+## Guidelines for New GUI Development
 
-To complete the migration:
+For new games or GUI features:
 
-1. **Choose a game** from the remaining 11
-1. **Follow the migration guide** in `MIGRATION_GUIDE.md`
-1. **Reference the example** in `paper_games/dots_and_boxes/gui_pyqt.py`
-1. **Use BaseGUI** from `common/gui_base_pyqt.py` for consistency
+1. **Use PyQt5** as the primary GUI framework
+1. **Inherit from BaseGUI** in `common/gui_base_pyqt.py` for consistency
+1. **Reference existing implementations** as examples (e.g., `card_games/solitaire/gui_pyqt.py` for complex GUIs)
+1. **Follow the migration guide** in `MIGRATION_GUIDE.md` for best practices
 1. **Add tests** in `tests/test_gui_pyqt.py`
 1. **Update documentation** as needed
 
@@ -288,10 +284,11 @@ To complete the migration:
 
 ### Why Keep Both Versions?
 
-During the transition period, both tkinter and PyQt5 versions coexist:
+Both tkinter and PyQt5 versions are maintained to:
 
-- Ensures backward compatibility
-- Allows gradual migration
+- Ensure backward compatibility
+- Support users without PyQt5 dependencies (tkinter is in Python stdlib)
+- Provide fallback options based on environment
 - Lets users choose their preferred framework
 - Provides comparison for testing
 
