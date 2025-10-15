@@ -7,7 +7,7 @@ This is a PyQt5 implementation that mirrors the tkinter-based gui_base.py
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
@@ -17,12 +17,21 @@ try:
     from PyQt5.QtWidgets import QFrame, QLabel, QMainWindow, QMessageBox, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
     PYQT5_AVAILABLE = True
+
+    # Create a combined metaclass to resolve metaclass conflict
+    # This allows BaseGUI to work with both ABC and QWidget
+    class CombinedMeta(type(QWidget), ABCMeta):  # type: ignore
+        """Metaclass combining Qt's metaclass with ABCMeta."""
+
+        pass
+
 except ImportError:
     PYQT5_AVAILABLE = False
     # Create placeholder types for type hints
     QMainWindow = None  # type: ignore
     QWidget = None  # type: ignore
     QLabel = None  # type: ignore
+    CombinedMeta = ABCMeta  # type: ignore
 
 # Import enhancement modules
 from common.accessibility import get_accessibility_manager
@@ -68,12 +77,15 @@ class GUIConfig:
     accessibility_mode: bool = False
 
 
-class BaseGUI(ABC):
+class BaseGUI(metaclass=CombinedMeta):
     """Abstract base class for game GUIs using PyQt5.
 
     This class provides common functionality for building game interfaces
     including layout management, logging, status updates, theming, sound,
     accessibility, i18n, and keyboard shortcuts.
+
+    Note: Uses CombinedMeta to resolve metaclass conflict when inheriting
+    from both BaseGUI and QWidget.
     """
 
     def __init__(self, root: Optional[QMainWindow] = None, config: Optional[GUIConfig] = None) -> None:
