@@ -8,7 +8,6 @@ exclude = [
     "tests*",
     "docs*",
     "examples*",
-    "scripts*",
     "build*",
     "dist*",
     "*.egg-info",
@@ -105,6 +104,9 @@ gui = [
 ]
 
 [project.scripts]
+# Main launcher
+games-collection = "scripts.launcher:main"
+
 # Card Games
 games-uno = "card_games.uno.uno:main"
 games-poker = "card_games.poker.poker:main"
