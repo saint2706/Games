@@ -128,6 +128,22 @@ jobs:
         with:
           path: artifacts/
 
+      - name: List artifacts
+        run: ls -lR artifacts/
+
+      - name: Verify artifacts exist
+        run: |
+          echo "Checking for expected artifact directories..."
+          for os in ubuntu-latest windows-latest macos-latest; do
+            artifact_dir="artifacts/games-collection-pyinstaller-${os}-py3.11"
+            if [ ! -d "$artifact_dir" ]; then
+              echo "ERROR: Missing artifact directory: $artifact_dir"
+              exit 1
+            fi
+            echo "✓ Found artifact directory: $artifact_dir"
+          done
+          echo "All expected artifacts are present!"
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
