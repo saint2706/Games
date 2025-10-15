@@ -232,10 +232,7 @@ class TwentyQuestionsKnowledgeBase:
         """Load objects and features from disk or seed defaults."""
 
         if not self.path.exists():
-            self.objects = {
-                item["name"]: dict(item["features"])
-                for item in self.DEFAULT_OBJECTS
-            }
+            self.objects = {item["name"]: dict(item["features"]) for item in self.DEFAULT_OBJECTS}
             self.save()
         else:
             with self.path.open("r", encoding="utf-8") as handle:
@@ -247,10 +244,7 @@ class TwentyQuestionsKnowledgeBase:
         """Persist the knowledge base to disk."""
 
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        serialisable = [
-            {"name": name, "features": features}
-            for name, features in sorted(self.objects.items(), key=lambda item: item[0])
-        ]
+        serialisable = [{"name": name, "features": features} for name, features in sorted(self.objects.items(), key=lambda item: item[0])]
         with self.path.open("w", encoding="utf-8") as handle:
             json.dump({"objects": serialisable}, handle, indent=2, sort_keys=True)
 

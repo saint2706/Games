@@ -116,4 +116,3 @@ def test_empty_stock_forces_round_end() -> None:
     assert game.scores == [-15, -5]
     assert game.phase == GamePhase.DRAW
     assert not game.melds
-

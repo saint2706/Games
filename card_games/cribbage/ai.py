@@ -81,10 +81,7 @@ def _expected_hand_score(hand: Sequence[Card], deck_cards: Sequence[Card]) -> fl
         return 0.0
 
     starters = deck_list[:MAX_STARTER_SAMPLES]
-    scores = [
-        CribbageGame.score_hand_static(hand, starter, is_crib=False)
-        for starter in starters
-    ]
+    scores = [CribbageGame.score_hand_static(hand, starter, is_crib=False) for starter in starters]
     return mean(scores) if scores else 0.0
 
 
@@ -101,9 +98,7 @@ def _expected_crib_score(discard: Sequence[Card], deck_cards: Sequence[Card]) ->
             continue
         crib_cards = list(discard) + list(opp_discards)
         for starter in starters:
-            crib_scores.append(
-                CribbageGame.score_hand_static(crib_cards, starter, is_crib=True)
-            )
+            crib_scores.append(CribbageGame.score_hand_static(crib_cards, starter, is_crib=True))
         combo_count += 1
         if combo_count >= MAX_CRIB_COMBOS:
             break

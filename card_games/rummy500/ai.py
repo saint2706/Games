@@ -166,4 +166,3 @@ class Rummy500AI:
                     best_option = (meld_index, card)
 
         return best_option
-

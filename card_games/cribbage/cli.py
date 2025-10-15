@@ -5,7 +5,7 @@ from __future__ import annotations
 from itertools import combinations
 from typing import Sequence
 
-from card_games.common.cards import Card, Deck, RANK_TO_VALUE
+from card_games.common.cards import RANK_TO_VALUE, Card, Deck
 from card_games.cribbage.ai import choose_pegging_card, select_discards
 from card_games.cribbage.game import CribbageGame, GamePhase
 
@@ -20,10 +20,7 @@ def print_scoreboard(game: CribbageGame) -> None:
     """Print the running scores and dealer."""
 
     state = game.get_state_summary()
-    print(
-        f"Scoreboard → Player 1: {state['player1_score']} pts | "
-        f"Player 2: {state['player2_score']} pts (Dealer: Player {state['dealer']})"
-    )
+    print(f"Scoreboard → Player 1: {state['player1_score']} pts | " f"Player 2: {state['player2_score']} pts (Dealer: Player {state['dealer']})")
 
 
 def cut_for_first_deal() -> int:
@@ -84,10 +81,7 @@ def display_pegging_history(game: CribbageGame) -> None:
         if entry["type"] == "starter":
             print("    Starter card: {card} → dealer scores 2.".format(card=entry["card"]))
         elif entry["type"] == "play":
-            line = (
-                f"    Player {entry['player']} played {entry['card']} "
-                f"(count {entry['count']})"
-            )
+            line = f"    Player {entry['player']} played {entry['card']} " f"(count {entry['count']})"
             if entry["events"]:
                 line += " → " + ", ".join(entry["events"])
             if entry["points"]:
@@ -181,7 +175,7 @@ def handle_discard_phase(game: CribbageGame) -> tuple[list[Card], list[Card]]:
         deck_cards=game.remaining_deck(),
     )
     game.discard_to_crib(2, ai_discards)
-    print(f"Player 2 discards two cards to the crib.")
+    print("Player 2 discards two cards to the crib.")
 
     display_pegging_history(game)
     print_scoreboard(game)
@@ -255,9 +249,7 @@ def handle_pegging_phase(game: CribbageGame) -> bool:
     return game.phase == GamePhase.GAME_OVER
 
 
-def handle_show_phase(
-    game: CribbageGame, player1_show: Sequence[Card], player2_show: Sequence[Card]
-) -> None:
+def handle_show_phase(game: CribbageGame, player1_show: Sequence[Card], player2_show: Sequence[Card]) -> None:
     """Score hands and crib for the show phase."""
 
     starter = game.starter

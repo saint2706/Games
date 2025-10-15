@@ -488,10 +488,7 @@ class BoggleGame(GameEngine[BoggleMove, int]):
             Mapping of player names to the set of words they entered.
         """
 
-        return {
-            self._players[player_id]: set(words)
-            for player_id, words in self._player_words.items()
-        }
+        return {self._players[player_id]: set(words) for player_id, words in self._player_words.items()}
 
     def get_unique_words(self, player_id: int) -> Set[str]:
         """Return words uniquely found by the specified player.
@@ -503,11 +500,7 @@ class BoggleGame(GameEngine[BoggleMove, int]):
             Set of words credited solely to the specified player.
         """
 
-        return {
-            word
-            for word in self._player_words.get(player_id, set())
-            if len(self._word_claims.get(word, set())) == 1
-        }
+        return {word for word in self._player_words.get(player_id, set()) if len(self._word_claims.get(word, set())) == 1}
 
     def get_word_claims(self) -> Dict[str, Set[str]]:
         """Return which players claimed each word.
@@ -516,10 +509,7 @@ class BoggleGame(GameEngine[BoggleMove, int]):
             Mapping from word to the set of player names who submitted it.
         """
 
-        return {
-            word: {self._players[player_id] for player_id in claimants}
-            for word, claimants in self._word_claims.items()
-        }
+        return {word: {self._players[player_id] for player_id in claimants} for word, claimants in self._word_claims.items()}
 
     def get_remaining_time(self) -> Optional[int]:
         """Return the number of seconds left in the round.

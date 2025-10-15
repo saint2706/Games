@@ -189,6 +189,8 @@ def _prompt_card_selection(
             print("That card cannot be played right now.")
             continue
         return card
+
+
 def format_call(call: Call) -> str:
     """Return a printable representation of ``call``."""
 

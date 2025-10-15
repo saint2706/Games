@@ -1,6 +1,6 @@
----
-applyTo: "**/gui.py"
----
+______________________________________________________________________
+
+## applyTo: "\*\*/gui.py"
 
 # GUI Implementation Requirements
 

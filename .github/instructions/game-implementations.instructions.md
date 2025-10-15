@@ -1,6 +1,6 @@
----
-applyTo: "**/{card_games,paper_games,dice_games,logic_games,word_games}/**/*.py"
----
+______________________________________________________________________
+
+## applyTo: "**/{card_games,paper_games,dice_games,logic_games,word_games}/**/\*.py"
 
 # Game Implementation Requirements
 

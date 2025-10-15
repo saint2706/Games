@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from typing import Iterable, Sequence
 
-from card_games.common.cards import Card, RANK_TO_VALUE, parse_card
+from card_games.common.cards import RANK_TO_VALUE, Card, parse_card
 from card_games.rummy500.ai import DrawDecision, Rummy500AI
 from card_games.rummy500.game import GamePhase, Rummy500Game
-
 
 SUIT_SYMBOL_TO_CODE = {"♣": "C", "♦": "D", "♥": "H", "♠": "S"}
 
@@ -67,9 +66,7 @@ def display_game_state(game: Rummy500Game) -> None:
         print("\nTable melds:")
         for index, meld in enumerate(state["melds"]):
             cards = " ".join(meld["cards"])
-            contributors = ", ".join(
-                f"P{player}: {' '.join(cards)}" for player, cards in meld["contributors"].items()
-            )
+            contributors = ", ".join(f"P{player}: {' '.join(cards)}" for player, cards in meld["contributors"].items())
             print(f"  [{index}] Player {meld['owner']}: {cards}")
             if contributors:
                 print(f"       Contributions -> {contributors}")
@@ -222,9 +219,7 @@ def show_table_melds(game: Rummy500Game) -> None:
     print("Table melds:")
     for index, meld in enumerate(state["melds"]):
         cards = " ".join(meld["cards"])
-        contributors = ", ".join(
-            f"P{player}: {' '.join(cards)}" for player, cards in meld["contributors"].items()
-        )
+        contributors = ", ".join(f"P{player}: {' '.join(cards)}" for player, cards in meld["contributors"].items())
         print(f"  [{index}] Player {meld['owner']}: {cards}")
         if contributors:
             print(f"       Contributions -> {contributors}")
@@ -395,9 +390,7 @@ def game_loop(game: Rummy500Game) -> None:
                 decision: DrawDecision = ai.choose_draw(game)
                 if decision.from_discard:
                     game.draw_card(from_discard=True, take_count=decision.take_count)
-                    print(
-                        f"Player {player} draws {decision.take_count} card(s) from the discard pile"
-                    )
+                    print(f"Player {player} draws {decision.take_count} card(s) from the discard pile")
                 else:
                     drew_from_deck = game.draw_card()
                     if drew_from_deck:
@@ -407,13 +400,9 @@ def game_loop(game: Rummy500Game) -> None:
                         if game.discard_pile:
                             forced = game.draw_card(from_discard=True, take_count=1)
                         if forced:
-                            print(
-                                f"Player {player} draws the top discard because the deck is empty."
-                            )
+                            print(f"Player {player} draws the top discard because the deck is empty.")
                         else:
-                            print(
-                                "No cards are available to draw. Ending the round due to an empty stock."
-                            )
+                            print("No cards are available to draw. Ending the round due to an empty stock.")
                             game.end_round_due_to_empty_stock()
                             continue
 
@@ -444,4 +433,3 @@ def game_loop(game: Rummy500Game) -> None:
     for i, score in enumerate(state["scores"]):
         print(f"  Player {i}: {score} points")
     print("=" * 72)
-

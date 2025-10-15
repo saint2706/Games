@@ -7,7 +7,6 @@ from typing import Iterable, Optional
 
 from card_games.common.cards import Card, Suit
 
-
 RANK_VALUE = {"9": 0, "T": 1, "J": 2, "Q": 3, "K": 4, "A": 5}
 
 
