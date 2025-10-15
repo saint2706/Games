@@ -16,6 +16,8 @@ from typing import Optional
 
 from common.gui_base import BaseGUI, GUIConfig
 from card_games.common.soundscapes import initialize_game_soundscape
+from card_games.common.card_images import CardImageRepository
+from card_games.common.gui_card_renderers import render_tk_card_strip
 
 from ..common.cards import format_cards
 from .poker import Action, ActionType, PokerMatch
@@ -59,6 +61,7 @@ class PokerGUI(BaseGUI):
             enable_sounds=gui_config.enable_sounds,
             existing_manager=self.sound_manager,
         )
+        self.card_images = CardImageRepository()
         self.theme_manager.set_current_theme(gui_config.theme_name)
         self.current_theme = self.theme_manager.get_current_theme()
         self.match = match
@@ -106,9 +109,8 @@ class PokerGUI(BaseGUI):
         ttk.Label(header, textvariable=self.pot_var, anchor="e").grid(row=0, column=2, sticky="e")
 
         # Community card board
-        self.board_frame = ttk.Frame(root, padding=10)
+        self.board_frame = tk.Frame(root, bg=self.current_theme.colors.surface, padx=10, pady=10)
         self.board_frame.grid(row=1, column=0, sticky="nsew")
-        self.board_frame.columnconfigure(tuple(range(5)), weight=1)
 
         # Player information frames
         self.player_frames: dict[str, ttk.Frame] = {}
@@ -121,15 +123,15 @@ class PokerGUI(BaseGUI):
             frame = ttk.LabelFrame(players_container, text=player.name, padding=10)
             frame.grid(row=0, column=i, sticky="nsew", padx=5)
             frame.columnconfigure(0, weight=1)
-            cards_var = tk.StringVar(value="??")
+            cards_frame = tk.Frame(frame, bg=self.current_theme.colors.surface)
+            cards_frame.grid(row=0, column=0, sticky="n")
             chips_var = tk.StringVar(value=f"Chips: {player.chips}")
             action_var = tk.StringVar(value="Waiting")
-            ttk.Label(frame, textvariable=cards_var, font=("Consolas", 16)).grid(row=0, column=0, sticky="n")
             ttk.Label(frame, textvariable=chips_var).grid(row=1, column=0, sticky="n")
             ttk.Label(frame, textvariable=action_var, foreground="#555").grid(row=2, column=0, sticky="n")
             self.player_frames[player.name] = frame
             self.player_vars[player.name] = {
-                "cards": cards_var,
+                "cards_frame": cards_frame,
                 "chips": chips_var,
                 "action": action_var,
             }
@@ -380,20 +382,54 @@ class PokerGUI(BaseGUI):
         table = self.match.table
         self.stage_var.set(f"Stage: {table.stage}")
         self.pot_var.set(f"Pot: {table.pot}")
-        for widget in self.board_frame.winfo_children():
-            widget.destroy()
-        for i in range(5):
-            card_text = str(table.community_cards[i]) if i < len(table.community_cards) else "🂠"
-            ttk.Label(self.board_frame, text=card_text, font=("Consolas", 24), padding=10).grid(row=0, column=i, padx=6)
+        community_cards = list(table.community_cards)
+        display_cards = community_cards + [None] * (5 - len(community_cards))
+        hidden_indices = set(range(len(community_cards), 5))
+        render_tk_card_strip(
+            self.board_frame,
+            repository=self.card_images,
+            cards=display_cards,
+            hidden=hidden_indices,
+            card_height=120,
+            spacing=8,
+            background=self.current_theme.colors.surface,
+        )
 
     def _update_player_cards(self, *, show_all: bool) -> None:
         """Updates the display of each player's hole cards and last action."""
         for player in self.match.players:
             vars = self.player_vars[player.name]
-            if player.is_user or show_all or player.folded:
-                vars["cards"].set(format_cards(player.hole_cards) if player.hole_cards else "--")
+            cards_frame = vars["cards_frame"]
+            for child in cards_frame.winfo_children():
+                child.destroy()
+            if player.hole_cards:
+                if player.is_user or show_all or player.folded:
+                    render_tk_card_strip(
+                        cards_frame,
+                        repository=self.card_images,
+                        cards=list(player.hole_cards),
+                        card_height=110,
+                        spacing=4,
+                        background=self.current_theme.colors.surface,
+                    )
+                else:
+                    render_tk_card_strip(
+                        cards_frame,
+                        repository=self.card_images,
+                        cards=[None] * len(player.hole_cards),
+                        hidden=set(range(len(player.hole_cards))),
+                        card_height=110,
+                        spacing=4,
+                        background=self.current_theme.colors.surface,
+                    )
             else:
-                vars["cards"].set("??")
+                tk.Label(
+                    cards_frame,
+                    text="--",
+                    font=("Segoe UI", 12, "italic"),
+                    bg=self.current_theme.colors.surface,
+                    fg=self.current_theme.colors.muted,
+                ).pack()
             vars["action"].set(player.last_action.capitalize())
 
     def _update_stacks(self) -> None:

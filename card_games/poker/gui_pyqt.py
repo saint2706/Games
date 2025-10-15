@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
     QApplication,
     QFrame,
     QGridLayout,
+    QHBoxLayout,
     QGroupBox,
     QLabel,
     QLineEdit,
@@ -29,6 +30,8 @@ from PyQt5.QtWidgets import (
 
 from ..common.cards import format_cards
 from .poker import Action, ActionType, PokerMatch
+from card_games.common.card_images import CardImageRepository
+from card_games.common.gui_card_renderers import render_qt_card_strip
 from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base_pyqt import BaseGUI, GUIConfig
 
@@ -67,6 +70,7 @@ class PokerPyQtGUI(QWidget, BaseGUI):
             enable_sounds=gui_config.enable_sounds,
             existing_manager=self.sound_manager,
         )
+        self.card_images = CardImageRepository()
         self.match = match
         self.rng = rng or random.Random()
         self.awaiting_user = False
@@ -77,8 +81,8 @@ class PokerPyQtGUI(QWidget, BaseGUI):
         self.resize(gui_config.window_width, gui_config.window_height)
 
         self.player_frames: Dict[str, QWidget] = {}
-        self.player_vars: Dict[str, Dict[str, QLabel]] = {}
-        self.board_labels: list[QLabel] = []
+        self.player_vars: Dict[str, Dict[str, object]] = {}
+        self.board_container: QWidget | None = None
 
         self._build_layout()
         self._update_stacks()
@@ -122,18 +126,12 @@ class PokerPyQtGUI(QWidget, BaseGUI):
 
         board_frame = QFrame()
         board_frame.setFrameShape(QFrame.Shape.NoFrame)
-        board_layout = QGridLayout()
+        board_layout = QVBoxLayout()
         board_layout.setContentsMargins(10, 10, 10, 10)
-        board_layout.setSpacing(12)
+        board_layout.setSpacing(0)
         board_frame.setLayout(board_layout)
-        self.board_labels = []
-        for i in range(5):
-            label = QLabel("🂠")
-            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            label.setStyleSheet("font-family: 'Consolas'; font-size: 24pt; padding: 10px;")
-            board_layout.addWidget(label, 0, i)
-            self.board_labels.append(label)
-        self.board_frame = board_frame
+        self.board_container = QWidget()
+        board_layout.addWidget(self.board_container, alignment=Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(board_frame, 1, 0)
 
         players_widget = QWidget()
@@ -148,21 +146,23 @@ class PokerPyQtGUI(QWidget, BaseGUI):
             group_layout.setContentsMargins(10, 10, 10, 10)
             group.setLayout(group_layout)
 
-            cards_label = QLabel("??")
-            cards_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            cards_label.setStyleSheet("font-family: 'Consolas'; font-size: 18pt;")
+            cards_widget = QWidget()
+            cards_layout = QHBoxLayout()
+            cards_layout.setContentsMargins(0, 0, 0, 0)
+            cards_layout.setSpacing(6)
+            cards_widget.setLayout(cards_layout)
             chips_label = QLabel(f"Chips: {player.chips}")
             action_label = QLabel("Waiting")
             action_label.setStyleSheet("color: #555;")
 
-            group_layout.addWidget(cards_label, 0, 0)
+            group_layout.addWidget(cards_widget, 0, 0)
             group_layout.addWidget(chips_label, 1, 0)
             group_layout.addWidget(action_label, 2, 0)
 
             players_layout.addWidget(group, 0, column)
             self.player_frames[player.name] = group
             self.player_vars[player.name] = {
-                "cards": cards_label,
+                "cards_widget": cards_widget,
                 "chips": chips_label,
                 "action": action_label,
             }
@@ -419,20 +419,56 @@ class PokerPyQtGUI(QWidget, BaseGUI):
         table = self.match.table
         self.stage_label.setText(f"Stage: {table.stage}")
         self.pot_label.setText(f"Pot: {table.pot}")
-        for i, label in enumerate(self.board_labels):
-            if i < len(table.community_cards):
-                label.setText(str(table.community_cards[i]))
-            else:
-                label.setText("🂠")
+        if self.board_container is None:
+            return
+        community_cards = list(table.community_cards)
+        display_cards = community_cards + [None] * (5 - len(community_cards))
+        hidden_indices = set(range(len(community_cards), 5))
+        render_qt_card_strip(
+            self.board_container,
+            repository=self.card_images,
+            cards=display_cards,
+            hidden=hidden_indices,
+            card_height=120,
+            spacing=8,
+        )
 
     def _update_player_cards(self, *, show_all: bool) -> None:
         """Update hole card and action labels for every player."""
         for player in self.match.players:
             vars = self.player_vars[player.name]
-            if player.is_user or show_all or player.folded:
-                vars["cards"].setText(format_cards(player.hole_cards) if player.hole_cards else "--")
+            cards_widget = vars["cards_widget"]
+            if player.hole_cards:
+                if player.is_user or show_all or player.folded:
+                    render_qt_card_strip(
+                        cards_widget,
+                        repository=self.card_images,
+                        cards=list(player.hole_cards),
+                        card_height=110,
+                        spacing=4,
+                    )
+                else:
+                    render_qt_card_strip(
+                        cards_widget,
+                        repository=self.card_images,
+                        cards=[None] * len(player.hole_cards),
+                        hidden=set(range(len(player.hole_cards))),
+                        card_height=110,
+                        spacing=4,
+                    )
             else:
-                vars["cards"].setText("??")
+                render_qt_card_strip(
+                    cards_widget,
+                    repository=self.card_images,
+                    cards=[],
+                    card_height=110,
+                    spacing=4,
+                )
+                layout = cards_widget.layout()
+                placeholder = QLabel("--", cards_widget)
+                placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                if layout is not None:
+                    layout.addWidget(placeholder)
             vars["action"].setText(player.last_action.capitalize())
 
     def _update_stacks(self) -> None:

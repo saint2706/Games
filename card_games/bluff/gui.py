@@ -21,7 +21,10 @@ from tkinter import ttk
 from typing import Optional
 
 from common.gui_base import BaseGUI, GUIConfig
+from card_games.common.card_images import CardImageRepository
+from card_games.common.gui_card_renderers import render_tk_card_strip
 from card_games.common.soundscapes import initialize_game_soundscape
+from card_games.common.cards import Card
 
 from .bluff import BluffGame, DeckType, DifficultyLevel, Phase
 
@@ -62,6 +65,7 @@ class BluffGUI(BaseGUI):
             enable_sounds=gui_config.enable_sounds,
             existing_manager=self.sound_manager,
         )
+        self.card_images = CardImageRepository()
         self.theme_manager.set_current_theme(gui_config.theme_name)
         self.current_theme = self.theme_manager.get_current_theme()
         self.game = game
@@ -227,26 +231,38 @@ class BluffGUI(BaseGUI):
 
     def _update_user_hand(self) -> None:
         """Clear and re-render the buttons for the user's hand."""
-        for widget in self.hand_frame.winfo_children():
-            widget.destroy()
-
         user = self.game.players[0]
-        for idx, card in enumerate(user.hand):
-            style = "SelectedCard.TButton" if idx == self._selected_card else "Card.TButton"
-            button = ttk.Button(
+        if user.hand:
+            render_tk_card_strip(
                 self.hand_frame,
-                text=str(card),
-                style=style,
-                command=lambda i=idx: self._select_card(i),
+                repository=self.card_images,
+                cards=list(user.hand),
+                card_height=112,
+                spacing=6,
+                clickable=True,
+                command=self._handle_card_clicked,
+                selected={self._selected_card} if self._selected_card is not None else None,
+                selected_color="#1f6aa5",
+                background=self.current_theme.colors.surface,
             )
-            button.grid(row=0, column=idx, padx=4, pady=4, sticky="ew")
+            self.animate_highlight(self.hand_frame)
+        else:
+            for widget in self.hand_frame.winfo_children():
+                widget.destroy()
+            tk.Label(
+                self.hand_frame,
+                text="No cards remaining.",
+                bg=self.current_theme.colors.surface,
+                fg=self.current_theme.colors.muted,
+            ).grid(row=0, column=0, padx=8, pady=8)
 
-        # Deselect if the card is no longer in hand
         if self._selected_card is not None and self._selected_card >= len(user.hand):
             self._selected_card = None
 
-        if user.hand:
-            self.animate_highlight(self.hand_frame)
+    def _handle_card_clicked(self, index: int, _card: Optional[Card]) -> None:
+        """Handle card selection callbacks from the rendered buttons."""
+
+        self._select_card(index)
 
     def _select_card(self, index: int) -> None:
         """Handle the user selecting a card from their hand."""

@@ -7,16 +7,15 @@ Qt equivalents that better match the repository's migration plan:
   scrolling transcript from the CLI is always visible.
 * **Scoreboard** – Rendered via :class:`~PyQt5.QtWidgets.QTableWidget` allowing
   both team and individual statistics to be displayed in a tabular format.
-* **Card controls** – Built from an exclusive :class:`~PyQt5.QtWidgets.QButtonGroup`
-  containing :class:`~PyQt5.QtWidgets.QPushButton` instances for each card in the
-  user's hand, providing an intuitive way to pick a card before confirming a
+* **Card controls** – Rendered with SVG-backed :class:`~PyQt5.QtWidgets.QPushButton`
+  instances so the user's hand matches the shared card artwork when selecting a
   claim.
 
 The asynchronous flow that relied on ``Tk.after`` has been converted to
 ``QTimer.singleShot`` calls so the UI remains responsive while bots take their
-turns and challenges are resolved.  Dialog prompts for confirming claims and
-deciding whether to challenge now use :class:`~PyQt5.QtWidgets.QMessageBox`
-which keeps the interaction style consistent with other PyQt5 GUIs in the
+turns and challenges are resolved. Dialog prompts for confirming claims and
+deciding whether to challenge now use :class:`~PyQt5.QtWidgets.QMessageBox`,
+keeping the interaction style consistent with other PyQt5 GUIs in the
 project.
 """
 
@@ -28,7 +27,6 @@ from typing import Optional
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (
     QApplication,
-    QButtonGroup,
     QComboBox,
     QGridLayout,
     QGroupBox,
@@ -44,6 +42,9 @@ from PyQt5.QtWidgets import (
 )
 
 from .bluff import BluffGame, DeckType, DifficultyLevel, Phase
+from card_games.common.cards import Card
+from card_games.common.card_images import CardImageRepository
+from card_games.common.gui_card_renderers import render_qt_card_strip
 from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base_pyqt import BaseGUI, GUIConfig
 
@@ -88,6 +89,7 @@ class BluffPyQtGUI(QWidget, BaseGUI):
             enable_sounds=gui_config.enable_sounds,
             existing_manager=self.sound_manager,
         )
+        self.card_images = CardImageRepository()
         self.game = game
 
         self._selected_card: Optional[int] = None
@@ -174,10 +176,11 @@ class BluffPyQtGUI(QWidget, BaseGUI):
         main_layout.addWidget(controls_group)
 
         self.hand_group = QGroupBox("Your hand")
-        self.hand_layout = QGridLayout()
-        self.hand_layout.setHorizontalSpacing(8)
-        self.hand_layout.setVerticalSpacing(8)
-        self.hand_group.setLayout(self.hand_layout)
+        hand_group_layout = QVBoxLayout()
+        hand_group_layout.setContentsMargins(8, 8, 8, 8)
+        self.hand_container = QWidget()
+        hand_group_layout.addWidget(self.hand_container)
+        self.hand_group.setLayout(hand_group_layout)
         controls_layout.addWidget(self.hand_group)
 
         claim_row = QWidget()
@@ -194,9 +197,7 @@ class BluffPyQtGUI(QWidget, BaseGUI):
         self.submit_button.clicked.connect(self.submit_claim)
         claim_row_layout.addWidget(self.submit_button)
 
-        self.card_button_group = QButtonGroup(self)
-        self.card_button_group.setExclusive(True)
-        self.card_button_group.idClicked.connect(self._select_card)
+        self.card_buttons: list[QPushButton] = []
 
     def _populate_rank_choices(self) -> None:
         """Populate the rank combo box with valid ranks."""
@@ -274,43 +275,57 @@ class BluffPyQtGUI(QWidget, BaseGUI):
         """Rebuild the user's hand buttons to match their cards."""
 
         # Clear existing buttons
-        for button in self.card_button_group.buttons():
-            self.card_button_group.removeButton(button)
-            button.deleteLater()
-
-        while self.hand_layout.count():
-            item = self.hand_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
-
         user = self.game.players[0]
         if self._selected_card is not None and self._selected_card >= len(user.hand):
             self._selected_card = None
-
-        for index, card in enumerate(user.hand):
-            button = QPushButton(str(card))
-            button.setCheckable(True)
-            self.card_button_group.addButton(button, index)
-            row = index // 8
-            column = index % 8
-            self.hand_layout.addWidget(button, row, column)
-            if index == self._selected_card:
-                button.setChecked(True)
-
-        if self._selected_card is not None and 0 <= self._selected_card < len(user.hand):
-            self.claim_combo.setCurrentText(user.hand[self._selected_card].rank)
-
         if user.hand:
+            render_qt_card_strip(
+                self.hand_container,
+                repository=self.card_images,
+                cards=list(user.hand),
+                card_height=130,
+                spacing=8,
+                clickable=True,
+                command=self._handle_card_clicked,
+                selected={self._selected_card} if self._selected_card is not None else None,
+                selected_color="#1f6aa5",
+            )
+            layout = self.hand_container.layout()
+            self.card_buttons = []
+            if layout is not None:
+                for i in range(layout.count()):
+                    widget = layout.itemAt(i).widget()
+                    if isinstance(widget, QPushButton):
+                        self.card_buttons.append(widget)
+            if self._selected_card is not None and 0 <= self._selected_card < len(user.hand):
+                self.claim_combo.setCurrentText(user.hand[self._selected_card].rank)
             self.animate_highlight(self.hand_group)
+        else:
+            render_qt_card_strip(
+                self.hand_container,
+                repository=self.card_images,
+                cards=[],
+                card_height=130,
+            )
+            layout = self.hand_container.layout()
+            if layout is not None:
+                placeholder = QLabel("No cards remaining.")
+                placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                layout.addWidget(placeholder)
+            self.card_buttons = []
 
     def _set_user_controls_enabled(self, enabled: bool) -> None:
         """Enable or disable the controls for the user's turn."""
 
         self.submit_button.setEnabled(enabled)
         self.claim_combo.setEnabled(enabled)
-        for button in self.card_button_group.buttons():
+        for button in self.card_buttons:
             button.setEnabled(enabled)
+
+    def _handle_card_clicked(self, index: int, _card: Optional[Card]) -> None:
+        """Respond to card button presses by updating selection."""
+
+        self._select_card(index)
 
     def _log_message(self, message: str) -> None:
         """Append a message to the log panel."""
@@ -408,6 +423,7 @@ class BluffPyQtGUI(QWidget, BaseGUI):
         user = self.game.players[0]
         if 0 <= index < len(user.hand):
             self.claim_combo.setCurrentText(user.hand[index].rank)
+        self._update_user_hand()
 
     def _resolve_challenges(self) -> None:
         """Handle pending challenges by bots or prompt the user."""
