@@ -17,10 +17,7 @@ def build_stats(game_name: str, total_games: int, challenge_completions: int) ->
 
     stats = GameStatistics(game_name=game_name)
     stats.players["community"] = PlayerStats(player_id="community", total_games=total_games, wins=total_games // 2)
-    stats.game_history = [
-        {"metadata": {"challenge_completed": index < challenge_completions}}
-        for index in range(max(total_games, 1))
-    ]
+    stats.game_history = [{"metadata": {"challenge_completed": index < challenge_completions}} for index in range(max(total_games, 1))]
     return stats
 
 

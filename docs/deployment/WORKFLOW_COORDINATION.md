@@ -7,37 +7,47 @@ As of v1.2.1, the release process uses two coordinated GitHub Actions workflows 
 ## Workflows
 
 ### 1. `publish-pypi.yml` - PyPI Publishing
+
 **Purpose:** Build and publish Python package to PyPI
 
 **Triggers:**
+
 - Release events (when a release is published)
 - Manual workflow dispatch (with optional version bump)
 
 **Jobs:**
+
 1. `bump-and-release` (only on workflow_dispatch)
+
    - Bumps version
    - Commits changes
    - Creates tag and release
 
-2. `validate-version` (only on release events)
+1. `validate-version` (only on release events)
+
    - Validates version consistency across files
    - Ensures tag matches version
 
-3. `build`
+1. `build`
+
    - Builds wheel and source distribution
    - Runs smoke tests
 
-4. `publish-to-pypi`
+1. `publish-to-pypi`
+
    - Publishes to PyPI using trusted publishing (OIDC)
 
-5. `github-release`
+1. `github-release`
+
    - Signs packages with Sigstore
    - Uploads wheel, sdist, and signatures to GitHub Release
 
 ### 2. `build-executables.yml` - Executable Building
+
 **Purpose:** Build standalone executables for all platforms
 
 **Triggers:**
+
 - Push to master/main branches (builds only)
 - Push to tags matching `v*` (builds and creates release)
 - **Release events (when a release is published)** ← Added in v1.2.1
@@ -45,19 +55,24 @@ As of v1.2.1, the release process uses two coordinated GitHub Actions workflows 
 - Manual workflow dispatch
 
 **Jobs:**
+
 1. `build-pyinstaller`
+
    - Builds executables for Linux, Windows, macOS
    - Validates executable exists
    - Runs smoke tests
    - Uploads artifacts
 
-2. `cross-platform-tests`
+1. `cross-platform-tests`
+
    - Tests imports across platforms and Python versions
 
-3. `docker-build`
+1. `docker-build`
+
    - Builds and tests Docker image
 
-4. `create-release`
+1. `create-release`
+
    - Creates or updates GitHub Release
    - Uploads all executables
 
@@ -85,12 +100,13 @@ graph TD
 ```
 
 **Steps:**
+
 1. User navigates to GitHub and creates a new release with tag `v1.2.1`
-2. GitHub publishes the release
-3. Both workflows trigger simultaneously:
+1. GitHub publishes the release
+1. Both workflows trigger simultaneously:
    - `publish-pypi.yml` validates, builds, publishes to PyPI, signs, and uploads distributions
    - `build-executables.yml` builds all executables and uploads them
-4. After ~10-15 minutes, the release contains all artifacts
+1. After ~10-15 minutes, the release contains all artifacts
 
 ### Scenario 2: Automated Workflow Dispatch
 
@@ -110,15 +126,16 @@ graph TD
 ```
 
 **Steps:**
+
 1. User goes to Actions → Publish to PyPI → Run workflow
-2. Selects version bump type (major/minor/patch)
-3. `bump-and-release` job:
+1. Selects version bump type (major/minor/patch)
+1. `bump-and-release` job:
    - Bumps version in `pyproject.toml` and `scripts/__init__.py`
    - Commits and pushes changes
    - Creates and pushes tag
    - Creates GitHub Release
-4. Release creation triggers both workflows (same as Scenario 1)
-5. Complete release with all artifacts
+1. Release creation triggers both workflows (same as Scenario 1)
+1. Complete release with all artifacts
 
 ### Scenario 3: Manual Tag Push (Legacy)
 
@@ -144,17 +161,20 @@ graph TD
 After a successful coordinated release, the GitHub Release will contain:
 
 ### From `publish-pypi.yml`:
+
 - `games_collection-X.Y.Z-py3-none-any.whl` - Python wheel
 - `games_collection-X.Y.Z.tar.gz` - Source distribution
 - `games_collection-X.Y.Z-py3-none-any.whl.sigstore` - Wheel signature
 - `games_collection-X.Y.Z.tar.gz.sigstore` - Sdist signature
 
 ### From `build-executables.yml`:
+
 - `games-collection` (Linux) - Standalone executable for Linux
 - `games-collection.exe` (Windows) - Standalone executable for Windows
 - `games-collection` (macOS) - Standalone executable for macOS
 
 ### Total: 7 files
+
 All artifacts are in a single GitHub Release, making it easy for users to download what they need.
 
 ## Timeline
@@ -181,17 +201,20 @@ Both workflows run in parallel, so total time is approximately the duration of t
 No. Here's how it works:
 
 1. **Manual Release Creation (Recommended):**
+
    - User creates release → both workflows triggered
    - `publish-pypi.yml` uploads distributions
    - `build-executables.yml` uploads executables
    - `softprops/action-gh-release@v2` and `gh release upload` both update existing releases
 
-2. **Automated Workflow (workflow_dispatch):**
+1. **Automated Workflow (workflow_dispatch):**
+
    - `bump-and-release` creates release
    - Release event triggers both workflows
    - Same behavior as above
 
-3. **Manual Tag Push (Legacy):**
+1. **Manual Tag Push (Legacy):**
+
    - Tag push triggers `build-executables.yml`
    - It creates the release
    - Release event triggers `publish-pypi.yml`
@@ -202,6 +225,7 @@ In all cases, the GitHub Actions `softprops/action-gh-release` action and `gh re
 ### What About Race Conditions?
 
 GitHub's release API handles concurrent uploads gracefully:
+
 - Each workflow uploads different files
 - File uploads are atomic operations
 - No conflicts occur because file names are unique
@@ -209,21 +233,27 @@ GitHub's release API handles concurrent uploads gracefully:
 ## Benefits of Coordination
 
 ### ✅ Single Command Release
+
 Create a release once, get everything:
+
 - PyPI package published
 - Executables built
 - All artifacts in one place
 
 ### ✅ Consistency
+
 Both workflows use the same version from the release tag, ensuring consistency.
 
 ### ✅ Reliability
+
 If one workflow fails, the other still completes. You can re-run failed workflows independently.
 
 ### ✅ Visibility
+
 Both workflows appear in the Actions tab, making it easy to monitor progress and debug issues.
 
 ### ✅ No Manual Coordination
+
 No need to remember to trigger both workflows or upload artifacts manually.
 
 ## Troubleshooting
@@ -242,10 +272,11 @@ No need to remember to trigger both workflows or upload artifacts manually.
 
 **Cause:** `build-executables.yml` might have failed.
 
-**Solution:** 
+**Solution:**
+
 1. Check Actions tab for `build-executables.yml` run
-2. Review logs for errors
-3. Re-run the workflow if needed
+1. Review logs for errors
+1. Re-run the workflow if needed
 
 ### PyPI Upload Fails
 
@@ -254,12 +285,13 @@ No need to remember to trigger both workflows or upload artifacts manually.
 **Cause:** `publish-pypi.yml` might have failed.
 
 **Solution:**
+
 1. Check Actions tab for `publish-pypi.yml` run
-2. Common issues:
+1. Common issues:
    - Version already exists on PyPI (can't overwrite)
    - PyPI trusted publishing not configured
    - Environment `pypi` not configured
-3. Fix the issue and re-run the workflow
+1. Fix the issue and re-run the workflow
 
 ### Release Has Duplicate Files
 
@@ -268,19 +300,24 @@ No need to remember to trigger both workflows or upload artifacts manually.
 **Cause:** Workflow was run multiple times.
 
 **Solution:**
+
 1. Delete duplicate files manually via GitHub UI
-2. Or delete entire release and recreate
+1. Or delete entire release and recreate
 
 ## Best Practices
 
 ### 1. Use Manual Release Creation
+
 For maximum control and visibility, create releases manually via GitHub UI. This makes it clear when you're releasing.
 
 ### 2. Update CHANGELOG First
+
 Before creating a release, update `CHANGELOG.md` with release notes. You can copy these into the release description.
 
 ### 3. Test Locally First
+
 Run tests and builds locally before creating the release:
+
 ```bash
 pytest tests/
 python -m build
@@ -288,10 +325,13 @@ python -m build
 ```
 
 ### 4. Monitor Both Workflows
+
 After creating a release, watch both workflows in the Actions tab to ensure they complete successfully.
 
 ### 5. Verify the Release
+
 After workflows complete, verify:
+
 - PyPI has the new version
 - All artifacts are in the GitHub Release
 - Executables work when downloaded
@@ -301,9 +341,9 @@ After workflows complete, verify:
 Potential improvements to the coordination system:
 
 1. **Unified Workflow:** Combine both workflows into a single workflow file (more complex but simpler to manage)
-2. **Notification Job:** Add a final job that notifies when the full release is complete
-3. **Rollback Mechanism:** Automatically rollback PyPI publish if executable builds fail
-4. **Version Validation:** Cross-check version between workflows before uploading
+1. **Notification Job:** Add a final job that notifies when the full release is complete
+1. **Rollback Mechanism:** Automatically rollback PyPI publish if executable builds fail
+1. **Version Validation:** Cross-check version between workflows before uploading
 
 ## Related Documentation
 
@@ -311,6 +351,6 @@ Potential improvements to the coordination system:
 - [BUILD_EXECUTABLES_WORKFLOW.md](../development/BUILD_EXECUTABLES_WORKFLOW.md) - Executable building details
 - [PYPI_PUBLISHING_GUIDE.md](../development/PYPI_PUBLISHING_GUIDE.md) - Technical workflow details
 
----
+______________________________________________________________________
 
 **The coordination system is designed to be robust, reliable, and easy to use. Just create a release and let the workflows do the rest!**

@@ -14,23 +14,13 @@ import sys
 from typing import Dict, Optional
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import (
-    QApplication,
-    QFrame,
-    QGridLayout,
-    QGroupBox,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QWidget
+
+from card_games.common.soundscapes import initialize_game_soundscape
+from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 from ..common.cards import format_cards
 from .poker import Action, ActionType, PokerMatch
-from card_games.common.soundscapes import initialize_game_soundscape
-from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 
 class PokerPyQtGUI(QWidget, BaseGUI):

@@ -1,14 +1,6 @@
 from __future__ import annotations
 
-from card_games.canasta.game import (
-    CanastaGame,
-    CanastaPlayer,
-    DrawSource,
-    JokerCard,
-    is_wild,
-    minimum_meld_points,
-    validate_meld,
-)
+from card_games.canasta.game import CanastaGame, CanastaPlayer, DrawSource, JokerCard, is_wild, minimum_meld_points, validate_meld
 from card_games.common.cards import Card, Suit
 
 

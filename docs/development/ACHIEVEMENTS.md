@@ -1,6 +1,6 @@
 # Achievement Catalogue
 
-This document lists the achievements that are registered by the shared achievement registry.  Achievements are unlocked automatically when the conditions below are met; progress is persisted via player profiles so milestones carry forward between sessions.
+This document lists the achievements that are registered by the shared achievement registry. Achievements are unlocked automatically when the conditions below are met; progress is persisted via player profiles so milestones carry forward between sessions.
 
 ## Cross-game achievements
 

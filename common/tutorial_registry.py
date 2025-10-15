@@ -9,13 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
-from .educational import (
-    DocumentationTutorialMode,
-    ProbabilityCalculator,
-    StrategyTip,
-    StrategyTipProvider,
-    TutorialMode,
-)
+from .educational import DocumentationTutorialMode, ProbabilityCalculator, StrategyTip, StrategyTipProvider, TutorialMode
 from .game_engine import GameEngine, GameState
 
 ProjectPath = Path(__file__).resolve().parents[1]
@@ -368,4 +362,3 @@ def load_default_tutorials() -> None:
 
 # Populate registry on import
 load_default_tutorials()
-

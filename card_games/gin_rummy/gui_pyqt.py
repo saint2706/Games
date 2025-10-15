@@ -14,28 +14,12 @@ from typing import Dict, List, Optional
 
 from card_games.common.cards import Card, format_cards
 from card_games.common.soundscapes import initialize_game_soundscape
-from card_games.gin_rummy.game import (
-    GinRummyGame,
-    GinRummyPlayer,
-    HandAnalysis,
-    Meld,
-    MeldType,
-)
+from card_games.gin_rummy.game import GinRummyGame, GinRummyPlayer, HandAnalysis, Meld, MeldType
 from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 if PYQT5_AVAILABLE:  # pragma: no cover - import guarded by availability
     from PyQt5.QtCore import Qt
-    from PyQt5.QtWidgets import (
-        QApplication,
-        QHBoxLayout,
-        QLabel,
-        QMainWindow,
-        QPushButton,
-        QScrollArea,
-        QTextEdit,
-        QVBoxLayout,
-        QWidget,
-    )
+    from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QMainWindow, QPushButton, QScrollArea, QTextEdit, QVBoxLayout, QWidget
 else:  # pragma: no cover - provide shims for type checkers
     Qt = None  # type: ignore
     QApplication = None  # type: ignore

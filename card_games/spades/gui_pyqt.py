@@ -22,19 +22,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import (
-    QApplication,
-    QGridLayout,
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QMainWindow,
-    QPushButton,
-    QSpinBox,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QApplication, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QTextEdit, QVBoxLayout, QWidget
 
 from card_games.common.cards import Card
 from card_games.common.soundscapes import initialize_game_soundscape

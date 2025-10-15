@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import List
 
-import dice_games.craps.craps as craps_module
-import dice_games.farkle.farkle as farkle_module
 import pytest
 
+import dice_games.craps.craps as craps_module
+import dice_games.farkle.farkle as farkle_module
 from common import Event, EventBus, EventHandler, GameEventType
 from dice_games import CrapsGame, FarkleGame
 

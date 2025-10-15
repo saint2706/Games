@@ -24,18 +24,7 @@ from typing import Any, Optional
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import (
-    QDialog,
-    QGridLayout,
-    QHBoxLayout,
-    QLabel,
-    QLayout,
-    QMainWindow,
-    QPushButton,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QDialog, QGridLayout, QHBoxLayout, QLabel, QLayout, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
 from card_games.common.cards import Card, Suit
 from card_games.common.soundscapes import initialize_game_soundscape

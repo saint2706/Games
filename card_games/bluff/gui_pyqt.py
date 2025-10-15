@@ -43,9 +43,10 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from .bluff import BluffGame, DeckType, DifficultyLevel, Phase
 from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base_pyqt import BaseGUI, GUIConfig
+
+from .bluff import BluffGame, DeckType, DifficultyLevel, Phase
 
 
 class BluffPyQtGUI(QWidget, BaseGUI):

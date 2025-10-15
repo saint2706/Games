@@ -25,9 +25,7 @@ def _prompt(prompt: str) -> str:
 def _prompt_bid(phase: BiddingPhase) -> int | None:
     player = phase.current_player()
     while True:
-        raw = _prompt(
-            f"{player.name}, enter your bid (>= {phase.min_bid}) or PASS: "
-        ).strip()
+        raw = _prompt(f"{player.name}, enter your bid (>= {phase.min_bid}) or PASS: ").strip()
         if raw.lower() in {"p", "pass", ""}:
             return None
         try:
@@ -46,9 +44,7 @@ def _prompt_bid(phase: BiddingPhase) -> int | None:
 
 def _prompt_trump(winner: PinochlePlayer) -> Suit:
     while True:
-        choice = _prompt(
-            f"{winner.name}, choose trump suit (S, H, D, C): "
-        ).strip().lower()
+        choice = _prompt(f"{winner.name}, choose trump suit (S, H, D, C): ").strip().lower()
         if choice in SUIT_INPUTS:
             return SUIT_INPUTS[choice]
         print("Invalid suit. Use S, H, D, or C.")
@@ -156,12 +152,8 @@ def main(names: Optional[List[str]] = None) -> None:
     results = game.resolve_round()
     print("Round totals:")
     for team, values in results.items():
-        print(
-            f"  Team {team + 1} - Meld: {values['meld']} Trick: {values['tricks']} Total: {values['total']}"
-        )
-    print(
-        f"Partnership scores: Team 1 = {game.partnership_scores[0]}, Team 2 = {game.partnership_scores[1]}"
-    )
+        print(f"  Team {team + 1} - Meld: {values['meld']} Trick: {values['tricks']} Total: {values['total']}")
+    print(f"Partnership scores: Team 1 = {game.partnership_scores[0]}, Team 2 = {game.partnership_scores[1]}")
 
 
 if __name__ == "__main__":  # pragma: no cover - manual invocation

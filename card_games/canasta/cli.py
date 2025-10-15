@@ -129,9 +129,7 @@ def _print_round_results(game: CanastaGame, breakdown: dict[int, int]) -> None:
     for team_index, team in enumerate(game.teams):
         meld_points = game.calculate_team_meld_points(team_index)
         deadwood = game.calculate_team_deadwood(team_index)
-        print(
-            f"{team.name}: meld {meld_points} – deadwood {deadwood} + delta {breakdown[team_index]} (total {team.score})"
-        )
+        print(f"{team.name}: meld {meld_points} – deadwood {deadwood} + delta {breakdown[team_index]} (total {team.score})")
 
 
 def main() -> None:

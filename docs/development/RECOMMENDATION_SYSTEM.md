@@ -17,9 +17,9 @@ This document explains how the personalised recommendation pipeline is assembled
 
 1. **Collaborative Signals** (`RecommendationWeights.collaborative`)
    - Popularity normalised by total community games played
-2. **Challenge Signals** (`RecommendationWeights.challenge`)
+1. **Challenge Signals** (`RecommendationWeights.challenge`)
    - Frequency of challenge completions recorded in analytics history
-3. **Content Signals** (`RecommendationWeights.content`)
+1. **Content Signals** (`RecommendationWeights.content`)
    - Mechanics overlap with favourites (Jaccard similarity)
    - Session length alignment and familiarity bonuses for lightly-played titles
 
@@ -46,9 +46,9 @@ The cache avoids recomputation until the configured TTL elapses. Feedback record
 The recommendation service is UI-agnostic. Surfaces should:
 
 1. Instantiate a `RecommendationService` with the shared metadata catalog
-2. Call `service.recommend(profile, analytics)` when entering the launcher or after a game ends
-3. Display `RecommendationResult.explanation` as the lead copy and list `reasons` for extra context
-4. Report player choices with `service.record_feedback(profile, game_id, accepted)` to refine future suggestions
+1. Call `service.recommend(profile, analytics)` when entering the launcher or after a game ends
+1. Display `RecommendationResult.explanation` as the lead copy and list `reasons` for extra context
+1. Report player choices with `service.record_feedback(profile, game_id, accepted)` to refine future suggestions
 
 ## Testing Guidance
 

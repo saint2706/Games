@@ -24,7 +24,7 @@ from PyQt5.QtWidgets import (
 )
 
 from card_games.pinochle.game import PinochleGame, PinochlePlayer
-from common.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILABLE
+from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 
 class PinochlePyQtGUI(QMainWindow, BaseGUI):
@@ -100,9 +100,7 @@ class PinochlePyQtGUI(QMainWindow, BaseGUI):
                 lines = []
                 for player in self.game.players:
                     breakdown = self.game.meld_breakdowns.get(player.name, {})
-                    pieces = ", ".join(
-                        f"{key.replace('_', ' ')}: {value}" for key, value in breakdown.items()
-                    )
+                    pieces = ", ".join(f"{key.replace('_', ' ')}: {value}" for key, value in breakdown.items())
                     if not pieces:
                         pieces = "no meld"
                     lines.append(f"{player.name}: {player.meld_points} ({pieces})")
@@ -319,14 +317,10 @@ class PinochlePyQtGUI(QMainWindow, BaseGUI):
         if len(self.game.current_trick) == len(self.game.players):
             winner = self.game.complete_trick()
             self.play_sound("win")
-            self._append_trick_log(
-                f"Trick won by {winner.name}: {self.game.format_trick(self.game.trick_history[-1])}"
-            )
+            self._append_trick_log(f"Trick won by {winner.name}: {self.game.format_trick(self.game.trick_history[-1])}")
             if not any(p.hand for p in self.game.players):
                 totals = self.game.resolve_round()
-                summary = ", ".join(
-                    f"Team {team + 1}: {values['total']}" for team, values in totals.items()
-                )
+                summary = ", ".join(f"Team {team + 1}: {values['total']}" for team, values in totals.items())
                 self._append_trick_log(f"Round complete. {summary}")
                 if self.status_label:
                     self.status_label.setText("Round complete. Start a new round when ready.")

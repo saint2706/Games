@@ -14,15 +14,7 @@ import random
 import sys
 from typing import Iterable, Optional
 
-from card_games.bridge.game import (
-    BidSuit,
-    BridgeGame,
-    BridgePlayer,
-    Call,
-    CallType,
-    Contract,
-    Vulnerability,
-)
+from card_games.bridge.game import BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
 from card_games.common.cards import Card, Suit
 from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
@@ -32,18 +24,7 @@ if not PYQT5_AVAILABLE:  # pragma: no cover - module should not import without P
 
 from PyQt5.QtCore import QRectF, Qt, QTimer
 from PyQt5.QtGui import QColor, QFont, QPainter, QTextCursor
-from PyQt5.QtWidgets import (
-    QApplication,
-    QFrame,
-    QGridLayout,
-    QHBoxLayout,
-    QLabel,
-    QMainWindow,
-    QPushButton,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QApplication, QFrame, QGridLayout, QHBoxLayout, QLabel, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
 SUIT_DISPLAY_ORDER = {
     Suit.SPADES: 0,

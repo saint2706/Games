@@ -16,22 +16,13 @@ This package provides shared functionality including:
 
 from .ai_strategy import AIStrategy, HeuristicStrategy, MinimaxStrategy, RandomStrategy
 from .architecture.engine import GameEngine, GamePhase, GameState
-from .architecture.events import (
-    Event,
-    EventBus,
-    EventHandler,
-    FunctionEventHandler,
-    GameEventType,
-    get_global_event_bus,
-    set_global_event_bus,
-)
+from .architecture.events import Event, EventBus, EventHandler, FunctionEventHandler, GameEventType, get_global_event_bus, set_global_event_bus
 from .architecture.observer import Observable, Observer, PropertyObservable
 from .architecture.persistence import GameStateSerializer, JSONSerializer, PickleSerializer, SaveLoadManager
 from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
 from .architecture.replay import ReplayAction, ReplayManager, ReplayRecorder
 from .architecture.settings import Settings, SettingsManager
 from .challenges import Challenge, ChallengeManager, ChallengePack, DifficultyLevel, get_default_challenge_manager
-from .daily_challenges import DailyChallengeScheduler, DailyChallengeSelection
 from .cli_utils import (
     THEMES,
     ASCIIArt,
@@ -46,26 +37,22 @@ from .cli_utils import (
     clear_screen,
     get_terminal_size,
 )
+from .daily_challenges import DailyChallengeScheduler, DailyChallengeSelection
 from .educational import (
     AIExplainer,
     DocumentationTutorialMode,
-    GameTheoryExplanation,
     GameTheoryExplainer,
+    GameTheoryExplanation,
     ProbabilityCalculator,
     StrategyTip,
     StrategyTipProvider,
     TutorialMode,
     TutorialStep,
 )
+from .mcp_config_loader import MCPConfig, MCPServerConfig, load_default_mcp_config, validate_mcp_config_file
+from .recommendation_service import GameDescriptor, RecommendationResult, RecommendationService, RecommendationWeights
 from .tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata, TutorialRegistration
 from .tutorial_session import TutorialFeedback, TutorialSession
-from .mcp_config_loader import MCPConfig, MCPServerConfig, load_default_mcp_config, validate_mcp_config_file
-from .recommendation_service import (
-    GameDescriptor,
-    RecommendationResult,
-    RecommendationService,
-    RecommendationWeights,
-)
 
 # GUI enhancement imports (optional, only if tkinter available)
 try:

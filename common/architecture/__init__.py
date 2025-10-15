@@ -1,15 +1,7 @@
 """Core architecture components for game engines."""
 
 from .engine import GameEngine, GamePhase, GameState
-from .events import (
-    Event,
-    EventBus,
-    EventHandler,
-    FunctionEventHandler,
-    GameEventType,
-    get_global_event_bus,
-    set_global_event_bus,
-)
+from .events import Event, EventBus, EventHandler, FunctionEventHandler, GameEventType, get_global_event_bus, set_global_event_bus
 from .observer import Observable, Observer, PropertyObservable
 from .persistence import GameStateSerializer, JSONSerializer, PickleSerializer, SaveLoadManager
 from .plugin import GamePlugin, PluginManager, PluginMetadata

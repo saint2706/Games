@@ -10,13 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.bump_version import (
-    bump_version,
-    get_current_version,
-    parse_version,
-    update_pyproject_toml,
-    update_scripts_init,
-)
+from scripts.bump_version import bump_version, get_current_version, parse_version, update_pyproject_toml, update_scripts_init
 
 
 def test_parse_version_valid():

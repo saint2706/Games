@@ -170,10 +170,7 @@ def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) ->
     progress = profile.daily_challenge_progress
     completed = progress.is_completed(selection.target_date)
     status_label = "Completed" if completed else "Available"
-    streak_line = (
-        f"Streak: {progress.current_streak} (Best {progress.best_streak})"
-        f" | Total Completed: {progress.total_completed}"
-    )
+    streak_line = f"Streak: {progress.current_streak} (Best {progress.best_streak})" f" | Total Completed: {progress.total_completed}"
     summary_line = f"Daily Challenge: {selection.summary()} [{status_label}]"
     if HAS_COLORAMA:
         status_color = Fore.GREEN if completed else Fore.YELLOW
@@ -493,10 +490,7 @@ def launch_tutorial_browser(service: ProfileService) -> None:
         print("\n" + _format_metadata_summary(metadata) + "\n")
 
         difficulties = list(metadata.difficulty_notes.keys())
-        difficulty_prompt = (
-            "Choose difficulty "
-            + f"({', '.join(difficulties)}). Press Enter for default [{metadata.default_difficulty}]: "
-        )
+        difficulty_prompt = "Choose difficulty " + f"({', '.join(difficulties)}). Press Enter for default [{metadata.default_difficulty}]: "
         difficulty = input(difficulty_prompt).strip().lower()
         if difficulty and difficulty not in difficulties:
             print(f"Unknown difficulty '{difficulty}', defaulting to {metadata.default_difficulty}.")
@@ -507,10 +501,7 @@ def launch_tutorial_browser(service: ProfileService) -> None:
         learning_goal_keys = list(metadata.learning_goals.keys())
         learning_goal: Optional[str] = None
         if learning_goal_keys:
-            goal_prompt = (
-                "Focus area "
-                + f"({', '.join(learning_goal_keys)}). Press Enter to skip: "
-            )
+            goal_prompt = "Focus area " + f"({', '.join(learning_goal_keys)}). Press Enter to skip: "
             goal_input = input(goal_prompt).strip().lower()
             if goal_input in learning_goal_keys:
                 learning_goal = goal_input
@@ -538,10 +529,7 @@ def launch_tutorial_browser(service: ProfileService) -> None:
         try:
             game = engine_class()  # type: ignore[call-arg]
         except TypeError:
-            print(
-                "This game's engine requires additional parameters. Launch the standard game "
-                "and consult the tutorial steps for guidance."
-            )
+            print("This game's engine requires additional parameters. Launch the standard game " "and consult the tutorial steps for guidance.")
             step = tutorial.get_current_step()
             while step is not None:
                 print(f"- {step.title}: {step.description}")

@@ -7,10 +7,10 @@ This file provides specialized instructions for AI coding agents (GitHub Copilot
 **You are a Python game development specialist** working on a comprehensive games collection. Your primary responsibilities:
 
 1. **Implement game logic** following established patterns
-2. **Maintain code quality** with strict standards (complexity ≤ 10, type hints, docstrings)
-3. **Write comprehensive tests** achieving 90%+ coverage
-4. **Follow architectural patterns** from the `common/` module
-5. **Preserve existing functionality** while making targeted improvements
+1. **Maintain code quality** with strict standards (complexity ≤ 10, type hints, docstrings)
+1. **Write comprehensive tests** achieving 90%+ coverage
+1. **Follow architectural patterns** from the `common/` module
+1. **Preserve existing functionality** while making targeted improvements
 
 ## Repository Structure
 
@@ -62,6 +62,7 @@ def process_game_state(
 ```
 
 **Common types to use:**
+
 - `List[T]`, `Dict[K, V]`, `Set[T]`, `Tuple[T, ...]`
 - `Optional[T]` for nullable values
 - `Union[A, B]` for multiple types
@@ -120,18 +121,21 @@ game_name/
 **ALWAYS inherit from these base classes:**
 
 1. **GameEngine** (`common/game_engine.py`)
+
    - Core game logic
    - State management
    - Move validation
    - Win/loss conditions
 
-2. **BaseGUI** (`common/gui_base.py`)
+1. **BaseGUI** (`common/gui_base.py`)
+
    - GUI framework
    - Window management
    - Event handling
    - Common UI components
 
-3. **HeuristicStrategy** (`common/ai_strategy.py`)
+1. **HeuristicStrategy** (`common/ai_strategy.py`)
+
    - AI opponent logic
    - Position evaluation
    - Move selection
@@ -176,11 +180,11 @@ tests/
 **For every game, write:**
 
 1. **Initialization Tests** - Verify correct setup
-2. **Valid Move Tests** - Test accepted moves
-3. **Invalid Move Tests** - Test rejected moves
-4. **Win Condition Tests** - Test game-over scenarios
-5. **Edge Case Tests** - Test boundary conditions
-6. **Integration Tests** - Test full game flow
+1. **Valid Move Tests** - Test accepted moves
+1. **Invalid Move Tests** - Test rejected moves
+1. **Win Condition Tests** - Test game-over scenarios
+1. **Edge Case Tests** - Test boundary conditions
+1. **Integration Tests** - Test full game flow
 
 ### Test Template
 
@@ -257,19 +261,22 @@ class TestMyGameWinConditions:
 ### Phase 1: Planning (Before Writing Code)
 
 1. **Research existing implementations**
+
    ```bash
    # Find similar games
    ls card_games/ paper_games/ dice_games/
    # Review their structure
    ```
 
-2. **Review documentation**
+1. **Review documentation**
+
    - `docs/architecture/ARCHITECTURE.md` - Design patterns
    - `docs/development/CODE_QUALITY.md` - Quality standards
    - `CONTRIBUTING.md` - Contribution guidelines
    - Game-specific READMEs in each package
 
-3. **Plan complexity strategy**
+1. **Plan complexity strategy**
+
    - Break complex logic into functions ≤10 complexity
    - Identify reusable patterns from `common/`
    - Plan test scenarios
@@ -279,13 +286,13 @@ class TestMyGameWinConditions:
 **REQUIRED ACTIONS for every code change:**
 
 1. **Add type hints** to all functions (no exceptions)
-2. **Write docstrings** (Google style) for public APIs
-3. **Check complexity** after each function:
+1. **Write docstrings** (Google style) for public APIs
+1. **Check complexity** after each function:
    ```bash
    radon cc path/to/file.py -s
    ```
-4. **Keep functions simple** - refactor if complexity > 10
-5. **Write tests** alongside code (TDD preferred)
+1. **Keep functions simple** - refactor if complexity > 10
+1. **Write tests** alongside code (TDD preferred)
 
 ### Phase 3: Validation (Before Committing)
 
@@ -575,6 +582,7 @@ class MyGameGUI(BaseGUI):
 **ALWAYS handle these:**
 
 1. **Invalid Input**
+
    ```python
    def process_move(self, move: str) -> bool:
        """Process move with validation."""
@@ -585,7 +593,8 @@ class MyGameGUI(BaseGUI):
        # Continue processing
    ```
 
-2. **Boundary Conditions**
+1. **Boundary Conditions**
+
    ```python
    def get_cell(self, row: int, col: int) -> str:
        """Get board cell with bounds checking."""
@@ -596,7 +605,8 @@ class MyGameGUI(BaseGUI):
        return self.board[row][col]
    ```
 
-3. **State Validation**
+1. **State Validation**
+
    ```python
    def make_move(self, move: str) -> bool:
        """Execute move with state validation."""
@@ -610,6 +620,7 @@ class MyGameGUI(BaseGUI):
 ### Edge Cases Checklist
 
 For every game, test:
+
 - [ ] Empty input
 - [ ] Null/None values
 - [ ] Boundary values (0, max, -1, max+1)
@@ -640,10 +651,11 @@ docs/
 ### Key Files to Review
 
 **Before implementing any game:**
+
 1. `docs/architecture/ARCHITECTURE.md` - Understand patterns
-2. `docs/development/CODE_QUALITY.md` - Quality standards
-3. `CONTRIBUTING.md` - Contribution process
-4. Similar game implementation in same category
+1. `docs/development/CODE_QUALITY.md` - Quality standards
+1. `CONTRIBUTING.md` - Contribution process
+1. Similar game implementation in same category
 
 ### Configuration Files
 
@@ -660,33 +672,40 @@ docs/
 ### ✅ MUST DO (Non-negotiable)
 
 1. **Inherit from base classes**
+
    - `GameEngine` for game logic
    - `BaseGUI` for GUI implementations
    - `HeuristicStrategy` for AI opponents
 
-2. **Maintain complexity ≤ 10**
+1. **Maintain complexity ≤ 10**
+
    - Run `./scripts/check_complexity.sh` after changes
    - Refactor immediately if exceeded
 
-3. **Add complete type hints**
+1. **Add complete type hints**
+
    - All function parameters
    - All return types
    - Use `from __future__ import annotations`
 
-4. **Write comprehensive docstrings**
+1. **Write comprehensive docstrings**
+
    - Google style format
    - Include Args, Returns, Raises, Example
 
-5. **Write tests with 90%+ coverage**
+1. **Write tests with 90%+ coverage**
+
    - Unit tests for all functions
    - Integration tests for game flow
    - Edge case tests
 
-6. **Follow structure pattern**
+1. **Follow structure pattern**
+
    - Use standard game directory structure
    - Create `__main__.py` for CLI entry point
 
-7. **Run validation before committing**
+1. **Run validation before committing**
+
    ```bash
    black . && ruff check --fix . && mypy . && pytest --cov
    ```
@@ -694,15 +713,15 @@ docs/
 ### ❌ MUST NOT DO (Will cause rejection)
 
 1. **Remove or modify existing tests** (unless fixing bugs)
-2. **Create functions with complexity > 10** (will fail validation)
-3. **Omit type hints or docstrings** (required for all public APIs)
-4. **Break backward compatibility** (existing code must still work)
-5. **Add dependencies without justification** (discuss first)
-6. **Skip writing tests** (no untested code allowed)
-7. **Commit failing pre-commit hooks** (must pass all checks)
-8. **Exceed 160 character line length** (Black enforces this)
-9. **Use global variables** (use class attributes or parameters)
-10. **Hard-code magic numbers** (use named constants)
+1. **Create functions with complexity > 10** (will fail validation)
+1. **Omit type hints or docstrings** (required for all public APIs)
+1. **Break backward compatibility** (existing code must still work)
+1. **Add dependencies without justification** (discuss first)
+1. **Skip writing tests** (no untested code allowed)
+1. **Commit failing pre-commit hooks** (must pass all checks)
+1. **Exceed 160 character line length** (Black enforces this)
+1. **Use global variables** (use class attributes or parameters)
+1. **Hard-code magic numbers** (use named constants)
 
 ### ⚠️ SHOULD AVOID (Best practices)
 
@@ -780,34 +799,41 @@ xdg-open htmlcov/index.html  # Linux
 **Your code change is successful when:**
 
 1. ✅ All pre-commit hooks pass
-2. ✅ `pytest --cov` shows 90%+ coverage for new code
-3. ✅ `./scripts/check_complexity.sh` reports no functions > 10
-4. ✅ `mypy .` reports no type errors
-5. ✅ Game runs without errors: `python -m package.game_name`
-6. ✅ Documentation is updated (if applicable)
-7. ✅ Code follows existing patterns in the codebase
+1. ✅ `pytest --cov` shows 90%+ coverage for new code
+1. ✅ `./scripts/check_complexity.sh` reports no functions > 10
+1. ✅ `mypy .` reports no type errors
+1. ✅ Game runs without errors: `python -m package.game_name`
+1. ✅ Documentation is updated (if applicable)
+1. ✅ Code follows existing patterns in the codebase
 
 ## Common Mistakes to Avoid
 
 1. **Forgetting `from __future__ import annotations`**
+
    - Add at top of every Python file
 
-2. **Not checking complexity**
+1. **Not checking complexity**
+
    - Run `./scripts/check_complexity.sh` regularly
 
-3. **Missing test coverage**
+1. **Missing test coverage**
+
    - Write tests before/during implementation (TDD)
 
-4. **Ignoring type hints**
+1. **Ignoring type hints**
+
    - Add to all functions, no exceptions
 
-5. **Skipping docstrings**
+1. **Skipping docstrings**
+
    - Required for all public functions and classes
 
-6. **Not using base classes**
+1. **Not using base classes**
+
    - Always inherit from `GameEngine`, `BaseGUI`, etc.
 
-7. **Committing without validation**
+1. **Committing without validation**
+
    - Run full validation suite before pushing
 
 ## OpenAI Codex Best Practices Applied
@@ -815,12 +841,12 @@ xdg-open htmlcov/index.html  # Linux
 This AGENTS.md follows OpenAI Codex best practices:
 
 1. **Clear Role Definition** - Specifies agent's role as Python game specialist
-2. **Specific Requirements** - Explicit complexity, type hint, and testing requirements
-3. **Actionable Examples** - Copy-paste code templates for common patterns
-4. **Step-by-Step Workflow** - Detailed development phases with commands
-5. **Error Prevention** - Do's/Don'ts with clear consequences
-6. **Success Criteria** - Measurable outcomes for code changes
-7. **Quick Reference** - Commands and resources for easy access
+1. **Specific Requirements** - Explicit complexity, type hint, and testing requirements
+1. **Actionable Examples** - Copy-paste code templates for common patterns
+1. **Step-by-Step Workflow** - Detailed development phases with commands
+1. **Error Prevention** - Do's/Don'ts with clear consequences
+1. **Success Criteria** - Measurable outcomes for code changes
+1. **Quick Reference** - Commands and resources for easy access
 
 ______________________________________________________________________
 

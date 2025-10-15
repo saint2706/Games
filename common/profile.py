@@ -652,11 +652,7 @@ class PlayerProfile:
         lines.append(f"Overall Win Rate: {self.overall_win_rate():.1f}%")
 
         progress = self.daily_challenge_progress
-        lines.append(
-            "Daily Challenges: "
-            f"{progress.total_completed} completed | Streak: {progress.current_streak} "
-            f"(Best: {progress.best_streak})"
-        )
+        lines.append("Daily Challenges: " f"{progress.total_completed} completed | Streak: {progress.current_streak} " f"(Best: {progress.best_streak})")
 
         if self.total_playtime() > 0:
             hours = self.total_playtime() / 3600

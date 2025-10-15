@@ -16,13 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Dict, Iterable, List, Mapping, Optional, Sequence
 
-from common.achievements import (
-    Achievement,
-    AchievementCategory,
-    AchievementManager,
-    AchievementRarity,
-    create_common_achievements,
-)
+from common.achievements import Achievement, AchievementCategory, AchievementManager, AchievementRarity, create_common_achievements
 from common.architecture.events import Event, FunctionEventHandler, get_global_event_bus
 
 # Canonical event name that will be emitted when one or more achievements are
@@ -324,4 +318,3 @@ def get_achievement_registry() -> AchievementRegistry:
     if _REGISTRY is None:
         _REGISTRY = AchievementRegistry()
     return _REGISTRY
-

@@ -33,10 +33,7 @@ def test_scheduler_rotates_difficulty_levels(tmp_path) -> None:
     scheduler = DailyChallengeScheduler(manager, storage_path=tmp_path / "rotation.json")
 
     start = date(2024, 5, 1)
-    difficulties = [
-        scheduler.get_challenge_for_date(start + timedelta(days=offset)).challenge.difficulty
-        for offset in range(4)
-    ]
+    difficulties = [scheduler.get_challenge_for_date(start + timedelta(days=offset)).challenge.difficulty for offset in range(4)]
 
     assert set(difficulties) == {
         DifficultyLevel.BEGINNER,

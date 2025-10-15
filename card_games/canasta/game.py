@@ -324,7 +324,7 @@ class CanastaGame:
         self.players = self._initialise_players(players)
         self.teams = self._build_teams(self.players)
         self._custom_deck: Optional[CanastaDeck] = deck.copy() if deck else None
-        self.deck = (self._custom_deck.copy() if self._custom_deck else CanastaDeck())
+        self.deck = self._custom_deck.copy() if self._custom_deck else CanastaDeck()
         self.discard_pile: list[CanastaCard] = []
         self.current_player_index = 0
         self.discard_frozen = False
@@ -432,9 +432,7 @@ class CanastaGame:
         if not team.requirement_met and existing is None:
             required = minimum_meld_points(team.score)
             if points < required:
-                raise MeldError(
-                    f"Opening meld for {team.name} requires {required} points; provided meld has {points}."
-                )
+                raise MeldError(f"Opening meld for {team.name} requires {required} points; provided meld has {points}.")
             team.requirement_met = True
         player.remove_cards(cards)
         if existing is None:
