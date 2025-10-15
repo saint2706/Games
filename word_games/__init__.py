@@ -15,13 +15,21 @@ from __future__ import annotations
 # Export the subpackages so ``import word_games`` presents the available games
 # in a discoverable list.
 __all__ = [
-    "TriviaGame",
-    "CrosswordGame",
     "AnagramsGame",
+    "AsyncWordPlaySession",
+    "CrosswordClue",
+    "CrosswordGame",
+    "CrosswordPackManager",
+    "DictionaryValidator",
+    "TriviaAPIClient",
+    "TriviaCache",
+    "TriviaGame",
+    "TriviaQuestion",
     "WordBuilderGame",
+    "WordPlaySession",
 ]
 
 from .anagrams import AnagramsGame
-from .crossword import CrosswordGame
-from .trivia import TriviaGame
-from .wordbuilder import WordBuilderGame
+from .crossword import CrosswordClue, CrosswordGame, CrosswordPackManager
+from .trivia import TriviaAPIClient, TriviaCache, TriviaGame, TriviaQuestion
+from .wordbuilder import AsyncWordPlaySession, DictionaryValidator, WordBuilderGame, WordPlaySession

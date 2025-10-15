@@ -5,6 +5,13 @@ Tile-based word building game
 
 from __future__ import annotations
 
-__all__ = ["WordBuilderGame"]
+__all__ = [
+    "AsyncWordPlaySession",
+    "DictionaryValidator",
+    "TileBag",
+    "WordBuilderGame",
+    "WordPlaySession",
+]
 
-from .wordbuilder import WordBuilderGame
+from .multiplayer import AsyncWordPlaySession, WordPlaySession
+from .wordbuilder import DictionaryValidator, TileBag, WordBuilderGame
