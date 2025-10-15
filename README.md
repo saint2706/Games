@@ -66,8 +66,7 @@ After installation you have several options:
   python -m dice_games.craps
   ```
 
-Many games accept a `--gui` flag for Tkinter interfaces. Where PyQt versions are
-available you can select them explicitly with `--gui-framework pyqt5`.
+Many games accept a `--gui` flag to launch graphical interfaces. PyQt5 is the primary GUI framework, with Tkinter available as a fallback. You can select a specific framework with `--gui-framework pyqt5` or `--gui-framework tkinter`.
 
 ## Repository layout
 

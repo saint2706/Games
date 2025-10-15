@@ -198,5 +198,5 @@ Web-based GUIs are out of scope for this project, which focuses on desktop appli
 
 - [PyQt5 Documentation](https://www.riverbankcomputing.com/static/Docs/PyQt5/)
 - [Qt Documentation](https://doc.qt.io/qt-5/)
-- [Migration Guide](GUI_MIGRATION_GUIDE.md)
-- [Test Utility](../scripts/test_gui.py)
+- [Migration Guide](MIGRATION_GUIDE.md)
+- [Test Utility](../../scripts/test_gui.py)

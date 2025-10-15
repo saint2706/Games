@@ -122,5 +122,5 @@ For future GUI development, use the PyQt5 framework and refer to:
 
 - [PyQt5 Documentation](https://www.riverbankcomputing.com/static/Docs/PyQt5/)
 - [Qt5 Documentation](https://doc.qt.io/qt-5/)
-- [Base GUI Class](common/gui_base_pyqt.py)
-- [Example Implementation](paper_games/dots_and_boxes/gui_pyqt.py)
+- [Base GUI Class](../../common/gui_base_pyqt.py)
+- [Example Implementation](../../paper_games/dots_and_boxes/gui_pyqt.py)
