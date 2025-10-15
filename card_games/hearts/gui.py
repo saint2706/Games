@@ -32,6 +32,7 @@ except ImportError as exc:  # pragma: no cover - Tkinter availability is environ
 
 from card_games.common.cards import Card, Suit, format_cards
 from card_games.common.soundscapes import initialize_game_soundscape
+from common import Settings, SettingsManager
 from common.gui_base import BaseGUI, GUIConfig
 
 from .game import QUEEN_OF_SPADES, HeartsGame, HeartsPlayer, PassDirection
@@ -59,6 +60,7 @@ class HeartsGUI(BaseGUI):
         human_index: int = 0,
         enable_sounds: bool = True,
         config: Optional[GUIConfig] = None,
+        settings_manager: Optional[SettingsManager] = None,
     ) -> None:
         """Create the GUI and immediately start the first round.
 
@@ -66,7 +68,9 @@ class HeartsGUI(BaseGUI):
             root: Tk root window.
             game: Hearts game engine instance.
             human_index: Index of the human player within ``game.players``.
+            enable_sounds: Default sound playback preference when no saved settings exist.
             config: Optional configuration overriding the defaults.
+            settings_manager: Optional settings manager used to persist GUI preferences.
         """
         default_config = GUIConfig(
             window_title="Hearts – Four Seat Table",
@@ -83,11 +87,28 @@ class HeartsGUI(BaseGUI):
             language="en",
             accessibility_mode=config.accessibility_mode if config else False,
         )
-        super().__init__(root, config or default_config)
+        self._preferences_namespace = "card_games.hearts.gui"
+        self.settings_manager: SettingsManager = settings_manager or SettingsManager()
+        self._preferences_defaults = {
+            "theme": (config or default_config).theme_name,
+            "enable_sounds": (config or default_config).enable_sounds,
+            "enable_animations": (config or default_config).enable_animations,
+        }
+        self._preferences: Settings = self.settings_manager.load_settings(
+            self._preferences_namespace,
+            defaults=self._preferences_defaults,
+        )
+
+        active_config = config or default_config
+        active_config.theme_name = str(self._preferences.get("theme", active_config.theme_name))
+        active_config.enable_sounds = bool(self._preferences.get("enable_sounds", active_config.enable_sounds))
+        active_config.enable_animations = bool(self._preferences.get("enable_animations", active_config.enable_animations))
+
+        super().__init__(root, active_config)
         self.sound_manager = initialize_game_soundscape(
             "hearts",
             module_file=__file__,
-            enable_sounds=(config or default_config).enable_sounds,
+            enable_sounds=self.config.enable_sounds,
             existing_manager=self.sound_manager,
         )
 
@@ -113,8 +134,14 @@ class HeartsGUI(BaseGUI):
         self.play_frame: Optional[ttk.LabelFrame] = None
         self.score_tree: Optional[ttk.Treeview] = None
 
+        self._preferences_menu: Optional[tk.Menu] = None
+        self._theme_var = tk.StringVar(value=self.config.theme_name)
+        self._sound_var = tk.BooleanVar(value=self.config.enable_sounds)
+        self._animation_var = tk.BooleanVar(value=self.config.enable_animations)
+
         self._build_layout()
         self.accessibility_manager.enable_keyboard_navigation(self.root)
+        self._build_preferences_menu()
         self._start_new_round()
 
     # ------------------------------------------------------------------
@@ -583,6 +610,114 @@ class HeartsGUI(BaseGUI):
         self.log_widget.insert(tk.END, f"{message}\n")
         self.log_widget.see(tk.END)
         self.log_widget.configure(state="disabled")
+
+    # ------------------------------------------------------------------
+    # Preferences management
+    # ------------------------------------------------------------------
+    def _build_preferences_menu(self) -> None:
+        """Create the preferences menu exposing theme, sound, and animation settings."""
+
+        if self._preferences_menu is not None:
+            return
+
+        menu_bar = tk.Menu(self.root)
+        preferences = tk.Menu(menu_bar, tearoff=0)
+
+        theme_menu = tk.Menu(preferences, tearoff=0)
+        for theme_name in self.theme_manager.list_themes():
+            theme_menu.add_radiobutton(
+                label=self._format_theme_label(theme_name),
+                value=theme_name,
+                variable=self._theme_var,
+                command=lambda name=theme_name: self.update_user_preferences(theme=name),
+            )
+        preferences.add_cascade(label="Theme", menu=theme_menu)
+
+        preferences.add_checkbutton(
+            label="Enable sounds",
+            variable=self._sound_var,
+            command=lambda: self.update_user_preferences(enable_sounds=bool(self._sound_var.get())),
+        )
+        preferences.add_checkbutton(
+            label="Enable animations",
+            variable=self._animation_var,
+            command=lambda: self.update_user_preferences(enable_animations=bool(self._animation_var.get())),
+        )
+        preferences.add_separator()
+        preferences.add_command(label="Reset to defaults", command=self.reset_user_preferences)
+
+        menu_bar.add_cascade(label="Preferences", menu=preferences)
+        self.root.config(menu=menu_bar)
+        self._preferences_menu = menu_bar
+
+    def _format_theme_label(self, theme_name: str) -> str:
+        """Return a human readable label for ``theme_name``."""
+
+        return theme_name.replace("_", " ").title()
+
+    def update_user_preferences(
+        self,
+        *,
+        theme: Optional[str] = None,
+        enable_sounds: Optional[bool] = None,
+        enable_animations: Optional[bool] = None,
+        persist: bool = True,
+    ) -> None:
+        """Update runtime preferences and persist them if requested.
+
+        Args:
+            theme: Optional theme identifier to activate.
+            enable_sounds: Optional flag controlling sound playback.
+            enable_animations: Optional flag controlling highlight animations.
+            persist: Whether the change should be written to the settings store.
+        """
+
+        if theme is not None and self.set_theme(theme):
+            self.config.theme_name = theme
+            self._theme_var.set(theme)
+
+        if enable_sounds is not None:
+            sounds_enabled = bool(enable_sounds)
+            self.config.enable_sounds = sounds_enabled
+            if sounds_enabled:
+                self.sound_manager = initialize_game_soundscape(
+                    "hearts",
+                    module_file=__file__,
+                    enable_sounds=True,
+                    existing_manager=self.sound_manager,
+                )
+                if self.sound_manager:
+                    self.sound_manager.set_enabled(True)
+            elif self.sound_manager:
+                self.sound_manager.set_enabled(False)
+            self._sound_var.set(sounds_enabled)
+
+        if enable_animations is not None:
+            animations_enabled = bool(enable_animations)
+            self.config.enable_animations = animations_enabled
+            self._animation_var.set(animations_enabled)
+
+        if not persist:
+            return
+
+        if theme is not None:
+            self._preferences.set("theme", self.config.theme_name)
+        if enable_sounds is not None:
+            self._preferences.set("enable_sounds", self.config.enable_sounds)
+        if enable_animations is not None:
+            self._preferences.set("enable_animations", self.config.enable_animations)
+        self.settings_manager.save_settings(self._preferences_namespace, self._preferences)
+
+    def reset_user_preferences(self) -> None:
+        """Reset stored preferences to their defaults and apply them immediately."""
+
+        self._preferences.reset()
+        self.update_user_preferences(
+            theme=str(self._preferences.get("theme", self._preferences_defaults["theme"])),
+            enable_sounds=bool(self._preferences.get("enable_sounds", self._preferences_defaults["enable_sounds"])),
+            enable_animations=bool(self._preferences.get("enable_animations", self._preferences_defaults["enable_animations"])),
+            persist=True,
+        )
 
 
 def run_app(
