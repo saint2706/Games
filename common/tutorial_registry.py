@@ -55,6 +55,13 @@ class TutorialRegistration:
     tutorial_class: Type[TutorialMode[Any, Any]]
     strategy_provider: StrategyTipProvider
     probability_calculator: ProbabilityCalculator
+    include_in_catalog: bool = True
+
+    def __post_init__(self) -> None:
+        """Flag registrations used exclusively in tests so they can be hidden from catalogs."""
+
+        if self.metadata.game_key.startswith("tests."):
+            self.include_in_catalog = False
 
 
 class SimpleProgressProbabilityCalculator(ProbabilityCalculator):
@@ -111,7 +118,8 @@ class TutorialRegistry:
     def available_games(self) -> List[str]:
         """Return sorted list of registered game identifiers."""
 
-        return sorted(self._tutorials)
+        visible = (key for key, registration in self._tutorials.items() if registration.include_in_catalog)
+        return sorted(visible)
 
     def get_registration(self, game_key: str) -> TutorialRegistration:
         """Return the registration for a given game."""

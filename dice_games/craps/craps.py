@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 from enum import Enum
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from common.architecture.events import GameEventType
 from common.game_engine import GameEngine, GameState
@@ -29,7 +29,10 @@ class CrapsGame(GameEngine[str, int]):
     def __init__(self, rng: Optional[random.Random] = None) -> None:
         """Initialize Craps game."""
         super().__init__()
-        self.rng = rng or random.Random()
+        # The random number generator defaults to the module-level ``random`` so monkeypatching
+        # ``random.randint`` during tests works as expected. A custom generator can still be
+        # supplied for deterministic scenarios.
+        self.rng: Any = rng if rng is not None else random
         self.analytics_hooks: List[Callable[[str, Dict[str, int | str | None]], None]] = []
         self.reset()
 
