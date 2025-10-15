@@ -1,6 +1,6 @@
 # GitHub Actions Workflows Documentation
 
-This directory contains documentation related to GitHub Actions workflows, debugging, validation, and fixes.
+This directory contains documentation related to GitHub Actions workflows, validation, and maintenance. The most frequently used references are listed below, while historical troubleshooting material now lives in the [`archive/`](archive/README.md) subdirectory.
 
 ## Documentation Files
 
@@ -27,52 +27,14 @@ Summary of workflow validation implementation and tools.
 - Test suite results
 - Integration with CI
 
-### [DEBUG_REPORT.md](DEBUG_REPORT.md)
+### Historical References
 
-Debug report analyzing workflow failures and issues.
+Need the deep-dive debug timelines or release remediation notes? Visit the [`archive/`](archive/README.md) directory for:
 
-**Topics:**
-
-- Failure analysis
-- Root cause identification
-- Quick fix guides
-- Prevention strategies
-- Action items
-
-### [FIX_SUMMARY.md](FIX_SUMMARY.md)
-
-Summary of specific workflow fixes and resolutions.
-
-**Topics:**
-
-- Problem analysis
-- Solutions implemented
-- Verification steps
-- Impact assessment
-
-### [PYPI_PUBLISH_DEBUG_RUN_18520989869.md](PYPI_PUBLISH_DEBUG_RUN_18520989869.md)
-
-Detailed debug report for PyPI publish workflow failure run #18520989869.
-
-**Topics:**
-
-- Version mismatch analysis
-- Root cause: Tag vs code version inconsistency
-- Fix instructions (multiple options)
-- Prevention: New validation system
-- Future safeguards implemented
-
-### [HOW_TO_FIX_V1_1_1.md](HOW_TO_FIX_V1_1_1.md)
-
-Step-by-step guide to fix the v1.1.1 release issue.
-
-**Topics:**
-
-- Current state analysis
-- Fix options (clean slate vs move forward)
-- New safeguards explanation
-- Testing procedures
-- Quick command reference
+- [DEBUG_REPORT.md](archive/DEBUG_REPORT.md) – Detailed analysis of past CI failures.
+- [FIX_SUMMARY.md](archive/FIX_SUMMARY.md) – Point-in-time notes about workflow fixes.
+- [HOW_TO_FIX_V1_1_1.md](archive/HOW_TO_FIX_V1_1_1.md) – Recovery plan for the v1.1.1 release.
+- [PYPI_PUBLISH_DEBUG_RUN_18520989869.md](archive/PYPI_PUBLISH_DEBUG_RUN_18520989869.md) – PyPI publish failure investigation.
 
 ## Quick Reference
 
@@ -186,7 +148,7 @@ Version consistency validation script that checks:
 python scripts/check_version_consistency.py --tag v1.2.3
 
 # Follow fix guide
-See: HOW_TO_FIX_V1_1_1.md
+See: archive/HOW_TO_FIX_V1_1_1.md
 ```
 
 ### Markdown Formatting Failures

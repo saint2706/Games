@@ -501,7 +501,7 @@ ______________________________________________________________________
 - [Workflow Source](../../.github/workflows/publish-pypi.yml)
 - [Version Checker](../../scripts/check_version_consistency.py)
 - [Version Bumper](../../scripts/bump_version.py)
-- [Debug Report](../workflows/PYPI_PUBLISH_DEBUG_RUN_18520989869.md)
+- [Debug Report](../workflows/archive/PYPI_PUBLISH_DEBUG_RUN_18520989869.md)
 - [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/)
 - [Semantic Versioning](https://semver.org/)
 

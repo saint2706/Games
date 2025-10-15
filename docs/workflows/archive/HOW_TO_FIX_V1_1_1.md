@@ -144,7 +144,7 @@ Version Check Results:
 
 New guides created:
 
-- **[PYPI_PUBLISHING_GUIDE.md](../development/PYPI_PUBLISHING_GUIDE.md)** - Complete guide to proper releases
+- **[PYPI_PUBLISHING_GUIDE.md](../../development/PYPI_PUBLISHING_GUIDE.md)** - Complete guide to proper releases
 - **[PYPI_PUBLISH_DEBUG_RUN_18520989869.md](PYPI_PUBLISH_DEBUG_RUN_18520989869.md)** - Detailed analysis of this failure
 
 ______________________________________________________________________
@@ -184,7 +184,7 @@ ______________________________________________________________________
 
 ## Need Help?
 
-- **PyPI Publishing Guide:** [docs/development/PYPI_PUBLISHING_GUIDE.md](../development/PYPI_PUBLISHING_GUIDE.md)
+- **PyPI Publishing Guide:** [docs/development/PYPI_PUBLISHING_GUIDE.md](../../development/PYPI_PUBLISHING_GUIDE.md)
 - **Full Debug Report:** [PYPI_PUBLISH_DEBUG_RUN_18520989869.md](PYPI_PUBLISH_DEBUG_RUN_18520989869.md)
 - **Version Checker:** `python scripts/check_version_consistency.py --help`
 

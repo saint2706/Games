@@ -16,6 +16,8 @@ and contributors alike.
 - `build/` – Generated output (ignored by Git).
 - `images/` – Shared assets used by the docs.
 - `requirements.txt` – Dependencies needed to build the documentation.
+- `workflows/` – Operational guides for CI with an [`archive/`](workflows/archive/README.md) that holds historical debug reports.
+- `deployment/` – Release and publishing guides; release-specific checklists now live under [`deployment/releases/`](deployment/releases).
 
 Historic planning notes, migration reports, and workflow audits are still stored
 elsewhere in the repository (for example under `docs/status/` and

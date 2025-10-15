@@ -239,8 +239,8 @@ ______________________________________________________________________
 
 ## Related Resources
 
-- [PyPI Publishing Guide](../development/PYPI_PUBLISHING_GUIDE.md)
-- [Version Consistency Checker](../../scripts/check_version_consistency.py)
+- [PyPI Publishing Guide](../../development/PYPI_PUBLISHING_GUIDE.md)
+- [Version Consistency Checker](../../../scripts/check_version_consistency.py)
 - [Workflow Source](.github/workflows/publish-pypi.yml)
 - [PyPI Help: File Name Reuse](https://pypi.org/help/#file-name-reuse)
 - [Semantic Versioning](https://semver.org/)
@@ -251,7 +251,7 @@ ______________________________________________________________________
 
 For questions or issues with PyPI publishing:
 
-1. Check the [PyPI Publishing Guide](../development/PYPI_PUBLISHING_GUIDE.md)
+1. Check the [PyPI Publishing Guide](../../development/PYPI_PUBLISHING_GUIDE.md)
 1. Review this debug report
 1. Run local validation: `python scripts/check_version_consistency.py`
 1. Open an issue with workflow logs
