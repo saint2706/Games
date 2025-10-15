@@ -5,6 +5,11 @@ Multiple choice trivia questions from various categories
 
 from __future__ import annotations
 
-__all__ = ["TriviaGame"]
+__all__ = [
+    "TriviaAPIClient",
+    "TriviaCache",
+    "TriviaGame",
+    "TriviaQuestion",
+]
 
-from .trivia import TriviaGame
+from .trivia import TriviaAPIClient, TriviaCache, TriviaGame, TriviaQuestion

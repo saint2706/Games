@@ -5,6 +5,6 @@ Create and solve crossword puzzles with clue system
 
 from __future__ import annotations
 
-__all__ = ["CrosswordGame"]
+__all__ = ["CrosswordClue", "CrosswordGame", "CrosswordPackManager"]
 
-from .crossword import CrosswordGame
+from .crossword import CrosswordClue, CrosswordGame, CrosswordPackManager

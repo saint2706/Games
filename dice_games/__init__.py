@@ -19,9 +19,12 @@ __all__ = [
     "CrapsGame",
     "LiarsDiceGame",
     "BuncoGame",
+    "BuncoTournament",
+    "BuncoPlayerSummary",
+    "BuncoMatchResult",
 ]
 
-from .bunco import BuncoGame
+from .bunco import BuncoGame, BuncoMatchResult, BuncoPlayerSummary, BuncoTournament
 from .craps import CrapsGame
 from .farkle import FarkleGame
 from .liars_dice import LiarsDiceGame

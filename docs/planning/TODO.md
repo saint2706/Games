@@ -100,9 +100,9 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 **Next steps:**
 
-- [ ] Add adaptive AI opponents for Farkle and Liar's Dice leveraging `common/ai_strategy.py`
-- [ ] Implement Bunco tournament brackets and scoring summaries in CLI and GUI front-ends
-- [ ] Expand Craps betting options (odds bets, place bets) with analytics tracking hooks
+- [x] Add adaptive AI opponents for Farkle and Liar's Dice leveraging `common/ai_strategy.py`
+- [x] Implement Bunco tournament brackets and scoring summaries in CLI and GUI front-ends
+- [x] Expand Craps betting options (odds bets, place bets) with analytics tracking hooks
 
 ### Trivia & Word Games
 
@@ -113,10 +113,10 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 **Next steps:**
 
-- [ ] Integrate external trivia APIs with caching and offline fallback logic
-- [ ] Support user-generated crossword packs with import/export utilities
-- [ ] Add authoritative dictionary validation and tile bag configuration to WordBuilder
-- [ ] Explore synchronous or asynchronous online multiplayer for cooperative/versus word play
+- [x] Integrate external trivia APIs with caching and offline fallback logic
+- [x] Support user-generated crossword packs with import/export utilities
+- [x] Add authoritative dictionary validation and tile bag configuration to WordBuilder
+- [x] Explore synchronous or asynchronous online multiplayer for cooperative/versus word play
 
 ### Logic & Puzzle Games
 

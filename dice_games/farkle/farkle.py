@@ -10,6 +10,7 @@ import random
 from collections import Counter
 from typing import List, Tuple
 
+from common.ai_strategy import HeuristicStrategy
 from common.architecture.events import GameEventType
 from common.game_engine import GameEngine, GameState
 
@@ -32,16 +33,23 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
     - Three pairs: 1500 points
     """
 
-    def __init__(self, num_players: int = 2, winning_score: int = 10000) -> None:
+    def __init__(
+        self,
+        num_players: int = 2,
+        winning_score: int = 10000,
+        rng: random.Random | None = None,
+    ) -> None:
         """Initialize Farkle game.
 
         Args:
             num_players: Number of players (2-6)
             winning_score: Score needed to win (default 10000)
+            rng: Optional random number generator for deterministic runs
         """
         super().__init__()
         self.num_players = max(2, min(6, num_players))
         self.winning_score = winning_score
+        self.rng = rng or random.Random()
         self.reset()
 
     def reset(self) -> None:
@@ -109,7 +117,7 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
 
         # Roll dice if needed
         if not self.last_roll:
-            self.last_roll = [random.randint(1, 6) for _ in range(self.dice_in_hand)]
+            self.last_roll = [self.rng.randint(1, 6) for _ in range(self.dice_in_hand)]
             self.emit_event(
                 GameEventType.ACTION_PROCESSED,
                 {
@@ -148,7 +156,7 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
                 self.dice_in_hand = 6
 
         if continue_rolling:
-            self.last_roll = [random.randint(1, 6) for _ in range(self.dice_in_hand)]
+            self.last_roll = [self.rng.randint(1, 6) for _ in range(self.dice_in_hand)]
             self.emit_event(
                 GameEventType.ACTION_PROCESSED,
                 {
@@ -185,6 +193,11 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
             Current state of the game
         """
         return self.state
+
+    def create_adaptive_ai(self) -> HeuristicStrategy[Tuple[List[int], bool], "FarkleGame"]:
+        """Create an adaptive AI strategy for the current game state."""
+
+        return HeuristicStrategy(heuristic_fn=_farkle_move_heuristic)
 
     def _end_turn(self) -> None:
         """End current turn and move to next player."""
@@ -274,3 +287,31 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
                 unique_valid.append(selection)
 
         return unique_valid
+
+
+def _farkle_move_heuristic(move: Tuple[List[int], bool], game: FarkleGame) -> float:
+    """Heuristic evaluation for Farkle AI decisions."""
+
+    dice_to_bank, continue_rolling = move
+
+    if not game.last_roll:
+        return 1.0
+
+    score = game._calculate_score(dice_to_bank)
+    potential_total = game.turn_score + score
+    remaining_dice = game.dice_in_hand - len(dice_to_bank) if dice_to_bank else game.dice_in_hand
+    distance_to_win = max(game.winning_score - (game.scores[game.current_player_idx] + potential_total), 0)
+
+    caution_bonus = 0.0
+    if distance_to_win <= 500:
+        caution_bonus = 150.0
+
+    if continue_rolling:
+        risk_penalty = remaining_dice * (40.0 + game.turn_score / 25.0)
+        reward = potential_total + score * 0.3
+        return reward - risk_penalty - caution_bonus
+
+    bank_value = potential_total + (500.0 if potential_total >= 500 else 0.0)
+    bank_value += caution_bonus
+    bank_value -= remaining_dice * 5.0
+    return bank_value
