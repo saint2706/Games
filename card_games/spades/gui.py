@@ -15,6 +15,7 @@ from typing import Dict, Optional
 from card_games.common.cards import Card
 from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.spades.game import SpadesGame, SpadesPlayer
+from common import Settings, SettingsManager
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 
 
@@ -36,6 +37,7 @@ class SpadesGUI(BaseGUI):
         *,
         player_name: str = "You",
         enable_sounds: bool = True,
+        settings_manager: Optional[SettingsManager] = None,
     ) -> None:
         """Initialise the GUI and prepare the first round.
 
@@ -43,6 +45,8 @@ class SpadesGUI(BaseGUI):
             root: Root Tkinter window provided by the caller.
             game: Optional pre-configured :class:`SpadesGame` instance.
             player_name: Human player's display name when ``game`` is ``None``.
+            enable_sounds: Default sound playback preference when no saved settings exist.
+            settings_manager: Optional settings manager used to persist GUI preferences.
 
         Raises:
             RuntimeError: If Tkinter is not available in the runtime environment.
@@ -60,11 +64,27 @@ class SpadesGUI(BaseGUI):
             enable_sounds=enable_sounds,
             enable_animations=True,
         )
+        self._preferences_namespace = "card_games.spades.gui"
+        self.settings_manager: SettingsManager = settings_manager or SettingsManager()
+        self._preferences_defaults = {
+            "theme": config.theme_name,
+            "enable_sounds": config.enable_sounds,
+            "enable_animations": config.enable_animations,
+        }
+        self._preferences: Settings = self.settings_manager.load_settings(
+            self._preferences_namespace,
+            defaults=self._preferences_defaults,
+        )
+
+        config.theme_name = str(self._preferences.get("theme", config.theme_name))
+        config.enable_sounds = bool(self._preferences.get("enable_sounds", config.enable_sounds))
+        config.enable_animations = bool(self._preferences.get("enable_animations", config.enable_animations))
+
         super().__init__(root, config)
         self.sound_manager = initialize_game_soundscape(
             "spades",
             module_file=__file__,
-            enable_sounds=config.enable_sounds,
+            enable_sounds=self.config.enable_sounds,
             existing_manager=self.sound_manager,
         )
 
@@ -106,11 +126,17 @@ class SpadesGUI(BaseGUI):
         self.bidding_index: Optional[int] = None
         self.leader_index: Optional[int] = None
 
+        self._preferences_menu: Optional[tk.Menu] = None
+        self._theme_var = tk.StringVar(value=self.config.theme_name)
+        self._sound_var = tk.BooleanVar(value=self.config.enable_sounds)
+        self._animation_var = tk.BooleanVar(value=self.config.enable_animations)
+
         self.build_layout()
         self.register_shortcut("Control-n", self._shortcut_next_round, "Start the next round after scoring")
         self.register_shortcut("Control-l", self._focus_log, "Focus the round log")
         self.register_shortcut("F1", self.show_shortcuts_help, "Display keyboard shortcut help")
         self.start_new_round()
+        self._build_preferences_menu()
 
     def build_layout(self) -> None:
         """Construct all widgets required for the Spades interface."""
@@ -578,6 +604,114 @@ class SpadesGUI(BaseGUI):
         else:
             if self.next_round_button is not None:
                 self.next_round_button.configure(state=tk.NORMAL)
+
+    # ------------------------------------------------------------------
+    # Preferences management
+    # ------------------------------------------------------------------
+    def _build_preferences_menu(self) -> None:
+        """Add a preferences menu that exposes theme, sound, and animation toggles."""
+
+        if self._preferences_menu is not None:
+            return
+
+        menu_bar = tk.Menu(self.root)
+        preferences = tk.Menu(menu_bar, tearoff=0)
+
+        theme_menu = tk.Menu(preferences, tearoff=0)
+        for theme_name in self.theme_manager.list_themes():
+            theme_menu.add_radiobutton(
+                label=self._format_theme_label(theme_name),
+                value=theme_name,
+                variable=self._theme_var,
+                command=lambda name=theme_name: self.update_user_preferences(theme=name),
+            )
+        preferences.add_cascade(label="Theme", menu=theme_menu)
+
+        preferences.add_checkbutton(
+            label="Enable sounds",
+            variable=self._sound_var,
+            command=lambda: self.update_user_preferences(enable_sounds=bool(self._sound_var.get())),
+        )
+        preferences.add_checkbutton(
+            label="Enable animations",
+            variable=self._animation_var,
+            command=lambda: self.update_user_preferences(enable_animations=bool(self._animation_var.get())),
+        )
+        preferences.add_separator()
+        preferences.add_command(label="Reset to defaults", command=self.reset_user_preferences)
+
+        menu_bar.add_cascade(label="Preferences", menu=preferences)
+        self.root.config(menu=menu_bar)
+        self._preferences_menu = menu_bar
+
+    def _format_theme_label(self, theme_name: str) -> str:
+        """Return a display label for ``theme_name``."""
+
+        return theme_name.replace("_", " ").title()
+
+    def update_user_preferences(
+        self,
+        *,
+        theme: Optional[str] = None,
+        enable_sounds: Optional[bool] = None,
+        enable_animations: Optional[bool] = None,
+        persist: bool = True,
+    ) -> None:
+        """Apply and optionally persist GUI preference overrides.
+
+        Args:
+            theme: Optional theme identifier to activate.
+            enable_sounds: Optional flag controlling audio playback.
+            enable_animations: Optional flag controlling highlight animations.
+            persist: Whether to record the change in persistent settings.
+        """
+
+        if theme is not None and self.set_theme(theme):
+            self.config.theme_name = theme
+            self._theme_var.set(theme)
+
+        if enable_sounds is not None:
+            sounds_enabled = bool(enable_sounds)
+            self.config.enable_sounds = sounds_enabled
+            if sounds_enabled:
+                self.sound_manager = initialize_game_soundscape(
+                    "spades",
+                    module_file=__file__,
+                    enable_sounds=True,
+                    existing_manager=self.sound_manager,
+                )
+                if self.sound_manager:
+                    self.sound_manager.set_enabled(True)
+            elif self.sound_manager:
+                self.sound_manager.set_enabled(False)
+            self._sound_var.set(sounds_enabled)
+
+        if enable_animations is not None:
+            animations_enabled = bool(enable_animations)
+            self.config.enable_animations = animations_enabled
+            self._animation_var.set(animations_enabled)
+
+        if not persist:
+            return
+
+        if theme is not None:
+            self._preferences.set("theme", self.config.theme_name)
+        if enable_sounds is not None:
+            self._preferences.set("enable_sounds", self.config.enable_sounds)
+        if enable_animations is not None:
+            self._preferences.set("enable_animations", self.config.enable_animations)
+        self.settings_manager.save_settings(self._preferences_namespace, self._preferences)
+
+    def reset_user_preferences(self) -> None:
+        """Reset stored preferences to defaults and reapply them."""
+
+        self._preferences.reset()
+        self.update_user_preferences(
+            theme=str(self._preferences.get("theme", self._preferences_defaults["theme"])),
+            enable_sounds=bool(self._preferences.get("enable_sounds", self._preferences_defaults["enable_sounds"])),
+            enable_animations=bool(self._preferences.get("enable_animations", self._preferences_defaults["enable_animations"])),
+            persist=True,
+        )
 
 
 def run_app(player_name: Optional[str] = None) -> None:
