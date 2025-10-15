@@ -35,6 +35,26 @@ jobs:
         run: |
           pyinstaller build_configs/pyinstaller/games.spec --clean
 
+      - name: Validate executable exists
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            EXPECTED_FILE="dist/games-collection.exe"
+          else
+            EXPECTED_FILE="dist/games-collection"
+          fi
+          
+          if [ ! -f "$EXPECTED_FILE" ]; then
+            echo "ERROR: Expected executable not found: $EXPECTED_FILE"
+            echo "Build may have failed or produced unexpected output."
+            echo "Contents of dist/ directory:"
+            ls -la dist/ || echo "dist/ directory does not exist"
+            exit 1
+          fi
+          
+          echo "✓ Executable validated: $EXPECTED_FILE"
+          ls -lh "$EXPECTED_FILE"
+
       - name: Test executable (Linux/macOS)
         if: runner.os != 'Windows'
         run: |

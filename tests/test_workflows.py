@@ -206,3 +206,49 @@ def test_build_executables_has_artifacts_verification():
     assert list_idx > download_idx, "List artifacts should come after Download all artifacts"
     assert verify_idx > list_idx, "Verify artifacts exist should come after List artifacts"
     assert create_release_idx > verify_idx, "Create Release should come after Verify artifacts exist"
+
+
+def test_build_pyinstaller_has_executable_validation():
+    """Test that build-pyinstaller job has executable validation step."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "build-executables.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    # Check that build-pyinstaller job exists
+    assert "build-pyinstaller" in workflow["jobs"], "build-executables should have build-pyinstaller job"
+
+    build_job = workflow["jobs"]["build-pyinstaller"]
+    steps = build_job["steps"]
+    step_names = [step.get("name") for step in steps]
+
+    # Verify the validation step exists
+    assert "Validate executable exists" in step_names, "build-pyinstaller should have 'Validate executable exists' step"
+
+    # Verify the order: Validate should come after Build and before Upload
+    build_idx = step_names.index("Build with PyInstaller")
+    validate_idx = step_names.index("Validate executable exists")
+    upload_idx = step_names.index("Upload artifact")
+
+    assert validate_idx > build_idx, "Validate executable exists should come after Build with PyInstaller"
+    assert upload_idx > validate_idx, "Upload artifact should come after Validate executable exists"
+
+    # Verify the validation step checks for the correct executable files
+    validate_step = None
+    for step in steps:
+        if step.get("name") == "Validate executable exists":
+            validate_step = step
+            break
+
+    assert validate_step is not None, "Could not find Validate executable exists step"
+    assert "run" in validate_step, "Validate step should have a 'run' command"
+
+    run_script = validate_step["run"]
+    # Check that the script checks for Windows executable
+    assert "games-collection.exe" in run_script, "Validation should check for games-collection.exe on Windows"
+    # Check that the script checks for Linux/macOS executable
+    assert "games-collection" in run_script, "Validation should check for games-collection on Linux/macOS"
+    # Check that it fails on missing file
+    assert "exit 1" in run_script, "Validation should exit with error code 1 if file is missing"
