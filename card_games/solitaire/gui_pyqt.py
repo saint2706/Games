@@ -28,19 +28,7 @@ from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 if PYQT5_AVAILABLE:  # pragma: no cover - Import guarded by availability checks
     from PyQt5.QtCore import QRectF, Qt, QTimer, pyqtSignal
     from PyQt5.QtGui import QColor, QFont, QMouseEvent, QPainter, QPaintEvent, QPen
-    from PyQt5.QtWidgets import (
-        QApplication,
-        QFrame,
-        QGridLayout,
-        QHBoxLayout,
-        QLabel,
-        QMainWindow,
-        QMessageBox,
-        QPushButton,
-        QSizePolicy,
-        QVBoxLayout,
-        QWidget,
-    )
+    from PyQt5.QtWidgets import QApplication, QFrame, QGridLayout, QHBoxLayout, QLabel, QMainWindow, QMessageBox, QPushButton, QSizePolicy, QVBoxLayout, QWidget
 else:  # pragma: no cover - Provides placeholders when PyQt5 is missing
     QApplication = None  # type: ignore
     QFrame = None  # type: ignore

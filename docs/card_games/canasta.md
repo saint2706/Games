@@ -16,9 +16,9 @@ This guide summarises the rules and controls implemented by the Canasta package.
 ## CLI Controls
 
 1. Start the game with `python -m card_games.canasta.cli`.
-2. On your turn choose whether to draw from the stock or discard pile.
-3. Enter card indices to lay melds; blank input skips melding.
-4. Choose a card to discard. If your team has a canasta and both hands are empty, you may elect to go out.
+1. On your turn choose whether to draw from the stock or discard pile.
+1. Enter card indices to lay melds; blank input skips melding.
+1. Choose a card to discard. If your team has a canasta and both hands are empty, you may elect to go out.
 
 ## GUI Controls
 

@@ -258,4 +258,3 @@ def set_profile_service(service: Optional[ProfileService]) -> None:
 
     global _GLOBAL_PROFILE_SERVICE
     _GLOBAL_PROFILE_SERVICE = service
-

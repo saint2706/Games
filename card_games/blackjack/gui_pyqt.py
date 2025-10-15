@@ -12,18 +12,7 @@ from typing import Optional
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QColor, QFont, QPen
-from PyQt5.QtWidgets import (
-    QApplication,
-    QFrame,
-    QGraphicsScene,
-    QGraphicsView,
-    QHBoxLayout,
-    QLabel,
-    QPushButton,
-    QSpinBox,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QApplication, QFrame, QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton, QSpinBox, QVBoxLayout, QWidget
 
 from card_games.blackjack.game import BlackjackGame, BlackjackHand, Outcome
 from card_games.common.cards import Card, Suit

@@ -53,9 +53,9 @@ python scripts/bump_version.py --dry-run
 This script is integrated into the `publish-pypi.yml` workflow. You can trigger an automated release by:
 
 1. Go to Actions > Publish to PyPI
-2. Click "Run workflow"
-3. Select version bump type (patch/minor/major)
-4. The workflow will:
+1. Click "Run workflow"
+1. Select version bump type (patch/minor/major)
+1. The workflow will:
    - Bump the version
    - Commit the changes
    - Create a git tag

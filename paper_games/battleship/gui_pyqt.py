@@ -12,26 +12,9 @@ from typing import Optional, Set
 
 from PyQt5.QtCore import QPointF, Qt, QTimer
 from PyQt5.QtGui import QBrush, QColor, QFont, QPainter, QPen
-from PyQt5.QtWidgets import (
-    QApplication,
-    QGraphicsScene,
-    QGraphicsView,
-    QHBoxLayout,
-    QLabel,
-    QMessageBox,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QApplication, QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
-from .battleship import (
-    DEFAULT_FLEET,
-    EXTENDED_FLEET,
-    SMALL_FLEET,
-    BattleshipGame,
-    Board,
-    Coordinate,
-)
+from .battleship import DEFAULT_FLEET, EXTENDED_FLEET, SMALL_FLEET, BattleshipGame, Board, Coordinate
 
 
 @dataclass

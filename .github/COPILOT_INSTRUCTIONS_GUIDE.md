@@ -75,11 +75,12 @@ Specialized instruction file following OpenAI Codex best practices. This file pr
 - Quick reference commands
 
 This file follows OpenAI Codex best practices including:
+
 1. Clear role and context definition
-2. Specific, measurable requirements
-3. Copy-paste code examples
-4. Error prevention guidelines
-5. Validation checklists
+1. Specific, measurable requirements
+1. Copy-paste code examples
+1. Error prevention guidelines
+1. Validation checklists
 
 **File**: `.github/instructions/AGENTS.md`
 
@@ -183,6 +184,7 @@ pytest tests/test_mcp_config.py -v
 ```
 
 **Note**: AGENTS.md files are placed at both levels:
+
 - `.github/AGENTS.md` - Repository-wide agent instructions
 - `.github/instructions/AGENTS.md` - Path-specific agent instructions
 

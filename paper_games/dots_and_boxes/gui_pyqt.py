@@ -13,15 +13,7 @@ from typing import Optional
 
 from PyQt5.QtCore import QPointF, QRectF, Qt, QTimer
 from PyQt5.QtGui import QBrush, QColor, QFont, QPainter, QPen
-from PyQt5.QtWidgets import (
-    QApplication,
-    QHBoxLayout,
-    QLabel,
-    QMessageBox,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 from .dots_and_boxes import DotsAndBoxes, EdgeKey
 

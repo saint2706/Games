@@ -124,4 +124,3 @@ class TutorialSession(Generic[MoveType]):
                 # Some games require extra parameters; ignore and keep current state.
                 pass
         self.tutorial.reset()
-

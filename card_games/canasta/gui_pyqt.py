@@ -216,9 +216,7 @@ class CanastaPyQtGUI(QMainWindow, BaseGUI):
         except MeldError as exc:
             self._set_status(str(exc), highlight_color="#bf3f5f")
             return
-        self._log(
-            f"Meld laid for {sum(card_point_value(card) for card in meld.cards)} points."
-        )
+        self._log(f"Meld laid for {sum(card_point_value(card) for card in meld.cards)} points.")
         self.phase = "discard"
         self._set_status(f"Meld laid: {', '.join(str(card) for card in meld.cards)}")
         self.update_display()

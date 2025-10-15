@@ -122,11 +122,7 @@ class RecommendationService:
                 average_session,
             )
             feedback_multiplier = profile.recommendation_cache.feedback_modifier(descriptor.game_id)
-            score = (
-                collab_score * collaborative_weight
-                + challenge_score * challenge_weight
-                + content_score * content_weight
-            ) * feedback_multiplier
+            score = (collab_score * collaborative_weight + challenge_score * challenge_weight + content_score * content_weight) * feedback_multiplier
 
             explanation = self._build_explanation(descriptor, reasons)
             results.append(
@@ -257,4 +253,3 @@ class RecommendationService:
         if reasons:
             return f"{reasons[0]}; try {descriptor.name}"
         return f"Give {descriptor.name} a try to expand your library"
-

@@ -15,7 +15,7 @@ algorithms.
   word genres. See the [Games Catalogue](docs/source/games_catalog.rst) for the
   full list.
 - **Multiple interfaces** – Launch titles from the command line, via the
-  ``games-collection`` menu, or with Tkinter/PyQt graphical front ends where
+  `games-collection` menu, or with Tkinter/PyQt graphical front ends where
   available.
 - **Reusable infrastructure** – Common modules provide AI strategies, save/load
   support, event dispatch, replay recording, accessibility helpers, and more.
@@ -55,8 +55,10 @@ pip install -e .[dev]
 After installation you have several options:
 
 - **Interactive menu** – Run `games-collection` to browse all installed titles.
+
 - **Console scripts** – Call commands such as `games-blackjack`,
   `games-tic-tac-toe`, or `games-farkle` directly.
+
 - **Module execution** – Use Python’s module runner when you want additional
   flags or to inspect help text:
 
@@ -86,11 +88,11 @@ tests/           Automated test suite mirroring the package structure
 ## Development workflow
 
 1. Install dependencies with `pip install -e .[dev]`.
-2. Format code with `black .` and `ruff check --fix .` (line length 160).
-3. Run static analysis using `mypy .` and, optionally, `radon cc ...`.
-4. Execute the full test suite: `pytest` or `pytest --cov`. Fixtures live under
+1. Format code with `black .` and `ruff check --fix .` (line length 160).
+1. Run static analysis using `mypy .` and, optionally, `radon cc ...`.
+1. Execute the full test suite: `pytest` or `pytest --cov`. Fixtures live under
    `tests/fixtures`.
-5. Update documentation in `docs/` and add entries to `CHANGELOG.md` for notable
+1. Update documentation in `docs/` and add entries to `CHANGELOG.md` for notable
    changes.
 
 Pre-commit hooks (`pre-commit install`) help keep commits consistent.

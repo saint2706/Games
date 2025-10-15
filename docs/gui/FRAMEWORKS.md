@@ -71,9 +71,9 @@ For migration guidelines and best practices, see `MIGRATION_GUIDE.md`.
 
 ### Summary
 
-| Status       | Count | Percentage |
+| Status | Count | Percentage |
 | ------------ | ----- | ---------- |
-| ✅ Completed | 16/16 | 100%       |
+| ✅ Completed | 16/16 | 100% |
 
 All 16 games (2 paper games, 14 card games) now have PyQt5 implementations with feature parity to their Tkinter versions.
 

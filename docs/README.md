@@ -29,14 +29,14 @@ elsewhere in the repository (for example under `docs/status/` and
    pip install -r docs/requirements.txt
    ```
 
-2. Build the HTML output:
+1. Build the HTML output:
 
    ```bash
    cd docs
    make html
    ```
 
-3. Open the generated pages at `docs/build/html/index.html`.
+1. Open the generated pages at `docs/build/html/index.html`.
 
 For other formats, run `make latexpdf`, `make epub`, or `make text` from the
 same directory.

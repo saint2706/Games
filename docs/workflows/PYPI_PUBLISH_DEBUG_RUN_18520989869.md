@@ -61,14 +61,14 @@ ______________________________________________________________________
 
 ### Version Analysis
 
-| Location                      | Version | Commit                               |
+| Location | Version | Commit |
 | ----------------------------- | ------- | ------------------------------------ |
-| Tag v1.1.1                    | N/A     | Points to commit `42ba227`           |
-| pyproject.toml @ v1.1.1 tag   | 1.0.1   | ❌ Mismatch!                         |
-| scripts/\_\_init\_\_.py @ tag | 1.0.1   | ❌ Mismatch!                         |
-| PyPI Current Version          | 1.0.1   | ❌ Already exists!                   |
-| pyproject.toml @ master       | 1.1.0   | Latest development version           |
-| Expected for v1.1.1           | 1.1.1   | ❌ Tag and code versions don't align |
+| Tag v1.1.1 | N/A | Points to commit `42ba227` |
+| pyproject.toml @ v1.1.1 tag | 1.0.1 | ❌ Mismatch! |
+| scripts/\_\_init\_\_.py @ tag | 1.0.1 | ❌ Mismatch! |
+| PyPI Current Version | 1.0.1 | ❌ Already exists! |
+| pyproject.toml @ master | 1.1.0 | Latest development version |
+| Expected for v1.1.1 | 1.1.1 | ❌ Tag and code versions don't align |
 
 ______________________________________________________________________
 

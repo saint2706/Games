@@ -5,6 +5,7 @@ This file provides specialized instructions for AI coding agents working on spec
 ## Purpose
 
 Path-specific instructions are automatically applied when agents work on:
+
 - Test files (`**/test_*.py`)
 - GUI files (`**/gui.py`)
 - Game implementation files (`**/{card_games,paper_games,dice_games,logic_games,word_games}/**/*.py`)
@@ -12,9 +13,9 @@ Path-specific instructions are automatically applied when agents work on:
 ## How This Works
 
 1. **Agent reads repository-wide instructions** from `.github/AGENTS.md` or `.github/copilot-instructions.md`
-2. **Agent identifies file type** based on path and name
-3. **Agent loads relevant path-specific instructions** from `.github/instructions/*.instructions.md`
-4. **Agent combines all instructions** for comprehensive context
+1. **Agent identifies file type** based on path and name
+1. **Agent loads relevant path-specific instructions** from `.github/instructions/*.instructions.md`
+1. **Agent combines all instructions** for comprehensive context
 
 ## Available Path-Specific Instructions
 
@@ -23,6 +24,7 @@ Path-specific instructions are automatically applied when agents work on:
 **Applies to**: `**/test_*.py`
 
 **Key Requirements:**
+
 - Use pytest framework exclusively
 - Achieve 90%+ code coverage for new code
 - Include unit, integration, and edge case tests
@@ -31,6 +33,7 @@ Path-specific instructions are automatically applied when agents work on:
 - Parametrize tests with `@pytest.mark.parametrize`
 
 **Test Organization:**
+
 ```python
 class TestGameInitialization:
     """Test game initialization scenarios."""
@@ -57,6 +60,7 @@ class TestGameMoves:
 **Applies to**: `**/gui.py`
 
 **Key Requirements:**
+
 - Inherit from `BaseGUI` in `common/gui_base.py`
 - Use Tkinter as primary framework (PyQt5 for advanced features)
 - Keep GUI code separate from game logic
@@ -65,6 +69,7 @@ class TestGameMoves:
 - Implement proper resource cleanup in `quit_game()`
 
 **GUI Structure:**
+
 ```python
 class MyGameGUI(BaseGUI):
     """GUI for MyGame."""
@@ -92,6 +97,7 @@ class MyGameGUI(BaseGUI):
 **Applies to**: `**/{card_games,paper_games,dice_games,logic_games,word_games}/**/*.py`
 
 **Key Requirements:**
+
 - Inherit from `GameEngine` base class
 - Implement required methods: `is_valid_move()`, `make_move()`, `is_game_over()`, `get_winner()`
 - Keep function cyclomatic complexity ≤ 10
@@ -100,6 +106,7 @@ class MyGameGUI(BaseGUI):
 - Implement AI opponents using `HeuristicStrategy`
 
 **Game Engine Structure:**
+
 ```python
 """MyGame implementation.
 
@@ -153,30 +160,30 @@ class MyGame(GameEngine[GameState, str]):
 ### Working on Test Files
 
 1. **Understand what's being tested** - Read the implementation file first
-2. **Identify test scenarios** - Normal cases, edge cases, error cases
-3. **Write test classes** - Group related tests together
-4. **Use fixtures** - Create reusable test data
-5. **Check coverage** - Ensure 90%+ coverage
-6. **Add parametrized tests** - Test multiple scenarios efficiently
+1. **Identify test scenarios** - Normal cases, edge cases, error cases
+1. **Write test classes** - Group related tests together
+1. **Use fixtures** - Create reusable test data
+1. **Check coverage** - Ensure 90%+ coverage
+1. **Add parametrized tests** - Test multiple scenarios efficiently
 
 ### Working on GUI Files
 
 1. **Separate concerns** - GUI code separate from game logic
-2. **Use base classes** - Inherit from `BaseGUI`
-3. **Handle events** - Mouse, keyboard, window events
-4. **Thread AI moves** - Keep GUI responsive
-5. **Implement accessibility** - Keyboard navigation, tooltips
-6. **Clean up resources** - Proper shutdown in `quit_game()`
+1. **Use base classes** - Inherit from `BaseGUI`
+1. **Handle events** - Mouse, keyboard, window events
+1. **Thread AI moves** - Keep GUI responsive
+1. **Implement accessibility** - Keyboard navigation, tooltips
+1. **Clean up resources** - Proper shutdown in `quit_game()`
 
 ### Working on Game Files
 
 1. **Read game rules** - Understand the game thoroughly
-2. **Design state** - Create immutable state representation
-3. **Plan complexity** - Break complex logic into functions ≤ 10
-4. **Implement core** - `is_valid_move`, `make_move`, `is_game_over`
-5. **Add AI** - Implement heuristic evaluation
-6. **Write tests** - Comprehensive test coverage
-7. **Check complexity** - Run `./scripts/check_complexity.sh`
+1. **Design state** - Create immutable state representation
+1. **Plan complexity** - Break complex logic into functions ≤ 10
+1. **Implement core** - `is_valid_move`, `make_move`, `is_game_over`
+1. **Add AI** - Implement heuristic evaluation
+1. **Write tests** - Comprehensive test coverage
+1. **Check complexity** - Run `./scripts/check_complexity.sh`
 
 ## Validation Checklist by File Type
 
@@ -332,19 +339,19 @@ python -m package.my_game
 These path-specific instructions **complement** (not replace) the repository-wide instructions in `.github/AGENTS.md`. Both sets of instructions are active simultaneously:
 
 1. **Repository-wide instructions** provide general context (architecture, patterns, workflow)
-2. **Path-specific instructions** provide detailed requirements for specific file types
-3. **Combined instructions** give agents complete context for any file
+1. **Path-specific instructions** provide detailed requirements for specific file types
+1. **Combined instructions** give agents complete context for any file
 
 ## OpenAI Codex Best Practices Applied
 
 Path-specific instructions follow these best practices:
 
 1. **Context-Aware** - Instructions match file type and purpose
-2. **Specific Requirements** - Clear expectations for each file type
-3. **Actionable Examples** - Copy-paste templates
-4. **Validation Checklists** - Measurable success criteria
-5. **Quick Reference** - File-type-specific commands
-6. **Integration Clarity** - Explains how instructions combine
+1. **Specific Requirements** - Clear expectations for each file type
+1. **Actionable Examples** - Copy-paste templates
+1. **Validation Checklists** - Measurable success criteria
+1. **Quick Reference** - File-type-specific commands
+1. **Integration Clarity** - Explains how instructions combine
 
 ______________________________________________________________________
 

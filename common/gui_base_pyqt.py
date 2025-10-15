@@ -14,16 +14,7 @@ from typing import Any, Callable, Dict, List, Optional
 try:
     from PyQt5.QtCore import Qt
     from PyQt5.QtGui import QFont, QKeySequence
-    from PyQt5.QtWidgets import (
-        QFrame,
-        QLabel,
-        QMainWindow,
-        QMessageBox,
-        QPushButton,
-        QTextEdit,
-        QVBoxLayout,
-        QWidget,
-    )
+    from PyQt5.QtWidgets import QFrame, QLabel, QMainWindow, QMessageBox, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
     PYQT5_AVAILABLE = True
 except ImportError:

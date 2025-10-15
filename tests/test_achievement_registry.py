@@ -6,11 +6,7 @@ import pathlib
 from typing import List
 
 from common.achievements import AchievementManager, create_common_achievements
-from common.achievements_registry import (
-    ACHIEVEMENT_UNLOCKED_EVENT,
-    AchievementRegistry,
-    get_achievement_registry,
-)
+from common.achievements_registry import ACHIEVEMENT_UNLOCKED_EVENT, AchievementRegistry, get_achievement_registry
 from common.architecture.events import FunctionEventHandler, get_global_event_bus
 from common.profile import PlayerProfile
 

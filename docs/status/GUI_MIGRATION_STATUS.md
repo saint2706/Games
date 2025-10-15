@@ -14,29 +14,29 @@ This document tracks the progress of migrating game GUIs from Tkinter to PyQt5.
 
 ### Paper Games (2/2 completed)
 
-| Game           | Status      | GUI File                                 | Notes                                    |
+| Game | Status | GUI File | Notes |
 | -------------- | ----------- | ---------------------------------------- | ---------------------------------------- |
-| Dots and Boxes | ✅ Complete | `paper_games/dots_and_boxes/gui_pyqt.py` | Proof of concept migration               |
-| Battleship     | ✅ Complete | `paper_games/battleship/gui_pyqt.py`     | Drag/preview placement and salvo support |
+| Dots and Boxes | ✅ Complete | `paper_games/dots_and_boxes/gui_pyqt.py` | Proof of concept migration |
+| Battleship | ✅ Complete | `paper_games/battleship/gui_pyqt.py` | Drag/preview placement and salvo support |
 
 ### Card Games (14/14 completed)
 
-| Game         | Status      | GUI File                               | Notes                                         |
+| Game | Status | GUI File | Notes |
 | ------------ | ----------- | -------------------------------------- | --------------------------------------------- |
-| Blackjack    | ✅ Complete | `card_games/blackjack/gui_pyqt.py`     | PyQt table with betting and animations        |
-| Bluff        | ✅ Complete | `card_games/bluff/gui_pyqt.py`         | Multi-player with log and challenge dialogs   |
-| Bridge       | ✅ Complete | `card_games/bridge/gui_pyqt.py`        | PyQt port with automated bidding/play         |
-| Canasta      | ✅ Complete | `card_games/canasta/gui_pyqt.py`       | Melding system with canastas                  |
-| Crazy Eights | ✅ Complete | `card_games/crazy_eights/gui_pyqt.py`  | Feature parity with Tkinter GUI               |
-| Gin Rummy    | ✅ Complete | `card_games/gin_rummy/gui_pyqt.py`     | Melding system                                |
-| Go Fish      | ✅ Complete | `card_games/go_fish/gui_pyqt.py`       | Simplest card game GUI                        |
-| Hearts       | ✅ Complete | `card_games/hearts/gui_pyqt.py`        | Trick-taking, point avoidance                 |
-| Pinochle     | ✅ Complete | `card_games/pinochle/gui_pyqt.py`      | Bidding and melding                           |
-| Poker        | ✅ Complete | `card_games/poker/gui_pyqt.py`         | Betting interface                             |
-| Solitaire    | ✅ Complete | `card_games/solitaire/gui_pyqt.py`     | Most complex GUI with toolbar and canvas      |
-| Spades       | ✅ Complete | `card_games/spades/gui_pyqt.py`        | Bidding, trick display, and scoring           |
-| Uno          | ✅ Complete | `card_games/uno/gui_pyqt.py`           | Mirrors Tk interface with PyQt widgets        |
-| War          | ✅ Complete | `card_games/war/gui_pyqt.py`           | Flashing war canvas, Save/Load integration    |
+| Blackjack | ✅ Complete | `card_games/blackjack/gui_pyqt.py` | PyQt table with betting and animations |
+| Bluff | ✅ Complete | `card_games/bluff/gui_pyqt.py` | Multi-player with log and challenge dialogs |
+| Bridge | ✅ Complete | `card_games/bridge/gui_pyqt.py` | PyQt port with automated bidding/play |
+| Canasta | ✅ Complete | `card_games/canasta/gui_pyqt.py` | Melding system with canastas |
+| Crazy Eights | ✅ Complete | `card_games/crazy_eights/gui_pyqt.py` | Feature parity with Tkinter GUI |
+| Gin Rummy | ✅ Complete | `card_games/gin_rummy/gui_pyqt.py` | Melding system |
+| Go Fish | ✅ Complete | `card_games/go_fish/gui_pyqt.py` | Simplest card game GUI |
+| Hearts | ✅ Complete | `card_games/hearts/gui_pyqt.py` | Trick-taking, point avoidance |
+| Pinochle | ✅ Complete | `card_games/pinochle/gui_pyqt.py` | Bidding and melding |
+| Poker | ✅ Complete | `card_games/poker/gui_pyqt.py` | Betting interface |
+| Solitaire | ✅ Complete | `card_games/solitaire/gui_pyqt.py` | Most complex GUI with toolbar and canvas |
+| Spades | ✅ Complete | `card_games/spades/gui_pyqt.py` | Bidding, trick display, and scoring |
+| Uno | ✅ Complete | `card_games/uno/gui_pyqt.py` | Mirrors Tk interface with PyQt widgets |
+| War | ✅ Complete | `card_games/war/gui_pyqt.py` | Flashing war canvas, Save/Load integration |
 
 ## Migration Guidelines
 

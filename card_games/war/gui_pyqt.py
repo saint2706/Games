@@ -22,19 +22,7 @@ from typing import Any, Dict, Optional
 
 from PyQt5.QtCore import QRect, Qt, QTimer
 from PyQt5.QtGui import QColor, QFont, QPainter, QPen
-from PyQt5.QtWidgets import (
-    QApplication,
-    QFileDialog,
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QMessageBox,
-    QPushButton,
-    QSlider,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QApplication, QFileDialog, QGroupBox, QHBoxLayout, QLabel, QMessageBox, QPushButton, QSlider, QTextEdit, QVBoxLayout, QWidget
 
 from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.war.game import WarGame

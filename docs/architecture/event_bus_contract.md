@@ -19,11 +19,11 @@ All events are represented by the `GameEventType` enum. Emitters may include add
 
 ## Subscription Guidelines
 
-* **Game Engines** – Call `self.emit_event(GameEventType.*, data)` when transitioning phases, mutating scores, or completing turns.
-* **Controllers / AI** – Implement `EventHandler` subclasses to react to events. Use `EventBus.subscribe()` or `subscribe_all()` during initialization.
-* **User Interfaces** – Register handlers that transform events into UI updates, accessibility cues, or sound effects.
+- **Game Engines** – Call `self.emit_event(GameEventType.*, data)` when transitioning phases, mutating scores, or completing turns.
+- **Controllers / AI** – Implement `EventHandler` subclasses to react to events. Use `EventBus.subscribe()` or `subscribe_all()` during initialization.
+- **User Interfaces** – Register handlers that transform events into UI updates, accessibility cues, or sound effects.
   Prefer small handlers composed per widget.
-* **Shared Services** – Analytics, replay, and tutorial systems should rely solely on these signals to avoid tight coupling.
+- **Shared Services** – Analytics, replay, and tutorial systems should rely solely on these signals to avoid tight coupling.
 
 ## Event History
 

@@ -1,11 +1,6 @@
 """Double-deck Pinochle package."""
 
-from .game import (
-    BiddingPhase,
-    MeldPhase,
-    PinochleGame,
-    PinochlePlayer,
-)
+from .game import BiddingPhase, MeldPhase, PinochleGame, PinochlePlayer
 
 __all__ = [
     "BiddingPhase",

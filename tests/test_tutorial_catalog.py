@@ -12,7 +12,6 @@ from common.game_engine import GameEngine, GameState
 from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY
 from common.tutorial_session import TutorialSession
 
-
 CATALOG_PATH = Path(__file__).resolve().parents[1] / "docs" / "source" / "games_catalog.rst"
 
 
@@ -113,4 +112,3 @@ def test_strategy_tip_provider_available() -> None:
     for game_key in GLOBAL_TUTORIAL_REGISTRY.available_games():
         provider = GLOBAL_TUTORIAL_REGISTRY.get_strategy_provider(game_key)
         assert provider.get_random_tip() is not None
-

@@ -2,15 +2,7 @@
 
 from __future__ import annotations
 
-from .game import (
-    CanastaDeck,
-    CanastaGame,
-    CanastaPlayer,
-    CanastaTeam,
-    JokerCard,
-    Meld,
-    MeldValidation,
-)
+from .game import CanastaDeck, CanastaGame, CanastaPlayer, CanastaTeam, JokerCard, Meld, MeldValidation
 
 __all__ = [
     "CanastaDeck",

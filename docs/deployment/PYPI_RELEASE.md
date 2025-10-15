@@ -7,22 +7,25 @@ This document describes how to release the games-collection package to PyPI.
 Version 1.2.1 is already set in both `pyproject.toml` and `scripts/__init__.py`. To release it:
 
 1. **Create GitHub Release** (recommended):
+
    - Go to https://github.com/saint2706/Games/releases/new
    - Tag: `v1.2.1`
    - Title: `v1.2.1`
    - Add release notes describing changes
    - Click "Publish release"
-   
-2. **Automated Process**: Two workflows will automatically run:
+
+1. **Automated Process**: Two workflows will automatically run:
+
    - ✅ `publish-pypi.yml`: Publishes to PyPI and uploads wheel/sdist
    - ✅ `build-executables.yml`: Builds and uploads executables for Linux, Windows, macOS
-   
-3. **Verify**: Check that the release has all artifacts:
+
+1. **Verify**: Check that the release has all artifacts:
+
    - Distribution packages (.whl, .tar.gz)
    - Executables (games-collection for each platform)
    - Signatures (.sigstore files)
 
----
+______________________________________________________________________
 
 ## Workflow Coordination
 
@@ -235,6 +238,7 @@ If the `build` job succeeds but `publish-to-pypi` and `github-release` jobs are 
    - Reviewers will receive notification to approve the deployment
 
 1. **Review Workflow Logs**:
+
    - Go to Actions tab and select the workflow run
    - Check for error messages or warnings
    - Look for "Environment protection rules" or "Waiting for approval" messages
@@ -260,8 +264,8 @@ If the `build` job succeeds but `publish-to-pypi` and `github-release` jobs are 
 - The workflow now checks for existing release assets and will fail with a clear error message
 - To fix:
   1. Delete the existing release and tag: `git tag -d v1.0.1 && git push origin :refs/tags/v1.0.1`
-  2. Run the automated version bump workflow again
-  3. Or manually bump to a new version (e.g., 1.0.1 → 1.0.2)
+  1. Run the automated version bump workflow again
+  1. Or manually bump to a new version (e.g., 1.0.1 → 1.0.2)
 
 ### Release Assets Already Exist
 
@@ -271,8 +275,8 @@ If you see an error like "The following assets already exist in release":
 - This prevents accidental overwrites and version conflicts
 - To fix:
   1. Delete the existing release: `gh release delete v1.0.1 --yes`
-  2. Delete the tag: `git tag -d v1.0.1 && git push origin :refs/tags/v1.0.1`
-  3. Run the automated version bump workflow again with a higher version
+  1. Delete the tag: `git tag -d v1.0.1 && git push origin :refs/tags/v1.0.1`
+  1. Run the automated version bump workflow again with a higher version
 
 ## Version Numbering
 

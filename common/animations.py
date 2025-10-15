@@ -372,4 +372,9 @@ def maybe_animate_highlight(
         active = getattr(widget, "_cg_active_animations", [])
         active.append(animation)
         setattr(widget, "_cg_active_animations", active)
-        animation.start(QtCore.QAbstractAnimation.DeletionPolicy.DeleteWhenStopped if hasattr(QtCore.QAbstractAnimation, "DeletionPolicy") else QtCore.QAbstractAnimation.DeleteWhenStopped)  # type: ignore[attr-defined]
+        deletion_policy = (
+            QtCore.QAbstractAnimation.DeletionPolicy.DeleteWhenStopped
+            if hasattr(QtCore.QAbstractAnimation, "DeletionPolicy")
+            else QtCore.QAbstractAnimation.DeleteWhenStopped
+        )
+        animation.start(deletion_policy)  # type: ignore[attr-defined]

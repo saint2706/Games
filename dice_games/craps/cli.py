@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from common.architecture.events import Event, EventBus, EventHandler, GameEventType
+
 from .craps import CrapsGame
 
 

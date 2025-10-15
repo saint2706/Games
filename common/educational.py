@@ -148,10 +148,7 @@ class DocumentationTutorialMode(TutorialMode[StateType, MoveType]):
 
         steps: List[TutorialStep] = []
         intro_hint = hints[0] if hints else None
-        intro_description = (
-            f"{summary}\n\n"
-            f"Reference: ``{doc_path}``."
-        )
+        intro_description = f"{summary}\n\n" f"Reference: ``{doc_path}``."
         if learning_focus:
             intro_description += f"\n\nFocus: {learning_focus}"
         steps.append(

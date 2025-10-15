@@ -11,6 +11,7 @@ import random
 from typing import Dict, List
 
 from common.profile_service import get_profile_service
+
 from .stats import GameStats
 from .themes import get_theme, list_themes
 from .tic_tac_toe import TicTacToeGame

@@ -7,11 +7,13 @@ The repository is fully prepared for v1.2.1 release with coordinated workflows.
 ## What Was Changed
 
 ### Workflow Coordination
+
 - Added `release: types: [published]` trigger to `.github/workflows/build-executables.yml`
 - This ensures both `publish-pypi.yml` and `build-executables.yml` trigger on the same release event
 - Both workflows now work together to create a complete release
 
 ### Version Verification
+
 - ✅ `pyproject.toml` version: `1.2.1`
 - ✅ `scripts/__init__.py` version: `1.2.1`
 - ✅ Versions are consistent and ready for release
@@ -23,39 +25,45 @@ The repository is fully prepared for v1.2.1 release with coordinated workflows.
 Since the version is already set to 1.2.1, simply create a GitHub release:
 
 1. **Go to GitHub Releases:**
+
    - Navigate to https://github.com/saint2706/Games/releases/new
 
-2. **Create the Release:**
+1. **Create the Release:**
+
    - Tag: `v1.2.1`
    - Release title: `v1.2.1`
    - Description: Add your release notes (see CHANGELOG.md for reference)
    - Click "Publish release"
 
-3. **Watch the Magic:**
+1. **Watch the Magic:**
    Both workflows will automatically trigger and run in parallel:
-   
+
    - **`publish-pypi.yml`:**
+
      - ✅ Validates version consistency
      - ✅ Builds wheel and source distribution
      - ✅ Publishes to PyPI
      - ✅ Signs packages with Sigstore
      - ✅ Uploads to GitHub Release
-   
+
    - **`build-executables.yml`:**
+
      - ✅ Builds executables for Linux, Windows, macOS
      - ✅ Runs cross-platform tests
      - ✅ Uploads executables to GitHub Release
 
-4. **Verify the Release:**
+1. **Verify the Release:**
    After both workflows complete (typically 10-15 minutes), check the release has:
+
    - Distribution packages: `games_collection-1.2.1-py3-none-any.whl`, `games_collection-1.2.1.tar.gz`
    - Signatures: `.sigstore` files
-   - Executables: 
+   - Executables:
      - `games-collection` (Linux)
      - `games-collection.exe` (Windows)
      - `games-collection` (macOS)
 
-5. **Verify PyPI:**
+1. **Verify PyPI:**
+
    - Visit https://pypi.org/project/games-collection/
    - Confirm version 1.2.1 is published
    - Test installation: `pip install --upgrade games-collection==1.2.1`
@@ -65,9 +73,9 @@ Since the version is already set to 1.2.1, simply create a GitHub release:
 If you want to use the automated workflow for future releases:
 
 1. Go to Actions → "Publish to PyPI" → "Run workflow"
-2. Select branch: `master`
-3. Choose version bump type (for future releases after 1.2.1)
-4. Click "Run workflow"
+1. Select branch: `master`
+1. Choose version bump type (for future releases after 1.2.1)
+1. Click "Run workflow"
 
 **Note:** Don't use this for v1.2.1 since the version is already set. This is for future releases.
 
@@ -107,11 +115,13 @@ If you want to use the automated workflow for future releases:
 ## Monitoring the Release
 
 1. **GitHub Actions:**
+
    - Go to https://github.com/saint2706/Games/actions
    - You'll see two workflow runs triggered by your release
    - Monitor their progress (both should complete successfully)
 
-2. **Common Issues:**
+1. **Common Issues:**
+
    - If workflows fail, check the logs in Actions tab
    - Ensure PyPI trusted publishing is configured (see docs/deployment/PYPI_RELEASE.md)
    - Ensure GitHub environment `pypi` exists (see Prerequisites in PYPI_RELEASE.md)
@@ -121,35 +131,39 @@ If you want to use the automated workflow for future releases:
 After the release completes:
 
 1. **Check GitHub Release:**
+
    ```bash
    # View the release
    open https://github.com/saint2706/Games/releases/tag/v1.2.1
    ```
 
-2. **Check PyPI:**
+1. **Check PyPI:**
+
    ```bash
    # Search for the package
    pip search games-collection  # (if pip search is available)
    # Or visit: https://pypi.org/project/games-collection/1.2.1/
    ```
 
-3. **Test Installation:**
+1. **Test Installation:**
+
    ```bash
    # Create a new virtual environment
    python -m venv test_env
    source test_env/bin/activate  # On Windows: test_env\Scripts\activate
-   
+
    # Install the new version
    pip install games-collection==1.2.1
-   
+
    # Test the launcher
    games-collection --help
-   
+
    # Test a specific game
    games-uno --help
    ```
 
-4. **Download and Test Executable:**
+1. **Download and Test Executable:**
+
    - Download the executable for your platform from the GitHub Release
    - Run it to ensure it works
    - Linux/macOS: `chmod +x games-collection && ./games-collection`
@@ -158,6 +172,7 @@ After the release completes:
 ## Documentation
 
 For more details, see:
+
 - `docs/deployment/PYPI_RELEASE.md` - Complete PyPI release process
 - `docs/development/BUILD_EXECUTABLES_WORKFLOW.md` - Executable building details
 - `CHANGELOG.md` - Version history and changes
@@ -165,16 +180,19 @@ For more details, see:
 ## Troubleshooting
 
 ### Workflow Fails
+
 - Check workflow logs in Actions tab
 - Verify all prerequisites are met (PyPI trusted publishing, GitHub environment)
 - Ensure version consistency (`python scripts/check_version_consistency.py --tag v1.2.1`)
 
 ### PyPI Upload Fails
+
 - Check that version 1.2.1 doesn't already exist on PyPI
 - Verify PyPI trusted publishing is configured correctly
 - Ensure the `pypi` environment exists in GitHub repository settings
 
 ### Executables Not Uploaded
+
 - Check that `build-executables.yml` workflow completed successfully
 - Verify all three platforms (Linux, Windows, macOS) built successfully
 - Check workflow logs for any errors
@@ -182,19 +200,21 @@ For more details, see:
 ## Next Steps After v1.2.1
 
 For future releases:
+
 1. Update CHANGELOG.md with new changes
-2. Use the automated workflow (Option 1) to bump version and create release
-3. Both workflows will automatically handle everything
-4. The coordination is now permanent - every release will have both PyPI package and executables
+1. Use the automated workflow (Option 1) to bump version and create release
+1. Both workflows will automatically handle everything
+1. The coordination is now permanent - every release will have both PyPI package and executables
 
 ## Questions?
 
 If you encounter any issues:
-1. Check the workflow logs in the Actions tab
-2. Review the documentation in `docs/deployment/`
-3. Verify prerequisites are met
-4. The workflows are designed to provide clear error messages
 
----
+1. Check the workflow logs in the Actions tab
+1. Review the documentation in `docs/deployment/`
+1. Verify prerequisites are met
+1. The workflows are designed to provide clear error messages
+
+______________________________________________________________________
 
 **Ready to release? Just create the GitHub release and watch the automation work! 🚀**

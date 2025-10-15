@@ -12,7 +12,6 @@ from typing import Dict, List, Optional, Tuple
 from common.challenges import Challenge, ChallengeManager, ChallengePack, DifficultyLevel
 from common.profile import get_default_profile_dir
 
-
 _DIFFICULTY_ROTATION: Tuple[DifficultyLevel, ...] = (
     DifficultyLevel.BEGINNER,
     DifficultyLevel.INTERMEDIATE,
@@ -93,11 +92,7 @@ class DailyChallengeScheduler:
                 payload = {}
 
         if isinstance(payload, dict):
-            self._schedule = {
-                key: value
-                for key, value in payload.items()
-                if isinstance(key, str) and isinstance(value, dict)
-            }
+            self._schedule = {key: value for key, value in payload.items() if isinstance(key, str) and isinstance(value, dict)}
         else:
             self._schedule = {}
 
@@ -137,4 +132,3 @@ class DailyChallengeScheduler:
                 continue
             candidates.extend((pack_name, challenge) for challenge in pack.get_challenges_by_difficulty(difficulty))
         return candidates
-

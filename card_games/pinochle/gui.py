@@ -5,14 +5,7 @@ from __future__ import annotations
 from typing import Optional
 
 from card_games.pinochle.game import PinochleGame, PinochlePlayer
-from common.gui_base import (
-    TKINTER_AVAILABLE,
-    BaseGUI,
-    GUIConfig,
-    scrolledtext,
-    tk,
-    ttk,
-)
+from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 
 
 class PinochleGUI(BaseGUI):
@@ -44,7 +37,7 @@ class PinochleGUI(BaseGUI):
             self.game = game
 
         self.phase = "setup"
-        self.status_var = tk.StringVar(value="Click \"New round\" to deal cards.")
+        self.status_var = tk.StringVar(value='Click "New round" to deal cards.')
         self.phase_var = tk.StringVar(value="Idle")
         self.team_score_vars = [tk.StringVar(value="0"), tk.StringVar(value="0")]
         self.current_player_var = tk.StringVar(value="-")
@@ -289,14 +282,10 @@ class PinochleGUI(BaseGUI):
         if len(self.game.current_trick) == len(self.game.players):
             winner = self.game.complete_trick()
             self.play_sound("win")
-            self._log_message(
-                f"Trick won by {winner.name}: {self.game.format_trick(self.game.trick_history[-1])}"
-            )
+            self._log_message(f"Trick won by {winner.name}: {self.game.format_trick(self.game.trick_history[-1])}")
             if not any(p.hand for p in self.game.players):
                 totals = self.game.resolve_round()
-                scores = ", ".join(
-                    f"Team {team + 1}: {values['total']}" for team, values in totals.items()
-                )
+                scores = ", ".join(f"Team {team + 1}: {values['total']}" for team, values in totals.items())
                 self._log_message(f"Round complete. {scores}")
                 self.phase = "scoring"
                 self.phase_var.set("Scoring")
@@ -323,14 +312,10 @@ class PinochleGUI(BaseGUI):
             if self.game.meld_breakdowns:
                 for player in self.game.players:
                     breakdown = self.game.meld_breakdowns.get(player.name, {})
-                    parts = ", ".join(
-                        f"{key.replace('_', ' ')}: {value}" for key, value in breakdown.items()
-                    )
+                    parts = ", ".join(f"{key.replace('_', ' ')}: {value}" for key, value in breakdown.items())
                     if not parts:
                         parts = "no meld"
-                    self.meld_widget.insert(
-                        tk.END, f"{player.name}: {player.meld_points} ({parts})\n"
-                    )
+                    self.meld_widget.insert(tk.END, f"{player.name}: {player.meld_points} ({parts})\n")
             else:
                 self.meld_widget.insert(tk.END, "Meld has not been scored yet.\n")
             self.meld_widget.configure(state="disabled")
