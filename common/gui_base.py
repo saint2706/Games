@@ -24,6 +24,7 @@ except ImportError:
 
 # Import enhancement modules
 from common.accessibility import get_accessibility_manager
+from common.achievements_registry import get_achievement_registry
 from common.animations import maybe_animate_highlight
 from common.i18n import _, get_translation_manager
 from common.keyboard_shortcuts import get_shortcut_manager
@@ -95,6 +96,7 @@ class BaseGUI(ABC):
         self._setup_enhancements()
         self._setup_window()
         self._setup_shortcuts()
+        get_achievement_registry().enable_gui_notifications(self.root)
 
     def _setup_enhancements(self) -> None:
         """Set up all enhancement systems."""
