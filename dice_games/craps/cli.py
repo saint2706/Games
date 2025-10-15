@@ -2,7 +2,26 @@
 
 from __future__ import annotations
 
+from common.architecture.events import Event, EventBus, EventHandler, GameEventType
 from .craps import CrapsGame
+
+
+class CrapsCLIEventHandler(EventHandler):
+    """Simple CLI event handler that prints significant game events."""
+
+    def handle(self, event: Event) -> None:
+        """Handle incoming events by printing user-friendly messages."""
+
+        if event.type == GameEventType.SCORE_UPDATED.value:
+            bankroll = event.data.get("bankroll")
+            print(f"[event] Bankroll updated: ${bankroll}")
+        elif event.type == GameEventType.TURN_COMPLETE.value:
+            roll = event.data.get("roll")
+            point = event.data.get("point")
+            status = f"point {point}" if point else "no point"
+            print(f"[event] Roll {roll} complete, {status}.")
+        elif event.type == GameEventType.GAME_OVER.value:
+            print("[event] Game over!")
 
 
 def main() -> None:
@@ -10,7 +29,10 @@ def main() -> None:
     print("CRAPS".center(50, "="))
     print("\nCasino dice game. Bet on dice rolls!")
 
+    event_bus = EventBus()
     game = CrapsGame()
+    game.set_event_bus(event_bus)
+    event_bus.subscribe_all(CrapsCLIEventHandler())
     game.state = game.state.IN_PROGRESS
 
     print("\nStarting bankroll: $1000")

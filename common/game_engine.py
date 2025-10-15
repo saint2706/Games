@@ -9,7 +9,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Generic, List, Optional, TypeVar
+from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
+
+from .architecture.events import EventBus, GameEventType, get_global_event_bus
 
 # Type variable for move representation (can be int, tuple, string, etc.)
 MoveType = TypeVar("MoveType")
@@ -37,6 +39,32 @@ class GameEngine(ABC, Generic[MoveType, PlayerType]):
         MoveType: The type used to represent a move in the game
         PlayerType: The type used to represent a player
     """
+
+    def __init__(self, event_bus: Optional[EventBus] = None) -> None:
+        """Initialize the game engine with an optional event bus."""
+
+        self._event_bus: Optional[EventBus] = event_bus
+
+    def set_event_bus(self, event_bus: EventBus) -> None:
+        """Attach a specific :class:`EventBus` to the engine."""
+
+        self._event_bus = event_bus
+
+    @property
+    def event_bus(self) -> EventBus:
+        """Return the active :class:`EventBus`, creating one if needed."""
+
+        bus = getattr(self, "_event_bus", None)
+        if bus is None:
+            bus = get_global_event_bus()
+            self._event_bus = bus
+        return bus
+
+    def emit_event(self, event_type: Union[GameEventType, str], data: Optional[Dict[str, Any]] = None) -> None:
+        """Emit an event through the engine's event bus."""
+
+        event_name = event_type.value if isinstance(event_type, GameEventType) else event_type
+        self.event_bus.emit(event_name, data=data or {}, source=self.__class__.__name__)
 
     @abstractmethod
     def reset(self) -> None:

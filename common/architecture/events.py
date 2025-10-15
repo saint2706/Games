@@ -9,7 +9,19 @@ from __future__ import annotations
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
+
+
+class GameEventType(str, Enum):
+    """Canonical event types emitted by game engines and controllers."""
+
+    GAME_INITIALIZED = "game.initialized"
+    GAME_START = "game.start"
+    TURN_COMPLETE = "game.turn_complete"
+    SCORE_UPDATED = "game.score_updated"
+    GAME_OVER = "game.over"
+    ACTION_PROCESSED = "game.action_processed"
 
 
 @dataclass
@@ -157,33 +169,53 @@ class EventBus:
         return event
 
     def clear_history(self) -> None:
-        """Clear the event history."""
+        """Clear the stored event history."""
+
         self._event_history.clear()
 
     def get_history(self, event_type: Optional[str] = None) -> List[Event]:
-        """Get event history, optionally filtered by type.
+        """Return a copy of the event history, optionally filtered by type."""
 
-        Args:
-            event_type: Optional event type to filter by
-
-        Returns:
-            List of events in chronological order
-        """
         if event_type is None:
             return self._event_history.copy()
-        return [e for e in self._event_history if e.type == event_type]
+        return [event for event in self._event_history if event.type == event_type]
 
     def enable(self) -> None:
-        """Enable event processing."""
+        """Enable event processing for the bus."""
+
         self._enabled = True
 
     def disable(self) -> None:
-        """Disable event processing."""
+        """Disable event processing for the bus."""
+
         self._enabled = False
 
     def is_enabled(self) -> bool:
-        """Check if event processing is enabled."""
+        """Return ``True`` when the bus will dispatch events."""
+
         return self._enabled
+
+
+_GLOBAL_EVENT_BUS: Optional[EventBus] = None
+
+
+def get_global_event_bus() -> EventBus:
+    """Return the shared global :class:`EventBus` instance.
+
+    The first call creates a new bus; subsequent calls return the same instance.
+    """
+
+    global _GLOBAL_EVENT_BUS
+    if _GLOBAL_EVENT_BUS is None:
+        _GLOBAL_EVENT_BUS = EventBus()
+    return _GLOBAL_EVENT_BUS
+
+
+def set_global_event_bus(event_bus: EventBus) -> None:
+    """Set the shared global :class:`EventBus` instance."""
+
+    global _GLOBAL_EVENT_BUS
+    _GLOBAL_EVENT_BUS = event_bus
 
 
 class FunctionEventHandler(EventHandler):

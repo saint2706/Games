@@ -10,6 +10,7 @@ import random
 from collections import Counter
 from typing import List, Tuple
 
+from common.architecture.events import GameEventType
 from common.game_engine import GameEngine, GameState
 
 
@@ -38,6 +39,7 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
             num_players: Number of players (2-6)
             winning_score: Score needed to win (default 10000)
         """
+        super().__init__()
         self.num_players = max(2, min(6, num_players))
         self.winning_score = winning_score
         self.reset()
@@ -50,6 +52,13 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
         self.turn_score = 0
         self.dice_in_hand = 6
         self.last_roll: List[int] = []
+        self.emit_event(
+            GameEventType.GAME_INITIALIZED,
+            {
+                "num_players": self.num_players,
+                "winning_score": self.winning_score,
+            },
+        )
 
     def is_game_over(self) -> bool:
         """Check if game is over."""
@@ -90,10 +99,25 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
 
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
+            self.emit_event(
+                GameEventType.GAME_START,
+                {
+                    "player": self.current_player_idx,
+                    "scores": self.scores.copy(),
+                },
+            )
 
         # Roll dice if needed
         if not self.last_roll:
             self.last_roll = [random.randint(1, 6) for _ in range(self.dice_in_hand)]
+            self.emit_event(
+                GameEventType.ACTION_PROCESSED,
+                {
+                    "action": "roll",
+                    "roll": self.last_roll.copy(),
+                    "dice_in_hand": self.dice_in_hand,
+                },
+            )
             return True
 
         # Check if farkled
@@ -110,6 +134,14 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
 
             self.turn_score += score
             self.dice_in_hand -= len(dice_to_bank)
+            self.emit_event(
+                GameEventType.ACTION_PROCESSED,
+                {
+                    "action": "bank_dice",
+                    "dice": dice_to_bank,
+                    "turn_score": self.turn_score,
+                },
+            )
 
             # If all dice used, get all 6 back ("hot dice")
             if self.dice_in_hand == 0:
@@ -117,9 +149,25 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
 
         if continue_rolling:
             self.last_roll = [random.randint(1, 6) for _ in range(self.dice_in_hand)]
+            self.emit_event(
+                GameEventType.ACTION_PROCESSED,
+                {
+                    "action": "roll",
+                    "roll": self.last_roll.copy(),
+                    "dice_in_hand": self.dice_in_hand,
+                },
+            )
         else:
             # Bank turn score and end turn
             self.scores[self.current_player_idx] += self.turn_score
+            self.emit_event(
+                GameEventType.SCORE_UPDATED,
+                {
+                    "player": self.current_player_idx,
+                    "scores": self.scores.copy(),
+                    "turn_score": self.turn_score,
+                },
+            )
             self._end_turn()
 
         return True
@@ -144,6 +192,22 @@ class FarkleGame(GameEngine[Tuple[List[int], bool], int]):
         self.turn_score = 0
         self.dice_in_hand = 6
         self.last_roll = []
+        self.emit_event(
+            GameEventType.TURN_COMPLETE,
+            {
+                "next_player": self.current_player_idx,
+                "scores": self.scores.copy(),
+            },
+        )
+        if self.is_game_over():
+            winner = self.get_winner()
+            self.emit_event(
+                GameEventType.GAME_OVER,
+                {
+                    "winner": winner,
+                    "scores": self.scores.copy(),
+                },
+            )
 
     def _has_scoring_dice(self, dice: List[int]) -> bool:
         """Check if dice contain any scoring combinations."""
