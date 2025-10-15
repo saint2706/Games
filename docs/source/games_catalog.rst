@@ -10,6 +10,7 @@ Card games (16)
 - :mod:`card_games.blackjack`
 - :mod:`card_games.bluff`
 - :mod:`card_games.bridge`
+- :mod:`card_games.canasta`
 - :mod:`card_games.crazy_eights`
 - :mod:`card_games.cribbage`
 - :mod:`card_games.euchre`
