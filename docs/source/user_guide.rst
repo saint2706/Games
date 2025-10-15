@@ -62,6 +62,16 @@ selected explicitly::
 Not every game features a GUI yet; consult the :doc:`games_catalog` for the
 latest status.
 
+Personalised recommendations
+----------------------------
+
+When you open the launcher or finish a match you will see a shortlist of new
+games to explore. The system analyses your playtime, favourite mechanics, and
+community challenge trends to surface relevant suggestions. Each entry includes
+a short explanation such as ``You enjoy trick-taking games; try Spades`` so you
+understand why it appears. Accepting a suggestion sharpens future picks, while
+dismissing it quietly moves that title further down the queue.
+
 Double-deck Pinochle
 --------------------
 

@@ -60,6 +60,12 @@ from .educational import (
 from .tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata, TutorialRegistration
 from .tutorial_session import TutorialFeedback, TutorialSession
 from .mcp_config_loader import MCPConfig, MCPServerConfig, load_default_mcp_config, validate_mcp_config_file
+from .recommendation_service import (
+    GameDescriptor,
+    RecommendationResult,
+    RecommendationService,
+    RecommendationWeights,
+)
 
 # GUI enhancement imports (optional, only if tkinter available)
 try:
@@ -152,6 +158,11 @@ __all__ = [
     "MCPServerConfig",
     "load_default_mcp_config",
     "validate_mcp_config_file",
+    # Recommendations
+    "RecommendationService",
+    "RecommendationWeights",
+    "RecommendationResult",
+    "GameDescriptor",
 ]
 
 # Add GUI enhancements to __all__ if available

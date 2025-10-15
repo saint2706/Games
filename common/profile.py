@@ -10,10 +10,13 @@ import json
 import pathlib
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
 from common.achievements import AchievementManager
 from common.achievements_registry import get_achievement_registry
+
+if TYPE_CHECKING:  # pragma: no cover - used for type checking only
+    from common.recommendation_service import RecommendationResult
 
 
 @dataclass
@@ -198,6 +201,80 @@ class GameProfile:
 
 
 @dataclass
+class RecommendationCache:
+    """Cache recommendation results and collect lightweight feedback."""
+
+    cached_at: Optional[str] = None
+    recommendations: List[Dict[str, Any]] = field(default_factory=list)
+    accepted: Dict[str, int] = field(default_factory=dict)
+    ignored: Dict[str, int] = field(default_factory=dict)
+
+    def update_from_results(self, results: Sequence["RecommendationResult"]) -> None:
+        """Persist recommendation results to the cache."""
+
+        self.cached_at = datetime.now().isoformat()
+        self.recommendations = [
+            {
+                "game_id": result.game_id,
+                "game_name": result.game_name,
+                "score": result.score,
+                "reasons": list(result.reasons),
+                "explanation": result.explanation,
+            }
+            for result in results
+        ]
+
+    def record_feedback(self, game_id: str, accepted: bool) -> None:
+        """Track whether the player accepted or ignored a recommendation."""
+
+        bucket = self.accepted if accepted else self.ignored
+        bucket[game_id] = bucket.get(game_id, 0) + 1
+
+    def feedback_modifier(self, game_id: str) -> float:
+        """Return a multiplier derived from historical feedback."""
+
+        positive = self.accepted.get(game_id, 0)
+        negative = self.ignored.get(game_id, 0)
+        total = positive + negative
+        if total == 0:
+            return 1.0
+        return (positive + 1.0) / (total + 1.0)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise the cache for persistence."""
+
+        return {
+            "cached_at": self.cached_at,
+            "recommendations": list(self.recommendations),
+            "accepted": dict(self.accepted),
+            "ignored": dict(self.ignored),
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RecommendationCache":
+        """Restore cache data from disk."""
+
+        return cls(
+            cached_at=data.get("cached_at"),
+            recommendations=list(data.get("recommendations", [])),
+            accepted=dict(data.get("accepted", {})),
+            ignored=dict(data.get("ignored", {})),
+        )
+
+    def is_valid(self, ttl_seconds: Optional[float]) -> bool:
+        """Return True when cached recommendations are still fresh."""
+
+        if self.cached_at is None:
+            return False
+        if not self.recommendations:
+            return False
+        if ttl_seconds is None:
+            return True
+        cached_time = datetime.fromisoformat(self.cached_at)
+        return (datetime.now() - cached_time).total_seconds() < ttl_seconds
+
+
+@dataclass
 class PlayerProfile:
     """Unified player profile across all games.
 
@@ -224,6 +301,7 @@ class PlayerProfile:
     experience: int = 0
     preferences: Dict = field(default_factory=dict)
     daily_challenge_progress: DailyChallengeProgress = field(default_factory=DailyChallengeProgress)
+    recommendation_cache: RecommendationCache = field(default_factory=RecommendationCache)
 
     def __post_init__(self) -> None:
         """Register all known achievements and enable notifications."""
@@ -283,6 +361,16 @@ class PlayerProfile:
         registry.notify_unlocks(unlocked, self.achievement_manager, player_id=self.player_id, game_id=game_id, stats=stats)
 
         return unlocked
+
+    def cache_recommendations(self, recommendations: Sequence["RecommendationResult"]) -> None:
+        """Store freshly generated recommendations."""
+
+        self.recommendation_cache.update_from_results(recommendations)
+
+    def record_recommendation_feedback(self, game_id: str, accepted: bool) -> None:
+        """Record whether the player accepted or ignored a recommendation."""
+
+        self.recommendation_cache.record_feedback(game_id, accepted)
 
     def record_daily_challenge(
         self,
@@ -478,6 +566,7 @@ class PlayerProfile:
             "preferences": self.preferences,
             "game_profiles": {gid: profile.to_dict() for gid, profile in self.game_profiles.items()},
             "daily_challenges": self.daily_challenge_progress.to_dict(),
+            "recommendations": self.recommendation_cache.to_dict(),
         }
 
         # Save achievements separately or inline
@@ -540,6 +629,10 @@ class PlayerProfile:
         progress_data = data.get("daily_challenges")
         if isinstance(progress_data, dict):
             profile.daily_challenge_progress = DailyChallengeProgress.from_dict(progress_data)
+
+        recommendation_data = data.get("recommendations")
+        if isinstance(recommendation_data, dict):
+            profile.recommendation_cache = RecommendationCache.from_dict(recommendation_data)
 
         return profile
 
