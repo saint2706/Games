@@ -78,8 +78,41 @@ jobs:
             --draft=false \
             --prerelease=false
 
+  validate-version:
+    name: Validate version consistency
+    # Only run validation on release events (not workflow_dispatch)
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Check version consistency
+        run: |
+          python scripts/check_version_consistency.py --tag ${{ github.ref_name }}
+          
+          echo "## Version Validation ✅" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Version consistency check passed for tag ${{ github.ref_name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "All version files are in sync:" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`pyproject.toml\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`scripts/__init__.py\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Git tag: \`${{ github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+
   build:
     name: Build distribution packages
+    # Build needs validation to pass (on release events) or run unconditionally (on workflow_dispatch)
+    needs: [validate-version]
+    if: |
+      always() &&
+      (needs.validate-version.result == 'success' || needs.validate-version.result == 'skipped')
     runs-on: ubuntu-latest
 
     steps:
