@@ -16,7 +16,15 @@ This package provides shared functionality including:
 
 from .ai_strategy import AIStrategy, HeuristicStrategy, MinimaxStrategy, RandomStrategy
 from .architecture.engine import GameEngine, GamePhase, GameState
-from .architecture.events import Event, EventBus, EventHandler, FunctionEventHandler
+from .architecture.events import (
+    Event,
+    EventBus,
+    EventHandler,
+    FunctionEventHandler,
+    GameEventType,
+    get_global_event_bus,
+    set_global_event_bus,
+)
 from .architecture.observer import Observable, Observer, PropertyObservable
 from .architecture.persistence import GameStateSerializer, JSONSerializer, PickleSerializer, SaveLoadManager
 from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
@@ -76,6 +84,9 @@ __all__ = [
     "EventBus",
     "EventHandler",
     "FunctionEventHandler",
+    "GameEventType",
+    "get_global_event_bus",
+    "set_global_event_bus",
     # Observer pattern
     "Observable",
     "Observer",

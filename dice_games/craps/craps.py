@@ -6,6 +6,7 @@ import random
 from enum import Enum
 from typing import List
 
+from common.architecture.events import GameEventType
 from common.game_engine import GameEngine, GameState
 
 
@@ -26,6 +27,7 @@ class CrapsGame(GameEngine[str, int]):
 
     def __init__(self) -> None:
         """Initialize Craps game."""
+        super().__init__()
         self.reset()
 
     def reset(self) -> None:
@@ -35,6 +37,13 @@ class CrapsGame(GameEngine[str, int]):
         self.bankroll = 1000
         self.current_bet = 0
         self.bet_type = BetType.PASS_LINE
+        self.emit_event(
+            GameEventType.GAME_INITIALIZED,
+            {
+                "bankroll": self.bankroll,
+                "bet_type": self.bet_type.value,
+            },
+        )
 
     def is_game_over(self) -> bool:
         """Check if game over."""
@@ -56,6 +65,13 @@ class CrapsGame(GameEngine[str, int]):
             return self._roll_dice()
         elif move.startswith("bet_"):
             self.bet_type = BetType.PASS_LINE if "pass" in move and "dont" not in move else BetType.DONT_PASS
+            self.emit_event(
+                GameEventType.ACTION_PROCESSED,
+                {
+                    "action": "set_bet_type",
+                    "bet_type": self.bet_type.value,
+                },
+            )
             return True
         return False
 
@@ -63,6 +79,13 @@ class CrapsGame(GameEngine[str, int]):
         """Roll two dice and process result."""
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
+            self.emit_event(
+                GameEventType.GAME_START,
+                {
+                    "bet_type": self.bet_type.value,
+                    "current_bet": self.current_bet,
+                },
+            )
 
         roll = random.randint(1, 6) + random.randint(1, 6)
 
@@ -71,21 +94,69 @@ class CrapsGame(GameEngine[str, int]):
             if roll in (7, 11):
                 if self.bet_type == BetType.PASS_LINE:
                     self.bankroll += self.current_bet
+                    self.emit_event(
+                        GameEventType.SCORE_UPDATED,
+                        {
+                            "bankroll": self.bankroll,
+                            "roll": roll,
+                        },
+                    )
             elif roll in (2, 3, 12):
                 if self.bet_type == BetType.DONT_PASS:
                     self.bankroll += self.current_bet
+                    self.emit_event(
+                        GameEventType.SCORE_UPDATED,
+                        {
+                            "bankroll": self.bankroll,
+                            "roll": roll,
+                        },
+                    )
             else:
                 self.point = roll
+                self.emit_event(
+                    GameEventType.ACTION_PROCESSED,
+                    {
+                        "action": "set_point",
+                        "point": self.point,
+                        "roll": roll,
+                    },
+                )
         else:
             # Point established
             if roll == self.point:
                 if self.bet_type == BetType.PASS_LINE:
                     self.bankroll += self.current_bet
+                    self.emit_event(
+                        GameEventType.SCORE_UPDATED,
+                        {
+                            "bankroll": self.bankroll,
+                            "roll": roll,
+                        },
+                    )
                 self.point = None
             elif roll == 7:
                 if self.bet_type == BetType.DONT_PASS:
                     self.bankroll += self.current_bet
+                    self.emit_event(
+                        GameEventType.SCORE_UPDATED,
+                        {
+                            "bankroll": self.bankroll,
+                            "roll": roll,
+                        },
+                    )
                 self.point = None
+
+        self.emit_event(
+            GameEventType.TURN_COMPLETE,
+            {
+                "point": self.point,
+                "roll": roll,
+                "bankroll": self.bankroll,
+            },
+        )
+
+        if self.is_game_over():
+            self.emit_event(GameEventType.GAME_OVER, {"bankroll": self.bankroll})
 
         return True
 
