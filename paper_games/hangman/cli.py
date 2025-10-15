@@ -6,9 +6,10 @@ Hangman with ASCII art and word guessing.
 
 from __future__ import annotations
 
-from typing import Iterable
+from typing import Iterable, List
 
 from common.cli_utils import ASCIIArt, InteractiveMenu, RichText, Theme, clear_screen
+from common.profile_service import get_profile_service
 
 from .hangman import HANGMAN_ART_STYLES, HangmanGame, load_themed_words, load_words_by_difficulty
 
@@ -238,6 +239,9 @@ def play(words: Iterable[str] | None = None, max_attempts: int = 6) -> None:
 
 def _play_single_game(game: HangmanGame) -> None:
     """Play a single game of hangman."""
+    profile_service = get_profile_service()
+    session = profile_service.start_session("hangman")
+
     while not (game.is_won() or game.is_lost()):
         print()
         for line in game.status_lines():
@@ -276,3 +280,29 @@ def _play_single_game(game: HangmanGame) -> None:
     else:
         print()
         print(RichText.error(f"✗ Game over! The word was '{game.secret_word}'.", CLI_THEME))
+
+    result = "win" if game.is_won() else "loss"
+    experience = 150 if result == "win" else 60
+    metadata = {
+        "word_length": len(game.secret_word),
+        "wrong_guesses": len(game.wrong_guesses),
+        "hints_used": game.hints_used,
+        "theme": game.theme or "standard",
+    }
+    if result == "win" and not game.wrong_guesses:
+        metadata["perfect_game"] = True
+
+    unlocked = session.complete(result=result, experience=experience, metadata=metadata)
+    if unlocked:
+        manager = profile_service.active_profile.achievement_manager
+        print()
+        print(RichText.highlight("New achievements unlocked!", CLI_THEME))
+        lines: List[str] = []
+        for achievement_id in unlocked:
+            achievement = manager.achievements.get(achievement_id)
+            if achievement is not None:
+                lines.append(f"  • {achievement.name} (+{achievement.points} pts)")
+            else:
+                lines.append(f"  • {achievement_id}")
+        for line in lines:
+            print(RichText.info(line, CLI_THEME))

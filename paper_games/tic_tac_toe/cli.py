@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import pathlib
 import random
+from typing import Dict, List
 
+from common.profile_service import get_profile_service
 from .stats import GameStats
 from .themes import get_theme, list_themes
 from .tic_tac_toe import TicTacToeGame
@@ -23,6 +25,7 @@ def play() -> None:
 
     # Load statistics
     stats = GameStats.load(STATS_FILE)
+    profile_service = get_profile_service()
 
     # Show statistics if there are any games played
     if stats.games_played > 0:
@@ -86,6 +89,8 @@ def play() -> None:
         board_size=board_size,
         win_length=win_length,
     )
+
+    session = profile_service.start_session("tic_tac_toe")
 
     print("\nThe empty board looks like this:")
     print(game.render(show_reference=True))
@@ -152,3 +157,34 @@ def play() -> None:
 
     # Show updated statistics
     print("\n" + stats.summary())
+
+    result_map = {
+        game.human_symbol: ("win", 120),
+        game.computer_symbol: ("loss", 40),
+        None: ("draw", 60),
+    }
+    result_key = winner if winner in result_map else None
+    result, experience = result_map[result_key]
+
+    metadata: Dict[str, object] = {
+        "board_size": board_size,
+        "win_length": win_length,
+        "human_symbol": human_symbol,
+        "computer_symbol": computer_symbol,
+        "moves_played": sum(1 for cell in game.board if cell.strip()),
+    }
+    if winner == game.human_symbol and game.board.count(game.computer_symbol) == 0:
+        metadata["perfect_game"] = True
+
+    unlocked = session.complete(result=result, experience=experience, metadata=metadata)
+    if unlocked:
+        manager = profile_service.active_profile.achievement_manager
+        print("\nNew achievements unlocked:")
+        formatted: List[str] = []
+        for achievement_id in unlocked:
+            achievement = manager.achievements.get(achievement_id)
+            if achievement is not None:
+                formatted.append(f"  • {achievement.name} (+{achievement.points} pts)")
+            else:
+                formatted.append(f"  • {achievement_id}")
+        print("\n".join(formatted))

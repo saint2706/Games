@@ -476,17 +476,22 @@ def get_default_profile_dir() -> pathlib.Path:
     return base_dir / "profiles"
 
 
-def load_or_create_profile(player_id: str = "default", display_name: str = "Player") -> PlayerProfile:
+def load_or_create_profile(
+    player_id: str = "default",
+    display_name: str = "Player",
+    profile_dir: Optional[pathlib.Path] = None,
+) -> PlayerProfile:
     """Load an existing profile or create a new one.
 
     Args:
         player_id: Player identifier.
         display_name: Display name for new profiles.
+        profile_dir: Optional directory that overrides the default profile location.
 
     Returns:
         PlayerProfile instance.
     """
-    profile_dir = get_default_profile_dir()
-    profile_file = profile_dir / f"{player_id}.json"
+    target_dir = profile_dir or get_default_profile_dir()
+    profile_file = target_dir / f"{player_id}.json"
 
     return PlayerProfile.load(profile_file, player_id, display_name)
