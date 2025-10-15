@@ -9,11 +9,75 @@ from __future__ import annotations
 import json
 import pathlib
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from common.achievements import AchievementManager
 from common.achievements_registry import get_achievement_registry
+
+
+@dataclass
+class DailyChallengeProgress:
+    """Track completion history for daily challenges."""
+
+    completions: Dict[str, str] = field(default_factory=dict)
+    current_streak: int = 0
+    best_streak: int = 0
+    last_completed: Optional[str] = None
+
+    def record_completion(self, completion_date: date, challenge_id: str) -> bool:
+        """Record a completion if the given date has not already been logged."""
+
+        key = completion_date.isoformat()
+        if key in self.completions:
+            return False
+
+        if self.last_completed:
+            previous = date.fromisoformat(self.last_completed)
+            if completion_date == previous + timedelta(days=1):
+                self.current_streak += 1
+            else:
+                self.current_streak = 1
+        else:
+            self.current_streak = 1
+
+        self.completions[key] = challenge_id
+        self.last_completed = key
+        if self.current_streak > self.best_streak:
+            self.best_streak = self.current_streak
+        return True
+
+    def is_completed(self, completion_date: date) -> bool:
+        """Return True if ``completion_date`` already has a recorded completion."""
+
+        return completion_date.isoformat() in self.completions
+
+    @property
+    def total_completed(self) -> int:
+        """Return the total number of recorded completions."""
+
+        return len(self.completions)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise the progress information to a mapping."""
+
+        return {
+            "completions": self.completions,
+            "current_streak": self.current_streak,
+            "best_streak": self.best_streak,
+            "last_completed": self.last_completed,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "DailyChallengeProgress":
+        """Create an instance from persisted data."""
+
+        return cls(
+            completions=dict(data.get("completions", {})),
+            current_streak=data.get("current_streak", 0),
+            best_streak=data.get("best_streak", 0),
+            last_completed=data.get("last_completed"),
+        )
 
 
 @dataclass
@@ -147,6 +211,7 @@ class PlayerProfile:
         level: Player level based on total experience.
         experience: Total experience points.
         preferences: Player preferences (e.g., theme, difficulty).
+        daily_challenge_progress: Completion history for daily challenges.
     """
 
     player_id: str
@@ -158,6 +223,7 @@ class PlayerProfile:
     level: int = 1
     experience: int = 0
     preferences: Dict = field(default_factory=dict)
+    daily_challenge_progress: DailyChallengeProgress = field(default_factory=DailyChallengeProgress)
 
     def __post_init__(self) -> None:
         """Register all known achievements and enable notifications."""
@@ -215,6 +281,32 @@ class PlayerProfile:
 
         registry = get_achievement_registry()
         registry.notify_unlocks(unlocked, self.achievement_manager, player_id=self.player_id, game_id=game_id, stats=stats)
+
+        return unlocked
+
+    def record_daily_challenge(
+        self,
+        challenge_id: str,
+        completion_date: Optional[date] = None,
+    ) -> List[str]:
+        """Record completion of a daily challenge and trigger related achievements."""
+
+        target_date = completion_date or date.today()
+        if not self.daily_challenge_progress.record_completion(target_date, challenge_id):
+            return []
+
+        self.last_active = datetime.now().isoformat()
+        stats = self._build_daily_challenge_stats()
+        unlocked = self.achievement_manager.check_achievements(stats)
+
+        registry = get_achievement_registry()
+        registry.notify_unlocks(
+            unlocked,
+            self.achievement_manager,
+            player_id=self.player_id,
+            game_id="daily_challenge",
+            stats=stats,
+        )
 
         return unlocked
 
@@ -316,6 +408,28 @@ class PlayerProfile:
 
         return stats
 
+    def _build_daily_challenge_stats(self) -> Dict[str, Any]:
+        """Return statistics describing daily challenge performance."""
+
+        progress = self.daily_challenge_progress
+        total = progress.total_completed
+        return {
+            "player_id": self.player_id,
+            "game_id": "daily_challenge",
+            "games_played": total,
+            "wins": total,
+            "win_streak": progress.current_streak,
+            "best_win_streak": progress.best_streak,
+            "perfect_games": 0,
+            "game_games_played": total,
+            "game_wins": total,
+            "game_losses": 0,
+            "game_draws": 0,
+            "game_win_streak": progress.current_streak,
+            "game_best_win_streak": progress.best_streak,
+            "game_perfect_games": 0,
+        }
+
     def total_playtime(self) -> float:
         """Calculate total playtime across all games.
 
@@ -363,6 +477,7 @@ class PlayerProfile:
             "experience": self.experience,
             "preferences": self.preferences,
             "game_profiles": {gid: profile.to_dict() for gid, profile in self.game_profiles.items()},
+            "daily_challenges": self.daily_challenge_progress.to_dict(),
         }
 
         # Save achievements separately or inline
@@ -422,6 +537,10 @@ class PlayerProfile:
             }
             profile.achievement_manager.progress = achievements_data.get("progress", {})
 
+        progress_data = data.get("daily_challenges")
+        if isinstance(progress_data, dict):
+            profile.daily_challenge_progress = DailyChallengeProgress.from_dict(progress_data)
+
         return profile
 
     def summary(self) -> str:
@@ -438,6 +557,13 @@ class PlayerProfile:
         lines.append(f"Total Games: {self.total_games_played()}")
         lines.append(f"Total Wins: {self.total_wins()}")
         lines.append(f"Overall Win Rate: {self.overall_win_rate():.1f}%")
+
+        progress = self.daily_challenge_progress
+        lines.append(
+            "Daily Challenges: "
+            f"{progress.total_completed} completed | Streak: {progress.current_streak} "
+            f"(Best: {progress.best_streak})"
+        )
 
         if self.total_playtime() > 0:
             hours = self.total_playtime() / 3600

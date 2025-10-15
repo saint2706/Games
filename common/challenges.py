@@ -5,9 +5,9 @@ This module provides pre-defined scenarios and puzzles for practicing game skill
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 
 class DifficultyLevel(str, Enum):
@@ -32,6 +32,7 @@ class Challenge:
         goal: Description of what needs to be achieved.
         solution: Optional solution or hint.
         validate: Optional function to validate if challenge is solved.
+        metadata: Optional mapping with contextual information used by launchers.
     """
 
     id: str
@@ -42,6 +43,7 @@ class Challenge:
     goal: str
     solution: Optional[str] = None
     validate: Optional[Callable[[Any], bool]] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 class ChallengePack:
@@ -154,6 +156,7 @@ def create_poker_challenges() -> ChallengePack:
             initial_state={"pot": 100, "bet": 20, "outs": 9},
             goal="Determine if calling is profitable based on pot odds.",
             solution=("Pot odds = $20 / ($100 + $20) = 16.7%\n" "Equity with 9 outs (~36% rule): 9 × 2 = 18%\n" "18% > 16.7% → CALL is profitable!"),
+            metadata={"game_id": "poker"},
         )
     )
 
@@ -174,6 +177,7 @@ def create_poker_challenges() -> ChallengePack:
                 "good playability in position. Folding is too tight from button. "
                 "Your position advantage allows you to realize equity post-flop."
             ),
+            metadata={"game_id": "poker"},
         )
     )
 
@@ -196,6 +200,35 @@ def create_poker_challenges() -> ChallengePack:
                 "of the time to profit. They likely have weak pairs or missed draws. "
                 "Your perceived range includes many strong hands on this board."
             ),
+            metadata={"game_id": "poker"},
+        )
+    )
+
+    pack.add_challenge(
+        Challenge(
+            id="poker_icm_final_table",
+            title="ICM Pressure at the Final Table",
+            description=(
+                "Final table with 5 players left. You are 3/5 in chips with 28 BB. "
+                "Short stack (10 BB) jams from cutoff. Big stack in small blind covers you and is very tight. "
+                "You wake up with A♦ J♦ on the button.\n\n"
+                "Consider: ICM implications, domination risk, and chip preservation"
+            ),
+            difficulty=DifficultyLevel.EXPERT,
+            initial_state={
+                "players_remaining": 5,
+                "hero_stack": 28,
+                "short_stack": 10,
+                "payouts": [18000, 12000, 8000, 5000, 3000],
+                "hand": "AdJd",
+            },
+            goal="Decide whether to call, fold, or re-shove under ICM pressure.",
+            solution=(
+                "FOLD. With a short stack about to bust, risk premium is high. "
+                "Calling and losing cripples you to 18 BB while ladders are valuable. "
+                "AJ suited performs fine but not enough versus a tight jamming range when ICM is severe."
+            ),
+            metadata={"game_id": "poker"},
         )
     )
 
@@ -228,6 +261,7 @@ def create_blackjack_challenges() -> ChallengePack:
                 "standing has even worse expected value since dealer will likely "
                 "make 17-21. If surrender is available, that's actually the best play!"
             ),
+            metadata={"game_id": "blackjack"},
         )
     )
 
@@ -247,6 +281,7 @@ def create_blackjack_challenges() -> ChallengePack:
                 "Dealer showing 9 likely has 19, so you need to improve your 18. "
                 "Don't double here - you want the option to hit multiple times."
             ),
+            metadata={"game_id": "blackjack"},
         )
     )
 
@@ -269,6 +304,33 @@ def create_blackjack_challenges() -> ChallengePack:
                 "play for 12 vs 3 is +2, so at +4 you should definitely stand. "
                 "This is a profitable deviation from basic strategy."
             ),
+            metadata={"game_id": "blackjack"},
+        )
+    )
+
+    pack.add_challenge(
+        Challenge(
+            id="blackjack_team_signal",
+            title="Team Signalling Call",
+            description=(
+                "You are the big player in a blackjack team. Spotter signals a true count of +6. "
+                "You sit at third base with a $500 bet. Dealer shows 5, you have 10-10.\n\n"
+                "Consider: Deviation thresholds, heat risk, and maximizing EV"
+            ),
+            difficulty=DifficultyLevel.EXPERT,
+            initial_state={
+                "player": 20,
+                "dealer": 5,
+                "true_count": 6,
+                "team_play": True,
+            },
+            goal="Choose the correct team play while managing casino attention.",
+            solution=(
+                "SPLIT. With a true count of +6 the EV for splitting tens versus a weak dealer card "
+                "turns positive, especially with a spotter confirming rich decks. "
+                "However, execute only if heat is low; otherwise flat call to avoid suspicion."
+            ),
+            metadata={"game_id": "blackjack"},
         )
     )
 
@@ -301,6 +363,7 @@ def create_nim_challenges() -> ChallengePack:
                 "Check: 3 XOR 5 XOR 6 = 0 ✓\n"
                 "Alternative: Reduce 5 to 4 → [3, 4, 7] also gives nim-sum 0"
             ),
+            metadata={"game_id": "nim"},
         )
     )
 
@@ -320,6 +383,7 @@ def create_nim_challenges() -> ChallengePack:
                 "Opponent must take one, leaving 2 heaps. You take one, leaving 1 heap. "
                 "Opponent is forced to take the last and loses!"
             ),
+            metadata={"game_id": "nim"},
         )
     )
 
@@ -338,6 +402,220 @@ def create_nim_challenges() -> ChallengePack:
                 "With powers of 2, the nim-sum reveals which bits are odd. "
                 "We need to zero out all odd bits by modifying the largest heap."
             ),
+            metadata={"game_id": "nim"},
+        )
+    )
+
+    pack.add_challenge(
+        Challenge(
+            id="nim_variant_cycle",
+            title="Circular Nim With Move Limits",
+            description=(
+                "Circular Nim with heaps arranged in a ring: [2, 4, 6, 8]. "
+                "Players may only remove from adjacent heaps on consecutive turns. "
+                "Find the guaranteed winning plan for the first player.\n\n"
+                "Consider: Symmetry breaking and keeping the nim-sum at zero"
+            ),
+            difficulty=DifficultyLevel.EXPERT,
+            initial_state={
+                "heaps": [2, 4, 6, 8],
+                "circular": True,
+                "adjacency_rule": True,
+            },
+            goal="Describe the move order that preserves a zero nim-sum under adjacency rules.",
+            solution=(
+                "Open by removing 2 from the heap opposite the largest stack to create [2, 4, 4, 8]. "
+                "Mirror the opponent on the adjacent heap they just touched. "
+                "This keeps paired heaps equal, locking the nim-sum at zero until a forced win emerges."
+            ),
+            metadata={"game_id": "nim"},
+        )
+    )
+
+    return pack
+
+
+def _sudoku_builder(
+    starting_board: Sequence[Sequence[int]],
+    solution_board: Sequence[Sequence[int]],
+    difficulty: str,
+) -> Callable[[], Any]:
+    """Create a builder function that returns a configured Sudoku puzzle."""
+
+    frozen_start = tuple(tuple(row) for row in starting_board)
+    frozen_solution = tuple(tuple(row) for row in solution_board)
+
+    def _build() -> Any:
+        from paper_games.sudoku.sudoku import SudokuPuzzle
+
+        start_copy = [list(row) for row in frozen_start]
+        solution_copy = [list(row) for row in frozen_solution]
+        return SudokuPuzzle(starting_board=start_copy, solution=solution_copy, difficulty=difficulty)
+
+    return _build
+
+
+def create_sudoku_challenges() -> ChallengePack:
+    """Create Sudoku challenge pack covering all difficulty levels."""
+
+    pack = ChallengePack(
+        name="Sudoku Mastery",
+        description="Curated Sudoku boards that teach advanced solving patterns.",
+    )
+
+    easy_start = (
+        (0, 1, 3, 0, 8, 9, 0, 0, 5),
+        (8, 9, 2, 0, 5, 6, 1, 3, 7),
+        (5, 0, 4, 0, 7, 1, 0, 0, 0),
+        (0, 0, 1, 0, 2, 0, 7, 0, 4),
+        (0, 0, 6, 0, 3, 0, 0, 0, 2),
+        (0, 5, 9, 0, 0, 0, 8, 1, 0),
+        (1, 0, 8, 5, 0, 0, 3, 0, 0),
+        (9, 4, 5, 7, 6, 3, 2, 0, 1),
+        (6, 3, 0, 0, 0, 0, 4, 5, 9),
+    )
+    easy_solution = (
+        (7, 1, 3, 2, 8, 9, 6, 4, 5),
+        (8, 9, 2, 4, 5, 6, 1, 3, 7),
+        (5, 6, 4, 3, 7, 1, 9, 2, 8),
+        (3, 8, 1, 9, 2, 5, 7, 6, 4),
+        (4, 7, 6, 1, 3, 8, 5, 9, 2),
+        (2, 5, 9, 6, 4, 7, 8, 1, 3),
+        (1, 2, 8, 5, 9, 4, 3, 7, 6),
+        (9, 4, 5, 7, 6, 3, 2, 8, 1),
+        (6, 3, 7, 8, 1, 2, 4, 5, 9),
+    )
+    pack.add_challenge(
+        Challenge(
+            id="sudoku_corner_cross",
+            title="Corner Cross",
+            description="Solve an easy grid using cross-hatching on the corners to warm up.",
+            difficulty=DifficultyLevel.BEGINNER,
+            initial_state={"starting_board": easy_start, "solution": easy_solution},
+            goal="Complete the puzzle focusing on filling corner boxes first.",
+            solution="Start by filling the top-left 3x3 box using column scans, then work clockwise around the board.",
+            validate=lambda puzzle: getattr(puzzle, "is_solved", lambda: False)(),
+            metadata={
+                "game_id": "sudoku",
+                "build_puzzle": _sudoku_builder(easy_start, easy_solution, "easy"),
+            },
+        )
+    )
+
+    medium_start = (
+        (7, 0, 0, 0, 2, 0, 0, 6, 3),
+        (0, 3, 0, 0, 4, 7, 2, 1, 0),
+        (1, 0, 0, 3, 0, 6, 0, 7, 5),
+        (4, 6, 0, 0, 5, 0, 0, 0, 1),
+        (0, 7, 0, 1, 0, 8, 3, 0, 6),
+        (8, 0, 0, 0, 0, 0, 0, 0, 0),
+        (3, 8, 1, 0, 6, 0, 0, 0, 2),
+        (0, 0, 0, 0, 1, 0, 6, 5, 0),
+        (0, 0, 0, 0, 0, 0, 1, 3, 8),
+    )
+    medium_solution = (
+        (7, 5, 4, 9, 2, 1, 8, 6, 3),
+        (6, 3, 8, 5, 4, 7, 2, 1, 9),
+        (1, 9, 2, 3, 8, 6, 4, 7, 5),
+        (4, 6, 3, 7, 5, 2, 9, 8, 1),
+        (2, 7, 5, 1, 9, 8, 3, 4, 6),
+        (8, 1, 9, 6, 3, 4, 5, 2, 7),
+        (3, 8, 1, 4, 6, 5, 7, 9, 2),
+        (9, 2, 7, 8, 1, 3, 6, 5, 4),
+        (5, 4, 6, 2, 7, 9, 1, 3, 8),
+    )
+    pack.add_challenge(
+        Challenge(
+            id="sudoku_x_wing_intro",
+            title="X-Wing Setup",
+            description="A medium puzzle structured to highlight the X-Wing pattern on 7s.",
+            difficulty=DifficultyLevel.INTERMEDIATE,
+            initial_state={"starting_board": medium_start, "solution": medium_solution},
+            goal="Spot the X-Wing on the digit 7 to break through the middle band.",
+            solution="Rows 2 and 4 form the X-Wing on column pairs (1,8). Eliminate 7s elsewhere before finishing.",
+            validate=lambda puzzle: getattr(puzzle, "is_solved", lambda: False)(),
+            metadata={
+                "game_id": "sudoku",
+                "build_puzzle": _sudoku_builder(medium_start, medium_solution, "medium"),
+            },
+        )
+    )
+
+    hard_start = (
+        (0, 0, 8, 1, 0, 2, 0, 0, 0),
+        (7, 5, 6, 0, 9, 0, 1, 0, 0),
+        (0, 0, 2, 0, 0, 0, 0, 0, 9),
+        (8, 0, 0, 0, 0, 4, 0, 1, 0),
+        (6, 0, 0, 0, 0, 0, 3, 4, 0),
+        (0, 3, 0, 7, 6, 0, 0, 0, 0),
+        (0, 0, 9, 0, 0, 0, 8, 0, 0),
+        (5, 0, 0, 0, 4, 0, 0, 0, 1),
+        (0, 0, 3, 8, 0, 0, 2, 9, 4),
+    )
+    hard_solution = (
+        (9, 4, 8, 1, 3, 2, 5, 6, 7),
+        (7, 5, 6, 4, 9, 8, 1, 2, 3),
+        (3, 1, 2, 5, 7, 6, 4, 8, 9),
+        (8, 9, 5, 3, 2, 4, 7, 1, 6),
+        (6, 7, 1, 9, 8, 5, 3, 4, 2),
+        (2, 3, 4, 7, 6, 1, 9, 5, 8),
+        (4, 2, 9, 6, 1, 3, 8, 7, 5),
+        (5, 8, 7, 2, 4, 9, 6, 3, 1),
+        (1, 6, 3, 8, 5, 7, 2, 9, 4),
+    )
+    pack.add_challenge(
+        Challenge(
+            id="sudoku_color_chain",
+            title="Color Chain Crunch",
+            description="Use coloring to resolve competing candidates in the center band.",
+            difficulty=DifficultyLevel.ADVANCED,
+            initial_state={"starting_board": hard_start, "solution": hard_solution},
+            goal="Resolve the central bands using alternating inference chains.",
+            solution="Color the candidate 9s in the center columns to eliminate conflicts, then finish with swordfish on 3s.",
+            validate=lambda puzzle: getattr(puzzle, "is_solved", lambda: False)(),
+            metadata={
+                "game_id": "sudoku",
+                "build_puzzle": _sudoku_builder(hard_start, hard_solution, "hard"),
+            },
+        )
+    )
+
+    expert_start = (
+        (0, 0, 0, 3, 0, 0, 0, 5, 0),
+        (1, 6, 0, 0, 7, 4, 3, 0, 0),
+        (0, 0, 0, 0, 0, 1, 0, 0, 0),
+        (9, 0, 6, 0, 2, 0, 8, 0, 7),
+        (0, 4, 0, 0, 3, 0, 0, 0, 0),
+        (7, 8, 0, 0, 0, 0, 0, 0, 0),
+        (0, 7, 0, 0, 1, 3, 5, 0, 6),
+        (0, 0, 0, 0, 8, 0, 0, 0, 0),
+        (0, 0, 1, 0, 0, 6, 7, 0, 0),
+    )
+    expert_solution = (
+        (4, 2, 7, 3, 9, 8, 6, 5, 1),
+        (1, 6, 5, 2, 7, 4, 3, 9, 8),
+        (8, 3, 9, 6, 5, 1, 2, 7, 4),
+        (9, 1, 6, 4, 2, 5, 8, 3, 7),
+        (5, 4, 2, 8, 3, 7, 1, 6, 9),
+        (7, 8, 3, 1, 6, 9, 4, 2, 5),
+        (2, 7, 8, 9, 1, 3, 5, 4, 6),
+        (6, 5, 4, 7, 8, 2, 9, 1, 3),
+        (3, 9, 1, 5, 4, 6, 7, 8, 2),
+    )
+    pack.add_challenge(
+        Challenge(
+            id="sudoku_jellyfish_master",
+            title="Jellyfish Finale",
+            description="Expert-level puzzle requiring a jellyfish pattern on the digit 4.",
+            difficulty=DifficultyLevel.EXPERT,
+            initial_state={"starting_board": expert_start, "solution": expert_solution},
+            goal="Break the stalemate using a jellyfish elimination, then finish.",
+            solution="Rows 1,3,6,8 form the jellyfish on the digit 4, clearing column conflicts for the endgame.",
+            validate=lambda puzzle: getattr(puzzle, "is_solved", lambda: False)(),
+            metadata={
+                "game_id": "sudoku",
+                "build_puzzle": _sudoku_builder(expert_start, expert_solution, "expert"),
+            },
         )
     )
 
@@ -355,4 +633,5 @@ def get_default_challenge_manager() -> ChallengeManager:
     manager.register_pack(create_poker_challenges())
     manager.register_pack(create_blackjack_challenges())
     manager.register_pack(create_nim_challenges())
+    manager.register_pack(create_sudoku_challenges())
     return manager

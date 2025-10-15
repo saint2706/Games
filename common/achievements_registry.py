@@ -161,6 +161,40 @@ class AchievementRegistry:
                     ),
                 ]
             ),
+            "daily_challenge": _GameAchievementConfig(
+                achievements=[
+                    Achievement(
+                        id="daily_challenge_first_completion",
+                        name="Routine Starter",
+                        description="Complete your first daily challenge.",
+                        category=AchievementCategory.GAMEPLAY,
+                        rarity=AchievementRarity.COMMON,
+                        game="daily_challenge",
+                        points=20,
+                        condition=_game_condition("daily_challenge", lambda stats: stats["wins"] >= 1),
+                    ),
+                    Achievement(
+                        id="daily_challenge_streak_3",
+                        name="Consistent Challenger",
+                        description="Complete daily challenges three days in a row.",
+                        category=AchievementCategory.MASTERY,
+                        rarity=AchievementRarity.UNCOMMON,
+                        game="daily_challenge",
+                        points=45,
+                        condition=_game_condition("daily_challenge", lambda stats: stats["best_win_streak"] >= 3),
+                    ),
+                    Achievement(
+                        id="daily_challenge_streak_7",
+                        name="Weekly Warrior",
+                        description="Maintain a seven day daily challenge streak.",
+                        category=AchievementCategory.MASTERY,
+                        rarity=AchievementRarity.RARE,
+                        game="daily_challenge",
+                        points=80,
+                        condition=_game_condition("daily_challenge", lambda stats: stats["best_win_streak"] >= 7),
+                    ),
+                ]
+            ),
         }
 
     def register_all(self, manager: AchievementManager) -> None:

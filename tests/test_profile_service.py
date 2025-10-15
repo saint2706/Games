@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 from typing import List
 
@@ -27,6 +28,20 @@ def test_profile_service_records_and_persists(tmp_path: Path) -> None:
     assert reloaded.experience == service.active_profile.experience
     assert reloaded.level == service.active_profile.level
     assert reloaded.total_games_played() == service.active_profile.total_games_played()
+
+
+def test_profile_service_records_daily_challenge(tmp_path: Path) -> None:
+    """Daily challenge completions should be persisted for the active profile."""
+
+    service = ProfileService(profile_dir=tmp_path)
+
+    unlocked = service.record_daily_challenge_completion("challenge_x", when=date(2024, 2, 1))
+    assert "daily_challenge_first_completion" in unlocked
+    assert service.active_profile.daily_challenge_progress.is_completed(date(2024, 2, 1))
+
+    profile_path = tmp_path / "default.json"
+    reloaded = _load_profile(profile_path, "default")
+    assert reloaded.daily_challenge_progress.is_completed(date(2024, 2, 1))
 
 
 def test_profile_service_rename_and_reset(tmp_path: Path) -> None:

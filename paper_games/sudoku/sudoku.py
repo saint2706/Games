@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
-from typing import Dict, Generator, List, Optional, Tuple
+from typing import Callable, Dict, Generator, List, Optional, Tuple
 
 Grid = List[List[int]]
 
@@ -197,9 +197,17 @@ class SudokuGenerator:
 class SudokuCLI:
     """Simple command line experience for Sudoku."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        puzzle: Optional[SudokuPuzzle] = None,
+        on_complete: Optional[Callable[[SudokuPuzzle], None]] = None,
+    ) -> None:
+        """Initialise the CLI with an optional pre-built puzzle and callback."""
+
         self._generator = SudokuGenerator()
-        self._puzzle = self._generator.generate("easy")
+        self._puzzle = puzzle or self._generator.generate("easy")
+        self._on_complete = on_complete
 
     def run(self) -> None:
         print("Sudoku CLI - type 'hint', 'set r c v', 'reset', or 'quit'.")
@@ -207,6 +215,7 @@ class SudokuCLI:
             self._display_board()
             if self._puzzle.is_solved():
                 print("Congratulations, puzzle solved!")
+                self._handle_completion()
                 break
             command = input("> ").strip().lower()
             if command == "quit":
@@ -246,3 +255,13 @@ class SudokuCLI:
             for chunk in row_chunks:
                 formatted.append(" ".join(str(value) if value != 0 else "." for value in chunk))
             print(" | ".join(formatted))
+
+    def _handle_completion(self) -> None:
+        """Invoke the completion callback when provided."""
+
+        if self._on_complete is None:
+            return
+        try:
+            self._on_complete(self._puzzle)
+        except Exception as exc:  # pragma: no cover - defensive logging path
+            print(f"Error while processing completion callback: {exc}")

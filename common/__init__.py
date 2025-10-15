@@ -31,6 +31,7 @@ from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
 from .architecture.replay import ReplayAction, ReplayManager, ReplayRecorder
 from .architecture.settings import Settings, SettingsManager
 from .challenges import Challenge, ChallengeManager, ChallengePack, DifficultyLevel, get_default_challenge_manager
+from .daily_challenges import DailyChallengeScheduler, DailyChallengeSelection
 from .cli_utils import (
     THEMES,
     ASCIIArt,
@@ -131,6 +132,8 @@ __all__ = [
     "ChallengeManager",
     "DifficultyLevel",
     "get_default_challenge_manager",
+    "DailyChallengeScheduler",
+    "DailyChallengeSelection",
     # CLI utilities
     "Color",
     "TextStyle",

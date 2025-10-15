@@ -14,6 +14,7 @@ from __future__ import annotations
 import pathlib
 import time
 from dataclasses import dataclass, field
+from datetime import date
 from typing import Dict, List, Optional
 
 from common.profile import PlayerProfile, get_default_profile_dir, load_or_create_profile
@@ -220,6 +221,22 @@ class ProfileService:
             experience_gained=experience,
             metadata=metadata,
         )
+        self.save_active_profile()
+        return unlocked
+
+    def record_daily_challenge_completion(
+        self,
+        challenge_id: str,
+        *,
+        when: Optional[date] = None,
+    ) -> List[str]:
+        """Record the completion of the daily challenge for the active profile."""
+
+        completion_date = when or date.today()
+        progress = self._active_profile.daily_challenge_progress
+        if progress.is_completed(completion_date):
+            return []
+        unlocked = self._active_profile.record_daily_challenge(challenge_id, completion_date)
         self.save_active_profile()
         return unlocked
 
