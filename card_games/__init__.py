@@ -17,5 +17,6 @@ __all__ = [
     "bluff",
     "uno",
     "blackjack",
+    "pinochle",
     "canasta",
 ]

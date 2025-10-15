@@ -62,6 +62,34 @@ selected explicitly::
 Not every game features a GUI yet; consult the :doc:`games_catalog` for the
 latest status.
 
+Double-deck Pinochle
+--------------------
+
+The new :mod:`card_games.pinochle` package models the classic partnership
+variant with a full double-deck shoe. Launch it from the terminal (it will try
+the PyQt GUI, then Tk, before falling back to text mode)::
+
+    python -m card_games.pinochle
+
+Prefer the command line immediately? Use the ``--cli`` flag. The interface
+guides all four players through three distinct phases:
+
+* **Bidding** – Each seat commits to a value (minimum 250) or passes. The
+  interface enforces incremental bidding so the auction escalates cleanly.
+* **Meld** – The winning bidder picks the trump suit and the program tallies
+  runs, marriages, pinochles, arounds, and dix bonuses using the printed
+  breakdown.
+* **Trick play** – Players follow suit by choosing cards from an enumerated
+  list; trick summaries reveal the winning card combination after every round.
+
+Graphical front-ends mirror the same flow. Force a specific backend with
+``--gui-framework tk`` or ``--gui-framework pyqt`` when you want to skip the
+auto-detection logic.
+
+Both GUIs share the enhanced theme, sound hooks, and keyboard shortcuts common
+to the card table interfaces while surfacing dedicated panels for bids, melds,
+and trick history.
+
 Saving progress
 ---------------
 

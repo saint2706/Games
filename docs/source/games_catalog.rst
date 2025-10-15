@@ -18,6 +18,7 @@ Card games (16)
 - :mod:`card_games.go_fish`
 - :mod:`card_games.hearts`
 - :mod:`card_games.poker`
+- :mod:`card_games.pinochle`
 - :mod:`card_games.rummy500`
 - :mod:`card_games.solitaire`
 - :mod:`card_games.spades`
