@@ -36,8 +36,10 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.war.game import WarGame
 from common.architecture.persistence import SaveLoadManager
+from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 try:  # pragma: no cover - optional dependency for stats tracking
     from card_games.common.stats import CardGameStats
@@ -166,13 +168,34 @@ class WarBattleCanvas(QWidget):
         return QRect(x, y, self.CARD_WIDTH, self.CARD_HEIGHT)
 
 
-class WarGUI(QWidget):
+class WarGUI(QWidget, BaseGUI):
     """PyQt5 interface that visualizes and controls a :class:`WarGame`."""
 
-    def __init__(self, game: Optional[WarGame] = None) -> None:
+    def __init__(
+        self,
+        game: Optional[WarGame] = None,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialize the War GUI."""
 
-        super().__init__()
+        QWidget.__init__(self)
+        gui_config = config or GUIConfig(
+            window_title="Card Games - War",
+            window_width=920,
+            window_height=740,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+            theme_name="dark",
+        )
+        BaseGUI.__init__(self, root=self, config=gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "war",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
         self.game = game or WarGame()
         self._save_load_manager = SaveLoadManager()
         self._start_time = time.time()
@@ -187,8 +210,8 @@ class WarGUI(QWidget):
         self.auto_timer.setSingleShot(True)
         self.auto_timer.timeout.connect(self._auto_step)
 
-        self.setWindowTitle("Card Games - War")
-        self.resize(920, 740)
+        self.setWindowTitle(gui_config.window_title)
+        self.resize(gui_config.window_width, gui_config.window_height)
 
         self._build_layout()
         self._update_speed_display()

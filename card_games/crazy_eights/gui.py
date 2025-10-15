@@ -14,6 +14,7 @@ from collections import Counter
 from typing import Any, Optional
 
 from card_games.common.cards import Card, Suit
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.crazy_eights.game import CrazyEightsGame, Player
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, tk, ttk
 
@@ -24,7 +25,14 @@ if not TKINTER_AVAILABLE:  # pragma: no cover - Tkinter unavailable environments
 class CrazyEightsGUI(BaseGUI):
     """Tkinter GUI that visualises and runs a Crazy Eights match."""
 
-    def __init__(self, root: tk.Tk, game: CrazyEightsGame, config: Optional[GUIConfig] = None) -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        game: CrazyEightsGame,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialise the Crazy Eights GUI.
 
         Args:
@@ -38,8 +46,16 @@ class CrazyEightsGUI(BaseGUI):
             window_height=720,
             log_height=14,
             log_width=70,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
         )
         super().__init__(root, gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "crazy_eights",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self.game = game
         self._current_turn_name: str = ""
@@ -201,6 +217,7 @@ class CrazyEightsGUI(BaseGUI):
             if player["score"]:
                 info_text += f" | Score: {player['score']}"
             tk.Label(row, text=info_text, bg=row_bg, fg=text_fg, anchor="w").grid(row=0, column=1, sticky="w")
+        self.animate_highlight(self.scoreboard_body)
 
     def _render_hand(self) -> None:
         """Show the human player's hand as clickable card buttons."""
@@ -235,6 +252,7 @@ class CrazyEightsGUI(BaseGUI):
             btn.grid(row=index // 12, column=index % 12, padx=4, pady=4, sticky="ew")
             if card in playable:
                 btn.configure(bg="#d1fae5")
+        self.animate_highlight(self.hand_frame)
 
     def _update_controls(self, summary: dict[str, Any]) -> None:
         """Enable/disable draw and pass controls based on turn context."""

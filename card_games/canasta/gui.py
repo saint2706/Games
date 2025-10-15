@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Optional
 
 from card_games.canasta.game import CanastaGame, CanastaPlayer, DrawSource, MeldError, card_point_value
+from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 
 if TKINTER_AVAILABLE:  # pragma: no cover - UI specific branch
@@ -23,6 +24,7 @@ class CanastaGUI(BaseGUI):
         root: tk.Tk,
         *,
         game: Optional[CanastaGame] = None,
+        enable_sounds: bool = True,
         config: Optional[GUIConfig] = None,
     ) -> None:
         if not TKINTER_AVAILABLE:  # pragma: no cover - defensive guard
@@ -36,7 +38,7 @@ class CanastaGUI(BaseGUI):
             log_width=90,
             theme_name="ocean",
             enable_animations=True,
-            enable_sounds=False,
+            enable_sounds=enable_sounds,
         )
 
         self.game = game or CanastaGame()
@@ -44,6 +46,12 @@ class CanastaGUI(BaseGUI):
         self.phase: str = "draw"
 
         super().__init__(root, config)
+        self.sound_manager = initialize_game_soundscape(
+            "canasta",
+            module_file=__file__,
+            enable_sounds=config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self.status_var = tk.StringVar(value="Click 'Draw Stock' to begin your turn.")
         self.discard_var = tk.StringVar(value="Discard pile: —")
@@ -67,13 +75,14 @@ class CanastaGUI(BaseGUI):
 
         header = tk.Frame(main_frame, bg=theme.colors.background)
         header.pack(fill=tk.X)
-        tk.Label(
+        self.status_label = tk.Label(
             header,
             textvariable=self.status_var,
             bg=theme.colors.background,
             fg=theme.colors.info,
             font=(theme.font_family, theme.font_size + 2, "bold"),
-        ).pack(anchor=tk.W)
+        )
+        self.status_label.pack(anchor=tk.W)
 
         piles_frame = tk.Frame(main_frame, bg=theme.colors.background)
         piles_frame.pack(fill=tk.X, pady=(8, 8))
@@ -163,6 +172,14 @@ class CanastaGUI(BaseGUI):
 
         self._refresh_hand()
         self._refresh_melds()
+        self.animate_highlight(self.hand_listbox)
+        self.animate_highlight(self.melds_listbox)
+
+    def _set_status(self, text: str, *, highlight_color: str = "#2f8f9d") -> None:
+        """Update and animate the status banner when messaging the player."""
+
+        self.status_var.set(text)
+        self.animate_highlight(self.status_label, highlight_color=highlight_color)
 
     @property
     def human_player(self) -> CanastaPlayer:
@@ -192,10 +209,10 @@ class CanastaGUI(BaseGUI):
         """Draw the top card from the stock."""
 
         if self.phase != "draw":
-            self.status_var.set("You must discard before drawing again.")
+            self._set_status("You must discard before drawing again.")
             return
         card = self.game.draw(self.human_player, DrawSource.STOCK)
-        self.status_var.set(f"You drew {card} from the stock.")
+        self._set_status(f"You drew {card} from the stock.")
         self.log_message(self.log_widget, f"Player drew {card} from stock.")
         self.phase = "meld"
         self.update_display()
@@ -204,13 +221,13 @@ class CanastaGUI(BaseGUI):
         """Attempt to take the discard pile."""
 
         if self.phase != "draw":
-            self.status_var.set("Drawing is only allowed at the start of your turn.")
+            self._set_status("Drawing is only allowed at the start of your turn.")
             return
         if not self.game.can_take_discard(self.human_player):
-            self.status_var.set("Discard pile cannot be taken at this time.")
+            self._set_status("Discard pile cannot be taken at this time.")
             return
         card = self.game.draw(self.human_player, DrawSource.DISCARD)
-        self.status_var.set(f"You took the discard pile; top card was {card}.")
+        self._set_status(f"You took the discard pile; top card was {card}.")
         self.log_message(self.log_widget, "Discard pile collected.")
         self.phase = "meld"
         self.update_display()
@@ -219,20 +236,20 @@ class CanastaGUI(BaseGUI):
         """Lay down the selected cards as a meld."""
 
         if self.phase not in {"meld", "discard"}:
-            self.status_var.set("Draw a card before melding.")
+            self._set_status("Draw a card before melding.")
             return
         selection = self.hand_listbox.curselection()
         if not selection:
-            self.status_var.set("Select cards to meld.")
+            self._set_status("Select cards to meld.")
             return
         indices = [int(index) for index in selection]
         cards = [self.human_player.hand[index] for index in indices]
         try:
             meld = self.game.add_meld(self.human_player, cards)
         except MeldError as exc:
-            self.status_var.set(str(exc))
+            self._set_status(str(exc), highlight_color="#bf3f5f")
             return
-        self.status_var.set(f"Meld laid: {', '.join(str(card) for card in meld.cards)}")
+        self._set_status(f"Meld laid: {', '.join(str(card) for card in meld.cards)}")
         self.log_message(self.log_widget, f"Meld laid worth {sum(card_point_value(card) for card in meld.cards)} points.")
         self.phase = "discard"
         self.update_display()
@@ -241,16 +258,16 @@ class CanastaGUI(BaseGUI):
         """Discard the highlighted card."""
 
         if self.phase == "draw":
-            self.status_var.set("Draw before discarding.")
+            self._set_status("Draw before discarding.")
             return
         selection = self.hand_listbox.curselection()
         if not selection:
-            self.status_var.set("Select a card to discard.")
+            self._set_status("Select a card to discard.")
             return
         card_index = int(selection[0])
         card = self.human_player.hand[card_index]
         self.game.discard(self.human_player, card)
-        self.status_var.set(f"Discarded {card}.")
+        self._set_status(f"Discarded {card}.")
         self.log_message(self.log_widget, f"Player discarded {card}.")
         self.phase = "draw"
         self._complete_ai_cycle()
@@ -260,7 +277,7 @@ class CanastaGUI(BaseGUI):
         """Pass control to the next player without discarding."""
 
         if self.phase != "draw":
-            self.status_var.set("Discard before ending your turn.")
+            self._set_status("Discard before ending your turn.")
             return
         self._complete_ai_cycle()
         self.update_display()
@@ -269,7 +286,7 @@ class CanastaGUI(BaseGUI):
         """Attempt to end the round."""
 
         if not self.game.can_go_out(self.human_player.team_index):
-            self.status_var.set("Cannot go out yet; ensure you have a canasta and empty hands.")
+            self._set_status("Cannot go out yet; ensure you have a canasta and empty hands.")
             return
         breakdown = self.game.go_out(self.human_player)
         messagebox.showinfo("Round Complete", "Round ended. Scores updated.")
@@ -292,7 +309,7 @@ class CanastaGUI(BaseGUI):
                 f"{player.name} drew {drawn} and discarded {discard_card}.",
             )
         if self.game.round_over:
-            self.status_var.set("Round complete.")
+            self._set_status("Round complete.")
 
     def _summarise_round(self, breakdown: dict[int, int]) -> None:
         """Log the scoring summary after going out."""

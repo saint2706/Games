@@ -29,9 +29,11 @@ from PyQt5.QtWidgets import (
 
 from ..common.cards import format_cards
 from .poker import Action, ActionType, PokerMatch
+from card_games.common.soundscapes import initialize_game_soundscape
+from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 
-class PokerPyQtGUI(QWidget):
+class PokerPyQtGUI(QWidget, BaseGUI):
     """PyQt5 window that drives and renders a :class:`PokerMatch`.
 
     The GUI keeps a mirror of the internal match state through a collection of
@@ -40,9 +42,31 @@ class PokerPyQtGUI(QWidget):
     control flow of the Tkinter implementation to preserve gameplay semantics.
     """
 
-    def __init__(self, match: PokerMatch, rng: Optional[random.Random] = None) -> None:
+    def __init__(
+        self,
+        match: PokerMatch,
+        rng: Optional[random.Random] = None,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialise the PyQt poker window."""
-        super().__init__()
+        QWidget.__init__(self)
+        gui_config = config or GUIConfig(
+            window_title="Card Games - Poker",
+            window_width=980,
+            window_height=680,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+            theme_name="dark",
+        )
+        BaseGUI.__init__(self, root=self, config=gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "poker",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
         self.match = match
         self.rng = rng or random.Random()
         self.awaiting_user = False
@@ -50,7 +74,7 @@ class PokerPyQtGUI(QWidget):
 
         variant_name = "Omaha Hold'em" if match.game_variant.value == "omaha" else "Texas Hold'em"
         self.setWindowTitle(f"Card Games - {variant_name}")
-        self.resize(980, 680)
+        self.resize(gui_config.window_width, gui_config.window_height)
 
         self.player_frames: Dict[str, QWidget] = {}
         self.player_vars: Dict[str, Dict[str, QLabel]] = {}

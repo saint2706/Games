@@ -44,9 +44,11 @@ from PyQt5.QtWidgets import (
 )
 
 from .bluff import BluffGame, DeckType, DifficultyLevel, Phase
+from card_games.common.soundscapes import initialize_game_soundscape
+from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 
-class BluffPyQtGUI(QWidget):
+class BluffPyQtGUI(QWidget, BaseGUI):
     """PyQt5 GUI that orchestrates a BluffGame session.
 
     The widget is responsible for constructing the interface, synchronising the
@@ -56,7 +58,13 @@ class BluffPyQtGUI(QWidget):
     response to status changes.
     """
 
-    def __init__(self, game: BluffGame) -> None:
+    def __init__(
+        self,
+        game: BluffGame,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialise the PyQt5 GUI.
 
         Args:
@@ -64,7 +72,22 @@ class BluffPyQtGUI(QWidget):
                 resolves actions.
         """
 
-        super().__init__()
+        QWidget.__init__(self)
+        gui_config = config or GUIConfig(
+            window_title="Card Games - Bluff (PyQt5)",
+            window_width=1080,
+            window_height=720,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+            theme_name="dark",
+        )
+        BaseGUI.__init__(self, root=self, config=gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "bluff",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
         self.game = game
 
         self._selected_card: Optional[int] = None
@@ -239,6 +262,13 @@ class BluffPyQtGUI(QWidget):
                 self.scoreboard.setItem(row_index, col, item)
 
         self.scoreboard.resizeColumnsToContents()
+        self.animate_highlight(self.scoreboard)
+
+    def _set_status(self, text: str, *, highlight_color: str = "#1f6aa5") -> None:
+        """Update the status label and animate the change when enabled."""
+
+        self.status_label.setText(text)
+        self.animate_highlight(self.status_label, highlight_color=highlight_color)
 
     def _update_user_hand(self) -> None:
         """Rebuild the user's hand buttons to match their cards."""
@@ -270,6 +300,9 @@ class BluffPyQtGUI(QWidget):
 
         if self._selected_card is not None and 0 <= self._selected_card < len(user.hand):
             self.claim_combo.setCurrentText(user.hand[self._selected_card].rank)
+
+        if user.hand:
+            self.animate_highlight(self.hand_group)
 
     def _set_user_controls_enabled(self, enabled: bool) -> None:
         """Enable or disable the controls for the user's turn."""
@@ -304,9 +337,10 @@ class BluffPyQtGUI(QWidget):
         self.turn_label.setText(f"Turn {state['turns_played'] + 1} of {state['max_turns']}")
 
         if current.is_user:
-            self.status_label.setText("Your turn: choose a card and declare its rank.")
+            self._set_status("Your turn: choose a card and declare its rank.")
             self._last_claim_text = "Awaiting your play."
             self.last_claim_label.setText(self._last_claim_text)
+            self.animate_highlight(self.last_claim_label)
             self._set_user_controls_enabled(True)
         else:
             self._set_user_controls_enabled(False)
@@ -316,6 +350,7 @@ class BluffPyQtGUI(QWidget):
             self._log_message(f"{current.name} claims their card is a {claim.claimed_rank}.")
             self._last_claim_text = f"Latest claim: {current.name} says {claim.claimed_rank}."
             self.last_claim_label.setText(self._last_claim_text)
+            self.animate_highlight(self.last_claim_label)
             self._update_header()
             self._update_scoreboard()
             QTimer.singleShot(450, self._resolve_challenges)
@@ -358,6 +393,7 @@ class BluffPyQtGUI(QWidget):
         self._log_message(f"You play {claim.card} while stating it's a {claim.claimed_rank}.")
         self._last_claim_text = f"Latest claim: You said {claim.claimed_rank}."
         self.last_claim_label.setText(self._last_claim_text)
+        self.animate_highlight(self.last_claim_label)
         self._selected_card = None
         self._set_user_controls_enabled(False)
         self._update_header()
@@ -446,7 +482,7 @@ class BluffPyQtGUI(QWidget):
         else:
             message = f"{self.game.winner.name} claims victory this time."
 
-        self.status_label.setText(message)
+        self._set_status(message)
         QMessageBox.information(self, "Game complete", message)
 
 

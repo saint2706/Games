@@ -31,6 +31,7 @@ except ImportError as exc:  # pragma: no cover - Tkinter availability is environ
     raise RuntimeError("Tkinter is required to use the Hearts GUI") from exc
 
 from card_games.common.cards import Card, Suit, format_cards
+from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base import BaseGUI, GUIConfig
 
 from .game import QUEEN_OF_SPADES, HeartsGame, HeartsPlayer, PassDirection
@@ -56,6 +57,7 @@ class HeartsGUI(BaseGUI):
         game: HeartsGame,
         *,
         human_index: int = 0,
+        enable_sounds: bool = True,
         config: Optional[GUIConfig] = None,
     ) -> None:
         """Create the GUI and immediately start the first round.
@@ -75,13 +77,19 @@ class HeartsGUI(BaseGUI):
             font_size=12,
             log_height=12,
             log_width=70,
-            enable_sounds=False,
+            enable_sounds=enable_sounds,
             enable_animations=True,
             theme_name="midnight",
             language="en",
             accessibility_mode=config.accessibility_mode if config else False,
         )
         super().__init__(root, config or default_config)
+        self.sound_manager = initialize_game_soundscape(
+            "hearts",
+            module_file=__file__,
+            enable_sounds=(config or default_config).enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self.game = game
         self.human_index = human_index
@@ -598,6 +606,8 @@ def run_app(
         accessibility_mode=accessibility_mode or high_contrast,
         theme_name="high_contrast" if high_contrast else "midnight",
         font_size=14 if accessibility_mode else 12,
+        enable_sounds=True,
+        enable_animations=True,
     )
     players = [
         HeartsPlayer(name=player_name, is_ai=False),

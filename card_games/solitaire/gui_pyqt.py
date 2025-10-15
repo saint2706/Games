@@ -21,6 +21,7 @@ import random
 from typing import Callable, Optional, Tuple
 
 from card_games.common.cards import Card
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.solitaire.game import Pile, SolitaireGame
 from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
@@ -179,6 +180,7 @@ if PYQT5_AVAILABLE:
             self,
             game: SolitaireGame,
             *,
+            enable_sounds: bool = True,
             config: Optional[GUIConfig] = None,
             new_game_factory: Optional[Callable[[], SolitaireGame]] = None,
         ) -> None:
@@ -190,8 +192,16 @@ if PYQT5_AVAILABLE:
                 window_title="Klondike Solitaire",
                 window_width=1100,
                 window_height=760,
+                enable_sounds=enable_sounds,
+                enable_animations=True,
             )
             BaseGUI.__init__(self, self, gui_config)
+            self.sound_manager = initialize_game_soundscape(
+                "solitaire",
+                module_file=__file__,
+                enable_sounds=gui_config.enable_sounds,
+                existing_manager=self.sound_manager,
+            )
 
             self.game = game
             self._new_game_factory = new_game_factory

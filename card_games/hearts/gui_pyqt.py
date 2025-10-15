@@ -51,6 +51,7 @@ from PyQt5.QtWidgets import (
 )
 
 from card_games.common.cards import Card, Suit, format_cards
+from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 from .game import QUEEN_OF_SPADES, HeartsGame, HeartsPlayer, PassDirection
@@ -71,18 +72,15 @@ class _TrickSeatWidget:
         self.card_label.setText(card_text)
 
 
-class HeartsGUI(QMainWindow):
-    """PyQt5 GUI for a round of Hearts.
-
-    Note: Does not inherit from BaseGUI as it's designed for Tkinter,
-    and would cause metaclass conflicts with QMainWindow.
-    """
+class HeartsGUI(QMainWindow, BaseGUI):
+    """PyQt5 GUI for a round of Hearts."""
 
     def __init__(
         self,
         game: HeartsGame,
         *,
         human_index: int = 0,
+        enable_sounds: bool = True,
         config: Optional[GUIConfig] = None,
     ) -> None:
         self.game = game
@@ -120,7 +118,7 @@ class HeartsGUI(QMainWindow):
             font_size=12,
             log_height=12,
             log_width=70,
-            enable_sounds=False,
+            enable_sounds=enable_sounds,
             enable_animations=True,
             theme_name="midnight",
             language="en",
@@ -128,6 +126,12 @@ class HeartsGUI(QMainWindow):
         )
 
         BaseGUI.__init__(self, root=self, config=config or default_config)
+        self.sound_manager = initialize_game_soundscape(
+            "hearts",
+            module_file=__file__,
+            enable_sounds=(config or default_config).enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self._build_reference_fonts()
         self.build_layout()
@@ -709,6 +713,8 @@ def run_app(
         accessibility_mode=accessibility_mode or high_contrast,
         theme_name="high_contrast" if high_contrast else "midnight",
         font_size=14 if accessibility_mode else 12,
+        enable_sounds=True,
+        enable_animations=True,
     )
     players = [
         HeartsPlayer(name=player_name, is_ai=False),

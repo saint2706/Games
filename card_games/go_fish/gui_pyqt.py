@@ -39,7 +39,9 @@ from PyQt5.QtWidgets import (
 )
 
 from card_games.common.cards import RANKS
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.go_fish.game import GoFishGame, Player
+from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 
 @dataclass
@@ -54,7 +56,7 @@ class ScoreboardRow:
     widgets: List[QWidget]
 
 
-class GoFishGUI(QWidget):
+class GoFishGUI(QWidget, BaseGUI):
     """PyQt5 interface that visualizes and drives a GoFishGame.
 
     The GUI manages layout construction, user interactions, and log updates.
@@ -63,13 +65,36 @@ class GoFishGUI(QWidget):
     to the widgets.
     """
 
-    def __init__(self, game: GoFishGame) -> None:
+    def __init__(
+        self,
+        game: GoFishGame,
+        *,
+        enable_sounds: bool = True,
+        gui_config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialize the Go Fish GUI.
 
         Args:
             game: The Go Fish engine to display and control.
         """
-        super().__init__()
+        QWidget.__init__(self)
+        resolved_config = gui_config or GUIConfig(
+            window_title="Card Games - Go Fish",
+            window_width=1100,
+            window_height=720,
+            log_height=20,
+            log_width=44,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+            theme_name="light",
+        )
+        BaseGUI.__init__(self, root=self, config=resolved_config)
+        self.sound_manager = initialize_game_soundscape(
+            "go_fish",
+            module_file=__file__,
+            enable_sounds=resolved_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
         self.game = game
         self.player_rows: Dict[str, ScoreboardRow] = {}
         self._deck_empty_logged = False
@@ -77,8 +102,8 @@ class GoFishGUI(QWidget):
         self._flash_count = 0
         self._flash_target_name = ""
 
-        self.setWindowTitle("Card Games - Go Fish")
-        self.resize(1100, 720)
+        self.setWindowTitle(resolved_config.window_title)
+        self.resize(resolved_config.window_width, resolved_config.window_height)
 
         self.build_layout()
         self.update_display()

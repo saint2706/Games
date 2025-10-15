@@ -14,18 +14,29 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Optional
 
+from common.gui_base import BaseGUI, GUIConfig
+from card_games.common.soundscapes import initialize_game_soundscape
+
 from ..common.cards import format_cards
 from .poker import Action, ActionType, PokerMatch
 
 
-class PokerGUI:
+class PokerGUI(BaseGUI):
     """Manages the interactive Tkinter interface for a `PokerMatch`.
 
     This class builds the UI, renders the game state, and handles the game loop,
     advancing through bot turns and pausing to await user input.
     """
 
-    def __init__(self, root: tk.Tk, match: PokerMatch, rng: random.Random | None = None) -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        match: PokerMatch,
+        rng: random.Random | None = None,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialize the Poker GUI.
 
         Args:
@@ -33,7 +44,23 @@ class PokerGUI:
             match: The `PokerMatch` instance to visualize.
             rng: An optional random number generator.
         """
-        self.root = root
+        gui_config = config or GUIConfig(
+            window_title="Poker Table",
+            window_width=1280,
+            window_height=780,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+            theme_name="dark",
+        )
+        super().__init__(root, gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "poker",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
+        self.theme_manager.set_current_theme(gui_config.theme_name)
+        self.current_theme = self.theme_manager.get_current_theme()
         self.match = match
         # A dedicated RNG powers cosmetic shuffles (e.g., log animations) so the
         # deterministic behaviour of the core engine is unaffected.

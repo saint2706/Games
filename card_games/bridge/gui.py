@@ -13,6 +13,7 @@ from typing import Optional
 
 from card_games.bridge.game import AuctionState, BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
 from card_games.common.cards import Card, Suit
+from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 
 if TKINTER_AVAILABLE:
@@ -40,8 +41,30 @@ SUIT_SYMBOLS = {
 class BridgeGUI(BaseGUI):
     """Tkinter implementation of a Bridge table with automated opponents."""
 
-    def __init__(self, root: tk.Tk, config: Optional[GUIConfig] = None) -> None:
-        super().__init__(root, config)
+    def __init__(
+        self,
+        root: tk.Tk,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
+        gui_config = config or GUIConfig(
+            window_title="Contract Bridge",
+            window_width=1100,
+            window_height=720,
+            font_family="Segoe UI",
+            font_size=11,
+            theme_name="dark",
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+        )
+        super().__init__(root, gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "bridge",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
         self.players = [
             BridgePlayer(name="North AI", is_ai=True),
             BridgePlayer(name="East AI", is_ai=True),
@@ -161,12 +184,13 @@ class BridgeGUI(BaseGUI):
         self.log_text.grid(row=3, column=0, sticky="nsew", padx=12, pady=(0, 12))
         footer = tk.Frame(main, bg=bg, pady=10)
         footer.grid(row=2, column=0, columnspan=2, sticky="ew")
-        ttk.Label(
+        self.status_label = ttk.Label(
             footer,
             textvariable=self.status_var,
             font=(self.config.font_family, self.config.font_size),
             foreground=fg,
-        ).pack(anchor="w", padx=16)
+        )
+        self.status_label.pack(anchor="w", padx=16)
         button_frame = tk.Frame(footer, bg=bg)
         button_frame.pack(anchor="e", padx=16)
         ttk.Button(button_frame, text="Review Tricks", command=self._show_trick_history_dialog).pack(side="left", padx=6)
@@ -193,7 +217,7 @@ class BridgeGUI(BaseGUI):
         self._append_log(f"Vulnerability: {self.game.vulnerability.value}")
         if self.contract is None:
             self._render_bidding_history()
-            self.status_var.set("All players passed. Deal over.")
+            self._set_status("All players passed. Deal over.")
             self._append_log("Board passed out - no play.")
             self.update_display()
             self._refresh_card_buttons()
@@ -206,7 +230,7 @@ class BridgeGUI(BaseGUI):
         dummy = self.players[self.dummy_index]
         self._append_log(f"Contract: {contract_text} by {declarer.position}")
         self._append_log(f"Dummy: {dummy.position} ({dummy.name})")
-        self.status_var.set("Opening lead in progress...")
+        self._set_status("Opening lead in progress...")
         self.update_display()
         self.root.after(500, self._advance_turn)
 
@@ -372,6 +396,14 @@ class BridgeGUI(BaseGUI):
         ns_tricks = sum(player.tricks_won for player in self.players if player.position in {"N", "S"})
         ew_tricks = sum(player.tricks_won for player in self.players if player.position in {"E", "W"})
         self.trick_var.set(f"Tricks - NS: {ns_tricks} | EW: {ew_tricks}")
+        if self.trick_canvas is not None:
+            self.animate_highlight(self.trick_canvas)
+
+    def _set_status(self, text: str, *, highlight_color: str = "#1f6aa5") -> None:
+        """Update the footer status label and animate when appropriate."""
+
+        self.status_var.set(text)
+        self.animate_highlight(self.status_label, highlight_color=highlight_color)
 
     def _refresh_hand_views(self) -> None:
         """Render text for each seat."""
@@ -405,13 +437,14 @@ class BridgeGUI(BaseGUI):
         for player, card in self.game.current_trick:
             pos = player.position
             x, y = positions.get(pos, (200, 150))
-            self.trick_canvas.create_text(
-                x,
-                y,
-                text=f"{pos}: {card}",
-                font=(self.config.font_family, self.config.font_size + 2, "bold"),
-                fill=fg,
-            )
+        self.trick_canvas.create_text(
+            x,
+            y,
+            text=f"{pos}: {card}",
+            font=(self.config.font_family, self.config.font_size + 2, "bold"),
+            fill=fg,
+        )
+        self.animate_highlight(self.trick_canvas)
 
     def _render_bidding_history(self) -> None:
         """Populate the bidding history widget."""
@@ -434,14 +467,14 @@ class BridgeGUI(BaseGUI):
         player = self.players[self.active_player_index]
         controller = self._controller_for_player(player)
         if controller.is_ai:
-            self.status_var.set(f"{player.name} thinking...")
+            self._set_status(f"{player.name} thinking...")
             self.root.after(600, lambda: self._play_ai_turn(player))
         else:
             self.awaiting_human_play = True
             self.current_selection_player = player
             valid = self.game.get_valid_plays(player)
             self.current_valid_cards = valid
-            self.status_var.set(f"{player.position} - choose a card to play.")
+            self._set_status(f"{player.position} - choose a card to play.")
             self.update_display()
 
     def _play_ai_turn(self, player: BridgePlayer) -> None:
@@ -475,7 +508,7 @@ class BridgeGUI(BaseGUI):
                 self._append_log(f"Dummy hand revealed: {dummy.position}")
         self.update_display()
         if len(self.game.current_trick) == 4:
-            self.status_var.set("Evaluating trick winner...")
+            self._set_status("Evaluating trick winner...")
             self.root.after(700, self._complete_trick)
         else:
             self.active_player_index = (self.active_player_index + 1) % 4
@@ -487,7 +520,7 @@ class BridgeGUI(BaseGUI):
         self._append_log(f"{winner.position} wins the trick")
         ns_tricks = sum(player.tricks_won for player in self.players if player.position in {"N", "S"})
         ew_tricks = sum(player.tricks_won for player in self.players if player.position in {"E", "W"})
-        self.status_var.set(f"Trick won by {winner.position}. NS {ns_tricks} - EW {ew_tricks}")
+        self._set_status(f"Trick won by {winner.position}. NS {ns_tricks} - EW {ew_tricks}")
         self.active_player_index = self.players.index(winner)
         self.update_display()
         if all(not player.hand for player in self.players):
@@ -512,7 +545,7 @@ class BridgeGUI(BaseGUI):
                 result_text = f"Contract made with {declarer_tricks} tricks."
             else:
                 result_text = f"Contract down {required - declarer_tricks}."
-        self.status_var.set(result_text)
+        self._set_status(result_text)
         self._append_log(result_text)
         self._append_log("Scores - North/South: {north_south} | East/West: {east_west}".format(**scores))
         self.update_display()
@@ -675,7 +708,7 @@ def run_app() -> None:
         font_family="Segoe UI",
         font_size=11,
         theme_name="dark",
-        enable_sounds=False,
+        enable_sounds=True,
         enable_animations=True,
     )
     BridgeGUI(root, config=config)

@@ -6,6 +6,7 @@ in game GUIs using tkinter.
 
 from __future__ import annotations
 
+import importlib
 from typing import Any, Callable, Optional
 
 try:
@@ -15,6 +16,17 @@ try:
 except ImportError:
     TKINTER_AVAILABLE = False
     tk = None  # type: ignore
+
+PYQT_SPEC = importlib.util.find_spec("PyQt5")
+if PYQT_SPEC is not None:
+    from PyQt5 import QtCore, QtGui, QtWidgets  # type: ignore
+
+    PYQT_AVAILABLE = True
+else:
+    QtCore = None  # type: ignore[assignment]
+    QtGui = None  # type: ignore[assignment]
+    QtWidgets = None  # type: ignore[assignment]
+    PYQT_AVAILABLE = False
 
 
 class Animation:
@@ -305,3 +317,59 @@ def animate_color_transition(widget: Any, to_color: str, duration: int = 300, pr
         animation.start()
     except Exception:
         pass
+
+
+def maybe_animate_highlight(
+    widget: Any,
+    *,
+    enable: bool,
+    highlight_color: str = "#FFD700",
+    duration: int = 600,
+) -> None:
+    """Animate a widget highlight when animations are enabled.
+
+    Args:
+        widget: The widget to highlight.
+        enable: Whether animations are currently enabled.
+        highlight_color: Color used for the highlight effect.
+        duration: Duration of the animation in milliseconds.
+    """
+
+    if not enable or widget is None:
+        return
+
+    if TKINTER_AVAILABLE and hasattr(widget, "after"):
+        animate_widget_highlight(widget, duration=duration, highlight_color=highlight_color)
+        return
+
+    if PYQT_AVAILABLE and isinstance(widget, QtWidgets.QWidget):  # type: ignore[union-attr]
+        effect = QtWidgets.QGraphicsColorizeEffect(widget)
+        effect.setColor(QtGui.QColor(highlight_color))  # type: ignore[arg-type]
+        widget.setGraphicsEffect(effect)
+
+        animation = QtCore.QPropertyAnimation(effect, b"strength", widget)  # type: ignore[arg-type]
+        animation.setDuration(duration)
+        animation.setStartValue(0.0)
+        animation.setKeyValueAt(0.5, 1.0)
+        animation.setEndValue(0.0)
+
+        def _cleanup() -> None:
+            try:
+                stored = getattr(widget, "_cg_active_animations")
+            except AttributeError:
+                stored = None
+            if stored is not None:
+                try:
+                    stored.remove(animation)
+                except ValueError:
+                    pass
+                if not stored:
+                    delattr(widget, "_cg_active_animations")
+            widget.setGraphicsEffect(None)
+
+        animation.finished.connect(_cleanup)  # type: ignore[attr-defined]
+
+        active = getattr(widget, "_cg_active_animations", [])
+        active.append(animation)
+        setattr(widget, "_cg_active_animations", active)
+        animation.start(QtCore.QAbstractAnimation.DeletionPolicy.DeleteWhenStopped if hasattr(QtCore.QAbstractAnimation, "DeletionPolicy") else QtCore.QAbstractAnimation.DeleteWhenStopped)  # type: ignore[attr-defined]

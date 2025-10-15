@@ -24,6 +24,7 @@ from card_games.bridge.game import (
     Vulnerability,
 )
 from card_games.common.cards import Card, Suit
+from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 if not PYQT5_AVAILABLE:  # pragma: no cover - module should not import without PyQt5
@@ -132,10 +133,32 @@ class TrickDisplay(QWidget):
 class BridgeGUI(BaseGUI):
     """PyQt5 implementation of a Bridge table with automated opponents."""
 
-    def __init__(self, root: Optional[QMainWindow] = None, config: Optional[GUIConfig] = None) -> None:
+    def __init__(
+        self,
+        root: Optional[QMainWindow] = None,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         if root is None:
             root = QMainWindow()
-        super().__init__(root, config)
+        gui_config = config or GUIConfig(
+            window_title="Contract Bridge",
+            window_width=1100,
+            window_height=720,
+            font_family="Segoe UI",
+            font_size=11,
+            theme_name="dark",
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+        )
+        super().__init__(root, gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "bridge",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self.players = [
             BridgePlayer(name="North AI", is_ai=True),
@@ -371,6 +394,7 @@ class BridgeGUI(BaseGUI):
         ew_tricks = sum(player.tricks_won for player in self.players if player.position in {"E", "W"})
         if self.trick_label is not None:
             self.trick_label.setText(f"Tricks - NS: {ns_tricks} | EW: {ew_tricks}")
+            self.animate_highlight(self.trick_label)
 
     def _refresh_hand_views(self) -> None:
         for player in self.players:
@@ -396,6 +420,7 @@ class BridgeGUI(BaseGUI):
 
         plays = [(player.position, str(card)) for player, card in self.game.current_trick]
         self.trick_display.set_display(dummy_text, plays)
+        self.animate_highlight(self.trick_display)
 
     def _render_bidding_history(self) -> None:
         if self.bidding_text is None:
@@ -565,6 +590,7 @@ class BridgeGUI(BaseGUI):
     def _set_status(self, message: str) -> None:
         if self.status_label is not None:
             self.status_label.setText(message)
+            self.animate_highlight(self.status_label)
 
     def show(self) -> None:
         """Expose ``show`` to mirror QWidget-like behavior for callers."""
@@ -597,6 +623,8 @@ def run_gui(config: Optional[GUIConfig] = None) -> bool:
             font_family="Segoe UI",
             font_size=11,
             theme_name="dark",
+            enable_sounds=True,
+            enable_animations=True,
         )
 
     try:
