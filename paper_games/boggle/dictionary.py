@@ -102,9 +102,7 @@ class BoggleDictionary:
 
         path = RESOURCES_DIR / self.language / f"{self.lexicon}.txt"
         if not path.exists():
-            raise FileNotFoundError(
-                f"Dictionary for language '{self.language}' and lexicon '{self.lexicon}' not found at {path}."
-            )
+            raise FileNotFoundError(f"Dictionary for language '{self.language}' and lexicon '{self.lexicon}' not found at {path}.")
         return path
 
     @classmethod

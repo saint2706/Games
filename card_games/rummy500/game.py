@@ -16,9 +16,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from random import Random
 from functools import lru_cache
 from itertools import combinations
+from random import Random
 from typing import Iterable, Optional, Sequence, Tuple
 
 from card_games.common.cards import RANK_TO_VALUE, Card, Deck
@@ -284,9 +284,7 @@ class Rummy500Game:
             ),
         )
 
-    def _analyse_cards(
-        self, cards: Sequence[Card]
-    ) -> tuple[list[list[Card]], list[Card], int, int]:
+    def _analyse_cards(self, cards: Sequence[Card]) -> tuple[list[list[Card]], list[Card], int, int]:
         """Return optimal meld arrangement for *cards*.
 
         Returns:
@@ -318,9 +316,7 @@ class Rummy500Game:
                 for card in meld:
                     remaining.remove(card)
                 remaining_tuple = self._canonical_cards(remaining)
-                sub_melds, sub_deadwood, sub_meld_points, sub_deadwood_points = best_plan(
-                    remaining_tuple
-                )
+                sub_melds, sub_deadwood, sub_meld_points, sub_deadwood_points = best_plan(remaining_tuple)
 
                 meld_points = sum(self._card_value(card) for card in meld)
                 total_meld_points = sub_meld_points + meld_points
@@ -330,11 +326,7 @@ class Rummy500Game:
                 if net > best_net or (
                     net == best_net
                     and (
-                        total_deadwood_points < best_deadwood_points
-                        or (
-                            total_deadwood_points == best_deadwood_points
-                            and total_meld_points > best_meld_points
-                        )
+                        total_deadwood_points < best_deadwood_points or (total_deadwood_points == best_deadwood_points and total_meld_points > best_meld_points)
                     )
                 ):
                     best_net = net
@@ -418,7 +410,6 @@ class Rummy500Game:
                     }
                 )
         return options
-
 
     def can_lay_off(self, meld_index: int, cards: list[Card]) -> bool:
         """Return True if *cards* can be added to the meld at *meld_index*."""
@@ -558,10 +549,7 @@ class Rummy500Game:
                 {
                     "owner": meld.owner,
                     "cards": [str(card) for card in meld.cards],
-                    "contributors": {
-                        player: [str(card) for card in cards]
-                        for player, cards in meld.contributions.items()
-                    },
+                    "contributors": {player: [str(card) for card in cards] for player, cards in meld.contributions.items()},
                 }
                 for meld in self.melds
             ],

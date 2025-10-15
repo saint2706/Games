@@ -74,10 +74,10 @@ coding assistants.
 1. **Repository-Wide Context**: When Copilot works on any file, it reads `.github/copilot-instructions.md` to understand
    the project structure, coding standards, and development practices.
 
-2. **Path-Specific Guidance**: When Copilot works on specific file types (tests, game implementations, GUIs), it also
+1. **Path-Specific Guidance**: When Copilot works on specific file types (tests, game implementations, GUIs), it also
    reads the relevant path-specific instructions from `.github/instructions/`.
 
-3. **Combined Context**: Copilot combines both repository-wide and path-specific instructions to provide more accurate
+1. **Combined Context**: Copilot combines both repository-wide and path-specific instructions to provide more accurate
    and context-aware suggestions.
 
 ## Maintaining Instructions
@@ -127,7 +127,7 @@ for f in files:
 ```
 
 2. Verify file paths exist and are correct
-3. Check for consistency between different instruction files
+1. Check for consistency between different instruction files
 
 ### Automated Testing
 

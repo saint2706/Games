@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from random import Random
-from typing import Any, Iterable, Optional, Sequence
+from typing import Any, Optional, Sequence
 
 from card_games.common.cards import RANK_TO_VALUE, Card, Deck
 
@@ -191,17 +191,12 @@ class CribbageGame:
         if self.phase != GamePhase.PLAY:
             return []
 
-        return [
-            card
-            for card in self._hand(player)
-            if self.card_point_value(card) + self.play_count <= 31
-        ]
+        return [card for card in self._hand(player) if self.card_point_value(card) + self.play_count <= 31]
 
     def can_player_play(self, player: int) -> bool:
         """Return ``True`` if ``player`` has any legal pegging play."""
 
         return bool(self.legal_plays(player))
-
 
     def play_card(self, player: int, card: Card) -> dict[str, Any]:
         """Play ``card`` for ``player`` during pegging."""
@@ -367,9 +362,7 @@ class CribbageGame:
         return list(self.deck.cards)
 
     @classmethod
-    def pegging_points_for_sequence(
-        cls, sequence: Sequence[Card], total: int
-    ) -> tuple[int, list[str]]:
+    def pegging_points_for_sequence(cls, sequence: Sequence[Card], total: int) -> tuple[int, list[str]]:
         """Return points and descriptive events for a pegging sequence."""
 
         points = 0
@@ -429,9 +422,7 @@ class CribbageGame:
                 return length
         return 0
 
-    def score_hand(
-        self, hand: list[Card], is_crib: bool = False, starter: Optional[Card] = None
-    ) -> int:
+    def score_hand(self, hand: list[Card], is_crib: bool = False, starter: Optional[Card] = None) -> int:
         """Score ``hand`` using ``starter`` if provided (else ``self.starter``)."""
 
         starter_card = starter or self.starter
@@ -441,9 +432,7 @@ class CribbageGame:
         return self.score_hand_static(hand, starter_card, is_crib)
 
     @classmethod
-    def score_hand_static(
-        cls, hand: Sequence[Card], starter: Card, is_crib: bool = False
-    ) -> int:
+    def score_hand_static(cls, hand: Sequence[Card], starter: Card, is_crib: bool = False) -> int:
         all_cards = list(hand) + [starter]
 
         points = 0

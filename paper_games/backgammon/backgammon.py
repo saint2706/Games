@@ -567,9 +567,7 @@ class BackgammonCLI:
     def _format_move(self, sequence: Tuple[Move, ...]) -> str:
         """Format a move sequence for display."""
 
-        return ", ".join(
-            f"{move.source}->{move.target} using {move.die}{' hit' if move.hit else ''}" for move in sequence
-        )
+        return ", ".join(f"{move.source}->{move.target} using {move.die}{' hit' if move.hit else ''}" for move in sequence)
 
     def _print_move(self, sequence: Tuple[Move, ...]) -> None:
         """Print a move sequence in a friendly format."""

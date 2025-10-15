@@ -543,9 +543,7 @@ class BridgeGame:
 
     def conduct_bidding(
         self,
-        call_selector: Optional[
-            Callable[[BridgePlayer, list[Call], list[Call], AuctionState], Call]
-        ] = None,
+        call_selector: Optional[Callable[[BridgePlayer, list[Call], list[Call], AuctionState], Call]] = None,
     ) -> Optional[Contract]:
         """Conduct the auction and establish the final contract.
 
@@ -611,11 +609,7 @@ class BridgeGame:
                 first_bidder_by_partnership.setdefault((partnership, call.bid.suit), player)
                 last_non_pass_call = call
             elif call.call_type == CallType.DOUBLE and current_bidder is not None:
-                if (
-                    self.partnership_for(player) == self.partnership_for(current_bidder)
-                    or double_partnership is not None
-                    or redouble_partnership is not None
-                ):
+                if self.partnership_for(player) == self.partnership_for(current_bidder) or double_partnership is not None or redouble_partnership is not None:
                     call = Call(player, CallType.PASS)
                     passes_in_row += 1
                 else:
@@ -625,11 +619,7 @@ class BridgeGame:
                     passes_in_row = 0
                     last_non_pass_call = call
             elif call.call_type == CallType.REDOUBLE and current_bidder is not None:
-                if (
-                    double_partnership is None
-                    or self.partnership_for(player) != self.partnership_for(current_bidder)
-                    or redouble_partnership is not None
-                ):
+                if double_partnership is None or self.partnership_for(player) != self.partnership_for(current_bidder) or redouble_partnership is not None:
                     call = Call(player, CallType.PASS)
                     passes_in_row += 1
                 else:

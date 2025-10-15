@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Iterable
 
 from card_games.bridge.game import AuctionState, Bid, BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
-from card_games.common.cards import Card, RANKS, Suit
+from card_games.common.cards import RANKS, Card, Suit
 
 
 def _match_call(token: str, legal_calls: Iterable[Call]) -> Call:
@@ -157,10 +157,7 @@ def test_bidding_helper_applies_stayman_and_jacoby() -> None:
     contract2 = game2.conduct_bidding()
     assert contract2 is not None
     explanations2 = [call.explanation for call in game2.bidding_history if call.explanation]
-    assert any(
-        explanation in {"Jacoby transfer to hearts", "Jacoby transfer to spades"}
-        for explanation in explanations2
-    )
+    assert any(explanation in {"Jacoby transfer to hearts", "Jacoby transfer to spades"} for explanation in explanations2)
 
 
 def test_bidding_helper_penalty_double() -> None:
