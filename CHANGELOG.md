@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-10-15
+
+### Fixed
+
+- **PyPI Publishing**: Bumped version from 1.0.0 to 1.0.1 to resolve PyPI upload conflict (version 1.0.0 already exists on PyPI)
+
 ### Changed
 
 #### Packaging (2025-10-16)
@@ -160,4 +166,5 @@ See [REORGANIZATION_SUMMARY.md](docs/REORGANIZATION_SUMMARY.md) for complete det
 - Crash reporting and error analytics
 - New card games: Cribbage, Euchre, Rummy 500
 
+[1.0.1]: https://github.com/saint2706/Games/releases/tag/v1.0.1
 [1.0.0]: https://github.com/saint2706/Games/releases/tag/v1.0.0
