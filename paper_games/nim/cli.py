@@ -15,6 +15,10 @@ Supports:
 
 from __future__ import annotations
 
+from typing import List
+
+from common.profile_service import get_profile_service
+
 from .nim import NimGame, NorthcottGame, WythoffGame
 
 
@@ -103,6 +107,12 @@ def play_classic_nim() -> None:
         current_player_is_human = True
 
     game = NimGame(heaps=heaps, misere=misere, num_players=num_players, max_take=max_take)
+    starting_heaps = tuple(game.heaps)
+    profile_service = get_profile_service()
+    session = profile_service.start_session("nim")
+    human_turns = 0
+    optimal_turns = 0
+    computer_moves = 0
 
     rules_summary = f"\nStarting heaps: {', '.join(str(heap) for heap in game.heaps)}"
     rules_summary += f" ({'misère' if misere else 'normal'} rules"
@@ -132,7 +142,8 @@ def play_classic_nim() -> None:
 
         print(f"\n{player_name}'s turn:")
 
-        if current_player_is_human or (num_players > 2 and game.current_player < num_players - 1):
+        is_human_turn = current_player_is_human or (num_players > 2 and game.current_player < num_players - 1)
+        if is_human_turn:
             # Human player move
             move = input("Choose heap and amount (e.g., 2 3 to take 3 from heap 2): ").split()
             if len(move) != 2:
@@ -145,6 +156,9 @@ def play_classic_nim() -> None:
             except ValueError as exc:
                 print(exc)
                 continue
+            human_turns += 1
+            if not misere and game.nim_sum() == 0:
+                optimal_turns += 1
         else:
             # Computer move
             if educational:
@@ -154,6 +168,7 @@ def play_classic_nim() -> None:
             else:
                 heap_index, count = game.computer_move()
                 print(f"Computer removes {count} from heap {heap_index + 1}.")
+            computer_moves += 1
 
         if not game.is_over():
             if num_players == 2:
@@ -176,15 +191,45 @@ def play_classic_nim() -> None:
         print("Normal scoring: taking the last object wins.")
 
     if num_players == 2:
-        if (winner == 0 and human_starts) or (winner == 1 and not human_starts):
+        human_index = 0 if human_starts else 1
+        human_won = winner == human_index
+        if human_won:
             print("You win! Congratulations.")
         else:
             print("Computer wins. Better luck next time!")
     else:
+        human_won = winner != num_players - 1
         if winner == num_players - 1:
             print(f"Player {winner + 1} (Computer) wins!")
         else:
             print(f"Player {winner + 1} wins! Congratulations.")
+
+    result = "win" if human_won else "loss"
+    experience = 140 if result == "win" else 50
+    metadata = {
+        "starting_heaps": starting_heaps,
+        "misere": misere,
+        "num_players": num_players,
+        "max_take": max_take if max_take is not None else "unlimited",
+        "human_turns": human_turns,
+        "optimal_human_turns": optimal_turns,
+        "computer_moves": computer_moves,
+    }
+    if result == "win" and not misere and human_turns > 0 and human_turns == optimal_turns:
+        metadata["perfect_game"] = True
+
+    unlocked = session.complete(result=result, experience=experience, metadata=metadata)
+    if unlocked:
+        manager = profile_service.active_profile.achievement_manager
+        print("\nAchievements unlocked:")
+        lines: List[str] = []
+        for achievement_id in unlocked:
+            achievement = manager.achievements.get(achievement_id)
+            if achievement is not None:
+                lines.append(f"  • {achievement.name} (+{achievement.points} pts)")
+            else:
+                lines.append(f"  • {achievement_id}")
+        print("\n".join(lines))
 
 
 def play_northcott() -> None:

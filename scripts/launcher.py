@@ -11,6 +11,8 @@ import argparse
 import sys
 from typing import Callable
 
+from common.profile_service import ProfileService, ProfileServiceError, get_profile_service
+
 # Try to use colorama if available, fall back to plain text
 try:
     from colorama import Fore, Style
@@ -90,6 +92,14 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Run a non-interactive smoke test (used by CI to validate bundles).",
     )
+    parser.add_argument("--profile", help="Select a profile identifier before launching games.")
+    parser.add_argument(
+        "--profile-display-name",
+        help="Display name to use when creating or renaming profiles (defaults to title-cased identifier).",
+    )
+    parser.add_argument("--profile-summary", action="store_true", help="Print the active profile summary.")
+    parser.add_argument("--profile-reset", action="store_true", help="Reset the active profile before launching.")
+    parser.add_argument("--profile-rename", help="Rename the active profile to the provided identifier.")
     return parser.parse_args()
 
 
@@ -147,19 +157,26 @@ def run_smoke_test(game_identifier: str, gui_framework: str | None) -> int:
     return 0
 
 
-def print_header() -> None:
+def print_header(service: ProfileService) -> None:
     """Print the launcher header."""
+    profile = service.active_profile
+    profile_line = f"Active Profile: {profile.display_name} (Level {profile.level})"
+    xp_line = f"XP: {profile.experience} | Next Level: {profile.experience_to_next_level()} XP"
     if HAS_COLORAMA:
         print(f"\n{Fore.CYAN}{Style.BRIGHT}{'=' * 60}")
         print(f"{Fore.CYAN}{Style.BRIGHT}{'GAMES COLLECTION':^60}")
         print(f"{Fore.CYAN}{Style.BRIGHT}{'=' * 60}{Style.RESET_ALL}\n")
+        print(f"{Fore.MAGENTA}{profile_line}{Style.RESET_ALL}")
+        print(f"{Fore.MAGENTA}{xp_line}{Style.RESET_ALL}\n")
     else:
         print("\n" + "=" * 60)
         print(f"{'GAMES COLLECTION':^60}")
         print("=" * 60 + "\n")
+        print(profile_line)
+        print(xp_line + "\n")
 
 
-def print_menu() -> None:
+def print_menu(service: ProfileService) -> None:
     """Print the main menu."""
     categories = {
         "Card Games": [
@@ -206,6 +223,16 @@ def print_menu() -> None:
         ],
     }
 
+    if HAS_COLORAMA:
+        print(f"{Fore.GREEN}Profile Options:{Style.RESET_ALL}")
+    else:
+        print("Profile Options:")
+    print("  P. View profile summary")
+    print("  L. List available profiles")
+    print("  S. Switch profile")
+    print("  R. Rename active profile")
+    print("  X. Reset active profile\n")
+
     for category, games in categories.items():
         if HAS_COLORAMA:
             print(f"{Fore.YELLOW}{Style.BRIGHT}{category}:{Style.RESET_ALL}")
@@ -221,7 +248,80 @@ def print_menu() -> None:
         print("0. Exit\n")
 
 
-def launch_game(choice: str) -> bool:
+def _print_profile_list(service: ProfileService) -> None:
+    """Display the identifiers of profiles stored on disk."""
+
+    print("\nAvailable profiles:")
+    for identifier in service.list_profiles():
+        marker = "*" if identifier == service.active_profile.player_id else "-"
+        print(f"  {marker} {identifier}")
+
+
+def _handle_profile_summary(service: ProfileService) -> None:
+    print("\n" + service.summary() + "\n")
+    input("Press Enter to return to the menu…")
+
+
+def _handle_profile_list(service: ProfileService) -> None:
+    _print_profile_list(service)
+    input("\nPress Enter to return to the menu…")
+
+
+def _handle_profile_switch(service: ProfileService) -> None:
+    _print_profile_list(service)
+    selection = input("\nEnter profile identifier to activate (blank to cancel): ").strip()
+    if not selection:
+        return
+    display = input("Display name [leave blank to keep default]: ").strip() or None
+    try:
+        service.select_profile(selection, display)
+        message = f"Switched to profile '{service.active_profile.display_name}'."
+        if HAS_COLORAMA:
+            print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+    except ProfileServiceError as exc:
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}Error: {exc}{Style.RESET_ALL}")
+        else:
+            print(f"Error: {exc}")
+    input("Press Enter to return to the menu…")
+
+
+def _handle_profile_rename(service: ProfileService) -> None:
+    new_identifier = input("Enter new profile identifier (blank to cancel): ").strip()
+    if not new_identifier:
+        return
+    new_display_name = input("Display name [leave blank to keep current]: ").strip() or None
+    try:
+        service.rename_active_profile(new_identifier, new_display_name)
+        message = f"Profile renamed to '{service.active_profile.display_name}'."
+        if HAS_COLORAMA:
+            print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+    except ProfileServiceError as exc:
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}Error: {exc}{Style.RESET_ALL}")
+        else:
+            print(f"Error: {exc}")
+    input("Press Enter to return to the menu…")
+
+
+def _handle_profile_reset(service: ProfileService) -> None:
+    confirmation = input("Type 'RESET' to confirm wiping all progress: ").strip()
+    if confirmation.lower() != "reset":
+        return
+    service.reset_active_profile()
+    message = "Profile progress cleared."
+    if HAS_COLORAMA:
+        print(f"{Fore.YELLOW}{message}{Style.RESET_ALL}")
+    else:
+        print(message)
+    input("Press Enter to return to the menu…")
+
+
+def launch_game(choice: str, service: ProfileService) -> bool:
     """Launch the selected game.
 
     Args:
@@ -230,11 +330,29 @@ def launch_game(choice: str) -> bool:
     Returns:
         True to continue, False to exit
     """
-    if choice == "0":
+    normalized = choice.strip().lower()
+
+    if normalized in {"0", "exit"}:
         return False
 
-    if choice in GAME_MAP:
-        game_name, launcher = GAME_MAP[choice]
+    if normalized == "p":
+        _handle_profile_summary(service)
+        return True
+    if normalized == "l":
+        _handle_profile_list(service)
+        return True
+    if normalized == "s":
+        _handle_profile_switch(service)
+        return True
+    if normalized == "r":
+        _handle_profile_rename(service)
+        return True
+    if normalized == "x":
+        _handle_profile_reset(service)
+        return True
+
+    if normalized in GAME_MAP:
+        game_name, launcher = GAME_MAP[normalized]
         if HAS_COLORAMA:
             print(f"\n{Fore.GREEN}Launching {game_name}...{Style.RESET_ALL}\n")
         else:
@@ -259,47 +377,76 @@ def main() -> None:
     """Main launcher loop."""
     args = parse_args()
 
+    profile_service = get_profile_service()
+
+    try:
+        if args.profile:
+            profile_service.select_profile(args.profile, args.profile_display_name)
+        if args.profile_rename:
+            profile_service.rename_active_profile(args.profile_rename, args.profile_display_name)
+        if args.profile_reset:
+            profile_service.reset_active_profile()
+    except ProfileServiceError as exc:
+        print(f"Profile error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
     if args.smoke_test:
         if args.game is None:
             print("Smoke tests require --game to be specified.", file=sys.stderr)
+            profile_service.save_active_profile()
             sys.exit(1)
 
         exit_code = run_smoke_test(args.game, args.gui_framework)
+        profile_service.save_active_profile()
         sys.exit(exit_code)
 
     if args.game:
         entry = get_game_entry(args.game)
         if entry is None:
             print(f"Unknown game identifier '{args.game}'.", file=sys.stderr)
+            profile_service.save_active_profile()
             sys.exit(1)
 
         game_slug, launcher = entry
         if args.gui_framework == "pyqt5":
             exit_code = run_pyqt_smoke_test(game_slug)
+            profile_service.save_active_profile()
             sys.exit(exit_code)
 
         launcher()
+        if args.profile_summary:
+            print(profile_service.summary())
+        profile_service.save_active_profile()
         return
 
+    if args.profile_summary:
+        print(profile_service.summary())
+        if not args.game:
+            profile_service.save_active_profile()
+            return
+
     while True:
-        print_header()
-        print_menu()
+        print_header(profile_service)
+        print_menu(profile_service)
 
         try:
             choice = input("Enter your choice: ").strip()
-            if not launch_game(choice):
+            if not launch_game(choice, profile_service):
                 if HAS_COLORAMA:
                     print(f"\n{Fore.CYAN}Thank you for playing!{Style.RESET_ALL}\n")
                 else:
                     print("\nThank you for playing!\n")
+                profile_service.save_active_profile()
                 break
         except KeyboardInterrupt:
             if HAS_COLORAMA:
                 print(f"\n\n{Fore.CYAN}Thank you for playing!{Style.RESET_ALL}\n")
             else:
                 print("\n\nThank you for playing!\n")
+            profile_service.save_active_profile()
             break
         except EOFError:
+            profile_service.save_active_profile()
             break
 
 
