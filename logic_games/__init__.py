@@ -22,10 +22,17 @@ __all__ = [
     "LightsOutGame",
     "LightBulb",
     "PicrossGame",
+    "LOGIC_PUZZLE_SERVICE",
+    "register_default_logic_games",
 ]
 
 from .lights_out import LightBulb, LightsOutGame
 from .minesweeper import MinesweeperGame
 from .picross import PicrossGame
+from .progression import LOGIC_PUZZLE_SERVICE
+from .registry import register_default_logic_games
 from .sliding_puzzle import SlidingPuzzleGame
 from .sokoban import SokobanGame
+
+# Ensure default registrations are loaded for progression-aware front-ends.
+register_default_logic_games()

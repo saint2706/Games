@@ -128,11 +128,16 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 **Next steps:**
 
-- [ ] Add PyQt5/Tkinter GUIs for logic games using `common/gui_base.py` and `common/gui_base_pyqt.py`
-- [ ] Implement progressive level packs and difficulty unlocks across puzzle titles
-- [ ] Provide in-game hint systems tied to the tutorial registry helpers
-- [ ] Track per-puzzle leaderboards and completion analytics via `common/analytics`
-- [ ] Generate larger or custom puzzle sets with configurable parameters
+- [x] Add PyQt5/Tkinter GUIs for logic games using `common/gui_base.py` and `common/gui_base_pyqt.py` ✅ `logic_games/gui.py` now
+      provides shared hubs for both toolkits.
+- [x] Implement progressive level packs and difficulty unlocks across puzzle titles ✅ `logic_games/progression.py` and
+      `logic_games/registry.py` wire structured packs for Sokoban, Minesweeper, Picross, Lights Out, and Sliding Puzzle.
+- [x] Provide in-game hint systems tied to the tutorial registry helpers ✅ the progression service fetches tutorial hints and
+      strategy tips via the global registry.
+- [x] Track per-puzzle leaderboards and completion analytics via `common/analytics` ✅ completions feed into
+      `GameStatistics` records for leaderboard summaries.
+- [x] Generate larger or custom puzzle sets with configurable parameters ✅ generators support custom parameters for batch
+      puzzle creation.
 
 ## ✨ Feature Enhancements for Existing Games
 
