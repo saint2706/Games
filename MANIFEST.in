@@ -23,6 +23,17 @@ recursive-include examples *.py *.md
 # Include tests (for source distributions)
 recursive-include tests *.py
 
+# Include launcher from scripts
+include scripts/__init__.py
+include scripts/launcher.py
+
+# Exclude dev/test scripts from distribution
+global-exclude scripts/test_*.py
+global-exclude scripts/validate_*.py
+global-exclude scripts/debug_*.py
+global-exclude scripts/workflow_*.py
+global-exclude scripts/*.sh
+
 # Include game-specific documentation
 recursive-include card_games *.md
 recursive-include paper_games *.md
