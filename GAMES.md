@@ -151,6 +151,22 @@ Features:
 
 ______________________________________________________________________
 
+### Canasta
+
+**Location**: `card_games/canasta/` **Description**: Partnership melding game with frozen discards, minimum meld requirements, and canasta bonuses **Players**: 4 (two partnerships) **Run**: `python -m card_games.canasta.cli`
+
+Features:
+
+- Two-deck shoe with jokers and discard freezing
+- Partnership meld tracking with automatic canasta bonuses
+- Enforcement of wild-card limits and opening meld thresholds
+- Simple AI turns for non-human seats
+- CLI plus Tkinter and PyQt interfaces built on the shared GUI framework
+
+**Documentation**: [canasta/README.md](card_games/canasta/README.md)
+
+______________________________________________________________________
+
 ### Solitaire (Klondike)
 
 **Location**: `card_games/solitaire/` **Description**: Classic patience game with tableau, foundation, stock, and waste

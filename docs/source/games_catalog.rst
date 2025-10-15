@@ -4,12 +4,13 @@ Games Catalogue
 The collection currently ships with more than forty playable games. The lists
 below group them by package. Each name links to the corresponding Python module.
 
-Card games (15)
+Card games (16)
 ---------------
 
 - :mod:`card_games.blackjack`
 - :mod:`card_games.bluff`
 - :mod:`card_games.bridge`
+- :mod:`card_games.canasta`
 - :mod:`card_games.crazy_eights`
 - :mod:`card_games.cribbage`
 - :mod:`card_games.euchre`
