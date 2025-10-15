@@ -9,9 +9,11 @@ from __future__ import annotations
 
 import argparse
 import sys
-from typing import Callable
+from typing import Callable, Dict, List, Optional
 
 from common.profile_service import ProfileService, ProfileServiceError, get_profile_service
+from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata
+from common.tutorial_session import TutorialSession
 
 # Try to use colorama if available, fall back to plain text
 try:
@@ -221,6 +223,9 @@ def print_menu(service: ProfileService) -> None:
             ("31", "Mastermind"),
             ("32", "Codebreaker"),
         ],
+        "Educational Tools": [
+            ("T", "Tutorial catalogue"),
+        ],
     }
 
     if HAS_COLORAMA:
@@ -321,6 +326,219 @@ def _handle_profile_reset(service: ProfileService) -> None:
     input("Press Enter to return to the menu…")
 
 
+def _format_metadata_summary(metadata: TutorialMetadata) -> str:
+    """Return a formatted summary for display."""
+
+    summary_lines = [
+        f"Game: {metadata.display_name}",
+        f"Module: {metadata.game_key}",
+        f"Category: {metadata.category}",
+        f"Rules reference: {metadata.doc_path}",
+        "",
+        metadata.summary,
+    ]
+    return "\n".join(summary_lines)
+
+
+def _run_tutorial_session(session: TutorialSession, metadata: TutorialMetadata) -> None:
+    """Interactive loop for a tutorial session."""
+
+    def _print_help() -> None:
+        print(
+            "\nCommands:\n"
+            "  status       Show the current tutorial step and progress estimate\n"
+            "  hint         Display the hint for the current step\n"
+            "  tip [level]  Show a strategy tip (levels: beginner/intermediate/advanced)\n"
+            "  probability  Estimate success probability based on game state\n"
+            "  auto         Perform an automatic valid move (if available)\n"
+            "  reset        Restart the tutorial session\n"
+            "  help         Show this help text\n"
+            "  quit         Return to the launcher\n"
+        )
+
+    print("\nTutorial session started. Type 'help' for commands.")
+    _print_help()
+
+    while True:
+        step = session.get_current_step()
+        if step is None:
+            print("Tutorial completed. Great work!")
+            break
+        prompt = f"tutorial[{metadata.display_name}]> "
+        command = input(prompt).strip()
+        if not command:
+            continue
+        lowered = command.lower()
+        if lowered in {"quit", "exit", "q"}:
+            break
+        if lowered == "help":
+            _print_help()
+            continue
+        if lowered == "status":
+            print(f"\nCurrent step: {step.title}\n{step.description}")
+            probability = session.estimate_progress()
+            if probability:
+                print(f"Estimated success probability: {probability}")
+            continue
+        if lowered == "hint":
+            hint = session.get_hint()
+            if hint:
+                print(f"Hint: {hint}")
+            else:
+                print("No hint available for this step.")
+            continue
+        if lowered.startswith("tip"):
+            parts = lowered.split()
+            difficulty = parts[1] if len(parts) > 1 else None
+            tip = session.request_strategy_tip(difficulty)
+            if tip is None:
+                print("No tips available.")
+            else:
+                print(f"{tip.title} ({tip.difficulty})\n{tip.description}")
+                if tip.applies_to:
+                    print(f"Applies to: {tip.applies_to}")
+            continue
+        if lowered == "probability":
+            probability = session.estimate_progress()
+            if probability:
+                print(f"Estimated success probability: {probability}")
+            else:
+                print("Probability calculator unavailable for this game.")
+            continue
+        if lowered == "reset":
+            session.reset()
+            print("Session reset. Back to the first step.")
+            continue
+        if lowered == "auto":
+            get_moves = getattr(session.game, "get_valid_moves", None)
+            if not callable(get_moves):
+                print("This game does not expose valid moves for automation.")
+                continue
+            try:
+                moves = get_moves()
+            except Exception as exc:  # pragma: no cover - defensive
+                print(f"Could not obtain valid moves: {exc}")
+                continue
+            if not moves:
+                print("No valid moves available—perhaps the game is already over?")
+                continue
+            move = moves[0]
+            success, feedback = session.apply_move(move)
+            for message in feedback.messages:
+                print(message)
+            if feedback.tutorial_completed:
+                break
+            continue
+
+        print("Unknown command. Type 'help' to view available options.")
+
+
+def launch_tutorial_browser(service: ProfileService) -> None:
+    """Interactive tutorial browser."""
+
+    registry = GLOBAL_TUTORIAL_REGISTRY
+    game_keys = registry.available_games()
+    if not game_keys:
+        print("No tutorials available.")
+        input("Press Enter to return to the menu…")
+        return
+
+    lookup: Dict[str, str] = {}
+    for index, game_key in enumerate(game_keys, start=1):
+        lookup[str(index)] = game_key
+
+    while True:
+        print("\nTutorial catalogue:")
+        for index, game_key in enumerate(game_keys, start=1):
+            metadata = registry.get_metadata(game_key)
+            print(f"  {index}. {metadata.display_name} ({metadata.category})")
+        print("  B. Back to main menu\n")
+
+        selection = input("Select a tutorial (number or B to return): ").strip()
+        if not selection:
+            continue
+        if selection.lower() in {"b", "back"}:
+            return
+        if selection not in lookup:
+            print("Invalid selection. Please try again.")
+            continue
+
+        game_key = lookup[selection]
+        metadata = registry.get_metadata(game_key)
+        print("\n" + _format_metadata_summary(metadata) + "\n")
+
+        difficulties = list(metadata.difficulty_notes.keys())
+        difficulty_prompt = (
+            "Choose difficulty "
+            + f"({', '.join(difficulties)}). Press Enter for default [{metadata.default_difficulty}]: "
+        )
+        difficulty = input(difficulty_prompt).strip().lower()
+        if difficulty and difficulty not in difficulties:
+            print(f"Unknown difficulty '{difficulty}', defaulting to {metadata.default_difficulty}.")
+            difficulty = metadata.default_difficulty
+        elif not difficulty:
+            difficulty = metadata.default_difficulty
+
+        learning_goal_keys = list(metadata.learning_goals.keys())
+        learning_goal: Optional[str] = None
+        if learning_goal_keys:
+            goal_prompt = (
+                "Focus area "
+                + f"({', '.join(learning_goal_keys)}). Press Enter to skip: "
+            )
+            goal_input = input(goal_prompt).strip().lower()
+            if goal_input in learning_goal_keys:
+                learning_goal = goal_input
+
+        tutorial_cls = registry.get_tutorial_class(game_key)
+        tutorial = tutorial_cls(difficulty=difficulty, learning_goal=learning_goal)
+        strategy_provider = registry.get_strategy_provider(game_key)
+        probability_calculator = registry.get_probability_calculator(game_key)
+
+        engine_class = metadata.engine_class
+        if engine_class is None:
+            print(
+                "This tutorial relies on external game launchers. Use the documentation reference "
+                "to start the game manually, then follow the steps listed above."
+            )
+            step = tutorial.get_current_step()
+            while step is not None:
+                print(f"- {step.title}: {step.description}")
+                tutorial.advance_step()
+                step = tutorial.get_current_step()
+            tutorial.reset()
+            input("\nPress Enter to return to the tutorial list…")
+            continue
+
+        try:
+            game = engine_class()  # type: ignore[call-arg]
+        except TypeError:
+            print(
+                "This game's engine requires additional parameters. Launch the standard game "
+                "and consult the tutorial steps for guidance."
+            )
+            step = tutorial.get_current_step()
+            while step is not None:
+                print(f"- {step.title}: {step.description}")
+                tutorial.advance_step()
+                step = tutorial.get_current_step()
+            tutorial.reset()
+            input("\nPress Enter to return to the tutorial list…")
+            continue
+
+        session = TutorialSession(
+            game,
+            tutorial,
+            strategy_provider=strategy_provider,
+            probability_calculator=probability_calculator,
+        )
+        launch_message = f"Starting interactive tutorial for {metadata.display_name}."
+        if HAS_COLORAMA:
+            print(f"{Fore.GREEN}{launch_message}{Style.RESET_ALL}")
+        else:
+            print(launch_message)
+        _run_tutorial_session(session, metadata)
+
 def launch_game(choice: str, service: ProfileService) -> bool:
     """Launch the selected game.
 
@@ -349,6 +567,9 @@ def launch_game(choice: str, service: ProfileService) -> bool:
         return True
     if normalized == "x":
         _handle_profile_reset(service)
+        return True
+    if normalized == "t":
+        launch_tutorial_browser(service)
         return True
 
     if normalized in GAME_MAP:

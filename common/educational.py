@@ -9,7 +9,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Callable, Generic, List, Optional, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
+
+from .game_engine import GameState
 
 StateType = TypeVar("StateType")
 MoveType = TypeVar("MoveType")
@@ -73,6 +75,7 @@ class TutorialMode(ABC, Generic[StateType, MoveType]):
         if self.current_step < len(self.steps) - 1:
             self.current_step += 1
             return True
+        self.current_step = len(self.steps)
         self.completed = True
         return False
 
@@ -94,6 +97,141 @@ class TutorialMode(ABC, Generic[StateType, MoveType]):
         """Reset tutorial to the beginning."""
         self.current_step = 0
         self.completed = False
+
+
+class DocumentationTutorialMode(TutorialMode[StateType, MoveType]):
+    """Tutorial mode that generates steps from documentation metadata.
+
+    Parameters
+    ----------
+    metadata:
+        Dictionary containing descriptive tutorial information.  Expected keys
+        are ``display_name``, ``doc_path``, ``summary``, ``objectives``,
+        ``hints`` and optional ``difficulty_notes`` / ``learning_goals``.
+    difficulty:
+        Selected difficulty level; defaults to the metadata's
+        ``default_difficulty`` value when omitted.
+    learning_goal:
+        Focus area chosen by the player (for example "strategy" or
+        "mechanics").  When provided it is surfaced in the generated step
+        descriptions.
+    """
+
+    def __init__(
+        self,
+        metadata: Dict[str, Any],
+        difficulty: Optional[str] = None,
+        learning_goal: Optional[str] = None,
+    ) -> None:
+        self.metadata = metadata
+        self.selected_difficulty = difficulty or metadata.get("default_difficulty", "beginner")
+        self.learning_goal = learning_goal
+        super().__init__()
+
+    def _create_tutorial_steps(self) -> List[TutorialStep]:
+        """Generate tutorial steps from metadata."""
+
+        doc_path = self.metadata.get("doc_path", "docs/source/games_catalog.rst")
+        summary = self.metadata.get("summary", "Follow the official rules outlined in the documentation.")
+        objectives = list(self.metadata.get("objectives", []))
+        if not objectives:
+            objectives = [
+                "Review the rules described in the documentation.",
+                "Execute a legal move to start the game.",
+                "Finish a full round to observe scoring or end conditions.",
+            ]
+        hints = list(self.metadata.get("hints", []))
+        difficulty_notes = self.metadata.get("difficulty_notes", {})
+        learning_focus = None
+        if self.learning_goal:
+            learning_focus = self.metadata.get("learning_goals", {}).get(self.learning_goal)
+
+        steps: List[TutorialStep] = []
+        intro_hint = hints[0] if hints else None
+        intro_description = (
+            f"{summary}\n\n"
+            f"Reference: ``{doc_path}``."
+        )
+        if learning_focus:
+            intro_description += f"\n\nFocus: {learning_focus}"
+        steps.append(
+            TutorialStep(
+                title=f"Study {self.metadata.get('display_name', 'the rules')}",
+                description=intro_description,
+                hint=intro_hint,
+            )
+        )
+
+        if len(objectives) > 0:
+            hint = hints[1] if len(hints) > 1 else None
+            description = objectives[0]
+            extra = difficulty_notes.get(self.selected_difficulty)
+            if extra:
+                description += f"\n\nDifficulty focus: {extra}"
+            steps.append(
+                TutorialStep(
+                    title="Take your opening actions",
+                    description=description,
+                    hint=hint,
+                    validate=self._validate_started,
+                )
+            )
+
+        if len(objectives) > 1:
+            hint = hints[2] if len(hints) > 2 else None
+            description = objectives[1]
+            if len(objectives) > 2:
+                description += f"\n\nNext: {objectives[2]}"
+            steps.append(
+                TutorialStep(
+                    title="Play through a complete round",
+                    description=description,
+                    hint=hint,
+                    validate=self._validate_finished,
+                )
+            )
+
+        return steps
+
+    @staticmethod
+    def _validate_started(state: Any) -> bool:
+        """Check that the underlying game has started."""
+
+        get_state = getattr(state, "get_game_state", None)
+        if callable(get_state):
+            try:
+                value = get_state()
+            except Exception:  # pragma: no cover - defensive
+                return False
+            if isinstance(value, GameState):
+                return value in {GameState.IN_PROGRESS, GameState.FINISHED}
+            return value not in (None, "not_started")
+        game_state = getattr(state, "state", None)
+        if isinstance(game_state, GameState):
+            return game_state in {GameState.IN_PROGRESS, GameState.FINISHED}
+        return game_state not in (None, "not_started")
+
+    @staticmethod
+    def _validate_finished(state: Any) -> bool:
+        """Check that the underlying game has reached an end condition."""
+
+        is_over = getattr(state, "is_game_over", None)
+        if callable(is_over):
+            try:
+                if is_over():
+                    return True
+            except Exception:  # pragma: no cover - defensive
+                return False
+        get_state = getattr(state, "get_game_state", None)
+        if callable(get_state):
+            try:
+                value = get_state()
+            except Exception:  # pragma: no cover - defensive
+                return False
+            if isinstance(value, GameState):
+                return value is GameState.FINISHED
+            return value in {"finished", "complete"}
+        return False
 
 
 @dataclass
