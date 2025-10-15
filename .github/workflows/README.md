@@ -15,6 +15,15 @@ Combined workflow that runs all quality checks:
 
 This is the primary workflow that should pass before merging pull requests.
 
+#### `docs-build.yml` - Documentation Build
+
+Ensures the Sphinx documentation remains buildable:
+
+- Runs on pushes to `main`/`master` and all pull requests
+- Builds docs with the supported Python versions (3.11 and 3.12)
+- Installs dependencies from `docs/requirements.txt`
+- Uploads the generated HTML as an artifact and records the result in the job summary
+
 #### `codeql.yml` - Security Analysis
 
 Analyzes code for security vulnerabilities and coding errors. Runs:
