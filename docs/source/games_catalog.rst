@@ -4,7 +4,7 @@ Games Catalogue
 The collection currently ships with more than forty playable games. The lists
 below group them by package. Each name links to the corresponding Python module.
 
-Card games (15)
+Card games (16)
 ---------------
 
 - :mod:`card_games.blackjack`
@@ -17,6 +17,7 @@ Card games (15)
 - :mod:`card_games.go_fish`
 - :mod:`card_games.hearts`
 - :mod:`card_games.poker`
+- :mod:`card_games.pinochle`
 - :mod:`card_games.rummy500`
 - :mod:`card_games.solitaire`
 - :mod:`card_games.spades`

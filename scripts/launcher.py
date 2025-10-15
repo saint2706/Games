@@ -69,6 +69,7 @@ GAME_MAP: dict[str, tuple[str, Callable[[], None]]] = {
     "30": ("wordle", lambda: __import__("word_games.wordle.__main__", fromlist=["main"]).main()),
     "31": ("mastermind", lambda: __import__("logic_games.mastermind.__main__", fromlist=["main"]).main()),
     "32": ("codebreaker", lambda: __import__("logic_games.codebreaker.__main__", fromlist=["main"]).main()),
+    "33": ("pinochle", lambda: __import__("card_games.pinochle.__main__", fromlist=["main"]).main()),
 }
 
 SLUG_TO_ENTRY = {value[0]: value for value in GAME_MAP.values()}

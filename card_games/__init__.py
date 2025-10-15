@@ -12,4 +12,10 @@ Each game can be run as a standalone application from the command line.
 
 # Export the subpackages so ``import card_games`` presents the available games
 # in a discoverable list.
-__all__ = ["poker", "bluff", "uno", "blackjack"]
+__all__ = [
+    "poker",
+    "bluff",
+    "uno",
+    "blackjack",
+    "pinochle",
+]
