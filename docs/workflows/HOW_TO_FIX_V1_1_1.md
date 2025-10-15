@@ -4,7 +4,7 @@
 
 The v1.1.1 release failed to publish to PyPI because the git tag v1.1.1 points to code that has version 1.0.1, not 1.1.1. PyPI already has version 1.0.1, so it rejected the duplicate upload.
 
----
+______________________________________________________________________
 
 ## Current State
 
@@ -14,7 +14,7 @@ The v1.1.1 release failed to publish to PyPI because the git tag v1.1.1 points t
 - ✅ **Master branch has version 1.1.0** - Latest development version
 - ❌ **v1.1.1 never published to PyPI** - Need to fix and republish
 
----
+______________________________________________________________________
 
 ## Recommended Fix: Option A (Clean Slate)
 
@@ -36,10 +36,10 @@ git tag -d v1.1.1
 The easiest way is to use the built-in automation:
 
 1. Go to: **Actions** → **Publish to PyPI** → **Run workflow**
-2. Configure:
+1. Configure:
    - **Branch:** master
    - **Bump version:** minor (this will bump 1.1.0 → 1.1.1)
-3. Click **Run workflow**
+1. Click **Run workflow**
 
 The workflow will:
 
@@ -52,10 +52,10 @@ The workflow will:
 ### Step 3: Verify
 
 1. Check workflow completes successfully
-2. Verify release appears on GitHub: https://github.com/saint2706/Games/releases/tag/v1.1.1
-3. Verify package on PyPI: https://pypi.org/project/games-collection/1.1.1/
+1. Verify release appears on GitHub: https://github.com/saint2706/Games/releases/tag/v1.1.1
+1. Verify package on PyPI: https://pypi.org/project/games-collection/1.1.1/
 
----
+______________________________________________________________________
 
 ## Alternative Fix: Option B (Move to v1.1.2)
 
@@ -68,10 +68,10 @@ The v1.1.1 release remains as-is (you can edit the description to mark it as fai
 ### Step 2: Create v1.1.2
 
 1. Go to: **Actions** → **Publish to PyPI** → **Run workflow**
-2. Configure:
+1. Configure:
    - **Branch:** master
    - **Bump version:** patch (1.1.0 → 1.1.1 → 1.1.2, but workflow handles this)
-3. Click **Run workflow**
+1. Click **Run workflow**
 
 **Note:** You may need to manually update to 1.1.2:
 
@@ -85,7 +85,7 @@ git push
 
 Then use the workflow with branch master and it will create v1.1.2.
 
----
+______________________________________________________________________
 
 ## What's Been Fixed for the Future
 
@@ -147,17 +147,17 @@ New guides created:
 - **[PYPI_PUBLISHING_GUIDE.md](../development/PYPI_PUBLISHING_GUIDE.md)** - Complete guide to proper releases
 - **[PYPI_PUBLISH_DEBUG_RUN_18520989869.md](PYPI_PUBLISH_DEBUG_RUN_18520989869.md)** - Detailed analysis of this failure
 
----
+______________________________________________________________________
 
 ## Key Lessons
 
 1. ✅ **Always use the automated workflow** for version bumps and releases
-2. ✅ **Never create tags manually** - Let the workflow do it
-3. ✅ **Version consistency is critical** - Tag name must match code version
-4. ✅ **PyPI versions are permanent** - Can't overwrite or delete
-5. ✅ **Validation catches errors early** - Before wasting time on builds
+1. ✅ **Never create tags manually** - Let the workflow do it
+1. ✅ **Version consistency is critical** - Tag name must match code version
+1. ✅ **PyPI versions are permanent** - Can't overwrite or delete
+1. ✅ **Validation catches errors early** - Before wasting time on builds
 
----
+______________________________________________________________________
 
 ## Testing Your Fix
 
@@ -180,7 +180,7 @@ deactivate
 rm -rf test-env
 ```
 
----
+______________________________________________________________________
 
 ## Need Help?
 
@@ -188,7 +188,7 @@ rm -rf test-env
 - **Full Debug Report:** [PYPI_PUBLISH_DEBUG_RUN_18520989869.md](PYPI_PUBLISH_DEBUG_RUN_18520989869.md)
 - **Version Checker:** `python scripts/check_version_consistency.py --help`
 
----
+______________________________________________________________________
 
 ## Quick Commands Reference
 
@@ -209,9 +209,9 @@ sed -i 's/__version__ = "OLD"/__version__ = "NEW"/' scripts/__init__.py
 python scripts/check_version_consistency.py --tag vNEW
 ```
 
----
+______________________________________________________________________
 
-**Status:** Issue identified and fixed ✅  
-**Prevention:** Validation added to workflow ✅  
-**Documentation:** Complete ✅  
+**Status:** Issue identified and fixed ✅\
+**Prevention:** Validation added to workflow ✅\
+**Documentation:** Complete ✅\
 **Action Required:** Choose Option A or B above to complete the fix

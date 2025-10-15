@@ -2,7 +2,7 @@
 
 This guide explains how to properly publish releases to PyPI using the automated workflow.
 
----
+______________________________________________________________________
 
 ## Table of Contents
 
@@ -15,18 +15,18 @@ This guide explains how to properly publish releases to PyPI using the automated
 - [Troubleshooting](#troubleshooting)
 - [Common Mistakes](#common-mistakes)
 
----
+______________________________________________________________________
 
 ## Overview
 
 The `publish-pypi.yml` workflow automates the entire release process:
 
 1. **Version Bumping:** Automatically increments version numbers
-2. **Validation:** Ensures version consistency across files
-3. **Building:** Creates distribution packages (wheel and sdist)
-4. **Testing:** Runs smoke tests on built packages
-5. **Publishing:** Uploads to PyPI using trusted publishing (OIDC)
-6. **Signing:** Signs packages with Sigstore and uploads to GitHub Release
+1. **Validation:** Ensures version consistency across files
+1. **Building:** Creates distribution packages (wheel and sdist)
+1. **Testing:** Runs smoke tests on built packages
+1. **Publishing:** Uploads to PyPI using trusted publishing (OIDC)
+1. **Signing:** Signs packages with Sigstore and uploads to GitHub Release
 
 **Key Features:**
 
@@ -36,23 +36,23 @@ The `publish-pypi.yml` workflow automates the entire release process:
 - ✅ No secrets required (uses OIDC)
 - ✅ Cryptographic signing with Sigstore
 
----
+______________________________________________________________________
 
 ## Prerequisites
 
 ### For Publishing
 
 1. **PyPI Account:** Configured with trusted publishing
-2. **GitHub Environment:** `pypi` environment configured in repository settings
-3. **Permissions:** Write access to the repository
+1. **GitHub Environment:** `pypi` environment configured in repository settings
+1. **Permissions:** Write access to the repository
 
 ### For Development
 
 1. **Python 3.9+:** Installed locally
-2. **Git:** Configured with your GitHub account
-3. **Repository Clone:** Fresh clone of the repository
+1. **Git:** Configured with your GitHub account
+1. **Repository Clone:** Fresh clone of the repository
 
----
+______________________________________________________________________
 
 ## Publishing Process
 
@@ -61,17 +61,20 @@ The `publish-pypi.yml` workflow automates the entire release process:
 Use the workflow's built-in version bumping:
 
 1. **Go to GitHub Actions:**
+
    - Navigate to: `Actions` > `Publish to PyPI`
    - Click: `Run workflow`
 
-2. **Configure the Run:**
+1. **Configure the Run:**
+
    - **Branch:** Select `master` (or `main`)
    - **Bump Version:** Choose version increment:
      - `patch` → 1.0.0 → 1.0.1 (bug fixes)
      - `minor` → 1.0.0 → 1.1.0 (new features, backwards compatible)
      - `major` → 1.0.0 → 2.0.0 (breaking changes)
 
-3. **Start Workflow:**
+1. **Start Workflow:**
+
    - Click `Run workflow` button
    - Workflow will:
      - ✅ Bump version in `pyproject.toml` and `scripts/__init__.py`
@@ -80,7 +83,8 @@ Use the workflow's built-in version bumping:
      - ✅ Create a GitHub Release
      - ✅ Trigger build and publish automatically
 
-4. **Monitor Progress:**
+1. **Monitor Progress:**
+
    - Watch the workflow execution
    - Check for any errors
    - Verify release appears on PyPI
@@ -114,7 +118,7 @@ gh release create v1.0.1 --title "v1.0.1" --notes "Release notes here"
 # Workflow will automatically build and publish to PyPI
 ```
 
----
+______________________________________________________________________
 
 ## Workflow Details
 
@@ -139,10 +143,10 @@ graph LR
 **Steps:**
 
 1. Checkout repository
-2. Bump version using `scripts/bump_version.py`
-3. Commit version changes
-4. Create and push git tag
-5. Create GitHub Release
+1. Bump version using `scripts/bump_version.py`
+1. Commit version changes
+1. Create and push git tag
+1. Create GitHub Release
 
 **Output:** Triggers a new release event, starting the publish pipeline
 
@@ -171,10 +175,10 @@ graph LR
 **Steps:**
 
 1. Checkout repository
-2. Install build dependencies
-3. Build packages: `python -m build`
-4. Run smoke tests on built wheel
-5. Upload artifacts
+1. Install build dependencies
+1. Build packages: `python -m build`
+1. Run smoke tests on built wheel
+1. Upload artifacts
 
 **Output:**
 
@@ -194,7 +198,7 @@ graph LR
 **Steps:**
 
 1. Download build artifacts
-2. Publish to PyPI using `pypa/gh-action-pypi-publish`
+1. Publish to PyPI using `pypa/gh-action-pypi-publish`
 
 **On Failure:** Common causes:
 
@@ -211,11 +215,11 @@ graph LR
 **Steps:**
 
 1. Download build artifacts
-2. Check for existing release assets
-3. Sign packages with Sigstore
-4. Upload signed packages to GitHub Release
+1. Check for existing release assets
+1. Sign packages with Sigstore
+1. Upload signed packages to GitHub Release
 
----
+______________________________________________________________________
 
 ## Version Management
 
@@ -224,12 +228,14 @@ graph LR
 Two files must be kept in sync:
 
 1. **pyproject.toml:**
+
    ```toml
    [project]
    version = "1.0.1"
    ```
 
-2. **scripts/\_\_init\_\_.py:**
+1. **scripts/\_\_init\_\_.py:**
+
    ```python
    __version__ = "1.0.1"
    ```
@@ -264,7 +270,7 @@ sed -i 's/__version__ = ".*"/__version__ = "1.2.3"/' scripts/__init__.py
 python scripts/check_version_consistency.py
 ```
 
----
+______________________________________________________________________
 
 ## Validation
 
@@ -312,7 +318,7 @@ The workflow automatically validates versions on every release:
 - Prevents mismatched versions from being published
 - Provides clear error messages in workflow logs
 
----
+______________________________________________________________________
 
 ## Troubleshooting
 
@@ -330,12 +336,13 @@ File already exists ('games_collection-1.0.1-py3-none-any.whl', ...)
 **Solutions:**
 
 1. **Bump to new version:**
+
    ```bash
    # Use workflow to bump to 1.0.2
    # Or manually bump and re-release
    ```
 
-2. **Don't reuse version numbers** - PyPI prevents this for security
+1. **Don't reuse version numbers** - PyPI prevents this for security
 
 **Prevention:** Use the automated workflow to avoid version conflicts
 
@@ -353,6 +360,7 @@ File already exists ('games_collection-1.0.1-py3-none-any.whl', ...)
 **Solutions:**
 
 1. **Delete and recreate tag:**
+
    ```bash
    git tag -d v1.1.1
    git push --delete origin v1.1.1
@@ -360,7 +368,8 @@ File already exists ('games_collection-1.0.1-py3-none-any.whl', ...)
    # Create new tag
    ```
 
-2. **Use correct workflow:**
+1. **Use correct workflow:**
+
    - Use workflow_dispatch to bump version
    - Don't create tags manually
 
@@ -375,8 +384,8 @@ File already exists ('games_collection-1.0.1-py3-none-any.whl', ...)
 **Solution:**
 
 1. Check validation job logs
-2. Fix version mismatches
-3. Re-run workflow or recreate release
+1. Fix version mismatches
+1. Re-run workflow or recreate release
 
 ### Issue: PyPI trusted publishing fails
 
@@ -391,10 +400,10 @@ Error: PyPI trusted publishing authentication failed
 **Solution:**
 
 1. Go to PyPI.org > Account Settings > Publishing
-2. Add GitHub repository with environment name `pypi`
-3. Re-run workflow
+1. Add GitHub repository with environment name `pypi`
+1. Re-run workflow
 
----
+______________________________________________________________________
 
 ## Common Mistakes
 
@@ -441,7 +450,7 @@ sed -i 's/version = "1.0.0"/version = "1.0.1"/' pyproject.toml
 
 **Right:** Always bump to a new version
 
----
+______________________________________________________________________
 
 ## Quick Reference
 
@@ -485,7 +494,7 @@ git push --delete origin v1.0.1
 git tag -d v1.0.1
 ```
 
----
+______________________________________________________________________
 
 ## Related Documentation
 
@@ -496,19 +505,19 @@ git tag -d v1.0.1
 - [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/)
 - [Semantic Versioning](https://semver.org/)
 
----
+______________________________________________________________________
 
 ## Best Practices
 
 1. ✅ **Always use automated workflow** for version bumps and releases
-2. ✅ **Validate locally** before creating releases
-3. ✅ **Follow semantic versioning** for version numbers
-4. ✅ **Write clear release notes** describing changes
-5. ✅ **Test in a Python virtual environment** after publishing
-6. ✅ **Monitor workflow execution** for any errors
-7. ✅ **Document breaking changes** in CHANGELOG.md
+1. ✅ **Validate locally** before creating releases
+1. ✅ **Follow semantic versioning** for version numbers
+1. ✅ **Write clear release notes** describing changes
+1. ✅ **Test in a Python virtual environment** after publishing
+1. ✅ **Monitor workflow execution** for any errors
+1. ✅ **Document breaking changes** in CHANGELOG.md
 
----
+______________________________________________________________________
 
-**Last Updated:** 2025-10-15  
+**Last Updated:** 2025-10-15\
 **Workflow Version:** publish-pypi.yml v2 (with validation)
