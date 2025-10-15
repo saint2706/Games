@@ -324,6 +324,25 @@ def test_create_release_uses_git_tag():
     assert "GITHUB_RUN_NUMBER" not in run_script, "Should not use GITHUB_RUN_NUMBER for release tags"
 
 
+def test_workflows_define_concurrency():
+    """Ensure every workflow uses a concurrency group that cancels in-progress runs."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_dir = REPO_ROOT / ".github" / "workflows"
+    for workflow_file in workflow_dir.glob("*.yml"):
+        with open(workflow_file) as f:
+            workflow = yaml.safe_load(f)
+
+        assert "concurrency" in workflow, f"{workflow_file.name} should define concurrency"
+        concurrency = workflow["concurrency"]
+        assert isinstance(concurrency, dict), f"{workflow_file.name} concurrency must be a mapping"
+        assert concurrency.get("group"), f"{workflow_file.name} concurrency must define a group"
+        assert (
+            concurrency.get("cancel-in-progress") is True
+        ), f"{workflow_file.name} should cancel in-progress runs"
+
+
 def test_publish_pypi_has_bump_and_release_job():
     """Test that publish-pypi workflow has bump-and-release job."""
     if yaml is None:
