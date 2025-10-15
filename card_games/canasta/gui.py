@@ -225,7 +225,8 @@ class CanastaGUI(BaseGUI):
         if not selection:
             self.status_var.set("Select cards to meld.")
             return
-        cards = [self.human_player.hand[index] for index in selection]
+        indices = [int(index) for index in selection]
+        cards = [self.human_player.hand[index] for index in indices]
         try:
             meld = self.game.add_meld(self.human_player, cards)
         except MeldError as exc:
@@ -246,7 +247,8 @@ class CanastaGUI(BaseGUI):
         if not selection:
             self.status_var.set("Select a card to discard.")
             return
-        card = self.human_player.hand[selection[0]]
+        card_index = int(selection[0])
+        card = self.human_player.hand[card_index]
         self.game.discard(self.human_player, card)
         self.status_var.set(f"Discarded {card}.")
         self.log_message(self.log_widget, f"Player discarded {card}.")

@@ -214,6 +214,10 @@ def validate_meld(cards: Sequence[CanastaCard], *, existing: Optional[Meld] = No
     if combined_naturals < 2 and existing is None:
         return MeldValidation(False, "A new meld must contain at least two natural cards.")
 
+    total_cards = combined_naturals + combined_wilds
+    if existing is None and total_cards < 3:
+        return MeldValidation(False, "A new meld must contain at least three cards.")
+
     if combined_wilds > combined_naturals:
         return MeldValidation(False, "Wild cards may not outnumber natural cards in a meld.")
 
