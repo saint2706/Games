@@ -2,6 +2,41 @@
 
 This document describes how to release the games-collection package to PyPI.
 
+## Quick Start: Releasing v1.2.1
+
+Version 1.2.1 is already set in both `pyproject.toml` and `scripts/__init__.py`. To release it:
+
+1. **Create GitHub Release** (recommended):
+   - Go to https://github.com/saint2706/Games/releases/new
+   - Tag: `v1.2.1`
+   - Title: `v1.2.1`
+   - Add release notes describing changes
+   - Click "Publish release"
+   
+2. **Automated Process**: Two workflows will automatically run:
+   - ✅ `publish-pypi.yml`: Publishes to PyPI and uploads wheel/sdist
+   - ✅ `build-executables.yml`: Builds and uploads executables for Linux, Windows, macOS
+   
+3. **Verify**: Check that the release has all artifacts:
+   - Distribution packages (.whl, .tar.gz)
+   - Executables (games-collection for each platform)
+   - Signatures (.sigstore files)
+
+---
+
+## Workflow Coordination
+
+As of v1.2.1, the release process is fully coordinated between two GitHub Actions workflows:
+
+- **`publish-pypi.yml`**: Handles PyPI publishing, package signing, and uploading distribution packages
+- **`build-executables.yml`**: Handles building standalone executables for all platforms and uploading them
+
+Both workflows trigger on the same release event, ensuring that:
+✅ When you create a release (manually or via automated workflow), both workflows run automatically
+✅ Executables are built and added to the GitHub Release
+✅ The package is published to PyPI
+✅ All artifacts (executables, wheels, source distributions) are in one release
+
 ## Prerequisites
 
 ### 1. PyPI Account and Trusted Publishing
@@ -63,10 +98,16 @@ The workflow now includes automated version bumping. To create a new release:
    - Commits the version change
    - Creates and pushes a git tag (e.g., `v1.0.2`)
    - Creates a GitHub Release
-   - Builds distribution packages (wheel and source distribution)
-   - Publishes to PyPI using trusted publishing
-   - Signs packages with Sigstore
-   - Uploads signed packages to the GitHub Release
+   - **PyPI Publishing** (`publish-pypi.yml`):
+     - Validates version consistency
+     - Builds distribution packages (wheel and source distribution)
+     - Publishes to PyPI using trusted publishing
+     - Signs packages with Sigstore
+     - Uploads signed packages to the GitHub Release
+   - **Executable Building** (`build-executables.yml`):
+     - Builds standalone executables for Linux, Windows, and macOS
+     - Runs cross-platform tests
+     - Uploads executables to the GitHub Release
 
 ### Option 2: Manual Release Process
 
@@ -88,10 +129,16 @@ If you prefer to bump the version manually:
    - Add release notes from CHANGELOG.md
    - Click "Publish release"
 1. **Automated Publishing**: GitHub Actions automatically:
-   - Builds distribution packages (wheel and source distribution)
-   - Publishes to PyPI using trusted publishing
-   - Signs packages with Sigstore
-   - Uploads signed packages to the GitHub Release
+   - **PyPI Publishing** (`publish-pypi.yml`):
+     - Validates version consistency
+     - Builds distribution packages (wheel and source distribution)
+     - Publishes to PyPI using trusted publishing
+     - Signs packages with Sigstore
+     - Uploads signed packages to the GitHub Release
+   - **Executable Building** (`build-executables.yml`):
+     - Builds standalone executables for Linux, Windows, and macOS
+     - Runs cross-platform tests
+     - Uploads executables to the GitHub Release
 
 ## Manual Testing (Local Build)
 

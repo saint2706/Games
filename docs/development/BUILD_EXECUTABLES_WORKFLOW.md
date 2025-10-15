@@ -2,8 +2,16 @@
 
 ## Overview
 
-The `build-executables.yml` workflow builds standalone executables for the Games collection on multiple platforms and
-creates GitHub releases when version tags are pushed.
+The `build-executables.yml` workflow builds standalone executables for the Games collection on multiple platforms and uploads them to GitHub releases.
+
+**Triggers:**
+- Push to `master`/`main` branches (builds only, no release)
+- Push to tags matching `v*` (builds and creates/updates release)
+- **Release events** (when a release is published - coordinates with `publish-pypi.yml`)
+- Pull requests (builds for validation)
+- Manual workflow dispatch
+
+**Coordination:** As of v1.2.1, this workflow triggers on release events alongside `publish-pypi.yml`, ensuring that executables are automatically added to releases when the package is published to PyPI.
 
 ## Workflow Jobs
 
