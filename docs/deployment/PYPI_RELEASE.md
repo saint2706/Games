@@ -39,13 +39,45 @@ The workflow requires a GitHub environment named `pypi` to be configured:
 
 ## Automated Release Process
 
-The package is automatically published to PyPI when a GitHub Release is created:
+### Option 1: Automated Version Bump (Recommended)
+
+The workflow now includes automated version bumping. To create a new release:
+
+1. **Update Changelog**: Document your changes in `CHANGELOG.md`
+1. **Commit and Push**:
+   ```bash
+   git add CHANGELOG.md
+   git commit -m "docs: update changelog for next release"
+   git push
+   ```
+1. **Trigger Workflow**: Go to [Actions > Publish to PyPI](https://github.com/saint2706/Games/actions/workflows/publish-pypi.yml)
+   - Click "Run workflow"
+   - Select branch: `master`
+   - Choose version bump type:
+     - `patch` (1.0.1 → 1.0.2) - Bug fixes
+     - `minor` (1.0.1 → 1.1.0) - New features
+     - `major` (1.0.1 → 2.0.0) - Breaking changes
+   - Click "Run workflow"
+1. **Automated Process**: GitHub Actions automatically:
+   - Bumps version in `pyproject.toml` and `scripts/__init__.py`
+   - Commits the version change
+   - Creates and pushes a git tag (e.g., `v1.0.2`)
+   - Creates a GitHub Release
+   - Builds distribution packages (wheel and source distribution)
+   - Publishes to PyPI using trusted publishing
+   - Signs packages with Sigstore
+   - Uploads signed packages to the GitHub Release
+
+### Option 2: Manual Release Process
+
+If you prefer to bump the version manually:
 
 1. **Update Version**: Edit `version` in `pyproject.toml` (e.g., `"1.0.1"`)
+1. **Update Scripts Version**: Edit `__version__` in `scripts/__init__.py` to match
 1. **Update Changelog**: Document changes in `CHANGELOG.md`
 1. **Commit and Push**:
    ```bash
-   git add pyproject.toml CHANGELOG.md
+   git add pyproject.toml scripts/__init__.py CHANGELOG.md
    git commit -m "chore: bump version to 1.0.1"
    git push
    ```
@@ -178,8 +210,22 @@ If the `build` job succeeds but `publish-to-pypi` and `github-release` jobs are 
 ### Package Version Already Exists
 
 - PyPI does not allow overwriting existing versions
-- Bump the version number and create a new release
-- For fixes, create a patch version (e.g., 1.0.1 → 1.0.2)
+- The workflow now checks for existing release assets and will fail with a clear error message
+- To fix:
+  1. Delete the existing release and tag: `git tag -d v1.0.1 && git push origin :refs/tags/v1.0.1`
+  2. Run the automated version bump workflow again
+  3. Or manually bump to a new version (e.g., 1.0.1 → 1.0.2)
+
+### Release Assets Already Exist
+
+If you see an error like "The following assets already exist in release":
+
+- The workflow automatically checks for existing assets before upload
+- This prevents accidental overwrites and version conflicts
+- To fix:
+  1. Delete the existing release: `gh release delete v1.0.1 --yes`
+  2. Delete the tag: `git tag -d v1.0.1 && git push origin :refs/tags/v1.0.1`
+  3. Run the automated version bump workflow again with a higher version
 
 ## Version Numbering
 
