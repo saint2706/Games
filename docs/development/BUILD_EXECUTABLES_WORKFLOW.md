@@ -21,12 +21,14 @@ creates GitHub releases when version tags are pushed.
 1. Set up Python
 1. Install dependencies
 1. Build with PyInstaller
+1. Validate executable exists
 1. Test executable (platform-specific)
 1. Upload artifacts
 
 **Notes:**
 
 - Dependencies now install the GUI extra (`pip install -e ".[gui]"`) so PyQt5 and Qt plugins are available before running PyInstaller.
+- The validation step ensures the expected executable (`dist/games-collection.exe` on Windows, `dist/games-collection` on Linux/macOS) exists before proceeding. If the file is missing, the job fails with a clear error message.
 - The smoke test launches a headless PyQt5 GUI using `./dist/games-collection --game dots_and_boxes --gui-framework pyqt5 --smoke-test` (with `QT_QPA_PLATFORM=offscreen`) to confirm Qt resources are bundled.
 
 **Artifacts:**
