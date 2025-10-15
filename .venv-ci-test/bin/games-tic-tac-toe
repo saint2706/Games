@@ -1,7 +1,0 @@
-#!/home/runner/work/Games/Games/.venv-ci-test/bin/python
-import sys
-from paper_games.tic_tac_toe.tic_tac_toe import main
-if __name__ == '__main__':
-    if sys.argv[0].endswith('.exe'):
-        sys.argv[0] = sys.argv[0][:-4]
-    sys.exit(main())
