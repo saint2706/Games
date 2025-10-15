@@ -47,8 +47,15 @@ perform an editable install:
 ```bash
 git clone https://github.com/saint2706/Games.git
 cd Games
+git lfs install
+git lfs pull
 pip install -e .[dev]
 ```
+
+> **Note:** The repository vendors high-resolution playing-card artwork via
+> [Git LFS](https://git-lfs.com/). Running `git lfs install` once per machine
+> and `git lfs pull` after cloning ensures the cached PNG assets are available
+> for the graphical interfaces.
 
 ## Running games
 

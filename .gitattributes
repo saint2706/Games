@@ -1,0 +1,1 @@
+card_games/common/assets/svg_cards/1x/*.png filter=lfs diff=lfs merge=lfs -text

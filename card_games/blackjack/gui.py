@@ -18,16 +18,16 @@ from __future__ import annotations
 import tkinter as tk
 from typing import Optional
 
+from common.gui_base import BaseGUI, GUIConfig
+from card_games.common.soundscapes import initialize_game_soundscape
+from card_games.common.card_images import CardImageRepository
+
 from card_games.blackjack.game import BlackjackGame, BlackjackHand, Outcome
-from card_games.common.cards import Card, Suit
+from card_games.common.cards import Card
 
 # Color palette for the UI
 _TABLE_GREEN = "#0b5d1e"
 _TABLE_ACCENT = "#145c2a"
-_CARD_BORDER = "#f5f5f5"
-_CARD_FACE = "#ffffff"
-_CARD_BACK = "#1e3a5f"
-_CARD_BACK_ACCENT = "#f7b733"
 _TEXT_PRIMARY = "#f2f2f2"
 _TEXT_MUTED = "#c8e6c9"
 _TEXT_ALERT = "#ffdf6b"
@@ -38,11 +38,12 @@ _ACTION_BG = "#16532a"
 _HIGHLIGHT = "#22a45d"
 
 # Dimensions for card rendering
-_CARD_WIDTH = 90
+_BASE_CARD_WIDTH, _BASE_CARD_HEIGHT = CardImageRepository.base_dimensions()
 _CARD_HEIGHT = 130
+_CARD_WIDTH = int(round(_BASE_CARD_WIDTH * (_CARD_HEIGHT / _BASE_CARD_HEIGHT)))
 
 
-class BlackjackApp(tk.Tk):
+class BlackjackApp(tk.Tk, BaseGUI):
     """A complete Blackjack table application rendered with Tkinter.
 
     This class encapsulates the main window, game state, and all UI widgets.
@@ -50,13 +51,33 @@ class BlackjackApp(tk.Tk):
 
     def __init__(
         self,
-        *,
         bankroll: int = 500,
         min_bet: int = 10,
         decks: int = 6,
         rng=None,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
     ) -> None:
-        super().__init__()
+        tk.Tk.__init__(self)
+        gui_config = config or GUIConfig(
+            window_title="Blackjack Table",
+            window_width=1280,
+            window_height=800,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+            theme_name="dark",
+        )
+        BaseGUI.__init__(self, self, gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "blackjack",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
+        self.card_images = CardImageRepository()
+        self.theme_manager.set_current_theme(gui_config.theme_name)
+        self.current_theme = self.theme_manager.get_current_theme()
         self.title("Blackjack Table")
         self.configure(bg=_TABLE_GREEN)
         self.resizable(False, False)
@@ -220,6 +241,12 @@ class BlackjackApp(tk.Tk):
         if not self.game.can_continue():
             self.bet_var.set(self.game.player.bankroll)
 
+    def _set_message(self, text: str, *, highlight_color: str = _TEXT_ALERT) -> None:
+        """Update the footer message label with optional animation."""
+
+        self.message_var.set(text)
+        self.animate_highlight(self.message_label, highlight_color=highlight_color)
+
     def _render_table(self) -> None:
         """Clear and re-render the entire table, including all hands and cards."""
         # Clear existing card widgets
@@ -300,91 +327,15 @@ class BlackjackApp(tk.Tk):
             hidden = hide_hole and idx == 1
             widget = self._card_widget(parent, card, hidden=hidden)
             widget.pack(side="left", padx=6)
+            if not hidden and idx == len(cards) - 1:
+                self.animate_highlight(widget, highlight_color=_HIGHLIGHT)
 
-    def _card_widget(self, parent: tk.Widget, card: Card, *, hidden: bool) -> tk.Canvas:
+    def _card_widget(self, parent: tk.Widget, card: Card, *, hidden: bool) -> tk.Widget:
         """Create a canvas widget representing a single playing card."""
-        canvas = tk.Canvas(
-            parent,
-            width=_CARD_WIDTH,
-            height=_CARD_HEIGHT,
-            bg=_ACTION_BG,
-            highlightthickness=0,
-        )
-
-        if hidden:
-            # Render the back of a card
-            canvas.create_rectangle(
-                6,
-                6,
-                _CARD_WIDTH - 6,
-                _CARD_HEIGHT - 6,
-                outline=_CARD_BORDER,
-                width=3,
-                fill=_CARD_BACK,
-            )
-            canvas.create_line(
-                10,
-                10,
-                _CARD_WIDTH - 10,
-                _CARD_HEIGHT - 10,
-                fill=_CARD_BACK_ACCENT,
-                width=3,
-            )
-            canvas.create_line(
-                10,
-                _CARD_HEIGHT - 10,
-                _CARD_WIDTH - 10,
-                10,
-                fill=_CARD_BACK_ACCENT,
-                width=3,
-            )
-            canvas.create_text(
-                _CARD_WIDTH / 2,
-                _CARD_HEIGHT / 2,
-                text="★",
-                font=("Segoe UI", 30),
-                fill=_TEXT_PRIMARY,
-            )
-        else:
-            # Render the face of a card
-            suit = card.suit
-            rank_display = "10" if card.rank == "T" else card.rank
-            suit_color = "#d32f2f" if suit in (Suit.HEARTS, Suit.DIAMONDS) else "#1c1c1c"
-
-            canvas.create_rectangle(
-                6,
-                6,
-                _CARD_WIDTH - 6,
-                _CARD_HEIGHT - 6,
-                outline=_CARD_BORDER,
-                width=3,
-                fill=_CARD_FACE,
-            )
-            canvas.create_text(
-                16,
-                20,
-                text=rank_display,
-                fill=suit_color,
-                font=("Segoe UI", 18, "bold"),
-                anchor="nw",
-            )
-            canvas.create_text(
-                _CARD_WIDTH - 16,
-                _CARD_HEIGHT - 20,
-                text=rank_display,
-                fill=suit_color,
-                font=("Segoe UI", 18, "bold"),
-                anchor="se",
-            )
-            canvas.create_text(
-                _CARD_WIDTH / 2,
-                _CARD_HEIGHT / 2,
-                text=suit.value,
-                fill=suit_color,
-                font=("Segoe UI Symbol", 32),
-            )
-
-        return canvas
+        image = self.card_images.get_tk_image(card if not hidden else None, height=_CARD_HEIGHT, hidden=hidden)
+        widget = tk.Label(parent, image=image, bg=_ACTION_BG, bd=0, highlightthickness=0)
+        widget.image = image
+        return widget
 
     def _update_buttons(self) -> None:
         """Enable or disable action buttons based on the current game state."""
@@ -453,7 +404,7 @@ class BlackjackApp(tk.Tk):
             self.round_complete = False
 
         if not self.game.can_continue():
-            self.message_var.set("Insufficient bankroll to place the minimum bet.")
+            self._set_message("Insufficient bankroll to place the minimum bet.")
             return
 
         # Place the bet and start the round in the game engine
@@ -464,14 +415,14 @@ class BlackjackApp(tk.Tk):
         try:
             self.game.start_round(bet)
         except ValueError as exc:
-            self.message_var.set(str(exc))
+            self._set_message(str(exc))
             return
 
         # Update UI state for the new round
         self.round_active = True
         self.dealer_hidden = True
         self.current_hand_index = 0
-        self.message_var.set("Cards dealt. Make your move!")
+        self._set_message("Cards dealt. Make your move!")
 
         # Refresh the display
         self._refresh_labels()
@@ -482,7 +433,7 @@ class BlackjackApp(tk.Tk):
         player_hand = self.game.player.hands[0]
         if self.game.dealer_hand.is_blackjack() or player_hand.is_blackjack():
             self.dealer_hidden = False
-            self.message_var.set("Blackjack! Checking dealer's hand...")
+            self._set_message("Blackjack! Checking dealer's hand...")
             self._render_table()
             self.after(800, self.finish_round)
             return
@@ -499,16 +450,16 @@ class BlackjackApp(tk.Tk):
             return
 
         card = self.game.hit(hand)
-        self.message_var.set(f"Hit: drew {card}.")
+        self._set_message(f"Hit: drew {card}.")
         self._render_table()
 
         if hand.is_bust():
             hand.stood = True
-            self.message_var.set("Bust! Hand is out of play.")
+            self._set_message("Bust! Hand is out of play.")
             self.after(500, self._advance_hand)
         elif hand.best_total() == 21:
             hand.stood = True
-            self.message_var.set("21! Standing automatically.")
+            self._set_message("21! Standing automatically.")
             self.after(500, self._advance_hand)
         else:
             self._update_buttons()
@@ -520,7 +471,7 @@ class BlackjackApp(tk.Tk):
             return
 
         self.game.stand(hand)
-        self.message_var.set("Stand. Moving to next hand or dealer's turn.")
+        self._set_message("Stand. Moving to next hand or dealer's turn.")
         self._render_table()
         self.after(400, self._advance_hand)
 
@@ -533,10 +484,10 @@ class BlackjackApp(tk.Tk):
         try:
             card = self.game.double_down(hand)
         except ValueError as exc:
-            self.message_var.set(str(exc))
+            self._set_message(str(exc))
             return
 
-        self.message_var.set(f"Double down! Drew {card}, standing on {hand.best_total()}.")
+        self._set_message(f"Double down! Drew {card}, standing on {hand.best_total()}.")
         self._refresh_labels()
         self._render_table()
         self.after(500, self._advance_hand)
@@ -550,10 +501,10 @@ class BlackjackApp(tk.Tk):
         try:
             self.game.split(hand)
         except ValueError as exc:
-            self.message_var.set(str(exc))
+            self._set_message(str(exc))
             return
 
-        self.message_var.set("Split successful — play each hand in turn.")
+        self._set_message("Split successful — play each hand in turn.")
         self._refresh_labels()
         self._render_table()
         self._update_buttons()
@@ -601,13 +552,13 @@ class BlackjackApp(tk.Tk):
         # Dealer hits on 16 or less, and soft 17
         if hand.best_total() < 17 or (hand.best_total() == 17 and hand.is_soft()):
             card = self.game.hit(hand)
-            self.message_var.set(f"Dealer draws {card}.")
+            self._set_message(f"Dealer draws {card}.")
             self._render_table()
             self._dealer_job = self.after(700, self._dealer_draw_step)
         else:
             # Dealer stands
             hand.stood = True
-            self.message_var.set("Dealer stands.")
+            self._set_message("Dealer stands.")
             self._render_table()
             self._dealer_job = None
             self.after(700, self.finish_round)
@@ -634,7 +585,7 @@ class BlackjackApp(tk.Tk):
         text = f"{summary} Bankroll now ${self.game.player.bankroll:,}."
         if not self.game.can_continue():
             text += " Game over."
-        self.message_var.set(text)
+        self._set_message(text)
 
         # Update UI state for the end of the round
         self.round_active = False

@@ -16,7 +16,9 @@ from typing import List, Optional, Sequence
 
 from colorama import Fore, Style
 
-from .sound_manager import create_sound_manager
+from common.gui_base import BaseGUI, GUIConfig
+
+from .sound_manager import create_sound_manager as create_uno_sound_manager
 from .uno import COLORS, HouseRules, PlayerDecision, UnoCard, UnoGame, UnoInterface, UnoPlayer, build_players
 
 # Emojis for representing card colors in the GUI.
@@ -43,7 +45,7 @@ def strip_ansi(text: str) -> str:
     return ANSI_RE.sub("", text)
 
 
-class TkUnoInterface(UnoInterface):
+class TkUnoInterface(BaseGUI, UnoInterface):
     """A graphical interface that bridges the Uno game engine with Tkinter.
 
     This class implements the `UnoInterface` protocol, providing a visual
@@ -56,7 +58,8 @@ class TkUnoInterface(UnoInterface):
         players: Sequence[UnoPlayer],
         *,
         enable_animations: bool = True,
-        enable_sounds: bool = False,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
     ) -> None:
         """Initialize the Tkinter Uno interface.
 
@@ -66,16 +69,23 @@ class TkUnoInterface(UnoInterface):
             enable_animations: Whether to enable card animations.
             enable_sounds: Whether to enable sound effects.
         """
-        self.root = root
-        self.root.title("Card Games - Uno")
+        gui_config = config or GUIConfig(
+            window_title="Card Games - Uno",
+            window_width=1180,
+            window_height=820,
+            enable_sounds=enable_sounds,
+            enable_animations=enable_animations,
+            theme_name="light",
+        )
+        BaseGUI.__init__(self, root, gui_config)
         self.game: Optional[UnoGame] = None
         self.players = list(players)
         self.decision_ready = tk.BooleanVar(value=False)
         self.pending_decision: Optional[PlayerDecision] = None
         self.uno_var = tk.BooleanVar(value=False)
-        self.enable_animations = enable_animations
-        self.enable_sounds = enable_sounds
-        self.sound_manager = create_sound_manager(enabled=enable_sounds)
+        self.enable_animations = gui_config.enable_animations
+        self.sound_manager = create_uno_sound_manager(enabled=gui_config.enable_sounds) or self.sound_manager
+        self.theme_manager.set_current_theme(gui_config.theme_name)
         self._build_layout()
         self._build_scoreboard()
 
@@ -443,7 +453,7 @@ class TkUnoInterface(UnoInterface):
         - 'wild': When a wild card is played
         - 'draw_penalty': When +2 or +4 is played
         """
-        if not self.enable_sounds or self.sound_manager is None:
+        if not self.config.enable_sounds or self.sound_manager is None:
             return
 
         self.sound_manager.play(sound_type)

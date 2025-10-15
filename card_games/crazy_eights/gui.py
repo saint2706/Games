@@ -14,17 +14,28 @@ from collections import Counter
 from typing import Any, Optional
 
 from card_games.common.cards import Card, Suit
+from card_games.common.card_images import CardImageRepository
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.crazy_eights.game import CrazyEightsGame, Player
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, tk, ttk
 
 if not TKINTER_AVAILABLE:  # pragma: no cover - Tkinter unavailable environments
     raise ImportError("Tkinter is required to use the Crazy Eights GUI")
 
+_CARD_IMAGE_HEIGHT = 120
+
 
 class CrazyEightsGUI(BaseGUI):
     """Tkinter GUI that visualises and runs a Crazy Eights match."""
 
-    def __init__(self, root: tk.Tk, game: CrazyEightsGame, config: Optional[GUIConfig] = None) -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        game: CrazyEightsGame,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialise the Crazy Eights GUI.
 
         Args:
@@ -38,8 +49,17 @@ class CrazyEightsGUI(BaseGUI):
             window_height=720,
             log_height=14,
             log_width=70,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
         )
         super().__init__(root, gui_config)
+        self.card_images = CardImageRepository()
+        self.sound_manager = initialize_game_soundscape(
+            "crazy_eights",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self.game = game
         self._current_turn_name: str = ""
@@ -83,21 +103,27 @@ class CrazyEightsGUI(BaseGUI):
             fg=colors.foreground,
         ).grid(row=0, column=0, sticky="w")
 
-        tk.Label(
+        self.top_card_label = tk.Label(
             header,
             textvariable=self.active_card_var,
             font=(theme.font_family, theme.font_size + 2),
             bg=colors.background,
             fg=colors.primary,
-        ).grid(row=0, column=1, sticky="w", padx=20)
+            compound="left",
+            padx=8,
+        )
+        self.top_card_label.grid(row=0, column=1, sticky="w", padx=20)
 
-        tk.Label(
+        self.deck_label = tk.Label(
             header,
             textvariable=self.deck_var,
             font=(theme.font_family, theme.font_size + 2),
             bg=colors.background,
             fg=colors.secondary,
-        ).grid(row=0, column=2, sticky="e")
+            compound="right",
+            padx=8,
+        )
+        self.deck_label.grid(row=0, column=2, sticky="e")
 
         # Central board with scoreboard and log
         board = tk.Frame(container, bg=colors.background, padx=16, pady=10)
@@ -170,6 +196,7 @@ class CrazyEightsGUI(BaseGUI):
 
         self._render_scoreboard(summary, colors)
         self._render_hand()
+        self._update_piles(summary)
         self._update_controls(summary)
 
         if summary["state"] == "GAME_OVER" and not self._game_over:
@@ -201,6 +228,7 @@ class CrazyEightsGUI(BaseGUI):
             if player["score"]:
                 info_text += f" | Score: {player['score']}"
             tk.Label(row, text=info_text, bg=row_bg, fg=text_fg, anchor="w").grid(row=0, column=1, sticky="w")
+        self.animate_highlight(self.scoreboard_body)
 
     def _render_hand(self) -> None:
         """Show the human player's hand as clickable card buttons."""
@@ -210,6 +238,8 @@ class CrazyEightsGUI(BaseGUI):
         human = self.game.players[0]
         playable = human.get_playable_cards(self.game.active_suit, self.game.active_rank)
         is_turn = self._is_human_turn()
+        colors = self.current_theme.colors
+        highlight_color = getattr(colors, "success", colors.primary)
 
         if not human.hand:
             tk.Label(
@@ -222,20 +252,46 @@ class CrazyEightsGUI(BaseGUI):
 
         for index, card in enumerate(sorted(human.hand, key=lambda c: (c.suit.value, c.value))):
             state = tk.NORMAL if is_turn and card in playable else tk.DISABLED
+            image = self.card_images.get_tk_image(card, height=_CARD_IMAGE_HEIGHT)
             btn = tk.Button(
                 self.hand_frame,
-                text=str(card),
-                width=6,
-                relief=tk.RAISED,
+                image=image,
+                relief=tk.FLAT,
+                borderwidth=0,
                 state=state,
                 command=lambda c=card: self._on_card_clicked(c),
-                font=(self.current_theme.font_family, self.current_theme.font_size + 2, "bold"),
-                bg="#ffffff" if card.rank != "8" else "#fde68a",
+                bg=colors.background,
+                activebackground=colors.background,
+                highlightthickness=0,
             )
-            btn.grid(row=index // 12, column=index % 12, padx=4, pady=4, sticky="ew")
+            btn.image = image
+            if state == tk.NORMAL:
+                btn.configure(cursor="hand2")
             if card in playable:
-                btn.configure(bg="#d1fae5")
+                btn.configure(highlightthickness=2, highlightbackground=highlight_color)
+                self.animate_highlight(btn, highlight_color=highlight_color)
+            btn.grid(row=index // 12, column=index % 12, padx=4, pady=4)
+        self.animate_highlight(self.hand_frame)
 
+
+    def _update_piles(self, summary: dict[str, Any]) -> None:
+        """Update header imagery for discard and draw piles."""
+        top_card = self.game.get_top_card()
+        if top_card is not None:
+            image = self.card_images.get_tk_image(top_card, height=_CARD_IMAGE_HEIGHT)
+            self.top_card_label.configure(image=image)
+            self.top_card_label.image = image
+        else:
+            self.top_card_label.configure(image="")
+            self.top_card_label.image = None
+
+        if summary["deck_cards"] > 0:
+            back_image = self.card_images.get_tk_image(None, hidden=True, height=_CARD_IMAGE_HEIGHT)
+            self.deck_label.configure(image=back_image)
+            self.deck_label.image = back_image
+        else:
+            self.deck_label.configure(image="")
+            self.deck_label.image = None
     def _update_controls(self, summary: dict[str, Any]) -> None:
         """Enable/disable draw and pass controls based on turn context."""
         human_turn = self._is_human_turn() and not self._game_over

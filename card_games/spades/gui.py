@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 from card_games.common.cards import Card
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.spades.game import SpadesGame, SpadesPlayer
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 
@@ -28,7 +29,14 @@ class _BidDisplay:
 class SpadesGUI(BaseGUI):
     """Graphical front-end that manages a :class:`SpadesGame` session."""
 
-    def __init__(self, root: tk.Tk, game: Optional[SpadesGame] = None, *, player_name: str = "You") -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        game: Optional[SpadesGame] = None,
+        *,
+        player_name: str = "You",
+        enable_sounds: bool = True,
+    ) -> None:
         """Initialise the GUI and prepare the first round.
 
         Args:
@@ -49,8 +57,16 @@ class SpadesGUI(BaseGUI):
             window_height=760,
             theme_name="dark",
             accessibility_mode=True,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
         )
         super().__init__(root, config)
+        self.sound_manager = initialize_game_soundscape(
+            "spades",
+            module_file=__file__,
+            enable_sounds=config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         if game is None:
             players = [

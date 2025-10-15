@@ -29,6 +29,7 @@ except ImportError:  # pragma: no cover - handled gracefully by run_app()
 
 from card_games.common.cards import Card
 from card_games.common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.solitaire.game import Pile, SolitaireGame
 
 CARD_WIDTH = 90
@@ -50,6 +51,7 @@ class SolitaireGUI(BaseGUI):
         root: tk.Tk,
         game: SolitaireGame,
         *,
+        enable_sounds: bool = True,
         config: Optional[GUIConfig] = None,
         new_game_factory: Optional[Callable[[], SolitaireGame]] = None,
     ) -> None:
@@ -60,9 +62,17 @@ class SolitaireGUI(BaseGUI):
             window_title="Klondike Solitaire",
             window_width=1100,
             window_height=760,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
         )
 
         super().__init__(root, gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "solitaire",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
         self.game = game
         self._new_game_factory = new_game_factory
 

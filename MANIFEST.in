@@ -1,3 +1,6 @@
+# Include card artwork
+recursive-include card_games/common/assets/svg_cards *
+
 # Include documentation files
 include README.md
 include LICENSE
@@ -13,6 +16,7 @@ include requirements-dev.txt
 include pyproject.toml
 include pytest.ini
 include .pre-commit-config.yaml
+
 
 # Include documentation
 recursive-include docs *.md *.rst *.txt

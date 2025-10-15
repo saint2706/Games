@@ -29,6 +29,7 @@ This project aims to be welcoming and inclusive. Please:
 
 - Python 3.9 or higher
 - Git
+- Git LFS (Large File Storage)
 - Basic understanding of Python and game development
 
 ### Fork and Clone
@@ -39,6 +40,8 @@ This project aims to be welcoming and inclusive. Please:
 ```bash
 git clone https://github.com/YOUR_USERNAME/Games.git
 cd Games
+git lfs install
+git lfs pull
 ```
 
 3. Add the upstream repository:
@@ -72,6 +75,12 @@ pip install -e ".[dev]"
 # Or with GUI support
 pip install -e ".[gui,dev]"
 ```
+
+> **Why Git LFS?**
+> The card tables rely on a large set of PNG images derived from the
+> htdebeer SVG deck. These assets are stored with Git LFS so that clones stay
+> lightweight while keeping media quality high. If you skip `git lfs pull`, the
+> graphical clients will not be able to render card faces.
 
 #### Optional System Dependencies
 

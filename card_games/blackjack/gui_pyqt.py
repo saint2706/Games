@@ -11,7 +11,7 @@ dealer animations and round pacing.
 from typing import Optional
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QColor, QFont, QPen
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
     QApplication,
     QFrame,
@@ -26,14 +26,13 @@ from PyQt5.QtWidgets import (
 )
 
 from card_games.blackjack.game import BlackjackGame, BlackjackHand, Outcome
-from card_games.common.cards import Card, Suit
+from card_games.common.cards import Card
+from card_games.common.soundscapes import initialize_game_soundscape
+from card_games.common.card_images import CardImageRepository
+from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 _TABLE_GREEN = "#0b5d1e"
 _TABLE_ACCENT = "#145c2a"
-_CARD_BORDER = "#f5f5f5"
-_CARD_FACE = "#ffffff"
-_CARD_BACK = "#1e3a5f"
-_CARD_BACK_ACCENT = "#f7b733"
 _TEXT_PRIMARY = "#f2f2f2"
 _TEXT_MUTED = "#c8e6c9"
 _TEXT_ALERT = "#ffdf6b"
@@ -41,23 +40,42 @@ _BUTTON_BG = "#f7c548"
 _ACTION_BG = "#16532a"
 _HIGHLIGHT = "#22a45d"
 
-_CARD_WIDTH = 90
+_BASE_CARD_WIDTH, _BASE_CARD_HEIGHT = CardImageRepository.base_dimensions()
 _CARD_HEIGHT = 130
+_CARD_WIDTH = int(round(_BASE_CARD_WIDTH * (_CARD_HEIGHT / _BASE_CARD_HEIGHT)))
 _CARD_SPACING = 12
 
 
-class BlackjackTable(QWidget):
+class BlackjackTable(QWidget, BaseGUI):
     """PyQt5 widget that renders and controls a Blackjack table."""
 
     def __init__(
         self,
-        *,
         bankroll: int = 500,
         min_bet: int = 10,
         decks: int = 6,
         rng=None,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
     ) -> None:
-        super().__init__()
+        QWidget.__init__(self)
+        gui_config = config or GUIConfig(
+            window_title="Blackjack Table",
+            window_width=920,
+            window_height=640,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+            theme_name="dark",
+        )
+        BaseGUI.__init__(self, root=self, config=gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "blackjack",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
+        self.card_images = CardImageRepository()
         self.game = BlackjackGame(bankroll=bankroll, min_bet=min_bet, decks=decks, rng=rng)
 
         self.round_active = False
@@ -254,6 +272,12 @@ class BlackjackTable(QWidget):
         if not self.game.can_continue():
             self.bet_spin.setValue(self.game.player.bankroll)
 
+    def _set_message(self, text: str, *, highlight_color: str = _TEXT_ALERT) -> None:
+        """Update the status label and trigger the highlight animation."""
+
+        self.message_label.setText(text)
+        self.animate_highlight(self.message_label, highlight_color=highlight_color)
+
     def _render_table(self) -> None:
         self._clear_layout(self.dealer_cards_layout)
         self._clear_layout(self.player_hands_layout)
@@ -267,6 +291,8 @@ class BlackjackTable(QWidget):
             info_label.setStyleSheet(f"color: {_TEXT_MUTED};")
             info_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
             self.dealer_cards_layout.addWidget(info_label)
+            if not self.dealer_hidden:
+                self.animate_highlight(dealer_view, highlight_color=_HIGHLIGHT)
 
         for index, hand in enumerate(self.game.player.hands):
             highlight = index == self.current_hand_index and self.round_active
@@ -299,6 +325,8 @@ class BlackjackTable(QWidget):
 
             cards_view = self._create_hand_view(hand, hide_hole=False)
             hand_layout.addWidget(cards_view)
+            if highlight or len(hand.cards) >= 2:
+                self.animate_highlight(cards_view, highlight_color=_HIGHLIGHT)
 
             summary = QLabel(self._hand_summary(hand), container)
             summary.setStyleSheet(f"color: {_TEXT_MUTED};")
@@ -311,12 +339,14 @@ class BlackjackTable(QWidget):
     def _create_hand_view(self, hand: BlackjackHand, *, hide_hole: bool) -> QGraphicsView:
         scene = QGraphicsScene()
         x = 0
+        max_width = 0
         for index, card in enumerate(hand.cards):
             hidden = hide_hole and index == 1
-            self._add_card(scene, card, hidden, x)
-            x += _CARD_WIDTH + _CARD_SPACING
+            card_width = self._add_card(scene, card, hidden, x)
+            max_width = max(max_width, card_width)
+            x += card_width + _CARD_SPACING
 
-        width = max(_CARD_WIDTH, x - _CARD_SPACING) + 12
+        width = max(max_width, x - _CARD_SPACING) + 12 if hand.cards else _CARD_WIDTH + 12
         scene.setSceneRect(0, 0, width, _CARD_HEIGHT + 12)
 
         view = QGraphicsView(scene)
@@ -326,48 +356,12 @@ class BlackjackTable(QWidget):
         view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         return view
 
-    def _add_card(self, scene: QGraphicsScene, card: Card, hidden: bool, x: int) -> None:
-        pen = QPen(QColor(_CARD_BORDER))
-        pen.setWidth(3)
-        brush_color = _CARD_BACK if hidden else _CARD_FACE
-        rect = scene.addRect(
-            x + 6,
-            6,
-            _CARD_WIDTH - 12,
-            _CARD_HEIGHT - 12,
-            pen,
-            QColor(brush_color),
-        )
-        rect.setZValue(1)
-
-        if hidden:
-            pen = QPen(QColor(_CARD_BACK_ACCENT))
-            pen.setWidth(3)
-            scene.addLine(x + 12, 12, x + _CARD_WIDTH - 12, _CARD_HEIGHT - 12, pen)
-            scene.addLine(x + 12, _CARD_HEIGHT - 12, x + _CARD_WIDTH - 12, 12, pen)
-            text = scene.addText("★")
-            text.setDefaultTextColor(QColor(_TEXT_PRIMARY))
-            text.setFont(QFont("Segoe UI", 30))
-            text.setPos(x + (_CARD_WIDTH / 2) - 16, (_CARD_HEIGHT / 2) - 24)
-        else:
-            suit = card.suit
-            rank_display = "10" if card.rank == "T" else card.rank
-            suit_color = QColor("#d32f2f" if suit in (Suit.HEARTS, Suit.DIAMONDS) else "#1c1c1c")
-
-            top_text = scene.addText(rank_display)
-            top_text.setDefaultTextColor(suit_color)
-            top_text.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
-            top_text.setPos(x + 14, 12)
-
-            bottom_text = scene.addText(rank_display)
-            bottom_text.setDefaultTextColor(suit_color)
-            bottom_text.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
-            bottom_text.setPos(x + _CARD_WIDTH - 40, _CARD_HEIGHT - 40)
-
-            center_text = scene.addText(suit.value)
-            center_text.setDefaultTextColor(suit_color)
-            center_text.setFont(QFont("Segoe UI Symbol", 32))
-            center_text.setPos(x + (_CARD_WIDTH / 2) - 20, (_CARD_HEIGHT / 2) - 34)
+    def _add_card(self, scene: QGraphicsScene, card: Card, hidden: bool, x: int) -> int:
+        pixmap = self.card_images.get_qt_pixmap(card if not hidden else None, height=_CARD_HEIGHT, hidden=hidden)
+        item = scene.addPixmap(pixmap)
+        item.setPos(x, 0)
+        item.setZValue(1)
+        return pixmap.width()
 
     def _hand_summary(self, hand: BlackjackHand, *, dealer: bool = False, hide_hole: bool = False) -> str:
         if hide_hole:
@@ -453,7 +447,7 @@ class BlackjackTable(QWidget):
             self.round_complete = False
 
         if not self.game.can_continue():
-            self.message_label.setText("Insufficient bankroll to place the minimum bet.")
+            self._set_message("Insufficient bankroll to place the minimum bet.")
             return
 
         bet = max(self.game.min_bet, int(self.bet_spin.value()))
@@ -464,13 +458,13 @@ class BlackjackTable(QWidget):
         try:
             self.game.start_round(bet)
         except ValueError as exc:
-            self.message_label.setText(str(exc))
+            self._set_message(str(exc))
             return
 
         self.round_active = True
         self.dealer_hidden = True
         self.current_hand_index = 0
-        self.message_label.setText("Cards dealt. Make your move!")
+        self._set_message("Cards dealt. Make your move!")
 
         self._refresh_labels()
         self._render_table()
@@ -479,7 +473,7 @@ class BlackjackTable(QWidget):
         player_hand = self.game.player.hands[0]
         if self.game.dealer_hand.is_blackjack() or player_hand.is_blackjack():
             self.dealer_hidden = False
-            self.message_label.setText("Blackjack! Checking dealer's hand...")
+            self._set_message("Blackjack! Checking dealer's hand...")
             self._render_table()
             QTimer.singleShot(800, self.finish_round)
             return
@@ -494,16 +488,16 @@ class BlackjackTable(QWidget):
             return
 
         card = self.game.hit(hand)
-        self.message_label.setText(f"Hit: drew {card}.")
+        self._set_message(f"Hit: drew {card}.")
         self._render_table()
 
         if hand.is_bust():
             hand.stood = True
-            self.message_label.setText("Bust! Hand is out of play.")
+            self._set_message("Bust! Hand is out of play.")
             QTimer.singleShot(500, self._advance_hand)
         elif hand.best_total() == 21:
             hand.stood = True
-            self.message_label.setText("21! Standing automatically.")
+            self._set_message("21! Standing automatically.")
             QTimer.singleShot(500, self._advance_hand)
         else:
             self._update_buttons()
@@ -514,7 +508,7 @@ class BlackjackTable(QWidget):
             return
 
         self.game.stand(hand)
-        self.message_label.setText("Stand. Moving to next hand or dealer's turn.")
+        self._set_message("Stand. Moving to next hand or dealer's turn.")
         self._render_table()
         QTimer.singleShot(400, self._advance_hand)
 
@@ -526,10 +520,10 @@ class BlackjackTable(QWidget):
         try:
             card = self.game.double_down(hand)
         except ValueError as exc:
-            self.message_label.setText(str(exc))
+            self._set_message(str(exc))
             return
 
-        self.message_label.setText(f"Double down! Drew {card}, standing on {hand.best_total()}.")
+        self._set_message(f"Double down! Drew {card}, standing on {hand.best_total()}.")
         self._refresh_labels()
         self._render_table()
         QTimer.singleShot(500, self._advance_hand)
@@ -542,10 +536,10 @@ class BlackjackTable(QWidget):
         try:
             self.game.split(hand)
         except ValueError as exc:
-            self.message_label.setText(str(exc))
+            self._set_message(str(exc))
             return
 
-        self.message_label.setText("Split successful — play each hand in turn.")
+        self._set_message("Split successful — play each hand in turn.")
         self._refresh_labels()
         self._render_table()
         self._update_buttons()
@@ -584,12 +578,12 @@ class BlackjackTable(QWidget):
         hand = self.game.dealer_hand
         if hand.best_total() < 17 or (hand.best_total() == 17 and hand.is_soft()):
             card = self.game.hit(hand)
-            self.message_label.setText(f"Dealer draws {card}.")
+            self._set_message(f"Dealer draws {card}.")
             self._render_table()
             self._dealer_timer.start(700)
         else:
             hand.stood = True
-            self.message_label.setText("Dealer stands.")
+            self._set_message("Dealer stands.")
             self._render_table()
             QTimer.singleShot(700, self.finish_round)
 
@@ -613,7 +607,7 @@ class BlackjackTable(QWidget):
         text = f"{summary} Bankroll now ${self.game.player.bankroll:,}."
         if not self.game.can_continue():
             text += " Game over."
-        self.message_label.setText(text)
+        self._set_message(text)
 
         self.round_active = False
         self.round_complete = True

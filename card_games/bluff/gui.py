@@ -20,24 +20,50 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Optional
 
+from common.gui_base import BaseGUI, GUIConfig
+from card_games.common.soundscapes import initialize_game_soundscape
+
 from .bluff import BluffGame, DeckType, DifficultyLevel, Phase
 
 
-class BluffGUI:
+class BluffGUI(BaseGUI):
     """Manages the interactive Tkinter interface for a Bluff card game.
 
     This class is responsible for building the UI, rendering the game state,
     and handling user interactions like card selection, claims, and challenges.
     """
 
-    def __init__(self, root: tk.Tk, game: BluffGame) -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        game: BluffGame,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialize the Bluff GUI.
 
         Args:
             root (tk.Tk): The root Tkinter window.
             game (BluffGame): The instance of the Bluff game engine.
         """
-        self.root = root
+        gui_config = config or GUIConfig(
+            window_title="Bluff - Card Game",
+            window_width=1200,
+            window_height=780,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
+            theme_name="dark",
+        )
+        super().__init__(root, gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "bluff",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
+        self.theme_manager.set_current_theme(gui_config.theme_name)
+        self.current_theme = self.theme_manager.get_current_theme()
         self.game = game
 
         # Mirror the CLI welcome text so both interfaces narrate the same story
@@ -88,7 +114,8 @@ class BluffGUI:
         header.columnconfigure(0, weight=2)
         header.columnconfigure(1, weight=1)
         header.columnconfigure(2, weight=1)
-        ttk.Label(header, textvariable=self.status_var, font=("Segoe UI", 14, "bold")).grid(row=0, column=0, sticky="w")
+        self.status_label = ttk.Label(header, textvariable=self.status_var, font=("Segoe UI", 14, "bold"))
+        self.status_label.grid(row=0, column=0, sticky="w")
         ttk.Label(header, textvariable=self.turn_var).grid(row=0, column=1, sticky="e")
         ttk.Label(header, textvariable=self.pile_var).grid(row=0, column=2, sticky="e")
 
@@ -190,6 +217,13 @@ class BluffGUI:
         self.summary.delete("1.0", tk.END)
         self.summary.insert(tk.END, "\n".join(text_lines))
         self.summary.configure(state="disabled")
+        self.animate_highlight(self.summary)
+
+    def _set_status(self, text: str, *, highlight_color: str = "#1f6aa5") -> None:
+        """Update the status label text with an optional highlight animation."""
+
+        self.status_var.set(text)
+        self.animate_highlight(self.status_label, highlight_color=highlight_color)
 
     def _update_user_hand(self) -> None:
         """Clear and re-render the buttons for the user's hand."""
@@ -210,6 +244,9 @@ class BluffGUI:
         # Deselect if the card is no longer in hand
         if self._selected_card is not None and self._selected_card >= len(user.hand):
             self._selected_card = None
+
+        if user.hand:
+            self.animate_highlight(self.hand_frame)
 
     def _select_card(self, index: int) -> None:
         """Handle the user selecting a card from their hand."""
@@ -254,7 +291,7 @@ class BluffGUI:
         current = self.game.current_player
         if current.is_user:
             # It's the user's turn
-            self.status_var.set("Your turn: choose a card and declare its rank.")
+            self._set_status("Your turn: choose a card and declare its rank.")
             self._last_claim_text.set("Awaiting your play.")
             self._set_user_controls_state(enabled=True)
             self._set_challenge_controls_state(enabled=False)
@@ -274,14 +311,14 @@ class BluffGUI:
         if self.game.finished or self.game.current_player is not self.game.players[0]:
             return
         if self._selected_card is None:
-            self.status_var.set("Select a card from your hand first.")
+            self._set_status("Select a card from your hand first.", highlight_color="#bf3f5f")
             return
 
         rank = self.claim_rank_var.get().upper()
         try:
             claim = self.game.play_user_turn(self._selected_card, rank)
         except (ValueError, RuntimeError) as exc:
-            self.status_var.set(str(exc))
+            self._set_status(str(exc), highlight_color="#bf3f5f")
             return
 
         self._log(f"You play {claim.card} while stating it's a {claim.claimed_rank}.")
@@ -305,7 +342,7 @@ class BluffGUI:
             if challenger.is_user:
                 # Prompt the user to challenge or trust
                 claimant = self.game.claim_in_progress.claimant
-                self.status_var.set(f"{claimant.name} claims a {self.game.claim_in_progress.claimed_rank}. Challenge?")
+                self._set_status(f"{claimant.name} claims a {self.game.claim_in_progress.claimed_rank}. Challenge?", highlight_color="#1f6aa5")
                 self._set_challenge_controls_state(enabled=True)
                 return
 
@@ -355,13 +392,13 @@ class BluffGUI:
         self._set_challenge_controls_state(enabled=False)
 
         if self.game.winner is None:
-            self.status_var.set("The match ends in a tie.")
+            self._set_status("The match ends in a tie.")
             self._log("The table shares the honours—no single winner.")
         elif self.game.winner.is_user:
-            self.status_var.set("You emptied your hand! Victory is yours.")
+            self._set_status("You emptied your hand! Victory is yours.")
             self._log("Congratulations, you outfoxed every bluff.")
         else:
-            self.status_var.set(f"{self.game.winner.name} wins the match.")
+            self._set_status(f"{self.game.winner.name} wins the match.")
             self._log(f"{self.game.winner.name} finishes with the fewest cards.")
 
         # Save replay if recording was enabled
@@ -385,39 +422,27 @@ class BluffGUI:
             truthful: Whether the claim was truthful.
             callback: Function to call after animation completes.
         """
-        # Create a temporary label for the animation
         reveal_label = tk.Label(
             self.root,
             text="REVEALING..." if truthful else "CAUGHT!",
             font=("Segoe UI", 24, "bold"),
-            fg="green" if truthful else "red",
+            fg="#2ecc71" if truthful else "#e74c3c",
             bg="white",
+            padx=24,
+            pady=12,
         )
         reveal_label.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Fade in effect
-        alpha = 0.0
+        def finish() -> None:
+            reveal_label.destroy()
+            callback()
 
-        def fade_in():
-            nonlocal alpha
-            alpha += 0.1
-            if alpha <= 1.0:
-                # Simulate alpha by changing background
-                self.root.after(30, fade_in)
-            else:
-                # Hold for a moment then fade out
-                self.root.after(500, fade_out)
+        if not self.config.enable_animations:
+            self.root.after(600, finish)
+            return
 
-        def fade_out():
-            nonlocal alpha
-            alpha -= 0.1
-            if alpha > 0:
-                self.root.after(30, fade_out)
-            else:
-                reveal_label.destroy()
-                callback()
-
-        fade_in()
+        self.animate_highlight(reveal_label, highlight_color="#2ecc71" if truthful else "#e74c3c", duration=900)
+        self.root.after(900, finish)
 
 
 def run_gui(

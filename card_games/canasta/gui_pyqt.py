@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Optional
 
 from card_games.canasta.game import CanastaGame, CanastaPlayer, DrawSource, MeldError, card_point_value
+from card_games.common.soundscapes import initialize_game_soundscape
 from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 if PYQT5_AVAILABLE:  # pragma: no cover - UI specific branch
@@ -34,7 +35,7 @@ else:  # pragma: no cover - fallback when PyQt is unavailable
     QWidget = None  # type: ignore
 
 
-class CanastaPyQtGUI(QMainWindow):
+class CanastaPyQtGUI(QMainWindow, BaseGUI):
     """Lightweight PyQt front-end with the same controls as the Tk GUI."""
 
     def __init__(
@@ -42,6 +43,7 @@ class CanastaPyQtGUI(QMainWindow):
         *,
         game: Optional[CanastaGame] = None,
         player_name: str = "You",
+        enable_sounds: bool = True,
         config: Optional[GUIConfig] = None,
     ) -> None:
         if not PYQT5_AVAILABLE:  # pragma: no cover - defensive guard
@@ -54,8 +56,15 @@ class CanastaPyQtGUI(QMainWindow):
             window_height=720,
             theme_name="forest",
             enable_animations=True,
+            enable_sounds=enable_sounds,
         )
         BaseGUI.__init__(self, self, config)
+        self.sound_manager = initialize_game_soundscape(
+            "canasta",
+            module_file=__file__,
+            enable_sounds=config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         if game is None:
             players = [
@@ -156,12 +165,20 @@ class CanastaPyQtGUI(QMainWindow):
             description = ", ".join(str(card) for card in meld.cards)
             meld_lines.append(f"{meld.rank}s: {description} [{tag}{bonus}]")
         self.melds_display.setPlainText("\n".join(meld_lines) if meld_lines else "No melds yet.")
+        self.animate_highlight(self.hand_list)
+        self.animate_highlight(self.melds_display)
+
+    def _set_status(self, text: str, *, highlight_color: str = "#2f8f9d") -> None:
+        """Update and animate the status banner text."""
+
+        self.status_label.setText(text)
+        self.animate_highlight(self.status_label, highlight_color=highlight_color)
 
     def draw_from_stock(self) -> None:
         """Draw from the stock and update the display."""
 
         if self.phase != "draw":
-            self.status_label.setText("Discard before drawing again.")
+            self._set_status("Discard before drawing again.")
             return
         card = self.game.draw(self.game.players[self.human_index], DrawSource.STOCK)
         self._log(f"You drew {card} from stock.")
@@ -172,11 +189,11 @@ class CanastaPyQtGUI(QMainWindow):
         """Attempt to take the discard pile."""
 
         if self.phase != "draw":
-            self.status_label.setText("Drawing allowed only after discarding.")
+            self._set_status("Drawing allowed only after discarding.")
             return
         player = self.game.players[self.human_index]
         if not self.game.can_take_discard(player):
-            self.status_label.setText("Discard pile unavailable.")
+            self._set_status("Discard pile unavailable.")
             return
         card = self.game.draw(player, DrawSource.DISCARD)
         self._log(f"You collected the discard pile; top card {card}.")
@@ -187,38 +204,40 @@ class CanastaPyQtGUI(QMainWindow):
         """Lay down a meld from the selected cards."""
 
         if self.phase not in {"meld", "discard"}:
-            self.status_label.setText("Draw a card first.")
+            self._set_status("Draw a card first.")
             return
         indexes = [item.row() for item in self.hand_list.selectedIndexes()]
         if not indexes:
-            self.status_label.setText("Select cards to meld.")
+            self._set_status("Select cards to meld.")
             return
         cards = [self.game.players[self.human_index].hand[index] for index in indexes]
         try:
             meld = self.game.add_meld(self.game.players[self.human_index], cards)
         except MeldError as exc:
-            self.status_label.setText(str(exc))
+            self._set_status(str(exc), highlight_color="#bf3f5f")
             return
         self._log(
             f"Meld laid for {sum(card_point_value(card) for card in meld.cards)} points."
         )
         self.phase = "discard"
+        self._set_status(f"Meld laid: {', '.join(str(card) for card in meld.cards)}")
         self.update_display()
 
     def discard_selected_card(self) -> None:
         """Discard the chosen card and move to the next player."""
 
         if self.phase == "draw":
-            self.status_label.setText("Draw before discarding.")
+            self._set_status("Draw before discarding.")
             return
         indexes = [item.row() for item in self.hand_list.selectedIndexes()]
         if not indexes:
-            self.status_label.setText("Select a card to discard.")
+            self._set_status("Select a card to discard.")
             return
         card = self.game.players[self.human_index].hand[indexes[0]]
         self.game.discard(self.game.players[self.human_index], card)
         self._log(f"Discarded {card}.")
         self.phase = "draw"
+        self._set_status(f"Discarded {card}.")
         self._complete_ai_cycle()
         self.update_display()
 
@@ -226,7 +245,7 @@ class CanastaPyQtGUI(QMainWindow):
         """Skip to the next player if the turn is complete."""
 
         if self.phase != "draw":
-            self.status_label.setText("Discard before ending your turn.")
+            self._set_status("Discard before ending your turn.")
             return
         self._complete_ai_cycle()
         self.update_display()
@@ -236,13 +255,14 @@ class CanastaPyQtGUI(QMainWindow):
 
         player = self.game.players[self.human_index]
         if not self.game.can_go_out(player.team_index):
-            self.status_label.setText("Cannot go out yet.")
+            self._set_status("Cannot go out yet.")
             return
         breakdown = self.game.go_out(player)
         QMessageBox.information(self, "Round Complete", "Round finished and scores updated.")
         for team_index, delta in breakdown.items():
             team = self.game.teams[team_index]
             self._log(f"{team.name}: delta {delta}, total {team.score}")
+        self._set_status("Round complete.")
         self.update_display()
 
     def _complete_ai_cycle(self) -> None:
@@ -258,7 +278,7 @@ class CanastaPyQtGUI(QMainWindow):
             self.game.discard(player, discard_card)
             self._log(f"{player.name} drew {drawn} and discarded {discard_card}.")
         if self.game.round_over:
-            self.status_label.setText("Round complete.")
+            self._set_status("Round complete.")
 
     def _log(self, message: str) -> None:
         """Append ``message`` to the log widget."""
