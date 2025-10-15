@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from random import Random
-from typing import Iterable, Optional, Sequence
+from typing import Iterable, Optional, Sequence, Union
 
 from card_games.common.cards import RANK_TO_VALUE, Card, Deck, Suit
 
@@ -44,7 +44,7 @@ class JokerCard:
         return self.label
 
 
-CanastaCard = Card | JokerCard
+CanastaCard = Union[Card, JokerCard]
 
 
 @dataclass
