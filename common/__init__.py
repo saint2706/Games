@@ -47,14 +47,17 @@ from .cli_utils import (
 )
 from .educational import (
     AIExplainer,
-    GameTheoryExplainer,
+    DocumentationTutorialMode,
     GameTheoryExplanation,
+    GameTheoryExplainer,
     ProbabilityCalculator,
     StrategyTip,
     StrategyTipProvider,
     TutorialMode,
     TutorialStep,
 )
+from .tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata, TutorialRegistration
+from .tutorial_session import TutorialFeedback, TutorialSession
 from .mcp_config_loader import MCPConfig, MCPServerConfig, load_default_mcp_config, validate_mcp_config_file
 
 # GUI enhancement imports (optional, only if tkinter available)
@@ -109,6 +112,7 @@ __all__ = [
     "SettingsManager",
     # Educational
     "TutorialMode",
+    "DocumentationTutorialMode",
     "TutorialStep",
     "StrategyTip",
     "StrategyTipProvider",
@@ -116,6 +120,11 @@ __all__ = [
     "GameTheoryExplainer",
     "GameTheoryExplanation",
     "AIExplainer",
+    "TutorialSession",
+    "TutorialFeedback",
+    "GLOBAL_TUTORIAL_REGISTRY",
+    "TutorialMetadata",
+    "TutorialRegistration",
     # Challenges
     "Challenge",
     "ChallengePack",
