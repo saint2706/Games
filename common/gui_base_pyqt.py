@@ -35,6 +35,7 @@ except ImportError:
 
 # Import enhancement modules
 from common.accessibility import get_accessibility_manager
+from common.animations import maybe_animate_highlight
 from common.i18n import _, get_translation_manager
 from common.keyboard_shortcuts import get_shortcut_manager
 from common.sound_manager import SoundManager, create_sound_manager
@@ -142,6 +143,18 @@ class BaseGUI(ABC):
         """Set up default keyboard shortcuts."""
         # Subclasses can override this to add custom shortcuts
         pass
+
+    def animate_highlight(self, widget: Any, *, highlight_color: Optional[str] = None, duration: int = 600) -> None:
+        """Apply a highlight animation to ``widget`` when animations are enabled.
+
+        Args:
+            widget: The widget to animate.
+            highlight_color: Optional override for the highlight colour. Defaults to the theme's primary colour.
+            duration: Duration of the animation in milliseconds.
+        """
+
+        color = highlight_color or getattr(self.current_theme.colors, "accent", self.current_theme.colors.primary)
+        maybe_animate_highlight(widget, enable=self.config.enable_animations, highlight_color=color, duration=duration)
 
     @abstractmethod
     def build_layout(self) -> None:

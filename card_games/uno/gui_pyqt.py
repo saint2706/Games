@@ -39,6 +39,8 @@ try:  # pragma: no cover - import guard for optional dependency
 except ImportError as exc:  # pragma: no cover - PyQt5 optional dependency
     raise ImportError("PyQt5 is required to use the Uno PyQt interface.") from exc
 
+from common.gui_base_pyqt import BaseGUI, GUIConfig
+
 from .sound_manager import create_sound_manager
 from .uno import COLORS, HouseRules, PlayerDecision, UnoCard, UnoGame, UnoPlayer, build_players
 
@@ -65,7 +67,7 @@ def strip_ansi(text: str) -> str:
     return ANSI_RE.sub("", text)
 
 
-class PyQtUnoInterface(QWidget):
+class PyQtUnoInterface(QWidget, BaseGUI):
     """Bridge the Uno engine with a PyQt5 graphical front-end.
 
     Implements the UnoInterface protocol without direct inheritance to avoid metaclass conflicts.
@@ -79,17 +81,27 @@ class PyQtUnoInterface(QWidget):
         *,
         parent: Optional[QWidget] = None,
         enable_animations: bool = True,
-        enable_sounds: bool = False,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
     ) -> None:
         """Initialise the interface and build the widget layout."""
 
-        super().__init__(parent)
-        self.setWindowTitle("Card Games - Uno")
+        QWidget.__init__(self, parent)
+        gui_config = config or GUIConfig(
+            window_title="Card Games - Uno",
+            window_width=1180,
+            window_height=820,
+            enable_sounds=enable_sounds,
+            enable_animations=enable_animations,
+            theme_name="light",
+        )
+        BaseGUI.__init__(self, root=self, config=gui_config)
+        self.setWindowTitle(gui_config.window_title)
+        self.resize(gui_config.window_width, gui_config.window_height)
         self.players = list(players)
         self.game: Optional[UnoGame] = None
-        self.enable_animations = enable_animations
-        self.enable_sounds = enable_sounds
-        self.sound_manager = create_sound_manager(enabled=enable_sounds)
+        self.enable_animations = gui_config.enable_animations
+        self.sound_manager = create_sound_manager(enabled=gui_config.enable_sounds) or self.sound_manager
 
         self.pending_decision: Optional[PlayerDecision] = None
         self.decision_loop: Optional[QEventLoop] = None
@@ -307,7 +319,7 @@ class PyQtUnoInterface(QWidget):
     def play_sound(self, sound_type: str) -> None:
         """Play a sound effect through the shared sound manager."""
 
-        if not self.enable_sounds or self.sound_manager is None:
+        if not self.config.enable_sounds or self.sound_manager is None:
             return
         self.sound_manager.play(sound_type)
 
@@ -574,7 +586,7 @@ def launch_uno_gui_pyqt(
     seed: Optional[int] = None,
     house_rules: Optional[HouseRules] = None,
     team_mode: bool = False,
-    enable_sounds: bool = False,
+    enable_sounds: bool = True,
 ) -> None:
     """Launch the Uno PyQt5 GUI application."""
 

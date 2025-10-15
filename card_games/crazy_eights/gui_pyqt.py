@@ -38,18 +38,21 @@ from PyQt5.QtWidgets import (
 )
 
 from card_games.common.cards import Card, Suit
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.crazy_eights.game import CrazyEightsGame, Player
 from common.gui_base_pyqt import BaseGUI, GUIConfig
 
 
-class CrazyEightsGUI(QMainWindow):
-    """PyQt5 GUI that visualises and runs a Crazy Eights match.
+class CrazyEightsGUI(QMainWindow, BaseGUI):
+    """PyQt5 GUI that visualises and runs a Crazy Eights match."""
 
-    Note: Does not inherit from BaseGUI as it's designed for Tkinter,
-    and would cause metaclass conflicts with QMainWindow.
-    """
-
-    def __init__(self, game: CrazyEightsGame, config: Optional[GUIConfig] = None) -> None:
+    def __init__(
+        self,
+        game: CrazyEightsGame,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialise the Crazy Eights PyQt GUI.
 
         Args:
@@ -68,10 +71,18 @@ class CrazyEightsGUI(QMainWindow):
             window_height=720,
             log_height=14,
             log_width=70,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
         )
 
         QMainWindow.__init__(self)
         BaseGUI.__init__(self, self, gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "crazy_eights",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self._central_widget = QWidget(self)
         self.setCentralWidget(self._central_widget)

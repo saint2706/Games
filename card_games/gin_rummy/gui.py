@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Optional
 
 from card_games.common.cards import Card, format_cards
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.gin_rummy.game import GinRummyGame, GinRummyPlayer, HandAnalysis, Meld, MeldType
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 
@@ -29,6 +30,7 @@ class GinRummyGUI(BaseGUI):
         root: tk.Tk,
         *,
         players: Optional[list[GinRummyPlayer]] = None,
+        enable_sounds: bool = True,
         config: Optional[GUIConfig] = None,
     ) -> None:
         if not TKINTER_AVAILABLE:  # pragma: no cover - defensive guard
@@ -40,6 +42,8 @@ class GinRummyGUI(BaseGUI):
             window_height=780,
             log_height=12,
             log_width=100,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
         )
 
         self.players = players or [
@@ -54,6 +58,12 @@ class GinRummyGUI(BaseGUI):
         self.log_index = 0
 
         super().__init__(root, config)
+        self.sound_manager = initialize_game_soundscape(
+            "gin_rummy",
+            module_file=__file__,
+            enable_sounds=config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         # Tkinter variables populated after ``BaseGUI`` initialisation
         self.status_var = tk.StringVar(value="Click 'Start Next Round' to begin.")

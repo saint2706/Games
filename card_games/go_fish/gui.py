@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from card_games.common.cards import RANKS
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.go_fish.game import GoFishGame, Player
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, tk, ttk
 
@@ -51,7 +52,14 @@ class GoFishGUI(BaseGUI):
     to the widgets.
     """
 
-    def __init__(self, root: tk.Tk, game: GoFishGame, config: Optional[GUIConfig] = None) -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        game: GoFishGame,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialize the Go Fish GUI.
 
         Args:
@@ -66,11 +74,18 @@ class GoFishGUI(BaseGUI):
             window_height=720,
             log_height=20,
             log_width=44,
+            enable_sounds=enable_sounds,
             enable_animations=True,
             theme_name="light",
         )
 
         super().__init__(root, gui_config)
+        self.sound_manager = initialize_game_soundscape(
+            "go_fish",
+            module_file=__file__,
+            enable_sounds=gui_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self.game = game
         self.turn_var = tk.StringVar()

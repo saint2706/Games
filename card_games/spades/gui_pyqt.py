@@ -37,6 +37,7 @@ from PyQt5.QtWidgets import (
 )
 
 from card_games.common.cards import Card
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.spades.game import SpadesGame, SpadesPlayer
 from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
@@ -48,14 +49,16 @@ class _BidDisplay:
     value_label: QLabel
 
 
-class SpadesPyQtGUI(QMainWindow):
-    """Main window that coordinates a :class:`SpadesGame` session.
+class SpadesPyQtGUI(QMainWindow, BaseGUI):
+    """Main window that coordinates a :class:`SpadesGame` session."""
 
-    Note: Does not inherit from BaseGUI as it's designed for Tkinter,
-    and would cause metaclass conflicts with QMainWindow.
-    """
-
-    def __init__(self, game: Optional[SpadesGame] = None, *, player_name: str = "You") -> None:
+    def __init__(
+        self,
+        game: Optional[SpadesGame] = None,
+        *,
+        player_name: str = "You",
+        enable_sounds: bool = True,
+    ) -> None:
         """Initialise the PyQt GUI and start the first round.
 
         Args:
@@ -76,8 +79,16 @@ class SpadesPyQtGUI(QMainWindow):
             window_height=760,
             theme_name="dark",
             accessibility_mode=True,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
         )
         BaseGUI.__init__(self, self, config)
+        self.sound_manager = initialize_game_soundscape(
+            "spades",
+            module_file=__file__,
+            enable_sounds=config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         if game is None:
             players = [

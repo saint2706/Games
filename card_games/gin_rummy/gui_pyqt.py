@@ -13,6 +13,7 @@ import sys
 from typing import Dict, List, Optional
 
 from card_games.common.cards import Card, format_cards
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.gin_rummy.game import (
     GinRummyGame,
     GinRummyPlayer,
@@ -55,17 +56,14 @@ def _format_meld(meld: Meld) -> str:
     return f"{label}: {format_cards(meld.cards)}"
 
 
-class GinRummyPyQtGUI(QMainWindow):
-    """PyQt5 interface that visualises a Gin Rummy match.
-
-    Note: Does not inherit from BaseGUI as it's designed for Tkinter,
-    and would cause metaclass conflicts with QMainWindow.
-    """
+class GinRummyPyQtGUI(QMainWindow, BaseGUI):
+    """PyQt5 interface that visualises a Gin Rummy match."""
 
     def __init__(
         self,
         *,
         players: Optional[List[GinRummyPlayer]] = None,
+        enable_sounds: bool = True,
         config: Optional[GUIConfig] = None,
     ) -> None:
         if not PYQT5_AVAILABLE:  # pragma: no cover - defensive guard
@@ -78,8 +76,16 @@ class GinRummyPyQtGUI(QMainWindow):
             window_height=780,
             log_height=12,
             log_width=100,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
         )
         BaseGUI.__init__(self, root=self, config=config)
+        self.sound_manager = initialize_game_soundscape(
+            "gin_rummy",
+            module_file=__file__,
+            enable_sounds=config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self.players = players or [
             GinRummyPlayer(name="You", is_ai=False),

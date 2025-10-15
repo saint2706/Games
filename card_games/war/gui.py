@@ -14,6 +14,7 @@ import time
 from pathlib import Path
 from typing import Optional
 
+from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.war.game import WarGame
 from common.architecture.persistence import SaveLoadManager
 from common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
@@ -40,7 +41,14 @@ class WarGUI(BaseGUI):
     _CARD_STACK_HEIGHT = 70
     _CARD_STACK_OFFSET = 9
 
-    def __init__(self, root: tk.Tk, game: Optional[WarGame] = None, config: Optional[GUIConfig] = None) -> None:
+    def __init__(
+        self,
+        root: tk.Tk,
+        game: Optional[WarGame] = None,
+        *,
+        enable_sounds: bool = True,
+        config: Optional[GUIConfig] = None,
+    ) -> None:
         """Initialize the War GUI.
 
         Args:
@@ -55,8 +63,16 @@ class WarGUI(BaseGUI):
             window_height=720,
             log_height=14,
             log_width=70,
+            enable_sounds=enable_sounds,
+            enable_animations=True,
         )
         super().__init__(root, war_config)
+        self.sound_manager = initialize_game_soundscape(
+            "war",
+            module_file=__file__,
+            enable_sounds=war_config.enable_sounds,
+            existing_manager=self.sound_manager,
+        )
 
         self.game = game or WarGame()
         self._start_time = time.time()
@@ -604,7 +620,7 @@ class WarGUI(BaseGUI):
             messagebox.showerror("Load Failed", error_msg)
 
 
-def run_app(*, game: Optional[WarGame] = None, enable_sounds: bool = False) -> None:
+def run_app(*, game: Optional[WarGame] = None, enable_sounds: bool = True) -> None:
     """Launch the War GUI application."""
 
     root = tk.Tk()
@@ -613,6 +629,7 @@ def run_app(*, game: Optional[WarGame] = None, enable_sounds: bool = False) -> N
         window_width=900,
         window_height=720,
         enable_sounds=enable_sounds,
+        enable_animations=True,
     )
     gui = WarGUI(root, game=game, config=config)
     gui.apply_theme()
