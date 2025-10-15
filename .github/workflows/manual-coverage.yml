@@ -27,9 +27,14 @@ env:
   QT_QPA_PLATFORM: offscreen
   XDG_RUNTIME_DIR: /tmp/qt-runtime
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
       - name: Check out repository
@@ -81,7 +86,7 @@ jobs:
             ${MARK_EXPR:+-m "${MARK_EXPR}"}
 
       - name: Upload coverage to Codecov
-        if: inputs.upload-to-codecov == true
+        if: always() && inputs.upload-to-codecov == true
         uses: codecov/codecov-action@v5
         with:
           file: ./coverage.xml
@@ -89,6 +94,7 @@ jobs:
           verbose: true
 
       - name: Archive coverage HTML report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: manual-coverage-html
@@ -96,7 +102,45 @@ jobs:
           retention-days: 14
 
       - name: Coverage summary
+        if: always()
         run: |
-          echo "## Manual Coverage Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          tail -n 200 coverage.xml >> $GITHUB_STEP_SUMMARY
+          python <<'PY'
+          from __future__ import annotations
+
+          import xml.etree.ElementTree as ET
+          import os
+          from pathlib import Path
+
+          summary_location = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary_location is None:
+            raise SystemExit("GITHUB_STEP_SUMMARY is not set")
+          summary_path = Path(summary_location)
+          coverage_xml = Path("coverage.xml")
+
+          total_line_rate = 0.0
+          total_branch_rate = 0.0
+          packages = 0
+
+          if coverage_xml.exists():
+            root = ET.fromstring(coverage_xml.read_text())
+            total_line_rate = float(root.attrib.get("line-rate", 0.0)) * 100
+            total_branch_rate = float(root.attrib.get("branch-rate", 0.0)) * 100
+            packages = len(root.findall("packages/package"))
+
+          lines = [
+              "## Manual Coverage Report",
+              "",
+              f"* **Line coverage:** {total_line_rate:.2f}%",
+              f"* **Branch coverage:** {total_branch_rate:.2f}%",
+              f"* **Packages measured:** {packages}",
+              "",
+              "Artifacts:",
+              "* `manual-coverage-html` artifact contains the HTML coverage dashboard",
+              "* `coverage.xml` uploaded to Codecov when enabled",
+          ]
+          existing = summary_path.read_text() if summary_path.exists() else ""
+          content = "\n".join(lines)
+          if existing:
+            content = f"{existing.rstrip()}\n\n{content}"
+          summary_path.write_text(f"{content}\n")
+          PY

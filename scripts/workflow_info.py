@@ -31,6 +31,7 @@ def get_workflow_info(workflow_path: Path) -> dict:
         "permissions": workflow.get("permissions", {}),
         "env": workflow.get("env", {}),
         "actions": set(),
+        "concurrency": workflow.get("concurrency", {}),
     }
 
     # Parse triggers (handle 'on' being parsed as True)
@@ -96,6 +97,14 @@ def print_workflow_info(info: dict, verbose: bool = False) -> None:
             print(f"      Condition: {job_info['if']}")
         if job_info["timeout"] != "default":
             print(f"      Timeout: {job_info['timeout']} minutes")
+
+    # Concurrency
+    if info["concurrency"]:
+        group = info["concurrency"].get("group", "<dynamic>")
+        cancel = info["concurrency"].get("cancel-in-progress", False)
+        print("\n🕒 Concurrency:")
+        print(f"   • Group: {group}")
+        print(f"   • Cancel in progress: {cancel}")
 
     # Actions
     if verbose and info["actions"]:

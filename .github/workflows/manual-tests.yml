@@ -31,6 +31,10 @@ env:
   QT_QPA_PLATFORM: offscreen
   XDG_RUNTIME_DIR: /tmp/qt-runtime
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     name: "Tests (Python ${{ matrix.python-version }})"
@@ -38,6 +42,8 @@ jobs:
     strategy:
       matrix:
         python-version: ${{ fromJson(inputs.python-versions) }}
+      fail-fast: false
+    timeout-minutes: 60
 
     steps:
       - name: Check out repository
@@ -111,10 +117,21 @@ jobs:
           PY
 
       - name: Upload coverage artifact
-        if: inputs.collect-coverage == true
+        if: always() && inputs.collect-coverage == true
         uses: actions/upload-artifact@v4
         with:
           name: pytest-coverage-${{ matrix.python-version }}
           path: ./.coverage
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Publish summary
+        if: always()
+        run: |
+          cat <<SUMMARY >> "$GITHUB_STEP_SUMMARY"
+          ## Manual pytest run (Python ${{ matrix.python-version }})
+
+          * Coverage collection: ${{ inputs.collect-coverage }}
+          * Marker expression: ${{ inputs.marker || 'n/a' }}
+          * Extra pytest args: ${{ inputs.extra-args-json }}
+          SUMMARY

@@ -17,6 +17,10 @@ env:
   QT_QPA_PLATFORM: offscreen
   XDG_RUNTIME_DIR: /tmp/qt-runtime
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   mutation-test:
     runs-on: ubuntu-latest
@@ -48,9 +52,14 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Run mutation testing
+        id: mutmut-run
+        continue-on-error: true
         run: |
-          # Run mutmut using configuration from pyproject.toml
-          mutmut run || true
+          set +e
+          mutmut run
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit $status
 
       - name: Generate mutation report
         run: |
@@ -65,7 +74,14 @@ jobs:
           retention-days: 30
 
       - name: Mutation testing summary
+        if: always()
         run: |
-          echo "## Mutation Testing Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          mutmut results >> $GITHUB_STEP_SUMMARY || echo "Mutation testing report generated" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Mutation Testing Results";
+            echo;
+            mutmut results || echo "Mutation testing report generated";
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Highlight surviving mutants
+        if: steps.mutmut-run.outcome == 'failure'
+        run: echo "::warning::Mutmut detected surviving mutants. Review the summary above for details."
