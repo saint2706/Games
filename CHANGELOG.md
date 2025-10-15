@@ -34,8 +34,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Improved navigation**: Each documentation area now has a README hub
 - **No breaking changes**: All code, tests, and imports remain unchanged
 
-See [REORGANIZATION_SUMMARY.md](docs/REORGANIZATION_SUMMARY.md) for complete details.
-
 ## [1.1.0] - 2025-10-12
 
 ### Added - Q4 2025 Consolidation & Deployment
