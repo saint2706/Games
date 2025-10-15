@@ -6,6 +6,7 @@ This directory contains utility scripts for development, testing, building, and 
 
 | Script | Purpose | Usage |
 | ------------------------- | -------------------------------------------- | -------------------------------- |
+| `bump_version.py` | Automated version bumping for releases | `python bump_version.py` |
 | `setup_act.sh` | Install act for local workflow testing | `./setup_act.sh` |
 | `run_workflow.sh` | Run GitHub Actions workflows locally | `./run_workflow.sh ci` |
 | `validate_workflows.py` | Validate GitHub Actions workflow files | `python validate_workflows.py` |
@@ -16,6 +17,54 @@ This directory contains utility scripts for development, testing, building, and 
 | `launcher.py` | Launch games from command line | `python launcher.py` |
 | `test_mcp_servers.py` | Test MCP server configurations | `python test_mcp_servers.py` |
 | `validate_mcp_config.py` | Validate MCP configuration files | `python validate_mcp_config.py` |
+
+## Release Management Scripts
+
+### bump_version.py
+
+Automatically bump version numbers in `pyproject.toml` and `scripts/__init__.py` for releases.
+
+**Usage:**
+
+```bash
+# Bump patch version (1.0.1 -> 1.0.2)
+python scripts/bump_version.py
+
+# Bump minor version (1.0.1 -> 1.1.0)
+python scripts/bump_version.py --part minor
+
+# Bump major version (1.0.1 -> 2.0.0)
+python scripts/bump_version.py --part major
+
+# Preview changes without modifying files
+python scripts/bump_version.py --dry-run
+```
+
+**Features:**
+
+- Automatically detects current version from `pyproject.toml`
+- Increments version following semantic versioning
+- Updates both `pyproject.toml` and `scripts/__init__.py` consistently
+- Preserves file formatting and quote styles
+- Can be run manually or via GitHub Actions workflow
+
+**Integration:**
+
+This script is integrated into the `publish-pypi.yml` workflow. You can trigger an automated release by:
+
+1. Go to Actions > Publish to PyPI
+2. Click "Run workflow"
+3. Select version bump type (patch/minor/major)
+4. The workflow will:
+   - Bump the version
+   - Commit the changes
+   - Create a git tag
+   - Create a GitHub release
+   - Publish to PyPI
+
+**Documentation:**
+
+- See [docs/deployment/PYPI_RELEASE.md](../docs/deployment/PYPI_RELEASE.md) for full release process
 
 ## Workflow Testing Scripts
 

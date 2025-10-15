@@ -322,3 +322,97 @@ def test_create_release_uses_git_tag():
     # Should extract tag from GITHUB_REF, not use GITHUB_RUN_NUMBER
     assert "GITHUB_REF" in run_script, "Should extract tag from GITHUB_REF"
     assert "GITHUB_RUN_NUMBER" not in run_script, "Should not use GITHUB_RUN_NUMBER for release tags"
+
+
+def test_publish_pypi_has_bump_and_release_job():
+    """Test that publish-pypi workflow has bump-and-release job."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "publish-pypi.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    # Check that bump-and-release job exists
+    assert "bump-and-release" in workflow["jobs"], "publish-pypi should have bump-and-release job"
+
+    bump_job = workflow["jobs"]["bump-and-release"]
+
+    # Check conditional execution
+    assert "if" in bump_job, "bump-and-release should have conditional execution"
+    assert "workflow_dispatch" in bump_job["if"], "bump-and-release should only run on workflow_dispatch"
+
+    # Check permissions
+    assert "permissions" in bump_job, "bump-and-release should have permissions defined"
+    assert bump_job["permissions"]["contents"] == "write", "bump-and-release needs contents: write permission"
+
+    # Check steps
+    steps = bump_job["steps"]
+    step_names = [step.get("name") for step in steps]
+
+    # Verify key steps exist
+    assert "Bump version" in step_names, "bump-and-release should have 'Bump version' step"
+    assert "Commit version bump" in step_names, "bump-and-release should have 'Commit version bump' step"
+    assert "Create and push tag" in step_names, "bump-and-release should have 'Create and push tag' step"
+    assert "Create GitHub Release" in step_names, "bump-and-release should have 'Create GitHub Release' step"
+
+
+def test_publish_pypi_has_asset_check():
+    """Test that github-release job checks for existing assets."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "publish-pypi.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    github_release_job = workflow["jobs"]["github-release"]
+    steps = github_release_job["steps"]
+    step_names = [step.get("name") for step in steps]
+
+    # Verify asset check step exists
+    assert "Check for existing release assets" in step_names, "github-release should check for existing assets"
+
+    # Find the check step
+    check_step = None
+    for step in steps:
+        if step.get("name") == "Check for existing release assets":
+            check_step = step
+            break
+
+    assert check_step is not None
+    assert "run" in check_step, "Asset check step should have a run script"
+
+    # Verify the script checks for conflicts
+    run_script = check_step["run"]
+    assert "gh release view" in run_script, "Should use gh release view to get existing assets"
+    assert "CONFLICTS" in run_script, "Should check for file conflicts"
+    assert "exit 1" in run_script, "Should exit with error if conflicts found"
+
+
+def test_publish_pypi_has_workflow_dispatch_input():
+    """Test that workflow_dispatch has bump_part input."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "publish-pypi.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    # YAML parser converts 'on' to True (boolean), so we access it with True key
+    on_events = workflow.get(True) or workflow.get("on")
+    assert on_events is not None, "publish-pypi should have trigger events"
+
+    # Check workflow_dispatch configuration
+    assert "workflow_dispatch" in on_events, "publish-pypi should support workflow_dispatch"
+
+    dispatch_config = on_events["workflow_dispatch"]
+    assert "inputs" in dispatch_config, "workflow_dispatch should have inputs"
+
+    inputs = dispatch_config["inputs"]
+    assert "bump_part" in inputs, "workflow_dispatch should have bump_part input"
+
+    bump_part = inputs["bump_part"]
+    assert bump_part["type"] == "choice", "bump_part should be a choice input"
+    assert bump_part["default"] == "patch", "bump_part should default to patch"
+    assert set(bump_part["options"]) == {"patch", "minor", "major"}, "bump_part should have patch, minor, major options"
