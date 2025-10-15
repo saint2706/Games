@@ -2,6 +2,8 @@
 
 This document describes how to release the games-collection package to PyPI.
 
+> **Note:** Detailed checklists for specific releases are archived under [`docs/deployment/releases/`](releases). The v1.2.1 walkthrough lives in [`releases/v1.2.1.md`](releases/v1.2.1.md).
+
 ## Quick Start: Releasing v1.2.1
 
 Version 1.2.1 is already set in both `pyproject.toml` and `scripts/__init__.py`. To release it:
