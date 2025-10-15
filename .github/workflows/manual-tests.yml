@@ -85,6 +85,10 @@ jobs:
             cmd.extend([
               "--cov=paper_games",
               "--cov=card_games",
+              "--cov=common",
+              "--cov=dice_games",
+              "--cov=logic_games",
+              "--cov=word_games",
               "--cov-report=term-missing",
             ])
 

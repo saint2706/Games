@@ -71,6 +71,10 @@ jobs:
           python -m pytest tests/ -v \
             --cov=paper_games \
             --cov=card_games \
+            --cov=common \
+            --cov=dice_games \
+            --cov=logic_games \
+            --cov=word_games \
             --cov-report=xml \
             --cov-report=html \
             --cov-report=term-missing \
