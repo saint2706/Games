@@ -50,6 +50,30 @@ Summary of specific workflow fixes and resolutions.
 - Verification steps
 - Impact assessment
 
+### [PYPI_PUBLISH_DEBUG_RUN_18520989869.md](PYPI_PUBLISH_DEBUG_RUN_18520989869.md)
+
+Detailed debug report for PyPI publish workflow failure run #18520989869.
+
+**Topics:**
+
+- Version mismatch analysis
+- Root cause: Tag vs code version inconsistency
+- Fix instructions (multiple options)
+- Prevention: New validation system
+- Future safeguards implemented
+
+### [HOW_TO_FIX_V1_1_1.md](HOW_TO_FIX_V1_1_1.md)
+
+Step-by-step guide to fix the v1.1.1 release issue.
+
+**Topics:**
+
+- Current state analysis
+- Fix options (clean slate vs move forward)
+- New safeguards explanation
+- Testing procedures
+- Quick command reference
+
 ## Quick Reference
 
 ### Validate Workflows
@@ -137,7 +161,33 @@ For detailed guides on working with workflows:
 - [Workflow Testing Quickstart](../development/WORKFLOW_TESTING_QUICKSTART.md)
 - [Workflow Validation Guide](../development/WORKFLOW_VALIDATION.md)
 
+### scripts/check_version_consistency.py
+
+Version consistency validation script that checks:
+
+- Version in `pyproject.toml`
+- Version in `scripts/__init__.py`
+- Git tag version (optional)
+- Provides clear error messages
+- Used by CI to prevent version mismatches
+
 ## Common Issues
+
+### PyPI Publishing Version Mismatch
+
+**Error:** `File already exists on PyPI`
+
+**Cause:** Git tag version doesn't match code version
+
+**Solution:**
+
+```bash
+# Check version consistency
+python scripts/check_version_consistency.py --tag v1.2.3
+
+# Follow fix guide
+See: HOW_TO_FIX_V1_1_1.md
+```
 
 ### Markdown Formatting Failures
 
