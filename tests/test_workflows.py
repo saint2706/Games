@@ -252,3 +252,75 @@ def test_build_pyinstaller_has_executable_validation():
     assert "games-collection" in run_script, "Validation should check for games-collection on Linux/macOS"
     # Check that it fails on missing file
     assert "exit 1" in run_script, "Validation should exit with error code 1 if file is missing"
+
+
+def test_build_executables_has_correct_triggers():
+    """Test that build-executables workflow has correct trigger configuration."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "build-executables.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    # Check that workflow has correct triggers
+    # Note: YAML parses 'on' as boolean True, so we need to check for that
+    triggers = workflow.get("on") or workflow.get(True)
+    assert triggers is not None, "build-executables should have 'on' triggers"
+
+    # Should have push trigger for tags
+    assert "push" in triggers, "build-executables should have 'push' trigger"
+    assert "tags" in triggers["push"], "build-executables push trigger should include 'tags'"
+    assert "v*" in triggers["push"]["tags"], "build-executables should trigger on 'v*' tags"
+
+    # Should also have workflow_dispatch for manual triggers
+    assert "workflow_dispatch" in triggers or triggers.get("workflow_dispatch") is None, \
+        "build-executables should have 'workflow_dispatch' trigger"
+
+
+def test_create_release_job_has_tag_condition():
+    """Test that create-release job only runs on tag pushes."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "build-executables.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    # Check that create-release job exists
+    assert "create-release" in workflow["jobs"], "build-executables should have create-release job"
+
+    create_release_job = workflow["jobs"]["create-release"]
+
+    # Verify the job has the correct condition
+    assert "if" in create_release_job, "create-release job should have an 'if' condition"
+    assert "startsWith(github.ref, 'refs/tags/v')" in create_release_job["if"], \
+        "create-release should only run on version tag pushes"
+
+
+def test_create_release_uses_git_tag():
+    """Test that create-release job uses actual git tags, not run numbers."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "build-executables.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    create_release_job = workflow["jobs"]["create-release"]
+    steps = create_release_job["steps"]
+
+    # Find the "Determine release tag" step
+    tag_step = None
+    for step in steps:
+        if step.get("name") == "Determine release tag":
+            tag_step = step
+            break
+
+    assert tag_step is not None, "create-release should have 'Determine release tag' step"
+    assert "run" in tag_step, "Determine release tag step should have a 'run' command"
+
+    run_script = tag_step["run"]
+    # Should extract tag from GITHUB_REF, not use GITHUB_RUN_NUMBER
+    assert "GITHUB_REF" in run_script, "Should extract tag from GITHUB_REF"
+    assert "GITHUB_RUN_NUMBER" not in run_script, "Should not use GITHUB_RUN_NUMBER for release tags"
