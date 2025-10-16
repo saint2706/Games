@@ -60,25 +60,30 @@ Use the convenience script:
 
 ## Customization
 
+Both build configurations are designed to be easily customizable. The configuration files are heavily commented to guide you through the process.
+
 ### PyInstaller
 
-Edit `pyinstaller/games.spec` to customize:
+The PyInstaller build is controlled by `pyinstaller/games.spec`. This is a Python script that gives you full control over the build process. The file is extensively commented to explain each option.
 
-- Application icon
-- Console vs. windowed mode
-- Additional data files
-- Module exclusions
-- Build options
+To customize the build, edit `pyinstaller/games.spec`:
+
+-   **Add Hidden Imports**: If PyInstaller fails to detect a module, add it to the `hiddenimports` list.
+-   **Include Data Files**: To bundle additional files (e.g., assets, documentation), add them to the `datas` list.
+-   **Exclude Modules**: To reduce the executable size, add unnecessary modules to the `excludes` list in the `Analysis` section.
+-   **Toggle Console Window**: For GUI applications on Windows, you can hide the console by setting `console=False` in the `EXE` object.
+-   **Application Icon**: You can specify an application icon by adding the `icon` argument to the `EXE` object.
 
 ### Nuitka
 
-Edit `nuitka/build.py` to customize:
+The Nuitka build is controlled by `nuitka/build.py`. This script constructs and runs the Nuitka command-line build, and it is well-documented with comments explaining each argument.
 
-- Output directory
-- Output filename
-- Include/exclude packages
-- Optimization level
-- Platform-specific options
+To customize the build, edit `nuitka/build.py`:
+
+-   **Include/Exclude Packages**: Modify the `--include-package` arguments in the `cmd` list to add or remove entire game packages.
+-   **Change Output Directory**: Modify the `--output-dir` and `--output-filename` arguments to change where the executable is saved.
+-   **Toggle Console Window**: On Windows, create a GUI-only application by uncommenting the `--disable-console` argument.
+-   **Advanced Optimizations**: Add or remove Nuitka command-line flags to the `cmd` list to fine-tune the compilation process.
 
 ## Platform-Specific Notes
 
