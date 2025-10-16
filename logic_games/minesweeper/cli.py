@@ -1,4 +1,15 @@
-"""Command-line interface for Minesweeper game."""
+"""Command-line interface for the Minesweeper game.
+
+This module provides a full-featured, text-based version of the classic
+Minesweeper puzzle. It allows players to choose from standard difficulty
+levels, interact with the game board, and receive feedback on their
+progress.
+
+The main game loop handles user input for selecting difficulty, making
+moves (revealing, flagging, etc.), and displaying the board state after
+each turn. The game ends when the player either reveals all non-mine
+cells or hits a mine.
+"""
 
 from __future__ import annotations
 
@@ -6,11 +17,17 @@ from .minesweeper import Difficulty, MinesweeperGame
 
 
 def main() -> None:
-    """Run Minesweeper game in CLI mode."""
+    """Run the Minesweeper game in command-line interface mode.
+
+    This function orchestrates the entire game flow, from initial setup
+    and difficulty selection to the main game loop and final outcome display.
+    """
     print("=" * 50)
     print("MINESWEEPER".center(50))
     print("=" * 50)
     print("\nWelcome to Minesweeper!")
+
+    # Prompt the user to select a difficulty level.
     print("\nSelect difficulty:")
     print("1. Beginner (9x9, 10 mines)")
     print("2. Intermediate (16x16, 40 mines)")
@@ -34,6 +51,7 @@ def main() -> None:
 
     game = MinesweeperGame(difficulty)
 
+    # Display the controls and instructions.
     print("\nControls:")
     print("  Enter row col action")
     print("  Actions: r (reveal), f (flag), u (clear mark), q (question mark), o (chord)")
@@ -41,9 +59,9 @@ def main() -> None:
     print("  Chord reveals neighbors when adjacent flags match the number.")
     print()
 
-    # Game loop
+    # Main game loop, continues until the game is won or lost.
     while not game.is_game_over():
-        # Display board
+        # Display the current state of the board.
         print("\n" + "  " + " ".join(f"{i:2}" for i in range(game.cols)))
         for row in range(game.rows):
             cells = " ".join(f"{game.get_cell_display(row, col):2}" for col in range(game.cols))
@@ -52,7 +70,7 @@ def main() -> None:
         print(f"\nMines: {game.num_mines}  Flagged: {len(game.flagged_positions)}")
         print(f"Revealed: {game.revealed_count}/{game.rows * game.cols - game.num_mines}")
 
-        # Get move
+        # Get the player's next move.
         while True:
             try:
                 move_input = input("\nEnter move (row col action): ").strip().split()
@@ -75,10 +93,10 @@ def main() -> None:
             except (ValueError, IndexError):
                 print("Invalid input. Use format: row col action")
 
-    # Game over
+    # Game over sequence.
     print("\n" + "=" * 50)
 
-    # Show final board
+    # Show the final, fully revealed board.
     print("\nFinal board:")
     print("  " + " ".join(f"{i:2}" for i in range(game.cols)))
     for row in range(game.rows):

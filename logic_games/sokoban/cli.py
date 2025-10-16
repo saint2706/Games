@@ -1,4 +1,13 @@
-"""Command-line interface for the Sokoban puzzle game."""
+"""Command-line interface for the Sokoban puzzle game.
+
+This module provides an interactive, text-based version of the classic
+Sokoban puzzle. It supports level navigation, undo functionality, and a
+clear display of the game board and player statistics.
+
+The main game loop handles user commands for moving the worker, navigating
+between levels, and managing the game state, providing a complete and
+engaging puzzle-solving experience.
+"""
 
 from __future__ import annotations
 
@@ -8,8 +17,11 @@ from .sokoban import SokobanGame
 
 
 def _render_board(game: SokobanGame) -> None:
-    """Render the current board state along with move statistics."""
+    """Render the current board state, including move and push counts.
 
+    Args:
+        game: The `SokobanGame` instance to render.
+    """
     print()
     for row in game.get_board():
         print(row.rstrip())
@@ -19,8 +31,7 @@ def _render_board(game: SokobanGame) -> None:
 
 
 def _print_help() -> None:
-    """Display available commands for interacting with the puzzle."""
-
+    """Display the list of available commands for interacting with the puzzle."""
     commands: Iterable[tuple[str, str]] = (
         ("u/d/l/r", "Move the warehouse worker up, down, left, or right"),
         ("undo", "Rewind the previous move"),
@@ -35,8 +46,11 @@ def _print_help() -> None:
 
 
 def main() -> None:
-    """Run the Sokoban CLI with realistic level navigation and undo support."""
+    """Run the Sokoban CLI, with level navigation and undo support.
 
+    This function orchestrates the entire game flow, from displaying the
+    welcome message and instructions to managing the main game loop.
+    """
     print("SOKOBAN".center(60, "="))
     print("Guide the warehouse worker (@) to push every crate ($) onto storage goals (.)")
     print("Crates that rest on goals become * while the worker stands on a goal as +.\n")
@@ -45,11 +59,13 @@ def main() -> None:
     game = SokobanGame(level_index=level_index)
     _print_help()
 
+    # Main game loop.
     while True:
         total_levels = len(SokobanGame.LEVELS)
         print(f"\nLevel {level_index + 1}/{total_levels}: {game.level_name}")
         _render_board(game)
 
+        # Check for win condition.
         if game.is_game_over():
             choice = input("Solved! Press Enter for the next level, type 'restart' to replay, or 'quit' to exit: ").strip().lower()
             if choice in {"quit", "q"}:
@@ -61,6 +77,7 @@ def main() -> None:
             game.load_level(level_index)
             continue
 
+        # Process player commands.
         command = input("Command: ").strip().lower()
         if command in {"quit", "q"}:
             break

@@ -1,10 +1,15 @@
-"""Sokoban game engine with authentic warehouse-style behaviour.
+"""Sokoban game engine with authentic warehouse-style behavior.
 
-This module implements a feature-rich Sokoban engine that models classic
-warehouse puzzles where a porter pushes crates onto designated storage spots.
-It supports multiple handcrafted levels, undo functionality, accurate goal
-tracking, and detailed move statistics to deliver a realistic Sokoban
-experience for the command-line interface and potential future front ends.
+This module provides a feature-rich Sokoban engine that models the classic
+warehouse puzzle, where a worker pushes crates onto designated storage goals.
+The engine supports multiple handcrafted levels, undo functionality, accurate
+goal tracking, and detailed move statistics.
+
+This implementation is designed to be independent of the user interface,
+making it suitable for both command-line and graphical front-ends.
+
+Classes:
+    SokobanGame: The main game engine for Sokoban puzzles.
 """
 
 from __future__ import annotations
@@ -15,23 +20,25 @@ from common.game_engine import GameEngine, GameState
 
 
 class SokobanGame(GameEngine[str, int]):
-    """Sokoban box-pushing puzzle game engine.
+    """The game engine for the Sokoban box-pushing puzzle.
 
-    The game uses the standard Sokoban symbols:
+    The game uses the standard set of Sokoban symbols to represent the
+    game board and its elements:
 
-    * ``#`` – wall tiles that block movement
-    * ``@`` – player on a floor tile
-    * ``+`` – player standing on a goal tile
-    * ``$`` – crate on a floor tile
-    * ``*`` – crate sitting on a goal tile
-    * ``.`` – empty goal tile
-    * `` `` (space) – walkable floor tile
+    - ``#``: A wall tile that blocks movement.
+    - ``@``: The player on a regular floor tile.
+    - ``+``: The player standing on a goal tile.
+    - ``$``: A crate on a regular floor tile.
+    - ``*``: A crate resting on a goal tile.
+    - ``.``: An empty goal tile.
+    - `` `` (space): A walkable floor tile.
 
     Attributes:
-        moves: Total number of moves the player has taken on the current level
-        pushes: Number of moves that involved pushing a crate
-        level_index: Index of the currently loaded built-in level (-1 for custom)
-        level_name: Friendly name of the active level
+        moves: The total number of moves made by the player in the current level.
+        pushes: The number of moves that involved pushing a crate.
+        level_index: The index of the currently loaded built-in level.
+            This is -1 for custom levels.
+        level_name: The display name of the active level.
     """
 
     LEVELS: Tuple[Dict[str, Sequence[str]], ...] = (
@@ -82,16 +89,17 @@ class SokobanGame(GameEngine[str, int]):
     DIRECTIONS: Dict[str, Tuple[int, int]] = {"u": (-1, 0), "d": (1, 0), "l": (0, -1), "r": (0, 1)}
 
     def __init__(self, level_index: int = 0, custom_level: Sequence[str] | None = None) -> None:
-        """Initialise the Sokoban game engine.
+        """Initialize the Sokoban game engine.
 
         Args:
-            level_index: Index of the predefined level to load.
-            custom_level: Optional custom level layout that overrides ``level_index``.
+            level_index: The index of the predefined level to load.
+            custom_level: An optional custom level layout that overrides
+                the `level_index`.
 
         Raises:
-            ValueError: If the provided ``level_index`` is invalid or the layout is malformed.
+            ValueError: If the provided `level_index` is invalid or the
+                level layout is malformed.
         """
-
         self.moves = 0
         self.pushes = 0
         self.history: List[Dict[str, object]] = []
@@ -108,7 +116,6 @@ class SokobanGame(GameEngine[str, int]):
 
     def reset(self) -> None:
         """Reset the active level to its original configuration."""
-
         self.state = GameState.NOT_STARTED
         self.moves = 0
         self.pushes = 0
@@ -116,32 +123,33 @@ class SokobanGame(GameEngine[str, int]):
         self._build_grid(self._base_layout)
 
     def load_level(self, level_index: int) -> None:
-        """Load one of the predefined Sokoban levels by index.
+        """Load one of the predefined Sokoban levels by its index.
 
         Args:
-            level_index: Position within :data:`LEVELS` identifying the desired level.
+            level_index: The index of the desired level in the `LEVELS` list.
 
         Raises:
-            ValueError: If ``level_index`` is outside the available range.
+            ValueError: If the `level_index` is outside the valid range.
         """
-
-        if level_index < 0 or level_index >= len(self.LEVELS):
+        if not (0 <= level_index < len(self.LEVELS)):
             raise ValueError(f"Level index {level_index} is out of range.")
 
         data = self.LEVELS[level_index]
         self.level_index = level_index
-        self.level_name = data["name"]
+        self.level_name = str(data["name"])
         self._set_base_layout(tuple(data["layout"]))
         self.reset()
 
     def get_board(self) -> List[str]:
-        """Return a snapshot of the current board state as strings."""
-
+        """Return a snapshot of the current board state as a list of strings."""
         return ["".join(row) for row in self.grid]
 
     def undo_last_move(self) -> bool:
-        """Revert the game state to the position before the most recent move."""
+        """Revert the game state to before the most recent move.
 
+        Returns:
+            True if a move was successfully undone, False otherwise.
+        """
         if not self.history:
             return False
 
@@ -150,18 +158,19 @@ class SokobanGame(GameEngine[str, int]):
         return True
 
     def is_game_over(self) -> bool:
-        """Check whether every goal tile is occupied by a crate or the player."""
-
-        return all(self.grid[r][c] in {"*", "+"} for r, c in self.goal_positions)
+        """Return True if every goal tile is occupied by a crate."""
+        return all(self.grid[r][c] == "*" for r, c in self.goal_positions)
 
     def get_current_player(self) -> int:
-        """Return the identifier of the current player (always zero for Sokoban)."""
-
+        """Return the identifier of the current player (always 0 for Sokoban)."""
         return 0
 
     def get_valid_moves(self) -> List[str]:
-        """Return a list of movement directions that are currently legal."""
+        """Return a list of all currently legal movement directions.
 
+        Returns:
+            A list of strings representing the valid directions ('u', 'd', 'l', 'r').
+        """
         if self.state == GameState.FINISHED:
             return []
 
@@ -176,15 +185,12 @@ class SokobanGame(GameEngine[str, int]):
         """Attempt to move the player in the specified direction.
 
         Args:
-            move: One of ``"u"``, ``"d"``, ``"l"``, or ``"r"`` representing up, down, left, or right.
+            move: A string representing the direction ('u', 'd', 'l', or 'r').
 
         Returns:
-            True if the move was performed; False if it was invalid or would cause an illegal push.
+            True if the move was valid and performed, False otherwise.
         """
-
-        if move not in self.DIRECTIONS:
-            return False
-        if self.state == GameState.FINISHED:
+        if move not in self.DIRECTIONS or self.state == GameState.FINISHED:
             return False
 
         direction = self.DIRECTIONS[move]
@@ -209,23 +215,31 @@ class SokobanGame(GameEngine[str, int]):
         return True
 
     def get_winner(self) -> int | None:
-        """Return the player identifier if the puzzle is solved, otherwise ``None``."""
+        """Return the player identifier if the puzzle is solved.
 
+        Returns:
+            0 if the game is won, otherwise None.
+        """
         return 0 if self.is_game_over() else None
 
     def get_game_state(self) -> GameState:
-        """Return the :class:`~common.game_engine.GameState` describing the game status."""
-
+        """Return the current `GameState` of the puzzle."""
         return self.state
 
     def _set_base_layout(self, layout: Sequence[str]) -> None:
-        """Store the base layout that will be used on reset."""
-
+        """Store the base layout to be used for resetting the level."""
         self._base_layout = layout
 
     def _build_grid(self, layout: Sequence[str]) -> None:
-        """Construct the internal grid representation from the textual layout."""
+        """Construct the internal grid from a textual level layout.
 
+        Args:
+            layout: A sequence of strings representing the level.
+
+        Raises:
+            ValueError: If the layout is malformed (e.g., no player,
+                mismatched box/goal counts).
+        """
         if not layout:
             raise ValueError("Level layout must contain at least one row.")
 
@@ -264,12 +278,10 @@ class SokobanGame(GameEngine[str, int]):
 
     def _find_player(self) -> Tuple[int, int]:
         """Return the current player position (legacy helper for tests)."""
-
         return self.player_pos
 
     def _can_step(self, target: Tuple[int, int], direction: Tuple[int, int]) -> bool:
-        """Determine if the player can move into ``target`` considering pushes."""
-
+        """Determine if the player can move to the target, considering pushes."""
         if not self._is_within_bounds(target):
             return False
 
@@ -282,8 +294,7 @@ class SokobanGame(GameEngine[str, int]):
         return tile in self.FLOOR_TILES or target in self.goal_positions
 
     def _prepare_box_move(self, box_position: Tuple[int, int], direction: Tuple[int, int]) -> bool:
-        """Push a box if the target tile currently holds one."""
-
+        """Push a box if one exists at the target position."""
         tile = self.grid[box_position[0]][box_position[1]]
         if tile not in self.BOX_TILES:
             return False
@@ -293,34 +304,28 @@ class SokobanGame(GameEngine[str, int]):
         return True
 
     def _move_box(self, source: Tuple[int, int], destination: Tuple[int, int]) -> None:
-        """Move a crate from ``source`` to ``destination`` updating goal markers."""
-
+        """Move a crate from a source to a destination, updating tiles."""
         dest_tile = "*" if destination in self.goal_positions else "$"
         self.grid[destination[0]][destination[1]] = dest_tile
         self.grid[source[0]][source[1]] = "." if source in self.goal_positions else " "
 
     def _move_player(self, destination: Tuple[int, int]) -> None:
-        """Place the player on ``destination`` updating the previous tile."""
-
+        """Move the player to a new destination, updating tiles."""
         pr, pc = self.player_pos
         self.grid[pr][pc] = "." if (pr, pc) in self.goal_positions else " "
         self.grid[destination[0]][destination[1]] = "+" if destination in self.goal_positions else "@"
         self.player_pos = destination
 
     def _can_push_box(self, destination: Tuple[int, int]) -> bool:
-        """Return True if a crate can be pushed into ``destination``."""
-
+        """Return True if a crate can be pushed into the destination tile."""
         if not self._is_within_bounds(destination):
             return False
 
         tile = self.grid[destination[0]][destination[1]]
-        if tile in self.BOX_TILES or tile == "#":
-            return False
-        return tile in self.FLOOR_TILES or destination in self.goal_positions
+        return tile not in self.BOX_TILES and tile != "#"
 
     def _is_within_bounds(self, position: Tuple[int, int]) -> bool:
-        """Check whether ``position`` refers to a valid tile on the board."""
-
+        """Check if a position is within the valid board boundaries."""
         rows = len(self.grid)
         if rows == 0:
             return False
@@ -328,13 +333,11 @@ class SokobanGame(GameEngine[str, int]):
         return 0 <= position[0] < rows and 0 <= position[1] < cols
 
     def _offset_position(self, position: Tuple[int, int], direction: Tuple[int, int]) -> Tuple[int, int]:
-        """Return a new position by applying ``direction`` to ``position``."""
-
+        """Calculate a new position by applying a directional offset."""
         return position[0] + direction[0], position[1] + direction[1]
 
     def _snapshot_state(self) -> Dict[str, object]:
-        """Capture a snapshot of the mutable game state."""
-
+        """Capture a snapshot of the mutable game state for the undo history."""
         return {
             "grid": [row.copy() for row in self.grid],
             "player_pos": self.player_pos,
@@ -344,8 +347,7 @@ class SokobanGame(GameEngine[str, int]):
         }
 
     def _apply_snapshot(self, snapshot: Dict[str, object]) -> None:
-        """Restore the game state from ``snapshot``."""
-
+        """Restore the game state from a snapshot."""
         grid_snapshot = cast(List[List[str]], snapshot["grid"])
         self.grid = [row.copy() for row in grid_snapshot]
         self.player_pos = cast(Tuple[int, int], snapshot["player_pos"])

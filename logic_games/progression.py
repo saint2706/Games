@@ -1,10 +1,23 @@
 """Logic puzzle progression, hints, and analytics services.
 
-This module centralises gameplay progression for the logic games catalogue.  It
-provides progressive level packs, difficulty unlock rules, tutorial-powered
-hints, leaderboard tracking and configurable puzzle generation utilities.  The
-service is deliberately framework-agnostic so it can power both CLI and GUI
-front-ends.
+This module centralizes gameplay progression for the logic games catalog. It
+provides a framework for defining level packs, difficulty progression, and
+unlock rules. The `LogicPuzzleService` is the main entry point, offering
+functionality for tracking player progress, providing hints, and generating
+leaderboards.
+
+The service is designed to be framework-agnostic, allowing it to power both
+command-line and graphical user interfaces. It integrates with the global
+tutorial registry to provide contextual hints and tips.
+
+Classes:
+    PuzzleDifficulty: Configuration for a single puzzle difficulty level.
+    LevelPack: A themed collection of puzzle difficulties.
+    LogicPuzzleDefinition: The complete definition for a logic puzzle.
+    LogicPuzzleService: A service to manage puzzle progression and analytics.
+
+Factories:
+    GameFactory: A callable that creates a game engine instance.
 """
 
 from __future__ import annotations
@@ -18,12 +31,27 @@ from common.educational import StrategyTip, StrategyTipProvider, TutorialStep
 from common.game_engine import GameEngine
 from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata
 
+# A factory function for creating game engine instances.
 GameFactory = Callable[[Dict[str, Any]], GameEngine[Any, Any]]
 
 
 @dataclass(slots=True)
 class PuzzleDifficulty:
-    """Configuration for a single puzzle difficulty level."""
+    """Configuration for a single puzzle difficulty level.
+
+    Attributes:
+        key: A unique identifier for this difficulty level.
+        display_name: The human-readable name for this difficulty.
+        generator: A factory function to create a game instance.
+        parameters: A dictionary of parameters to pass to the generator.
+        unlock_after: The number of completions of the prerequisite
+            difficulty required to unlock this one.
+        description: A brief description of the difficulty level.
+        tutorial_difficulty: The corresponding difficulty key in the
+            tutorial registry.
+        prerequisite_key: The key of the difficulty that must be completed
+            to unlock this one.
+    """
 
     key: str
     display_name: str
@@ -37,7 +65,16 @@ class PuzzleDifficulty:
 
 @dataclass(slots=True)
 class LevelPack:
-    """A themed collection of puzzle difficulties with unlock requirements."""
+    """A themed collection of puzzle difficulties with unlock requirements.
+
+    Attributes:
+        key: A unique identifier for the level pack.
+        display_name: The human-readable name for the pack.
+        description: A brief description of the level pack's theme.
+        difficulties: A sequence of `PuzzleDifficulty` instances in this pack.
+        unlock_requirement: The total number of puzzle completions required
+            to unlock this pack.
+    """
 
     key: str
     display_name: str
@@ -48,7 +85,14 @@ class LevelPack:
 
 @dataclass(slots=True)
 class LogicPuzzleDefinition:
-    """Definition for a logic puzzle registered with the progression service."""
+    """The complete definition for a logic puzzle, including all its level packs.
+
+    Attributes:
+        game_key: A unique identifier for the game.
+        display_name: The human-readable name of the game.
+        level_packs: A sequence of `LevelPack` instances for this game.
+        default_player: The default player ID to use for solo play.
+    """
 
     game_key: str
     display_name: str
@@ -57,9 +101,16 @@ class LogicPuzzleDefinition:
 
 
 class LogicPuzzleService:
-    """Coordinate logic puzzle progression, hints and analytics."""
+    """A service to coordinate logic puzzle progression, hints, and analytics.
+
+    This service acts as a central hub for managing the player's journey
+    through the logic puzzles. It handles puzzle registration, tracks
+    completions, determines unlockable content, and provides hints and
+    leaderboard data.
+    """
 
     def __init__(self) -> None:
+        """Initialize the LogicPuzzleService."""
         self._definitions: Dict[str, LogicPuzzleDefinition] = {}
         self._stats: Dict[str, GameStatistics] = {}
         self._progress: Dict[str, Dict[str, Dict[str, int]]] = {}
@@ -68,24 +119,33 @@ class LogicPuzzleService:
     # Registration and lookup helpers
     # ------------------------------------------------------------------
     def register_puzzle(self, definition: LogicPuzzleDefinition) -> None:
-        """Register a puzzle definition for progression tracking."""
+        """Register a puzzle definition for progression tracking.
 
+        Args:
+            definition: The `LogicPuzzleDefinition` to register.
+        """
         self._definitions[definition.game_key] = definition
 
     def registered_games(self) -> List[str]:
-        """Return sorted keys for registered puzzles."""
-
+        """Return a sorted list of keys for all registered puzzles."""
         return sorted(self._definitions)
 
     def get_definition(self, game_key: str) -> LogicPuzzleDefinition:
-        """Return the :class:`LogicPuzzleDefinition` for ``game_key``."""
+        """Return the `LogicPuzzleDefinition` for the specified game key.
 
+        Args:
+            game_key: The key of the game to look up.
+
+        Returns:
+            The corresponding puzzle definition.
+        """
         return self._definitions[game_key]
 
     # ------------------------------------------------------------------
     # Progression utilities
     # ------------------------------------------------------------------
     def _game_progress(self, player_id: str, game_key: str) -> Dict[str, int]:
+        """Retrieve the progress data for a specific player and game."""
         return self._progress.setdefault(player_id, {}).setdefault(game_key, {})
 
     def record_completion(
@@ -98,8 +158,16 @@ class LogicPuzzleService:
         mistakes: int = 0,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """Record a puzzle completion and update analytics/progression."""
+        """Record a puzzle completion and update analytics and progression.
 
+        Args:
+            game_key: The key of the completed game.
+            difficulty: The key of the completed difficulty.
+            player_id: The ID of the player who completed the puzzle.
+            duration: The time taken to complete the puzzle, in seconds.
+            mistakes: The number of mistakes made during the puzzle.
+            metadata: Additional metadata about the completion.
+        """
         definition = self.get_definition(game_key)
         stats = self._stats.setdefault(game_key, GameStatistics(game_name=game_key))
         combined_metadata = {"difficulty": difficulty, "mistakes": mistakes}
@@ -109,24 +177,23 @@ class LogicPuzzleService:
         progress = self._game_progress(player_id, game_key)
         progress[difficulty] = progress.get(difficulty, 0) + 1
 
-        # Emit unlock telemetry via tutorial registry event bus (if available)
+        # Emit unlock telemetry via the tutorial registry's event bus.
         try:
             registration = GLOBAL_TUTORIAL_REGISTRY.get_registration(game_key)
-            registration.tutorial_class  # Touch attribute to ensure lazy load
-            registration.metadata  # Access to satisfy coverage and to surface errors early
+            registration.tutorial_class  # Touch attribute to ensure lazy load.
+            registration.metadata  # Access to satisfy coverage and surface errors early.
         except KeyError:
-            # No tutorial entry yet – this is acceptable for custom games.
+            # No tutorial entry exists, which is acceptable for custom games.
             pass
 
-        # Provide players with an auto-completion hint when the next tier unlocks.
+        # Provide players with a hint when the next tier unlocks.
         unlocked = self.get_next_locked_difficulty(definition, progress)
         if unlocked is None:
             return
         self._auto_log_unlock_hint(game_key, unlocked)
 
     def _auto_log_unlock_hint(self, game_key: str, difficulty_key: str) -> None:
-        """Record a synthetic analytics event describing the next unlock."""
-
+        """Record a synthetic analytics event to signify an unlock."""
         stats = self._stats.setdefault(game_key, GameStatistics(game_name=game_key))
         stats.game_history.append(
             {
@@ -146,8 +213,15 @@ class LogicPuzzleService:
         definition: LogicPuzzleDefinition,
         progress: Dict[str, int],
     ) -> Optional[str]:
-        """Return the next locked difficulty key, if any."""
+        """Return the key of the next locked difficulty, if any.
 
+        Args:
+            definition: The puzzle definition to check against.
+            progress: The player's current progress data.
+
+        Returns:
+            The key of the next locked difficulty, or None if all are unlocked.
+        """
         for pack in definition.level_packs:
             if not self._is_pack_unlocked(progress, pack):
                 return pack.difficulties[0].key if pack.difficulties else None
@@ -157,12 +231,14 @@ class LogicPuzzleService:
         return None
 
     def _is_pack_unlocked(self, progress: Dict[str, int], pack: LevelPack) -> bool:
+        """Check if a level pack is unlocked based on the player's progress."""
         if pack.unlock_requirement == 0:
             return True
         total_completed = sum(progress.values())
         return total_completed >= pack.unlock_requirement
 
     def _is_difficulty_unlocked(self, progress: Dict[str, int], difficulty: PuzzleDifficulty) -> bool:
+        """Check if a specific difficulty is unlocked."""
         prerequisite = difficulty.prerequisite_key
         if prerequisite is None:
             return True
@@ -170,8 +246,15 @@ class LogicPuzzleService:
         return progress.get(prerequisite, 0) >= required
 
     def get_available_difficulties(self, game_key: str, player_id: str) -> List[PuzzleDifficulty]:
-        """Return unlocked difficulties in order for ``player_id``."""
+        """Return a list of all unlocked difficulties for a given player.
 
+        Args:
+            game_key: The key of the game.
+            player_id: The ID of the player.
+
+        Returns:
+            A list of `PuzzleDifficulty` instances that are available.
+        """
         definition = self.get_definition(game_key)
         progress = self._game_progress(player_id, game_key)
         available: List[PuzzleDifficulty] = []
@@ -195,8 +278,16 @@ class LogicPuzzleService:
         *,
         step_index: int = 0,
     ) -> Optional[Dict[str, Any]]:
-        """Return a hint payload backed by the tutorial registry."""
+        """Return a hint payload, backed by the tutorial registry.
 
+        Args:
+            game_key: The key of the game for which a hint is requested.
+            difficulty: The current difficulty level.
+            step_index: The index of the tutorial step for the hint.
+
+        Returns:
+            A dictionary containing the hint, or None if no hint is found.
+        """
         try:
             registration = GLOBAL_TUTORIAL_REGISTRY.get_registration(game_key)
         except KeyError:
@@ -226,6 +317,7 @@ class LogicPuzzleService:
 
     @staticmethod
     def _metadata_hint(metadata: TutorialMetadata, index: int, difficulty: str) -> Optional[Dict[str, Any]]:
+        """Generate a hint from the tutorial's metadata."""
         hints = metadata.hints
         if not hints:
             return None
@@ -239,6 +331,7 @@ class LogicPuzzleService:
 
     @staticmethod
     def _strategy_hint(provider: StrategyTipProvider, difficulty: str) -> Optional[Dict[str, Any]]:
+        """Generate a hint from the strategy tip provider."""
         tips: Iterable[StrategyTip] = provider.get_tips_by_difficulty(difficulty)
         tips = list(tips)
         if not tips:
@@ -258,8 +351,15 @@ class LogicPuzzleService:
     # Analytics utilities
     # ------------------------------------------------------------------
     def leaderboard(self, game_key: str, *, limit: int = 5) -> List[Dict[str, Any]]:
-        """Return top players ranked by completions for ``game_key``."""
+        """Return the top players, ranked by completions, for a given game.
 
+        Args:
+            game_key: The key of the game for the leaderboard.
+            limit: The maximum number of players to return.
+
+        Returns:
+            A list of dictionaries, each representing a player on the leaderboard.
+        """
         stats = self._stats.get(game_key)
         if stats is None:
             return []
@@ -278,8 +378,15 @@ class LogicPuzzleService:
         return leaderboard
 
     def completion_summary(self, game_key: str, player_id: str) -> Dict[str, int]:
-        """Return completion counts per difficulty for ``player_id``."""
+        """Return a summary of completion counts per difficulty for a player.
 
+        Args:
+            game_key: The key of the game.
+            player_id: The ID of the player.
+
+        Returns:
+            A dictionary mapping difficulty keys to completion counts.
+        """
         progress = self._progress.get(player_id, {}).get(game_key, {})
         return dict(progress)
 
@@ -287,8 +394,19 @@ class LogicPuzzleService:
     # Puzzle generation utilities
     # ------------------------------------------------------------------
     def generate_puzzle(self, game_key: str, difficulty: str, **overrides: Any) -> GameEngine[Any, Any]:
-        """Instantiate a puzzle for ``difficulty`` applying ``overrides``."""
+        """Instantiate a puzzle for a given difficulty, with optional overrides.
 
+        Args:
+            game_key: The key of the game to generate.
+            difficulty: The key of the difficulty to generate.
+            overrides: Keyword arguments to override default parameters.
+
+        Returns:
+            An instance of the game engine for the specified puzzle.
+
+        Raises:
+            KeyError: If the difficulty or game key is not found.
+        """
         definition = self.get_definition(game_key)
         for pack in definition.level_packs:
             for diff in pack.difficulties:
@@ -306,8 +424,17 @@ class LogicPuzzleService:
         *,
         parameter_grid: Optional[List[Dict[str, Any]]] = None,
     ) -> List[GameEngine[Any, Any]]:
-        """Generate a batch of puzzles using optional parameter overrides."""
+        """Generate a batch of puzzles with optional parameter overrides.
 
+        Args:
+            game_key: The key of the game to generate.
+            difficulty: The key of the difficulty to generate.
+            count: The number of puzzles to generate.
+            parameter_grid: A list of parameter dictionaries to cycle through.
+
+        Returns:
+            A list of generated game engine instances.
+        """
         puzzles: List[GameEngine[Any, Any]] = []
         overrides_iter = parameter_grid or [{}]
         for idx in range(count):
@@ -316,6 +443,7 @@ class LogicPuzzleService:
         return puzzles
 
 
+# A global instance of the LogicPuzzleService for convenient access.
 LOGIC_PUZZLE_SERVICE = LogicPuzzleService()
 
 
