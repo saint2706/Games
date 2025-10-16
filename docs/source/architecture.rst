@@ -23,12 +23,32 @@ Package layout
     management, win detection, and state transitions.
   * ``common.ai_strategy`` – Strategy interfaces and heuristics used by AI
     opponents. Games can plug in their own subclasses to tailor behaviour.
-  * ``common.gui_base`` and ``common.gui_base_pyqt`` – Foundations for Tkinter
-    and PyQt graphical front ends.
-  * ``common.architecture`` – Infrastructure for events, persistence, replay
-    capture, plugin discovery, and user settings.
+  * ``common.gui_base``, ``common.gui_base_pyqt``, and ``common.gui_frameworks`` – Foundations for Tkinter, PyQt, and other graphical front ends.
   * ``common.educational`` – Helper classes for hint systems and explanatory
     overlays.
+  * ``common.cli_utils`` – Utilities for creating enhanced command-line interfaces.
+  * ``common.sound_manager`` – A centralized manager for in-game audio.
+  * ``common.themes`` – Manages visual themes for GUI components.
+  * ``common.i18n`` – Internationalization and localization utilities.
+  * ``common.analytics`` and ``common.crash_reporter`` – Services for analytics and crash reporting.
+  * ``common.profile`` and ``common.profile_service`` – User profile management.
+  * ``common.leaderboard_service`` – A service for managing leaderboards.
+  * ``common.achievements`` and ``common.achievements_registry`` – Systems for managing and tracking player achievements.
+  * ``common.daily_challenges`` and ``common.challenges`` – Infrastructure for daily challenges and other game challenges.
+  * ``common.tutorial_registry`` and ``common.tutorial_session`` – Systems for managing and displaying tutorials.
+  * ``common.recommendation_service`` – A service for recommending games to players.
+  * ``common.keyboard_shortcuts`` – A system for managing keyboard shortcuts.
+  * ``common.animations`` – Utilities for creating animations.
+
+
+- ``common/architecture/`` – Core infrastructure for the game engine.
+
+  * ``events`` – A lightweight event dispatcher.
+  * ``persistence`` – Helpers for saving and loading game state.
+  * ``replay`` – A system for recording and replaying games.
+  * ``plugin`` – A plugin system for discovering third-party games.
+  * ``settings`` – A centralized manager for user preferences.
+  * ``observer`` – An implementation of the observer pattern for synchronizing GUI views with engine state.
 
 - ``scripts/`` – Entry points that glue the packages together for distribution.
   The ``games-collection`` launcher offers a curated menu of installed games.

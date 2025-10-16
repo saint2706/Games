@@ -11,10 +11,10 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "Card & Paper Games"
+project = "Games Collection"
 copyright = "2025, Games Project Contributors"
 author = "Games Project Contributors"
-release = "1.0.0"
+release = "1.6.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
