@@ -299,6 +299,58 @@ print(RichText.success("You won!", theme))
 print(RichText.error("Game over!", theme))
 ```
 
+## 5. Go Fish - Event-Driven Autosave Integration
+
+### Changes Made
+
+**File: `card_games/go_fish/game.py`**
+
+- Wired `GoFishGame` into the shared event bus (`GameEventType`) so every turn emits action, score, and lifecycle events
+- Added `to_state()`/`from_state()` helpers for persistence using the existing card serialization utilities
+- Provided `_card_to_dict()`/`_card_from_dict()` helpers for round-tripping immutable `Card` objects
+
+**File: `card_games/go_fish/cli.py`**
+
+- Introduced an autosave slot powered by `SaveLoadManager`
+- Prompts players to resume an unfinished match when an autosave exists
+- Persists rich metadata (next player, deck size, last action) alongside the serialized state after every valid action
+
+### Usage
+
+- Start the CLI with `python -m card_games.go_fish`
+- Play a few turns and exit the program; a `go_fish_autosave.save` file is created automatically
+- Relaunch the CLI and choose to resume when prompted to continue exactly where you left off
+
+### Testing
+
+```bash
+python -m card_games.go_fish
+# Play a few turns, exit, and relaunch to verify autosave resume
+```
+
+## 6. Connect Four - Event Bus & Autosave Enhancements
+
+### Changes Made
+
+**File: `paper_games/connect_four/connect_four.py`**
+
+- Updated `ConnectFourGame` to emit `GameEventType` events for initialization, turn progression, and game over states
+- Added `to_state()`/`from_state()` helpers so games can be serialized and restored without replaying moves
+- Extended the CLI wrapper to leverage `SaveLoadManager` for automatic persistence between sessions
+
+### Usage
+
+- Launch the CLI via `python -m paper_games.connect_four`
+- Accept the resume prompt when an autosave exists to recover the previous board position instantly
+- Autosave files live in `./saves/connect_four_autosave.save`
+
+### Testing
+
+```bash
+python -m paper_games.connect_four
+# Make moves, exit, relaunch, and resume the saved game
+```
+
 ## Conclusion
 
 These enhancements demonstrate that the infrastructure is production-ready and easy to integrate. Any game in the repository can adopt these features with minimal code changes, providing better user experience and demonstrating the value of the common architecture patterns.
