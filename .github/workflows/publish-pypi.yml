@@ -132,9 +132,9 @@ jobs:
           else
             TAG="${{ github.ref_name }}"
           fi
-          
+
           python scripts/check_version_consistency.py --tag "$TAG"
-          
+
           echo "## Version Validation ✅" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Version consistency check passed for tag $TAG" >> "$GITHUB_STEP_SUMMARY"
@@ -279,15 +279,15 @@ jobs:
           else
             RELEASE_TAG="${{ github.ref_name }}"
           fi
-          
+
           echo "Checking for existing assets in release $RELEASE_TAG..."
-          
+
           # Get list of existing assets
           EXISTING_ASSETS=$(gh release view "$RELEASE_TAG" \
             --repo "${{ github.repository }}" \
             --json assets \
             --jq '.assets[].name' || echo "")
-          
+
           if [ -n "$EXISTING_ASSETS" ]; then
             echo "::warning::The following assets already exist in release $RELEASE_TAG and will be overwritten:"
             echo "$EXISTING_ASSETS" | while read -r asset; do
@@ -296,7 +296,7 @@ jobs:
           else
             echo "✓ No existing assets found."
           fi
-          
+
           # Store tag for later use
           echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
 
@@ -316,7 +316,7 @@ jobs:
             dist/* \
             --clobber \
             --repo "${{ github.repository }}"
-          
+
           echo "## Release Assets Uploaded ✅" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "All distribution packages and signatures uploaded to release ${{ steps.check_assets.outputs.release_tag }}" >> "$GITHUB_STEP_SUMMARY"
