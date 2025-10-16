@@ -1,48 +1,39 @@
-# Word Games
+# Word Games Collection
 
-This directory contains implementations of word-based and trivia games.
+Welcome to the Word Games collection! This directory features a variety of word-based and trivia games, each designed with a clean architecture and a focus on enjoyable gameplay.
 
-## Planned Games
+## Games Included
 
-### Trivia Quiz
+### [Anagrams](./anagrams/README.md)
 
-Multiple choice questions from various categories with API integration
+A classic word puzzle game where you unscramble letters to form words. It's a test of vocabulary and quick thinking, set over a series of timed or untimed rounds.
 
-### Crossword Generator
+### [Crossword](./crossword/README.md)
 
-Create and solve crossword puzzles with clue system
+Solve crossword puzzles with a simple and intuitive interface. This game includes a flexible system for importing and exporting custom puzzle packs, allowing you to create and share your own crosswords.
 
-### Anagrams
+### [Trivia Quiz](./trivia/README.md)
 
-Word rearrangement game with scoring system
+Test your knowledge with this multiple-choice trivia game. It dynamically fetches questions from an online database for a virtually endless supply of questions. It also features a robust caching system for offline play.
 
-### Scrabble-like
+### [WordBuilder](./wordbuilder/README.md)
 
-Tile-based word building game (avoiding trademark issues)
+A tile-based word-building game inspired by Scrabble. Use your hand of lettered tiles to form high-scoring words, validated against a comprehensive dictionary.
 
 ## Game Structure
 
-Each game follows the standard structure:
+Each game is a self-contained package with its own game engine, command-line interface (CLI), and documentation. They are built upon a common framework that ensures consistency and allows for easy extension.
 
-```
-game_name/
-├── __init__.py          # Package initialization
-├── __main__.py          # Entry point (python -m word_games.game_name)
-├── game_name.py         # Core game logic (game engine)
-├── cli.py              # Command-line interface (optional)
-├── gui.py              # Graphical interface (optional)
-├── README.md           # Game-specific documentation
-└── tests/              # Tests (or in top-level tests/)
-```
+## Running the Games
 
-## Running Games
-
-Once implemented, games can be run with:
+Each game can be run as a Python module from the root of the repository. For example, to play the Anagrams game, use the following command:
 
 ```bash
-python -m word_games.game_name
+python -m word_games.anagrams
 ```
+
+For more detailed instructions, please see the `README.md` file within each game's directory.
 
 ## Contributing
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on adding new word games.
+If you're interested in adding a new game to the collection, please refer to the main [CONTRIBUTING.md](../CONTRIBUTING.md) file for guidelines.
