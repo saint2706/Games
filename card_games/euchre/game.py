@@ -1,16 +1,16 @@
 """Euchre card game engine.
 
-This module implements the classic four-player Euchre game with trump-based
-trick-taking gameplay and the unique "going alone" mechanic.
+This module implements the classic four-player Euchre game, featuring trump-based
+trick-taking and the "going alone" mechanic.
 
-Rules:
-* 24-card deck (9, T, J, Q, K, A of each suit)
-* Four players in two partnerships (1&3 vs 2&4)
-* Trump suit selected after dealing
-* Right bower (Jack of trump) is highest trump
-* Left bower (Jack of same-color suit) is second highest trump
-* First team to 10 points wins
-* "Going alone" option for maker's partner to sit out
+Key Rules:
+- 24-card deck (9, 10, J, Q, K, A of each suit).
+- Four players in two partnerships (North/South vs. East/West).
+- A trump suit is selected after the deal.
+- The Jack of the trump suit (Right Bower) is the highest trump.
+- The Jack of the same-colored suit (Left Bower) is the second-highest trump.
+- The first team to score 10 points wins.
+- A player can "go alone," where their partner sits out the hand.
 """
 
 from __future__ import annotations
@@ -20,11 +20,11 @@ from enum import Enum, auto
 from random import Random
 from typing import Optional
 
-from card_games.common.cards import Card, Suit
+from card_games.common.cards import RANK_TO_VALUE, Card, Suit
 
 
 class GamePhase(Enum):
-    """Current phase of the Euchre game."""
+    """Enumerates the different phases of a Euchre game."""
 
     DEAL = auto()
     BIDDING = auto()
@@ -36,20 +36,23 @@ class GamePhase(Enum):
 
 @dataclass
 class EuchreGame:
-    """Euchre game engine.
+    """The main engine for the Euchre game.
+
+    This class manages the game state, including player hands, the trump suit,
+    scoring, and the overall flow of the game from dealing to scoring.
 
     Attributes:
-        hands: Four player hands
-        trump: Trump suit
-        maker: Team that chose trump (1 or 2)
-        dealer: Current dealer (0-3)
-        current_trick: Cards in current trick
-        tricks_won: Tricks won by each team
-        team1_score: Team 1 score
-        team2_score: Team 2 score
-        phase: Current game phase
-        going_alone: Whether someone is going alone
-        winner: Winning team (1 or 2), None if ongoing
+        hands: A list of four lists, each representing a player's hand.
+        trump: The trump suit for the current hand.
+        maker: The team that chose the trump suit (1 or 2).
+        dealer: The index of the current dealer (0-3).
+        current_trick: A list of cards in the current trick.
+        tricks_won: A list tracking the number of tricks won by each team.
+        team1_score: The score for Team 1 (players 0 and 2).
+        team2_score: The score for Team 2 (players 1 and 3).
+        phase: The current phase of the game.
+        going_alone: True if a player is "going alone."
+        winner: The winning team (1 or 2), if the game is over.
     """
 
     hands: list[list[Card]] = field(default_factory=lambda: [[], [], [], []])
@@ -75,41 +78,36 @@ class EuchreGame:
         """Initialize a new Euchre game.
 
         Args:
-            rng: Optional Random instance for deterministic games
+            rng: An optional `random.Random` instance for deterministic games.
         """
         self.hands = [[], [], [], []]
-        self.trump = None
-        self.maker = None
+        self.trump: Optional[Suit] = None
+        self.maker: Optional[int] = None
         self.dealer = 0
-        self.current_trick = []
+        self.current_trick: list[tuple[int, Card]] = []
         self.tricks_won = [0, 0]
         self.team1_score = 0
         self.team2_score = 0
         self.phase = GamePhase.DEAL
         self.going_alone = False
-        self.alone_player = None
-        self.defending_alone_player = None
+        self.alone_player: Optional[int] = None
+        self.defending_alone_player: Optional[int] = None
         self.current_player = 0
-        self.winner = None
-        self.kitty = []
-        self.up_card = None
-        self.sitting_out_players = set()
+        self.winner: Optional[int] = None
+        self.kitty: list[Card] = []
+        self.up_card: Optional[Card] = None
+        self.sitting_out_players: set[int] = set()
         self._dealer_must_discard = False
         self._rng = rng or Random()
         self._deal_hands()
 
     def _create_euchre_deck(self) -> list[Card]:
-        """Create a 24-card Euchre deck (9-A in each suit).
-
-        Returns:
-            List of cards
-        """
+        """Create a 24-card Euchre deck (9s through Aces)."""
         ranks = ["9", "T", "J", "Q", "K", "A"]
-        suits = [Suit.CLUBS, Suit.DIAMONDS, Suit.HEARTS, Suit.SPADES]
-        return [Card(rank, suit) for suit in suits for rank in ranks]
+        return [Card(r, s) for s in Suit for r in ranks]
 
     def _deal_hands(self) -> None:
-        """Deal 5 cards to each player."""
+        """Deal 5 cards to each player and set up the kitty."""
         deck = self._create_euchre_deck()
         self._rng.shuffle(deck)
 
@@ -120,44 +118,23 @@ class EuchreGame:
         self.up_card = self.kitty[0] if self.kitty else None
 
         self.phase = GamePhase.BIDDING
+        self.current_player = (self.dealer + 1) % 4
+        # Reset other round-specific state
         self.trump = None
         self.maker = None
         self.going_alone = False
-        self.alone_player = None
-        self.defending_alone_player = None
-        self.sitting_out_players = set()
-        self.current_trick = []
-        self.tricks_won = [0, 0]
-        self.current_player = (self.dealer + 1) % 4
-        self._dealer_must_discard = False
 
     def select_trump(self, suit: Suit, player: int, go_alone: bool = False, require_dealer_pickup: bool = False) -> bool:
-        """Select the trump suit once bidding concludes.
-
-        Args:
-            suit: Trump suit to select.
-            player: Player selecting trump.
-            go_alone: Whether the selecting player goes alone.
-            require_dealer_pickup: Whether the dealer must pick up the turned card.
-
-        Returns:
-            True if the selection was recorded, otherwise ``False``.
-
-        Raises:
-            None.
-        """
-        if self.phase not in {GamePhase.BIDDING, GamePhase.DEALER_DISCARD}:
+        """Select the trump suit for the hand."""
+        if self.phase != GamePhase.BIDDING:
             return False
 
         self.trump = suit
-        # Determine maker team (players 0&2 are team 1, players 1&3 are team 2)
-        self.maker = 1 if player in [0, 2] else 2
+        self.maker = 1 if player % 2 == 0 else 2
         self.going_alone = go_alone
-        self.alone_player = player if go_alone else None
-        self.sitting_out_players = set()
         if go_alone:
-            partner = (player + 2) % 4
-            self.sitting_out_players.add(partner)
+            self.alone_player = player
+            self.sitting_out_players.add((player + 2) % 4)
 
         if require_dealer_pickup:
             self.phase = GamePhase.DEALER_DISCARD
@@ -165,372 +142,162 @@ class EuchreGame:
             self.current_player = self.dealer
         else:
             self.phase = GamePhase.PLAY
-            self._dealer_must_discard = False
             self.current_player = (self.dealer + 1) % 4
             self._skip_sitting_out_players()
         return True
 
     def set_defending_alone(self, player: int) -> None:
-        """Set a defending player to go alone and sit their partner out.
-
-        Args:
-            player: Seat index of the defending player electing to play alone.
-
-        Returns:
-            None.
-
-        Raises:
-            None.
-        """
-
+        """Allow a defending player to go alone."""
         self.defending_alone_player = player
-        partner = (player + 2) % 4
-        self.sitting_out_players.add(partner)
+        self.sitting_out_players.add((player + 2) % 4)
 
     def dealer_pickup(self, discard_card: Card) -> bool:
-        """Handle the dealer picking up the turned card and discarding one.
-
-        Args:
-            discard_card: Card the dealer wishes to discard after picking up.
-
-        Returns:
-            bool: ``True`` when the discard is accepted, ``False`` otherwise.
-
-        Raises:
-            None.
-        """
-
-        if self.phase != GamePhase.DEALER_DISCARD or not self._dealer_must_discard or self.up_card is None:
+        """Handle the dealer picking up the up-card and discarding one."""
+        if self.phase != GamePhase.DEALER_DISCARD or not self.up_card:
             return False
 
-        augmented = list(self.hands[self.dealer])
-        augmented.append(self.up_card)
-        if discard_card not in augmented:
+        dealer_hand = self.hands[self.dealer]
+        if discard_card not in dealer_hand:
             return False
 
-        self.hands[self.dealer].append(self.up_card)
-        self.hands[self.dealer].remove(discard_card)
-        self.kitty = [discard_card] + self.kitty[1:]
-        self._dealer_must_discard = False
+        dealer_hand.append(self.up_card)
+        dealer_hand.remove(discard_card)
+        self.kitty[0] = discard_card  # The discarded card replaces the up-card in the kitty
         self.phase = GamePhase.PLAY
         self.current_player = (self.dealer + 1) % 4
         self._skip_sitting_out_players()
         return True
 
+    def _active_player_count(self) -> int:
+        """Return the number of players currently active in the hand."""
+        return 4 - len(self.sitting_out_players)
+
     def redeal(self) -> None:
-        """Redeal the cards if both bidding rounds pass.
-
-        Returns:
-            None.
-
-        Raises:
-            None.
-        """
-
+        """Redeal the cards if no trump is selected."""
         self._deal_hands()
 
-    def _get_card_power(self, card: Card) -> int:
-        """Get the power ranking of a card.
-
-        Args:
-            card: Card to evaluate
-
-        Returns:
-            Power ranking (higher is better)
-        """
-        if not self.trump:
-            rank_values = {"9": 0, "T": 1, "J": 2, "Q": 3, "K": 4, "A": 5}
-            return rank_values.get(card.rank, 0)
-
-        # Right bower (Jack of trump) is highest
-        if card.rank == "J" and card.suit == self.trump:
-            return 100
-
-        # Left bower (Jack of same color) is second highest
-        same_color_suit = self._get_same_color_suit(self.trump)
-        if same_color_suit and card.rank == "J" and card.suit == same_color_suit:
-            return 99
-
-        # Trump cards
-        if card.suit == self.trump:
-            rank_values = {"9": 80, "T": 81, "Q": 82, "K": 83, "A": 84}
-            return rank_values.get(card.rank, 80)
-
-        # Non-trump cards
-        rank_values = {"9": 0, "T": 1, "J": 2, "Q": 3, "K": 4, "A": 5}
-        return rank_values.get(card.rank, 0)
-
-    def _get_same_color_suit(self, suit: Suit) -> Optional[Suit]:
-        """Get the same-color suit.
-
-        Args:
-            suit: Input suit
-
-        Returns:
-            Same-color suit
-        """
-        if suit == Suit.CLUBS:
-            return Suit.SPADES
-        elif suit == Suit.SPADES:
-            return Suit.CLUBS
-        elif suit == Suit.HEARTS:
-            return Suit.DIAMONDS
-        elif suit == Suit.DIAMONDS:
-            return Suit.HEARTS
-        return None
-
     def play_card(self, player: int, card: Card) -> dict[str, any]:
-        """Play a card.
+        """Play a card from a player's hand."""
+        if self.phase != GamePhase.PLAY or player != self.current_player:
+            return {"success": False, "message": "Not your turn to play."}
+        if card not in self.get_legal_cards(player):
+            return {"success": False, "message": "Illegal card played."}
 
-        Args:
-            player: Player number (0-3)
-            card: Card to play
-
-        Returns:
-            Result dictionary
-        """
-        if self.phase != GamePhase.PLAY:
-            return {"success": False, "message": "Not in play phase"}
-
-        if player != self.current_player:
-            return {"success": False, "message": "Not your turn"}
-
-        if card not in self.hands[player]:
-            return {"success": False, "message": "Card not in hand"}
-
-        if player in self.sitting_out_players:
-            return {"success": False, "message": "Player is sitting out"}
-
-        legal_cards = self.get_legal_cards(player)
-        if card not in legal_cards:
-            return {"success": False, "message": "Card cannot be played"}
-
-        # Play the card
         self.hands[player].remove(card)
         self.current_trick.append((player, card))
 
-        # Check if trick is complete
-        if len(self.current_trick) >= self._active_player_count():
+        if len(self.current_trick) == self._active_player_count():
             winner = self._determine_trick_winner()
-            team = 1 if winner in [0, 2] else 2
-            self.tricks_won[team - 1] += 1
-            self.current_trick = []
-
-            # Check if hand is complete
-            if self._hand_complete():
+            self.tricks_won[winner % 2] += 1
+            self.current_trick.clear()
+            if not any(self.hands):
                 self._score_hand()
                 if self.team1_score >= 10 or self.team2_score >= 10:
                     self.phase = GamePhase.GAME_OVER
                     self.winner = 1 if self.team1_score >= 10 else 2
                 else:
-                    # Deal new hand
                     self.dealer = (self.dealer + 1) % 4
                     self._deal_hands()
             else:
                 self.current_player = winner
-                self._skip_sitting_out_players()
-            return {"success": True, "trick_complete": True, "trick_winner": winner}
         else:
             self.current_player = (self.current_player + 1) % 4
-            self._skip_sitting_out_players()
 
-        return {"success": True, "trick_complete": False}
+        self._skip_sitting_out_players()
+        return {"success": True}
 
     def get_legal_cards(self, player: int) -> list[Card]:
-        """Return the list of cards the given player may legally play.
-
-        Args:
-            player: Seat index of the player whose options are requested.
-
-        Returns:
-            list[Card]: List of legal cards available for play.
-
-        Raises:
-            None.
-        """
-
-        if self.phase != GamePhase.PLAY or player in self.sitting_out_players:
-            return []
-
-        hand = self.hands[player]
-        if not self.current_trick:
-            return list(hand)
+        """Get the list of legally playable cards for a player."""
+        if self.phase != GamePhase.PLAY or not self.current_trick:
+            return self.hands[player]
 
         lead_suit = self._get_effective_suit(self.current_trick[0][1])
-        matching_cards = [card for card in hand if self._get_effective_suit(card) == lead_suit]
-        return matching_cards if matching_cards else list(hand)
+        can_follow_suit = any(self._get_effective_suit(c) == lead_suit for c in self.hands[player])
+
+        if can_follow_suit:
+            return [c for c in self.hands[player] if self._get_effective_suit(c) == lead_suit]
+        return self.hands[player]
 
     def _determine_trick_winner(self) -> int:
-        """Determine the winner of the current trick.
-
-        Returns:
-            Player number who won
-        """
+        """Determine the winner of the completed trick."""
         if not self.current_trick:
             return 0
 
         lead_suit = self._get_effective_suit(self.current_trick[0][1])
+        winning_card = self.current_trick[0][1]
+        winner = self.current_trick[0][0]
 
-        best_player = self.current_trick[0][0]
-        best_power = self._card_strength(self.current_trick[0][1], lead_suit)
-
-        for player, card in self.current_trick[1:]:
-            power = self._card_strength(card, lead_suit)
-            if power > best_power:
-                best_player = player
-                best_power = power
-
-        return best_player
+        for player_idx, card in self.current_trick[1:]:
+            if self._card_strength(card, lead_suit) > self._card_strength(winning_card, lead_suit):
+                winning_card = card
+                winner = player_idx
+        return winner
 
     def _card_strength(self, card: Card, lead_suit: Suit) -> int:
-        """Calculate a sortable strength value for a card within a trick.
+        """Calculate the strength of a card for trick-taking."""
+        is_trump = self._get_effective_suit(card) == self.trump
+        base_value = RANK_TO_VALUE.get(card.rank, 0)
 
-        Args:
-            card: Card being evaluated.
-            lead_suit: Effective suit that was led.
+        if card.rank == "J" and self.trump:
+            if card.suit == self.trump:
+                return 30  # Right Bower
+            if card.suit == self._get_same_color_suit(self.trump):
+                return 29  # Left Bower
 
-        Returns:
-            int: Relative strength value for comparison purposes.
-
-        Raises:
-            None.
-        """
-
-        if not self.trump:
-            rank_values = {"9": 0, "T": 1, "J": 2, "Q": 3, "K": 4, "A": 5}
-            return rank_values.get(card.rank, 0)
-
-        effective_suit = self._get_effective_suit(card)
-        rank_values = {"9": 0, "T": 1, "J": 2, "Q": 3, "K": 4, "A": 5}
-
-        if card.rank == "J" and card.suit == self.trump:
-            return 400
-
-        same_color_suit = self._get_same_color_suit(self.trump)
-        if card.rank == "J" and same_color_suit and card.suit == same_color_suit:
-            return 399
-
-        if effective_suit == self.trump:
-            return 300 + rank_values.get(card.rank, 0)
-
-        if effective_suit == lead_suit:
-            return 200 + rank_values.get(card.rank, 0)
-
-        return rank_values.get(card.rank, 0)
-
-    def _score_hand(self) -> None:
-        """Score the completed hand."""
-        making_team = self.maker
-        if making_team is None:
-            return
-
-        defending_team = 2 if making_team == 1 else 1
-        making_tricks = self.tricks_won[making_team - 1]
-
-        if making_tricks >= 3:
-            # Makers won
-            if making_tricks == 5:
-                # March
-                points = 4 if self.going_alone else 2
-            else:
-                # Made it
-                points = 2 if self.going_alone else 1
-            if making_team == 1:
-                self.team1_score += points
-            else:
-                self.team2_score += points
-        else:
-            # Euchred - defenders get points (4 if setting a lone maker)
-            points = 4 if self.going_alone else 2
-            if defending_team == 1:
-                self.team1_score += points
-            else:
-                self.team2_score += points
-
-        self.tricks_won = [0, 0]
-        self.phase = GamePhase.SCORE
-
-    def _hand_complete(self) -> bool:
-        """Check whether the active players have exhausted their hands.
-
-        Returns:
-            bool: ``True`` if all active players have no cards remaining.
-
-        Raises:
-            None.
-        """
-
-        for idx, hand in enumerate(self.hands):
-            if idx in self.sitting_out_players:
-                continue
-            if hand:
-                return False
-        return True
-
-    def _active_player_count(self) -> int:
-        """Return the number of players participating in the current hand.
-
-        Returns:
-            int: Count of players not sitting out.
-
-        Raises:
-            None.
-        """
-
-        return 4 - len(self.sitting_out_players)
-
-    def _skip_sitting_out_players(self) -> None:
-        """Advance ``current_player`` until an active player is reached.
-
-        Returns:
-            None.
-
-        Raises:
-            None.
-        """
-
-        while self.current_player in self.sitting_out_players:
-            self.current_player = (self.current_player + 1) % 4
+        return base_value + (13 if is_trump else 0)
 
     def _get_effective_suit(self, card: Card) -> Suit:
-        """Return the effective suit for follow-suit purposes.
-
-        Args:
-            card: Card whose effective suit is required.
-
-        Returns:
-            Suit: The suit that card represents during play.
-
-        Raises:
-            None.
-        """
-
-        if self.trump and card.rank == "J":
-            same_color = self._get_same_color_suit(self.trump)
-            if card.suit == self.trump:
-                return self.trump
-            if same_color and card.suit == same_color:
+        """Get the effective suit of a card, considering bowers."""
+        if card.rank == "J" and self.trump:
+            if card.suit == self.trump or card.suit == self._get_same_color_suit(self.trump):
                 return self.trump
         return card.suit
 
-    def get_state_summary(self) -> dict[str, any]:
-        """Get game state summary.
+    def _get_same_color_suit(self, suit: Suit) -> Optional[Suit]:
+        """Get the other suit of the same color."""
+        return {Suit.CLUBS: Suit.SPADES, Suit.SPADES: Suit.CLUBS, Suit.HEARTS: Suit.DIAMONDS, Suit.DIAMONDS: Suit.HEARTS}.get(suit)
 
-        Returns:
-            State dictionary
-        """
+    def _score_hand(self) -> None:
+        """Score the completed hand and update team scores."""
+        if not self.maker:
+            return
+
+        making_team_tricks = self.tricks_won[self.maker - 1]
+        points = 0
+        if making_team_tricks >= 3:  # Makers made it
+            if making_team_tricks == 5:  # March
+                points = 4 if self.going_alone else 2
+            else:
+                points = 1
+            if self.maker == 1:
+                self.team1_score += points
+            else:
+                self.team2_score += points
+        else:  # Euchred
+            points = 4 if self.going_alone else 2
+            if self.maker == 1:
+                self.team2_score += points
+            else:
+                self.team1_score += points
+
+        self.phase = GamePhase.SCORE
+
+    def _skip_sitting_out_players(self) -> None:
+        """Advance the turn to the next active player."""
+        while self.current_player in self.sitting_out_players:
+            self.current_player = (self.current_player + 1) % 4
+
+    def get_state_summary(self) -> dict[str, any]:
+        """Return a summary of the current game state."""
         return {
             "team1_score": self.team1_score,
             "team2_score": self.team2_score,
             "dealer": self.dealer,
             "phase": self.phase.name,
-            "trump": str(self.trump) if self.trump else None,
+            "trump": self.trump.value if self.trump else None,
             "maker": self.maker,
             "tricks_won": self.tricks_won,
             "current_player": self.current_player,
             "going_alone": self.going_alone,
-            "defending_alone_player": self.defending_alone_player,
             "winner": self.winner,
-            "game_over": self.phase == GamePhase.GAME_OVER,
-            "up_card": str(self.up_card) if self.up_card else None,
         }

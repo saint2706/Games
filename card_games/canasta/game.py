@@ -1,9 +1,14 @@
-"""Core Canasta engine with deck, meld, and scoring management."""
+"""Core Canasta engine with deck, meld, and scoring management.
+
+This module provides the core classes and logic for playing Canasta, including
+the game engine, player and team management, and rule validation for melds.
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+import random
 from random import Random
 from typing import Iterable, Optional, Sequence, Union
 
@@ -11,36 +16,36 @@ from card_games.common.cards import RANK_TO_VALUE, Card, Deck, Suit
 
 
 class MeldError(Exception):
-    """Raised when an invalid meld is attempted."""
+    """Custom exception raised when an invalid meld is attempted."""
 
 
 @dataclass(frozen=True)
 class JokerCard:
-    """Representation of a joker used as a wild card in Canasta."""
+    """A representation of a joker, used as a wild card in Canasta.
+
+    Attributes:
+        label: The string representation of the joker (default: "🃏").
+    """
 
     label: str = "🃏"
 
     @property
     def rank(self) -> str:
-        """Return the pseudo-rank used for comparisons."""
-
+        """Return the pseudo-rank "JOKER" for sorting and comparison."""
         return "JOKER"
 
     @property
     def suit(self) -> str:
-        """Return the pseudo-suit for compatibility with formatting."""
-
+        """Return the pseudo-suit "wild" for compatibility."""
         return "wild"
 
     @property
     def value(self) -> int:
-        """Return the joker's ordering value."""
-
+        """Return the joker's ordering value, higher than any standard card."""
         return len(RANK_TO_VALUE) + 1
 
-    def __str__(self) -> str:  # pragma: no cover - trivial string conversion
+    def __str__(self) -> str:  # pragma: no cover - trivial
         """Return the emoji label for display."""
-
         return self.label
 
 
@@ -49,7 +54,14 @@ CanastaCard = Union[Card, JokerCard]
 
 @dataclass
 class Meld:
-    """Represents a meld of like-ranked cards."""
+    """Represents a meld of same-ranked cards.
+
+    Attributes:
+        cards: The list of cards in the meld.
+        rank: The rank of the natural cards in the meld.
+        natural_count: The number of natural cards.
+        wild_count: The number of wild cards.
+    """
 
     cards: list[CanastaCard]
     rank: str
@@ -57,34 +69,36 @@ class Meld:
     wild_count: int
 
     def __post_init__(self) -> None:
-        """Sort cards for stable ordering."""
-
+        """Sort cards for a consistent and stable ordering."""
         self.cards.sort(key=_card_sort_key)
 
     @property
     def is_canasta(self) -> bool:
-        """Return whether the meld qualifies as a canasta."""
-
+        """Return True if the meld qualifies as a canasta (7+ cards)."""
         return len(self.cards) >= 7
 
     @property
     def is_natural(self) -> bool:
-        """Return whether the meld contains no wild cards."""
-
+        """Return True if the meld contains no wild cards."""
         return self.wild_count == 0
 
     def point_value(self) -> int:
-        """Return the total point value including bonuses."""
-
+        """Return the total point value of the meld, including canasta bonuses."""
         base = sum(card_point_value(card) for card in self.cards)
         if self.is_canasta:
-            return base + (500 if self.is_natural else 300)
+            base += 500 if self.is_natural else 300
         return base
 
 
 @dataclass(frozen=True)
 class MeldValidation:
-    """Outcome of validating a potential meld."""
+    """Represents the outcome of validating a potential meld.
+
+    Attributes:
+        is_valid: True if the meld is valid according to Canasta rules.
+        message: A descriptive message explaining the validation result.
+        meld: The resulting ``Meld`` object if validation is successful.
+    """
 
     is_valid: bool
     message: str
@@ -93,7 +107,14 @@ class MeldValidation:
 
 @dataclass
 class CanastaPlayer:
-    """Represents a Canasta participant."""
+    """Represents a single participant in a Canasta game.
+
+    Attributes:
+        name: The player's name.
+        team_index: The index of the team this player belongs to.
+        is_ai: True if this player is controlled by an AI.
+        hand: The list of cards currently held by the player.
+    """
 
     name: str
     team_index: int
@@ -101,15 +122,22 @@ class CanastaPlayer:
     hand: list[CanastaCard] = field(default_factory=list)
 
     def remove_cards(self, cards: Iterable[CanastaCard]) -> None:
-        """Remove the provided cards from the hand."""
-
+        """Remove a collection of cards from the player's hand."""
         for card in cards:
             self.hand.remove(card)
 
 
 @dataclass
 class CanastaTeam:
-    """Grouping of partners who share melds and score."""
+    """Represents a partnership of players who share melds and a score.
+
+    Attributes:
+        name: The name of the team.
+        players: A list of ``CanastaPlayer`` objects on this team.
+        score: The team's total score across all rounds.
+        melds: A list of melds the team has laid down in the current round.
+        requirement_met: True if the team has met the initial meld requirement.
+    """
 
     name: str
     players: list[CanastaPlayer]
@@ -118,14 +146,13 @@ class CanastaTeam:
     requirement_met: bool = False
 
     def reset_for_round(self) -> None:
-        """Clear round-specific data while preserving overall score."""
-
+        """Clear round-specific data while preserving the overall score."""
         self.melds.clear()
         self.requirement_met = False
 
 
 class DrawSource(Enum):
-    """Locations a player may draw from."""
+    """Enumerates the locations a player can draw a card from."""
 
     STOCK = "stock"
     DISCARD = "discard"
@@ -256,63 +283,58 @@ def is_black_three(card: CanastaCard) -> bool:
 
 @dataclass
 class CanastaDeck:
-    """Two standard decks plus jokers."""
+    """A deck for Canasta, typically composed of two standard decks plus jokers.
+
+    Attributes:
+        cards: A list of ``CanastaCard`` objects in the deck.
+    """
 
     cards: list[CanastaCard] = field(default_factory=list)
     _preseeded: bool = field(default=False, init=False, repr=False)
 
     def __post_init__(self) -> None:
-        """Populate the shoe if not pre-seeded."""
-
+        """Populate the deck if it wasn't pre-seeded with cards."""
         if self.cards:
             self._preseeded = True
             return
         base_deck = Deck()
-        self.cards = base_deck.cards * 2
+        self.cards.extend(base_deck.cards * 2)
         self.cards.extend(JokerCard() for _ in range(4))
         self._preseeded = False
 
     def shuffle(self, *, rng: Optional[Random] = None) -> None:
-        """Shuffle the deck."""
-
-        if rng is None:
-            import random
-
-            random.shuffle(self.cards)
-            return
-        rng.shuffle(self.cards)
+        """Shuffle the deck in place."""
+        (rng or random).shuffle(self.cards)
 
     def draw(self) -> CanastaCard:
         """Draw the top card from the deck."""
-
         if not self.cards:
             raise ValueError("The stock is empty.")
         return self.cards.pop(0)
 
     def draw_many(self, count: int) -> list[CanastaCard]:
-        """Draw ``count`` cards from the deck."""
-
-        if count < 0:
-            raise ValueError("count must be non-negative")
-        if count > len(self.cards):
-            raise ValueError("Not enough cards to draw the requested amount.")
+        """Draw a specified number of cards from the deck."""
+        if not (0 <= count <= len(self.cards)):
+            raise ValueError("Invalid number of cards to draw.")
         drawn = self.cards[:count]
         self.cards = self.cards[count:]
         return drawn
 
     def remaining(self) -> int:
-        """Return the number of cards remaining."""
-
+        """Return the number of cards remaining in the deck."""
         return len(self.cards)
 
     def copy(self) -> "CanastaDeck":
-        """Return a shallow copy preserving card order."""
-
+        """Return a shallow copy of the deck, preserving card order."""
         return CanastaDeck(cards=list(self.cards))
 
 
 class CanastaGame:
-    """Controller that manages players, teams, and round flow."""
+    """The main controller for a game of Canasta.
+
+    This class manages players, teams, the deck, and the overall flow of each
+    round, enforcing the rules of the game.
+    """
 
     def __init__(
         self,
@@ -321,51 +343,45 @@ class CanastaGame:
         deck: Optional[CanastaDeck] = None,
         rng: Optional[Random] = None,
     ) -> None:
-        self.players = self._initialise_players(players)
+        """Initialize a new Canasta game."""
+        self.players = self._initialize_players(players)
         self.teams = self._build_teams(self.players)
-        self._custom_deck: Optional[CanastaDeck] = deck.copy() if deck else None
+        self._custom_deck = deck.copy() if deck else None
         self.deck = self._custom_deck.copy() if self._custom_deck else CanastaDeck()
         self.discard_pile: list[CanastaCard] = []
         self.current_player_index = 0
         self.discard_frozen = False
         self.round_over = False
         self._rng = rng
-
         self.reset_round()
 
-    def _initialise_players(self, players: Optional[Sequence[CanastaPlayer]]) -> list[CanastaPlayer]:
-        """Ensure a standard four-player table."""
-
+    def _initialize_players(self, players: Optional[Sequence[CanastaPlayer]]) -> list[CanastaPlayer]:
+        """Ensure a standard four-player table if none is provided."""
         if players:
-            return [player for player in players]
+            return list(players)
         default_names = ["North", "East", "South", "West"]
-        return [CanastaPlayer(name=name, team_index=index % 2) for index, name in enumerate(default_names)]
+        return [CanastaPlayer(name=name, team_index=i % 2) for i, name in enumerate(default_names)]
 
     def _build_teams(self, players: Sequence[CanastaPlayer]) -> list[CanastaTeam]:
-        """Return partnership pairings for ``players``."""
-
-        team0_players = [player for player in players if player.team_index == 0]
-        team1_players = [player for player in players if player.team_index == 1]
+        """Create partnership teams from the list of players."""
+        team0 = [p for p in players if p.team_index == 0]
+        team1 = [p for p in players if p.team_index == 1]
         return [
-            CanastaTeam(name="Team North/South", players=team0_players),
-            CanastaTeam(name="Team East/West", players=team1_players),
+            CanastaTeam(name="Team North/South", players=team0),
+            CanastaTeam(name="Team East/West", players=team1),
         ]
 
     def reset_round(self) -> None:
-        """Reset the game for a new round."""
-
+        """Reset the game state for a new round."""
         self.round_over = False
         for player in self.players:
             player.hand.clear()
         for team in self.teams:
             team.reset_for_round()
-        if self._custom_deck is not None:
-            self.deck = self._custom_deck.copy()
-            if self._rng is not None:
-                self.deck.shuffle(rng=self._rng)
-        else:
-            self.deck = CanastaDeck()
-            self.deck.shuffle(rng=self._rng)
+
+        self.deck = self._custom_deck.copy() if self._custom_deck else CanastaDeck()
+        self.deck.shuffle(rng=self._rng)
+
         self._deal_hands()
         self.discard_pile = [self.deck.draw()]
         self.discard_frozen = is_wild(self.discard_pile[-1]) or is_black_three(self.discard_pile[-1])
@@ -373,23 +389,23 @@ class CanastaGame:
 
     def _deal_hands(self) -> None:
         """Deal eleven cards to each player."""
-
         for player in self.players:
             player.hand.extend(self.deck.draw_many(11))
 
     def draw(self, player: CanastaPlayer, source: DrawSource = DrawSource.STOCK) -> CanastaCard:
-        """Draw a card for ``player`` from the given ``source``."""
-
+        """Draw a card for a player from the specified source."""
         if self.round_over:
-            raise RuntimeError("Round is over.")
-        if source is DrawSource.STOCK:
+            raise RuntimeError("The round is over.")
+        if source == DrawSource.STOCK:
             card = self.deck.draw()
             player.hand.append(card)
             return card
+
         if not self.discard_pile:
-            raise RuntimeError("Discard pile is empty.")
+            raise RuntimeError("The discard pile is empty.")
         if not self.can_take_discard(player):
-            raise RuntimeError("Player may not take the discard pile.")
+            raise RuntimeError("The player may not take the discard pile.")
+
         pile = list(self.discard_pile)
         self.discard_pile.clear()
         player.hand.extend(pile)
@@ -397,24 +413,24 @@ class CanastaGame:
         return pile[-1]
 
     def can_take_discard(self, player: CanastaPlayer) -> bool:
-        """Return whether *player* may take the discard pile."""
-
+        """Check if a player is legally allowed to take the discard pile."""
         if not self.discard_pile:
             return False
-        top_card = self.discard_pile[-1]
         if not self.discard_frozen:
             return True
+
+        top_card = self.discard_pile[-1]
         if is_wild(top_card):
             return False
+
         rank = top_card.rank if isinstance(top_card, Card) else ""
         natural_matches = [card for card in player.hand if isinstance(card, Card) and not is_wild(card) and card.rank == rank]
         return len(natural_matches) >= 2
 
     def discard(self, player: CanastaPlayer, card: CanastaCard) -> None:
-        """Discard ``card`` from ``player``'s hand."""
-
+        """Discard a card from a player's hand."""
         if card not in player.hand:
-            raise ValueError("Player does not hold the specified card.")
+            raise ValueError("Player does not hold that card.")
         player.hand.remove(card)
         self.discard_pile.append(card)
         if is_wild(card) or is_black_three(card):
@@ -422,68 +438,57 @@ class CanastaGame:
 
     def add_meld(self, player: CanastaPlayer, cards: Sequence[CanastaCard], *, meld_index: Optional[int] = None) -> Meld:
         """Lay down cards as a new meld or extend an existing one."""
-
         team = self.teams[player.team_index]
-        existing = None if meld_index is None else team.melds[meld_index]
+        existing = team.melds[meld_index] if meld_index is not None else None
+
         validation = validate_meld(cards, existing=existing)
-        if not validation.is_valid or validation.meld is None:
+        if not validation.is_valid or not validation.meld:
             raise MeldError(validation.message)
+
         points = sum(card_point_value(card) for card in cards)
-        if not team.requirement_met and existing is None:
+        if not team.requirement_met and not existing:
             required = minimum_meld_points(team.score)
             if points < required:
-                raise MeldError(f"Opening meld for {team.name} requires {required} points; provided meld has {points}.")
+                raise MeldError(f"Opening meld requires {required} points; provided {points}.")
             team.requirement_met = True
+
         player.remove_cards(cards)
         if existing is None:
             team.melds.append(validation.meld)
-            return validation.meld
-        team.melds[meld_index] = validation.meld
+        else:
+            team.melds[meld_index] = validation.meld
         return validation.meld
 
     def calculate_team_meld_points(self, team_index: int) -> int:
-        """Return the total meld score for ``team_index``."""
-
-        team = self.teams[team_index]
-        return sum(meld.point_value() for meld in team.melds)
+        """Return the total meld score for a team."""
+        return sum(meld.point_value() for meld in self.teams[team_index].melds)
 
     def calculate_team_deadwood(self, team_index: int) -> int:
-        """Return the total deadwood for ``team_index``."""
-
-        total = 0
-        for player in self.teams[team_index].players:
-            total += sum(card_point_value(card) for card in player.hand)
-        return total
+        """Return the total deadwood (unmelded cards) value for a team."""
+        return sum(card_point_value(card) for player in self.teams[team_index].players for card in player.hand)
 
     def can_go_out(self, team_index: int) -> bool:
-        """Return whether ``team_index`` has a canasta and an empty hand to go out."""
-
+        """Check if a team can legally go out."""
         team = self.teams[team_index]
-        has_canasta = any(meld.is_canasta for meld in team.melds)
-        all_empty = all(not player.hand for player in team.players)
-        return has_canasta and all_empty
+        return any(meld.is_canasta for meld in team.melds) and all(not p.hand for p in team.players)
 
     def go_out(self, player: CanastaPlayer, *, concealed: bool = False) -> dict[int, int]:
-        """End the round with ``player`` going out."""
-
-        team_index = player.team_index
-        if not self.can_go_out(team_index):
+        """End the round with a player going out."""
+        if not self.can_go_out(player.team_index):
             raise RuntimeError("Cannot go out without a canasta and empty hands.")
+
         bonus = 200 if concealed else 100
-        team_points: dict[int, int] = {}
-        for idx in range(len(self.teams)):
-            meld_points = self.calculate_team_meld_points(idx)
-            deadwood = self.calculate_team_deadwood(idx)
-            team_points[idx] = meld_points - deadwood
-        team_points[team_index] += bonus
-        for idx, points in team_points.items():
-            self.teams[idx].score += points
+        team_points = {i: self.calculate_team_meld_points(i) - self.calculate_team_deadwood(i) for i in range(len(self.teams))}
+        team_points[player.team_index] += bonus
+
+        for i, points in team_points.items():
+            self.teams[i].score += points
+
         self.round_over = True
         return team_points
 
     def advance_turn(self) -> None:
-        """Move play to the next player."""
-
+        """Move play to the next player in sequence."""
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
 
 

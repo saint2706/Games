@@ -54,21 +54,32 @@ else:  # pragma: no cover - Provides placeholders when PyQt5 is missing
     pyqtSignal = None  # type: ignore
 
 
+# Constants for card rendering
 CARD_WIDTH = 90
 CARD_HEIGHT = 120
 FACE_DOWN_HEIGHT = 42
 FACE_DOWN_SPACING = 18
 FACE_UP_SPACING = 32
 
-
-SelectedSource = Tuple[str, int, int]
-TargetKey = Tuple[str, int]
+# Type aliases for clarity
+SelectedSource = Tuple[str, int, int]  # (pile_type, pile_index, num_cards)
+TargetKey = Tuple[str, int]  # (pile_type, pile_index)
 
 
 if PYQT5_AVAILABLE:
 
     class PileContainer(QFrame):
-        """Frame wrapper that manages highlight state for a pile."""
+        """Frame wrapper that manages highlight state for a pile.
+
+        This widget wraps a ``PileCanvas`` and provides a colored border to indicate
+        its state (default, selected, or target).
+
+        Args:
+            background: The background color of the frame.
+            default_border: The color of the border in its default state.
+            selection_border: The color of the border when selected.
+            target_border: The color of the border when it is a legal target.
+        """
 
         def __init__(
             self,
@@ -92,13 +103,17 @@ if PYQT5_AVAILABLE:
             self._apply_state("default")
 
         def set_highlight(self, state: str) -> None:
-            """Update the border colour according to the highlight state."""
+            """Update the border colour according to the highlight state.
 
+            Args:
+                state: The new highlight state ('default', 'selected', or 'target').
+            """
             if state == self._state:
                 return
             self._apply_state(state)
 
         def _apply_state(self, state: str) -> None:
+            """Apply the visual style for the given state."""
             color = {
                 "default": self._default_border,
                 "selected": self._selection_border,
@@ -108,7 +123,15 @@ if PYQT5_AVAILABLE:
             self.setStyleSheet(("QFrame {" f"background-color: {self._background};" f"border: 2px solid {color};" "border-radius: 10px;" "}"))
 
     class PileCanvas(QWidget):
-        """Custom widget that renders a solitaire pile using QPainter."""
+        """Custom widget that renders a solitaire pile using QPainter.
+
+        This widget is responsible for drawing the cards in a pile and emitting
+        a signal when clicked.
+
+        Attributes:
+            clicked: A PyQt signal emitted on a mouse click, providing the pile type,
+                     index, and y-coordinate of the click.
+        """
 
         clicked = pyqtSignal(str, int, float)
 
@@ -122,6 +145,16 @@ if PYQT5_AVAILABLE:
             height: int,
             scalable_height: bool = False,
         ) -> None:
+            """Initialize the PileCanvas.
+
+            Args:
+                gui: The main ``SolitaireWindow`` instance.
+                pile_type: The type of pile this canvas represents ('stock', 'waste', etc.).
+                index: The index of the pile.
+                width: The fixed width of the canvas.
+                height: The minimum or fixed height of the canvas.
+                scalable_height: Whether the canvas height should expand.
+            """
             super().__init__()
             self.gui = gui
             self.pile_type = pile_type
@@ -138,18 +171,34 @@ if PYQT5_AVAILABLE:
             self.setMouseTracking(False)
 
         def paintEvent(self, _event: QPaintEvent) -> None:  # pragma: no cover - GUI paint routine
+            """Handle the paint event by drawing the pile.
+
+            Args:
+                _event: The paint event (unused).
+            """
             painter = QPainter(self)
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
             self.card_positions = self.gui.paint_pile(self, painter)
 
         def mousePressEvent(self, event: QMouseEvent) -> None:  # pragma: no cover - GUI interaction
+            """Handle mouse press events, emitting the 'clicked' signal.
+
+            Args:
+                event: The mouse event.
+            """
             if event.button() == Qt.MouseButton.LeftButton:
                 self.clicked.emit(self.pile_type, self.index, float(event.pos().y()))
             super().mousePressEvent(event)
 
         def card_index_at(self, y: float) -> Optional[int]:
-            """Return the index of the card at the given Y coordinate."""
+            """Return the index of the card at the given Y coordinate.
 
+            Args:
+                y: The y-coordinate to check.
+
+            Returns:
+                The index of the card at that position, or None.
+            """
             for start_y, end_y, card_index in reversed(self.card_positions):
                 if start_y <= y <= end_y:
                     return card_index
@@ -159,6 +208,10 @@ if PYQT5_AVAILABLE:
 
     class SolitaireWindow(QMainWindow):
         """Main PyQt5 window that visualises and controls ``SolitaireGame``.
+
+        This class sets up the main window, layout, widgets, and event handling
+        for the PyQt5-based Solitaire GUI. It interacts with the ``SolitaireGame``
+        engine to manage game state.
 
         Note: Does not inherit from BaseGUI as it's designed for Tkinter,
         and would cause metaclass conflicts with QMainWindow.
@@ -172,6 +225,14 @@ if PYQT5_AVAILABLE:
             config: Optional[GUIConfig] = None,
             new_game_factory: Optional[Callable[[], SolitaireGame]] = None,
         ) -> None:
+            """Initialize the Solitaire main window.
+
+            Args:
+                game: An instance of the ``SolitaireGame`` engine.
+                enable_sounds: Whether to enable sound effects.
+                config: Optional GUI configuration.
+                new_game_factory: A callable for creating a new game.
+            """
             if not PYQT5_AVAILABLE:
                 raise RuntimeError("PyQt5 is not available on this system.")
 
@@ -197,6 +258,7 @@ if PYQT5_AVAILABLE:
             self.selected_source: Optional[SelectedSource] = None
             self.legal_targets: set[TargetKey] = set()
 
+            # Define UI colors from the theme
             colors = self.current_theme.colors
             self._background = colors.background or "#0d3b24"
             self._canvas_bg = colors.canvas_bg or "#0f4c2c"
@@ -207,12 +269,14 @@ if PYQT5_AVAILABLE:
             self._card_back_color = "#1e3a5f"
             self._card_back_accent = "#f7b733"
 
+            # Timer for fading status messages
             self.status_timer = QTimer(self)
             self.status_timer.setSingleShot(True)
             self.status_timer.timeout.connect(self._restore_default_status)
 
             self._default_status = "Welcome to Klondike Solitaire!"
 
+            # Widget references, to be populated by build_layout()
             self.score_value: Optional[QLabel] = None
             self.moves_value: Optional[QLabel] = None
             self.recycle_value: Optional[QLabel] = None
@@ -246,6 +310,7 @@ if PYQT5_AVAILABLE:
             main_layout.setContentsMargins(16, 16, 16, 12)
             main_layout.setSpacing(12)
 
+            # Header: Title and Toolbar
             header_widget = QWidget(central)
             header_layout = QHBoxLayout(header_widget)
             header_layout.setContentsMargins(0, 0, 0, 0)
@@ -280,6 +345,7 @@ if PYQT5_AVAILABLE:
             header_layout.addWidget(toolbar)
             main_layout.addWidget(header_widget)
 
+            # Scoreboard
             scoreboard = QWidget(central)
             scoreboard_layout = QGridLayout(scoreboard)
             scoreboard_layout.setContentsMargins(0, 0, 0, 0)
@@ -309,11 +375,13 @@ if PYQT5_AVAILABLE:
             self.score_value, self.moves_value, self.recycle_value, self.draw_mode_value = value_refs
             main_layout.addWidget(scoreboard)
 
+            # Main game board area
             board_area = QWidget(central)
             board_layout = QVBoxLayout(board_area)
             board_layout.setContentsMargins(0, 0, 0, 0)
             board_layout.setSpacing(20)
 
+            # Top row: Stock, Waste, Foundations
             top_row = QWidget(board_area)
             top_layout = QHBoxLayout(top_row)
             top_layout.setContentsMargins(0, 0, 0, 0)
@@ -324,6 +392,7 @@ if PYQT5_AVAILABLE:
             piles_left_layout.setContentsMargins(0, 0, 0, 0)
             piles_left_layout.setSpacing(16)
 
+            # Stock Pile
             self.stock_container = PileContainer(
                 background=self._canvas_bg,
                 default_border=self._default_border,
@@ -335,6 +404,7 @@ if PYQT5_AVAILABLE:
             self.stock_container.layout().addWidget(self.stock_canvas)
             piles_left_layout.addWidget(self.stock_container)
 
+            # Waste Pile
             self.waste_container = PileContainer(
                 background=self._canvas_bg,
                 default_border=self._default_border,
@@ -349,6 +419,7 @@ if PYQT5_AVAILABLE:
             top_layout.addWidget(piles_left)
             top_layout.addStretch(1)
 
+            # Foundation Piles
             foundations_widget = QWidget(top_row)
             foundations_layout = QHBoxLayout(foundations_widget)
             foundations_layout.setContentsMargins(0, 0, 0, 0)
@@ -371,6 +442,7 @@ if PYQT5_AVAILABLE:
             top_layout.addWidget(foundations_widget)
             board_layout.addWidget(top_row)
 
+            # Tableau Piles
             tableau_widget = QWidget(board_area)
             tableau_layout = QHBoxLayout(tableau_widget)
             tableau_layout.setContentsMargins(0, 0, 0, 0)
@@ -401,6 +473,7 @@ if PYQT5_AVAILABLE:
             board_layout.addWidget(tableau_widget)
             main_layout.addWidget(board_area, 1)
 
+            # Status Bar
             status_widget = QWidget(central)
             status_layout = QHBoxLayout(status_widget)
             status_layout.setContentsMargins(0, 0, 0, 0)
@@ -410,6 +483,7 @@ if PYQT5_AVAILABLE:
             status_layout.addWidget(self.status_label)
             main_layout.addWidget(status_widget)
 
+            # Register keyboard shortcuts
             self.register_shortcut("Space", self.handle_draw, "Draw from stock")
             self.register_shortcut("A", self.handle_auto, "Auto move to foundations")
             self.register_shortcut("R", self.handle_reset, "Recycle waste onto stock")
@@ -419,6 +493,7 @@ if PYQT5_AVAILABLE:
 
             summary = self.game.get_state_summary()
 
+            # Update scoreboard labels
             if self.score_value:
                 self.score_value.setText(str(summary["score"]))
             if self.moves_value:
@@ -432,6 +507,7 @@ if PYQT5_AVAILABLE:
             if self.draw_mode_value:
                 self.draw_mode_value.setText(f"Draw {summary['draw_count']}")
 
+            # Repaint all pile canvases
             if self.stock_canvas:
                 self.stock_canvas.update()
             if self.waste_canvas:
@@ -443,6 +519,7 @@ if PYQT5_AVAILABLE:
 
             self._apply_highlights()
 
+            # Check for win condition
             if self.game.is_won():
                 self._set_status(
                     "🎉 You won! Move cards to foundations to play again or start a new game.",
@@ -453,16 +530,25 @@ if PYQT5_AVAILABLE:
         # Painting helpers
         # ------------------------------------------------------------------
         def paint_pile(self, canvas: PileCanvas, painter: QPainter) -> list[Tuple[float, float, int]]:
-            """Delegate pile rendering based on the canvas type."""
+            """Delegate pile rendering based on the canvas type.
 
+            Args:
+                canvas: The ``PileCanvas`` being painted.
+                painter: The ``QPainter`` to use for drawing.
+
+            Returns:
+                A list of card positions for hit detection, if applicable.
+            """
             painter.fillRect(canvas.rect(), QColor(self._canvas_bg))
 
+            # Apply a subtle overlay for selected/target states
             state = self._pile_state(canvas.pile_type, canvas.index)
             if state != "default":
                 overlay = QColor(self._selection_border if state == "selected" else self._target_border)
                 overlay.setAlpha(45)
                 painter.fillRect(canvas.rect(), overlay)
 
+            # Delegate to the specific paint method for the pile type
             if canvas.pile_type == "stock":
                 self._paint_stock(painter)
                 return []
@@ -477,6 +563,7 @@ if PYQT5_AVAILABLE:
             return []
 
         def _paint_stock(self, painter: QPainter) -> None:
+            """Render the stock pile."""
             pile_rect = QRectF(10, 10, CARD_WIDTH, CARD_HEIGHT)
             if self.game.stock.cards:
                 painter.setBrush(QColor(self._card_back_color))
@@ -502,6 +589,7 @@ if PYQT5_AVAILABLE:
                 painter.drawText(pile_rect, Qt.AlignmentFlag.AlignCenter, "Empty")
 
         def _paint_waste(self, painter: QPainter) -> None:
+            """Render the waste pile."""
             pile_rect = QRectF(10, 10, CARD_WIDTH, CARD_HEIGHT)
             if not self.game.waste.cards:
                 pen = QPen(QColor(self._card_back_accent), 2, Qt.PenStyle.DashLine)
@@ -518,6 +606,7 @@ if PYQT5_AVAILABLE:
             self._draw_face_up_card(painter, card, top=10, height=CARD_HEIGHT)
 
         def _paint_foundation(self, painter: QPainter, index: int) -> None:
+            """Render a foundation pile."""
             pile = self.game.foundations[index]
             pile_rect = QRectF(10, 10, CARD_WIDTH, CARD_HEIGHT)
             top_card = pile.top_card()
@@ -543,6 +632,7 @@ if PYQT5_AVAILABLE:
             painter.drawText(pile_rect, Qt.AlignmentFlag.AlignCenter, "Foundation")
 
         def _paint_tableau(self, painter: QPainter, index: int) -> list[Tuple[float, float, int]]:
+            """Render a tableau pile, returning card positions."""
             pile = self.game.tableau[index]
             positions: list[Tuple[float, float, int]] = []
             y = 12.0
@@ -573,6 +663,7 @@ if PYQT5_AVAILABLE:
             return positions
 
         def _draw_face_up_card(self, painter: QPainter, card: Card, *, top: float, height: float) -> None:
+            """Draw a single face-up card."""
             rect = QRectF(10, top, CARD_WIDTH, height)
             painter.setBrush(QColor(self._card_face_color))
             painter.setPen(QPen(QColor(self._card_back_accent), 2))
@@ -589,8 +680,7 @@ if PYQT5_AVAILABLE:
         # Event handling & move logic
         # ------------------------------------------------------------------
         def handle_draw(self) -> None:
-            """Draw cards from the stock, updating the status label."""
-
+            """Handle the action of drawing cards from the stock."""
             if self.game.draw_from_stock():
                 self._set_status("Drew from the stock pile.")
             else:
@@ -602,8 +692,7 @@ if PYQT5_AVAILABLE:
             self.update_display()
 
         def handle_reset(self) -> None:
-            """Recycle the waste pile back into the stock."""
-
+            """Handle the action of recycling the waste back into the stock."""
             if self.game.reset_stock():
                 self._set_status("Recycled the waste pile onto the stock.")
             else:
@@ -612,8 +701,7 @@ if PYQT5_AVAILABLE:
             self.update_display()
 
         def handle_auto(self) -> None:
-            """Trigger automatic moves to the foundations."""
-
+            """Handle the action of automatically moving cards to foundations."""
             if self.game.auto_move_to_foundation():
                 self._set_status("Moved all available cards to the foundations.")
             else:
@@ -622,8 +710,7 @@ if PYQT5_AVAILABLE:
             self.update_display()
 
         def handle_new_game(self) -> None:
-            """Deal a fresh game via the new-game factory."""
-
+            """Handle the action of starting a new game."""
             if not self._new_game_factory:
                 if QMessageBox:
                     QMessageBox.warning(self, "New Game", "New game factory not provided.")
@@ -635,6 +722,7 @@ if PYQT5_AVAILABLE:
             self.update_display()
 
         def _on_pile_clicked(self, pile_type: str, index: int, y: float) -> None:
+            """Master handler for all pile click events."""
             if pile_type == "stock":
                 self.handle_draw()
                 return
@@ -648,6 +736,7 @@ if PYQT5_AVAILABLE:
                 self._on_tableau_click(index, y)
 
         def _on_waste_click(self) -> None:
+            """Handle a click on the waste pile."""
             if self.selected_source and self.selected_source[0] == "waste":
                 self.clear_selection()
                 self.update_display()
@@ -660,6 +749,7 @@ if PYQT5_AVAILABLE:
             self._set_selection(("waste", 0, 1))
 
         def _on_foundation_click(self, index: int) -> None:
+            """Handle a click on a foundation pile."""
             target_key = ("foundation", index)
             if self.selected_source and target_key in self.legal_targets:
                 if self._execute_move(target_key):
@@ -675,6 +765,7 @@ if PYQT5_AVAILABLE:
             self._set_selection(("foundation", index, 1))
 
         def _on_tableau_click(self, index: int, y: float) -> None:
+            """Handle a click on a tableau pile."""
             target_key = ("tableau", index)
             if self.selected_source and target_key in self.legal_targets:
                 if self._execute_move(target_key):
@@ -705,6 +796,7 @@ if PYQT5_AVAILABLE:
             self._set_selection(("tableau", index, num_cards))
 
         def _execute_move(self, target: TargetKey) -> bool:
+            """Execute a move from the selected source to the given target."""
             if not self.selected_source:
                 return False
 
@@ -733,6 +825,7 @@ if PYQT5_AVAILABLE:
             return moved
 
         def _get_pile(self, source_type: str, index: int) -> Optional[Pile]:
+            """Retrieve a game pile object based on its type and index."""
             if source_type == "waste":
                 return self.game.waste
             if source_type == "foundation":
@@ -742,6 +835,7 @@ if PYQT5_AVAILABLE:
             return None
 
         def _set_selection(self, selection: SelectedSource) -> None:
+            """Set the current card selection and compute legal targets."""
             if self.selected_source == selection:
                 self.clear_selection()
                 self.update_display()
@@ -752,11 +846,11 @@ if PYQT5_AVAILABLE:
 
         def clear_selection(self) -> None:
             """Clear the current selection and target highlights."""
-
             self.selected_source = None
             self.legal_targets.clear()
 
         def _compute_legal_targets(self, selection: SelectedSource) -> set[TargetKey]:
+            """Compute all legal destination piles for a given selection."""
             source_type, index, num_cards = selection
             source_pile = self._get_pile(source_type, index)
             if not source_pile:
@@ -799,6 +893,7 @@ if PYQT5_AVAILABLE:
             return targets
 
         def _apply_highlights(self) -> None:
+            """Apply highlight borders to selected and targetable piles."""
             mapping: dict[Tuple[str, int], PileContainer] = {}
             if self.stock_container:
                 mapping[("stock", 0)] = self.stock_container
@@ -822,6 +917,7 @@ if PYQT5_AVAILABLE:
                     mapping[target].set_highlight("target")
 
         def _pile_state(self, pile_type: str, index: int) -> str:
+            """Determine the highlight state of a pile."""
             if self.selected_source and (self.selected_source[0], self.selected_source[1]) == (pile_type, index):
                 return "selected"
             if (pile_type, index) in self.legal_targets:
@@ -829,6 +925,7 @@ if PYQT5_AVAILABLE:
             return "default"
 
         def _set_status(self, message: str, *, persist: bool = False) -> None:
+            """Update the message in the status bar."""
             if not self.status_label or not message:
                 return
             self.status_label.setText(message)
@@ -838,6 +935,7 @@ if PYQT5_AVAILABLE:
                 self.status_timer.start(4000)
 
         def _restore_default_status(self) -> None:
+            """Restore the default status message after a timeout."""
             if self.status_label:
                 self.status_label.setText(self._default_status)
 
@@ -857,8 +955,17 @@ def run_app(
     scoring_mode: str = "standard",
     seed: Optional[int] = None,
 ) -> None:
-    """Launch the Solitaire PyQt5 application."""
+    """Launch the Solitaire PyQt5 application.
 
+    This function sets up the game engine with the specified rules,
+    initializes the PyQt5 application and main window, and starts the event loop.
+
+    Args:
+        draw_count: The number of cards to draw from the stock (1 or 3).
+        max_recycles: The maximum number of times the waste can be recycled.
+        scoring_mode: The scoring rules to use ('standard' or 'vegas').
+        seed: An optional seed for the random number generator for reproducible deals.
+    """
     if not PYQT5_AVAILABLE:
         raise RuntimeError("PyQt5 is not available; install it to use the GUI.")
 

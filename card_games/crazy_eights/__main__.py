@@ -1,4 +1,14 @@
-"""Entry point for Crazy Eights card game."""
+"""Main entry point for the Crazy Eights card game application.
+
+This script allows the Crazy Eights game to be run directly from the command
+line, supporting both a command-line interface (CLI) and graphical user
+interfaces (GUIs).
+
+Usage:
+    $ python -m card_games.crazy_eights
+    $ python -m card_games.crazy_eights --cli
+    $ python -m card_games.crazy_eights --players 4 --seed 123
+"""
 
 from __future__ import annotations
 
@@ -12,57 +22,42 @@ from common.gui_base_pyqt import PYQT5_AVAILABLE
 
 
 def main() -> None:
-    """Main entry point for the Crazy Eights game."""
-    parser = argparse.ArgumentParser(description="Play the card game Crazy Eights")
-    parser.add_argument("--players", type=int, default=2, choices=range(2, 7), help="Number of players (2-6)")
-    parser.add_argument("--seed", type=int, help="Random seed for reproducible games")
-    parser.add_argument("--names", nargs="+", help="Player names")
-    parser.add_argument("--draw-limit", type=int, default=3, help="Max cards to draw when unable to play (0 = unlimited)")
-    parser.add_argument("--cli", action="store_true", help="Run the command-line interface instead of the GUI")
-    parser.add_argument(
-        "--gui-framework",
-        choices=["auto", "tkinter", "pyqt5"],
-        default="auto",
-        help="Preferred GUI framework (default: auto).",
-    )
+    """Main entry point for the Crazy Eights game application."""
+    parser = argparse.ArgumentParser(description="Play the card game Crazy Eights.")
+    parser.add_argument("--players", type=int, default=2, choices=range(2, 7), help="The number of players (2-6).")
+    parser.add_argument("--seed", type=int, help="A random seed for reproducible games.")
+    parser.add_argument("--names", nargs="+", help="A list of player names.")
+    parser.add_argument("--draw-limit", type=int, default=3, help="The maximum number of cards to draw when unable to play (0 for unlimited).")
+    parser.add_argument("--cli", action="store_true", help="Run in command-line mode instead of launching a GUI.")
+    parser.add_argument("--gui-framework", choices=["auto", "tkinter", "pyqt5"], default="auto", help="The preferred GUI framework to use.")
     args = parser.parse_args()
 
-    rng = None
-    if args.seed is not None:
-        rng = random.Random(args.seed)
-
-    player_names = args.names if args.names else None
-    game = CrazyEightsGame(num_players=args.players, player_names=player_names, draw_limit=args.draw_limit, rng=rng)
+    rng = random.Random(args.seed) if args.seed is not None else None
+    game = CrazyEightsGame(
+        num_players=args.players,
+        player_names=args.names,
+        draw_limit=args.draw_limit,
+        rng=rng,
+    )
 
     if args.cli:
         game_loop(game)
         return
 
-    framework_preference = {
+    # Attempt to launch the preferred GUI, with fallbacks.
+    frameworks = {
         "auto": ["pyqt5", "tkinter"],
-        "pyqt5": ["pyqt5", "tkinter"],
-        "tkinter": ["tkinter", "pyqt5"],
+        "pyqt5": ["pyqt5"],
+        "tkinter": ["tkinter"],
     }[args.gui_framework]
 
-    for framework in framework_preference:
-        if framework == "pyqt5":
-            if not PYQT5_AVAILABLE:
-                if args.gui_framework == "pyqt5":
-                    print("PyQt5 is not available. Falling back to other options.")
-                continue
-            if launch_pyqt_gui(game):
-                return
-            print("Unable to start the PyQt5 GUI. Trying alternatives...")
-        else:  # tkinter
-            if not TKINTER_AVAILABLE:
-                if args.gui_framework == "tkinter":
-                    print("Tkinter is not available. Falling back to other options.")
-                continue
-            if launch_tk_gui(game):
-                return
-            print("Unable to start the Tkinter GUI. Trying alternatives...")
+    for framework in frameworks:
+        if framework == "pyqt5" and launch_pyqt_gui(game):
+            return
+        if framework == "tkinter" and launch_tk_gui(game):
+            return
 
-    print("Falling back to the CLI interface.")
+    print("No suitable GUI framework found. Falling back to CLI.")
     game_loop(game)
 
 
@@ -70,58 +65,49 @@ def launch_tk_gui(game: CrazyEightsGame) -> bool:
     """Launch the Tkinter GUI for Crazy Eights.
 
     Args:
-        game: Game engine instance to visualise.
+        game: The game engine instance to visualize.
 
     Returns:
-        ``True`` if the GUI was started successfully, ``False`` otherwise.
+        True if the GUI was launched successfully, False otherwise.
     """
-
-    import tkinter as tk
-
-    from card_games.crazy_eights.gui import CrazyEightsGUI
-
-    try:
-        root = tk.Tk()
-    except tk.TclError as exc:
-        print(f"Unable to start the Crazy Eights Tkinter GUI: {exc}")
+    if not TKINTER_AVAILABLE:
         return False
+    try:
+        import tkinter as tk
+        from card_games.crazy_eights.gui import CrazyEightsGUI
 
-    CrazyEightsGUI(root, game)
-    root.mainloop()
-    return True
+        root = tk.Tk()
+        app = CrazyEightsGUI(root, game)
+        app.master.mainloop()
+        return True
+    except (ImportError, tk.TclError) as e:
+        print(f"Failed to launch Tkinter GUI: {e}")
+        return False
 
 
 def launch_pyqt_gui(game: CrazyEightsGame) -> bool:
     """Launch the PyQt5 GUI for Crazy Eights.
 
     Args:
-        game: Game engine instance to visualise.
+        game: The game engine instance to visualize.
 
     Returns:
-        ``True`` if the GUI was started successfully, ``False`` otherwise.
+        True if the GUI was launched successfully, False otherwise.
     """
-
     if not PYQT5_AVAILABLE:
         return False
-
     try:
         from PyQt5.QtWidgets import QApplication
-
         from card_games.crazy_eights.gui_pyqt import CrazyEightsGUI
-    except Exception as error:  # pragma: no cover - import side effects depend on environment
-        print(f"Unable to import the PyQt5 GUI: {error}")
-        return False
 
-    try:
         app = QApplication.instance() or QApplication([])
-    except Exception as error:  # pragma: no cover - depends on runtime display support
-        print(f"Unable to initialise the PyQt5 application: {error}")
+        window = CrazyEightsGUI(game)
+        window.show()
+        app.exec_()
+        return True
+    except (ImportError, Exception) as e:
+        print(f"Failed to launch PyQt5 GUI: {e}")
         return False
-
-    window = CrazyEightsGUI(game)
-    window.show()
-    app.exec()
-    return True
 
 
 if __name__ == "__main__":

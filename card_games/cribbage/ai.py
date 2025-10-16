@@ -1,4 +1,9 @@
-"""Heuristics for Cribbage AI decisions."""
+"""Heuristics and AI decision-making for the Cribbage card game.
+
+This module provides functions for AI players to make strategic decisions,
+such as selecting which cards to discard to the crib and choosing the best
+card to play during the pegging phase.
+"""
 
 from __future__ import annotations
 
@@ -14,37 +19,60 @@ from card_games.cribbage.game import CribbageGame
 
 
 def select_discards(hand: Sequence[Card], is_dealer: bool, deck_cards: Sequence[Card]) -> list[Card]:
-    """Select two cards to discard to the crib using simple expected-value heuristics."""
+    """Select two cards to discard to the crib using expected-value heuristics.
 
+    This function evaluates all possible pairs of cards to discard, calculating
+    the expected score of the remaining hand and the expected value of the
+    crib (either positive or negative, depending on who is the dealer).
+
+    Args:
+        hand: The player's current 6-card hand.
+        is_dealer: True if the player is the dealer.
+        deck_cards: The remaining cards in the deck to sample from.
+
+    Returns:
+        A list containing the two cards selected for discard.
+    """
     if len(hand) < 2:
-        raise ValueError("Hand must contain at least two cards")
+        raise ValueError("Hand must contain at least two cards to discard.")
 
     best_pair: tuple[Card, Card] | None = None
     best_value = float("-inf")
 
-    for idxs in combinations(range(len(hand)), 2):
-        discard = (hand[idxs[0]], hand[idxs[1]])
-        keep = [card for i, card in enumerate(hand) if i not in idxs]
+    for C in combinations(hand, 2):
+        discard = C
+        keep = [card for card in hand if card not in discard]
         hand_value = _expected_hand_score(keep, deck_cards)
         crib_value = _expected_crib_score(discard, deck_cards)
-        total = hand_value + (crib_value if is_dealer else -crib_value)
-        if total > best_value:
-            best_value = total
+
+        total_value = hand_value + (crib_value if is_dealer else -crib_value)
+
+        if total_value > best_value:
+            best_value = total_value
             best_pair = discard
 
-    return list(best_pair or hand[:2])
+    return list(best_pair) if best_pair else list(hand[:2])
 
 
 def choose_pegging_card(game: CribbageGame, player: int) -> Card | None:
-    """Choose a pegging card for ``player`` using greedy heuristics."""
+    """Choose the optimal card to play during the pegging phase.
 
+    This function uses a greedy heuristic to evaluate each playable card,
+    considering immediate points, potential future points, and risks.
+
+    Args:
+        game: The current ``CribbageGame`` instance.
+        player: The player for whom to choose a card.
+
+    Returns:
+        The best card to play, or None if no card is playable.
+    """
     playable = game.legal_plays(player)
     if not playable:
         return None
 
-    best_card = playable[0]
+    best_card: Card = playable[0]
     best_score = float("-inf")
-
     current_sequence = [card for _, card in game.play_sequence]
 
     for card in playable:
@@ -52,21 +80,17 @@ def choose_pegging_card(game: CribbageGame, player: int) -> Card | None:
         sequence = current_sequence + [card]
         points, _ = CribbageGame.pegging_points_for_sequence(sequence, new_total)
 
-        score = points * 100.0
-        if new_total == 31:
-            score += 50
-        elif new_total == 15:
-            score += 25
+        # A simple scoring heuristic to evaluate the move
+        score = points * 100.0  # Prioritize immediate points
+        if new_total in {15, 31}:
+            score += 25  # Bonus for hitting key totals
+        score += new_total  # Prefer higher counts to restrict opponent
 
-        score += new_total
-
-        risk_31 = 1 if 1 <= 31 - new_total <= 10 else 0
-        risk_15 = 1 if 1 <= 15 - new_total <= 10 else 0
-        score -= risk_31 * 5
-        score -= risk_15 * 3
-
-        if points == 0:
-            score -= CribbageGame.card_point_value(card) * 0.1
+        # Penalize moves that leave the opponent with easy points
+        if 1 <= 31 - new_total <= 10:
+            score -= 5
+        if 1 <= 15 - new_total <= 10:
+            score -= 3
 
         if score > best_score:
             best_score = score
@@ -76,31 +100,34 @@ def choose_pegging_card(game: CribbageGame, player: int) -> Card | None:
 
 
 def _expected_hand_score(hand: Sequence[Card], deck_cards: Sequence[Card]) -> float:
-    deck_list = list(deck_cards)
-    if not deck_list:
+    """Calculate the expected score of a hand by sampling starter cards."""
+    if not deck_cards:
         return 0.0
 
-    starters = deck_list[:MAX_STARTER_SAMPLES]
-    scores = [CribbageGame.score_hand_static(hand, starter, is_crib=False) for starter in starters]
+    starters = deck_cards[:MAX_STARTER_SAMPLES]
+    scores = [CribbageGame.score_hand_static(hand, starter) for starter in starters]
     return mean(scores) if scores else 0.0
 
 
 def _expected_crib_score(discard: Sequence[Card], deck_cards: Sequence[Card]) -> float:
-    deck_list = list(deck_cards)
-    if len(deck_list) < 3:
+    """Calculate the expected score of a crib by sampling opponent discards."""
+    if len(deck_cards) < 3:
         return 0.0
 
     crib_scores: list[float] = []
-    combo_count = 0
-    for opp_discards in combinations(deck_list, 2):
-        starters = [card for card in deck_list if card not in opp_discards][:MAX_STARTER_SAMPLES]
+    # To avoid performance issues, limit the number of combinations to check
+    combo_iter = combinations(deck_cards, 2)
+    for i, opp_discards in enumerate(combo_iter):
+        if i >= MAX_CRIB_COMBOS:
+            break
+
+        remaining_deck = [c for c in deck_cards if c not in opp_discards]
+        starters = remaining_deck[:MAX_STARTER_SAMPLES]
         if not starters:
             continue
+
         crib_cards = list(discard) + list(opp_discards)
         for starter in starters:
             crib_scores.append(CribbageGame.score_hand_static(crib_cards, starter, is_crib=True))
-        combo_count += 1
-        if combo_count >= MAX_CRIB_COMBOS:
-            break
 
     return mean(crib_scores) if crib_scores else 0.0

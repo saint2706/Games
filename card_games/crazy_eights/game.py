@@ -1,16 +1,16 @@
 """Crazy Eights card game engine.
 
 This module implements the classic Crazy Eights shedding game where players
-try to discard all their cards by matching rank or suit. Eights are wild and
-allow changing the active suit.
+try to discard all their cards by matching the rank or suit of the previous
+card. Eights are wild and allow the player to declare a new suit.
 
 Rules:
-* 2-6 players, 5-7 cards each (5 for 2 players, 7 for 3+)
-* Players take turns playing cards that match the active card's rank or suit
-* Eights are wild - player can declare any suit
-* If unable to play, draw cards until able to play (or limit reached)
-* First player to discard all cards wins
-* Scoring: Winner gets points for cards left in opponents' hands
+- 2-6 players, with 5 or 7 cards dealt to each.
+- Players take turns playing a card that matches the active card's rank or suit.
+- Eights are wild and can be played on any card.
+- If unable to play, a player must draw cards until they can play or a limit is reached.
+- The first player to discard all their cards wins the round.
+- The winner scores points based on the cards remaining in opponents' hands.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from card_games.common.cards import Card, Deck, Suit
 
 
 class GameState(Enum):
-    """Current state of the Crazy Eights game."""
+    """Enumerates the possible states of the Crazy Eights game."""
 
     PLAYING = auto()
     GAME_OVER = auto()
@@ -32,12 +32,12 @@ class GameState(Enum):
 
 @dataclass
 class Player:
-    """Represents a player in Crazy Eights.
+    """Represents a player in a game of Crazy Eights.
 
     Attributes:
-        name: Player's name
-        hand: Cards in player's hand
-        score: Total score across rounds
+        name: The player's name.
+        hand: A list of cards currently in the player's hand.
+        score: The player's total score across all rounds.
     """
 
     name: str
@@ -45,59 +45,63 @@ class Player:
     score: int = 0
 
     def has_playable_card(self, active_suit: Suit, active_rank: str) -> bool:
-        """Check if player has a card they can play.
+        """Check if the player has any card that can be legally played.
 
         Args:
-            active_suit: Current active suit
-            active_rank: Current active rank
+            active_suit: The current suit that must be matched.
+            active_rank: The current rank that must be matched.
 
         Returns:
-            True if player has at least one playable card
+            True if the player has at least one playable card.
         """
-        return any(card.rank == "8" or card.suit == active_suit or card.rank == active_rank for card in self.hand)
+        return any(self._is_card_playable(card, active_suit, active_rank) for card in self.hand)
 
     def get_playable_cards(self, active_suit: Suit, active_rank: str) -> list[Card]:
-        """Get all cards the player can currently play.
+        """Get a list of all cards that the player can legally play.
 
         Args:
-            active_suit: Current active suit
-            active_rank: Current active rank
+            active_suit: The current suit to match.
+            active_rank: The current rank to match.
 
         Returns:
-            List of playable cards
+            A list of playable cards from the player's hand.
         """
-        return [card for card in self.hand if card.rank == "8" or card.suit == active_suit or card.rank == active_rank]
+        return [card for card in self.hand if self._is_card_playable(card, active_suit, active_rank)]
 
     def calculate_hand_value(self) -> int:
-        """Calculate point value of cards in hand.
+        """Calculate the total point value of the cards remaining in the hand.
 
         Returns:
-            Total point value (eights=50, face cards=10, numbers=face value)
+            The total point value (eights are 50, face cards 10, others face value).
         """
-        total = 0
+        value = 0
         for card in self.hand:
             if card.rank == "8":
-                total += 50
+                value += 50
             elif card.rank in ("J", "Q", "K", "A"):
-                total += 10
+                value += 10
             else:
-                total += int(card.rank) if card.rank.isdigit() else 10
-        return total
+                value += int(card.rank) if card.rank.isdigit() else 10
+        return value
+
+    def _is_card_playable(self, card: Card, active_suit: Suit, active_rank: str) -> bool:
+        """Check if a single card is playable."""
+        return card.rank == "8" or card.suit == active_suit or card.rank == active_rank
 
 
 @dataclass
 class CrazyEightsGame:
-    """Crazy Eights game engine.
+    """The main engine for the Crazy Eights game.
 
     Attributes:
-        players: List of players
-        deck: Draw pile
-        discard_pile: Discard pile
-        active_suit: Current active suit for play
-        active_rank: Current active rank
-        current_player_idx: Index of current player
-        state: Current game state
-        draw_limit: Max cards to draw when unable to play (0 = unlimited)
+        players: A list of players in the game.
+        deck: The draw pile.
+        discard_pile: The pile of discarded cards.
+        active_suit: The current suit that must be matched.
+        active_rank: The current rank that must be matched.
+        current_player_idx: The index of the current player in the `players` list.
+        state: The current state of the game (e.g., PLAYING, GAME_OVER).
+        draw_limit: The maximum number of cards a player can draw if they cannot play.
     """
 
     players: list[Player] = field(default_factory=list)
@@ -110,21 +114,21 @@ class CrazyEightsGame:
     draw_limit: int = 3
 
     def __init__(self, num_players: int = 2, player_names: Optional[list[str]] = None, draw_limit: int = 3, rng: Optional[Random] = None) -> None:
-        """Initialize a new Crazy Eights game.
+        """Initialize a new game of Crazy Eights.
 
         Args:
-            num_players: Number of players (2-6)
-            player_names: Optional list of player names
-            draw_limit: Max cards to draw when unable to play (0 = draw until can play)
-            rng: Optional Random instance for deterministic games
+            num_players: The number of players (must be between 2 and 6).
+            player_names: An optional list of names for the players.
+            draw_limit: The maximum cards a player can draw if unable to play.
+            rng: An optional `random.Random` instance for deterministic games.
 
         Raises:
-            ValueError: If num_players is not between 2 and 6
+            ValueError: If the number of players is not between 2 and 6.
         """
-        if num_players < 2 or num_players > 6:
-            raise ValueError("Crazy Eights requires 2-6 players")
+        if not (2 <= num_players <= 6):
+            raise ValueError("Crazy Eights requires 2-6 players.")
 
-        self.players = []
+        self.players = [Player(name=(player_names[i] if player_names else f"Player {i + 1}")) for i in range(num_players)]
         self.deck = Deck()
         self.discard_pile = []
         self.active_suit = None
@@ -133,183 +137,118 @@ class CrazyEightsGame:
         self.state = GameState.PLAYING
         self.draw_limit = draw_limit
 
-        # Create players
-        if player_names is None:
-            player_names = [f"Player {i + 1}" for i in range(num_players)]
-        elif len(player_names) != num_players:
-            raise ValueError(f"Expected {num_players} names, got {len(player_names)}")
-
-        for name in player_names:
-            self.players.append(Player(name=name))
-
-        # Shuffle and deal
         self.deck.shuffle(rng=rng)
-        cards_per_player = 5 if num_players == 2 else 7
-
+        cards_to_deal = 5 if num_players == 2 else 7
         for player in self.players:
-            player.hand = self.deck.deal(cards_per_player)
+            player.hand = self.deck.deal(cards_to_deal)
 
-        # Flip first card
         if self.deck.cards:
             first_card = self.deck.deal(1)[0]
             self.discard_pile.append(first_card)
             self.active_suit = first_card.suit
             self.active_rank = first_card.rank
-
-            # If first card is an 8, set random suit
             if first_card.rank == "8":
-                self.active_suit = Suit.HEARTS  # Default to hearts
+                self.active_suit = Suit.HEARTS  # Default suit for an opening 8
 
     def get_current_player(self) -> Player:
-        """Get the player whose turn it is.
-
-        Returns:
-            Current player
-        """
+        """Return the player whose turn it is."""
         return self.players[self.current_player_idx]
 
     def get_top_card(self) -> Optional[Card]:
-        """Get the top card of the discard pile.
-
-        Returns:
-            Top card or None if pile is empty
-        """
+        """Return the top card of the discard pile."""
         return self.discard_pile[-1] if self.discard_pile else None
 
     def play_card(self, card: Card, new_suit: Optional[Suit] = None) -> dict[str, any]:
-        """Current player plays a card.
+        """Play a card from the current player's hand.
 
         Args:
-            card: Card to play
-            new_suit: If playing an 8, the new suit to declare
+            card: The card to be played.
+            new_suit: The new suit to declare if an eight is played.
 
         Returns:
-            Dictionary with action results
+            A dictionary containing the result of the action.
         """
         if self.state == GameState.GAME_OVER:
-            return {"success": False, "message": "Game is over"}
+            return {"success": False, "message": "The game is over."}
 
-        current_player = self.get_current_player()
-
-        # Validate card is in hand
-        if card not in current_player.hand:
-            return {"success": False, "message": "Card not in hand"}
-
-        # Validate play is legal
+        player = self.get_current_player()
+        if card not in player.hand:
+            return {"success": False, "message": "Card is not in the player's hand."}
         if not self._is_valid_play(card):
-            return {"success": False, "message": f"Cannot play {card} on {self.active_suit.value} {self.active_rank}"}
+            return {"success": False, "message": "This card cannot be played."}
 
-        # Play the card
-        current_player.hand.remove(card)
+        player.hand.remove(card)
         self.discard_pile.append(card)
 
-        # Handle eights
         if card.rank == "8":
-            if new_suit is None:
-                return {"success": False, "message": "Must declare a suit when playing an 8"}
+            if not new_suit:
+                return {"success": False, "message": "A new suit must be declared for an 8."}
             self.active_suit = new_suit
-            self.active_rank = card.rank
-            message = f"{current_player.name} played {card} and changed suit to {new_suit.value}"
+            message = f"{player.name} played {card} and changed the suit to {new_suit.value}."
         else:
             self.active_suit = card.suit
-            self.active_rank = card.rank
-            message = f"{current_player.name} played {card}"
+            message = f"{player.name} played {card}."
 
-        # Check for win
-        if not current_player.hand:
+        self.active_rank = card.rank
+
+        if not player.hand:
             self.state = GameState.GAME_OVER
-            # Calculate winner's score
-            for player in self.players:
-                if player != current_player:
-                    current_player.score += player.calculate_hand_value()
+            for p in self.players:
+                if p != player:
+                    player.score += p.calculate_hand_value()
+            return {"success": True, "message": message, "game_over": True, "winner": player.name}
 
-            return {"success": True, "message": message, "game_over": True, "winner": current_player.name, "score": current_player.score}
-
-        # Move to next player
         self._next_turn()
-
-        return {"success": True, "message": message, "next_player": self.get_current_player().name}
+        return {"success": True, "message": message}
 
     def draw_card(self) -> dict[str, any]:
-        """Current player draws a card.
-
-        Returns:
-            Dictionary with draw results
-        """
+        """Draw a card for the current player."""
         if self.state == GameState.GAME_OVER:
-            return {"success": False, "message": "Game is over"}
-
-        current_player = self.get_current_player()
+            return {"success": False, "message": "The game is over."}
 
         if not self.deck.cards:
-            # Reshuffle discard pile if deck is empty (keep top card)
             if len(self.discard_pile) > 1:
                 top_card = self.discard_pile.pop()
                 self.deck.cards = self.discard_pile
                 self.discard_pile = [top_card]
                 self.deck.shuffle()
             else:
-                return {"success": False, "message": "No cards left to draw"}
+                return {"success": False, "message": "No cards left to draw."}
 
+        player = self.get_current_player()
         card = self.deck.deal(1)[0]
-        current_player.hand.append(card)
-
-        return {"success": True, "message": f"{current_player.name} drew a card", "card": card}
+        player.hand.append(card)
+        return {"success": True, "message": f"{player.name} drew a card.", "card": card}
 
     def pass_turn(self) -> dict[str, any]:
-        """Current player passes their turn (after drawing max cards).
-
-        Returns:
-            Dictionary with pass results
-        """
+        """Pass the current player's turn."""
         if self.state == GameState.GAME_OVER:
-            return {"success": False, "message": "Game is over"}
+            return {"success": False, "message": "The game is over."}
 
-        current_player = self.get_current_player()
+        player = self.get_current_player()
         self._next_turn()
-
-        return {"success": True, "message": f"{current_player.name} passed", "next_player": self.get_current_player().name}
+        return {"success": True, "message": f"{player.name} passed."}
 
     def _is_valid_play(self, card: Card) -> bool:
-        """Check if a card can be legally played.
-
-        Args:
-            card: Card to check
-
-        Returns:
-            True if card can be played
-        """
-        # Eights are always playable
-        if card.rank == "8":
-            return True
-
-        # Must match active suit or rank
-        return card.suit == self.active_suit or card.rank == self.active_rank
+        """Check if a card can be legally played on the discard pile."""
+        return card.rank == "8" or card.suit == self.active_suit or card.rank == self.active_rank
 
     def _next_turn(self) -> None:
         """Move to the next player's turn."""
         self.current_player_idx = (self.current_player_idx + 1) % len(self.players)
 
     def get_state_summary(self) -> dict[str, any]:
-        """Get a summary of the current game state.
-
-        Returns:
-            Dictionary with game statistics
-        """
+        """Return a summary of the current game state."""
         return {
             "current_player": self.get_current_player().name,
-            "active_suit": self.active_suit.value if self.active_suit else None,
+            "active_suit": self.active_suit.value if self.active_suit else "None",
             "active_rank": self.active_rank,
-            "top_card": str(self.get_top_card()) if self.get_top_card() else None,
+            "top_card": str(self.get_top_card()) if self.get_top_card() else "None",
             "deck_cards": len(self.deck.cards),
             "players": [{"name": p.name, "hand_size": len(p.hand), "score": p.score} for p in self.players],
             "state": self.state.name,
         }
 
     def is_game_over(self) -> bool:
-        """Check if the game is over.
-
-        Returns:
-            True if game is over
-        """
+        """Check if the game is over."""
         return self.state == GameState.GAME_OVER

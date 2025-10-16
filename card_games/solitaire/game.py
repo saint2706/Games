@@ -57,11 +57,22 @@ class Pile:
     face_up_count: int = 0
 
     def top_card(self) -> Optional[Card]:
-        """Get the top card of the pile without removing it."""
+        """Get the top card of the pile without removing it.
+
+        Returns:
+            The top card, or None if the pile is empty.
+        """
         return self.cards[-1] if self.cards else None
 
     def can_add_to_foundation(self, card: Card) -> bool:
-        """Check if a card can be added to this foundation pile."""
+        """Check if a card can be added to this foundation pile.
+
+        Args:
+            card: The card to check.
+
+        Returns:
+            True if the card can be added, False otherwise.
+        """
         if self.pile_type != PileType.FOUNDATION:
             return False
 
@@ -76,7 +87,14 @@ class Pile:
         return False
 
     def can_add_to_tableau(self, card: Card) -> bool:
-        """Check if a card can be added to this tableau pile."""
+        """Check if a card can be added to this tableau pile.
+
+        Args:
+            card: The card to check.
+
+        Returns:
+            True if the card can be added, False otherwise.
+        """
         if self.pile_type != PileType.TABLEAU:
             return False
 
@@ -94,7 +112,15 @@ class Pile:
 
     @staticmethod
     def _is_opposite_color(card1: Card, card2: Card) -> bool:
-        """Check if two cards are opposite colors."""
+        """Check if two cards are opposite colors.
+
+        Args:
+            card1: The first card.
+            card2: The second card.
+
+        Returns:
+            True if the cards are opposite colors, False otherwise.
+        """
         red_suits = {Suit.HEARTS, Suit.DIAMONDS}
         card1_red = card1.suit in red_suits
         card2_red = card2.suit in red_suits
@@ -106,6 +132,21 @@ class SolitaireGame:
 
     This class manages the game state and provides methods for moving cards
     between piles according to solitaire rules.
+
+    Attributes:
+        draw_count: The number of cards to draw from the stock at a time.
+        max_recycles: The maximum number of times the stock can be recycled.
+        recycles_used: The number of times the stock has been recycled.
+        scoring_mode: The scoring mode ("standard" or "vegas").
+        score: The current score.
+        moves_made: The number of moves made by the player.
+        auto_moves_made: The number of automatic moves made.
+        rng: The random number generator used for shuffling.
+        deck: The deck of cards.
+        foundations: A list of foundation piles.
+        tableau: A list of tableau piles.
+        stock: The stock pile.
+        waste: The waste pile.
     """
 
     def __init__(
@@ -189,8 +230,11 @@ class SolitaireGame:
         return True
 
     def can_reset_stock(self) -> bool:
-        """Check whether the waste may be recycled back into the stock."""
+        """Check whether the waste may be recycled back into the stock.
 
+        Returns:
+            True if the stock can be reset, False otherwise.
+        """
         if not self.waste.cards or self.stock.cards:
             return False
 
@@ -200,8 +244,11 @@ class SolitaireGame:
         return self.recycles_used < self.max_recycles
 
     def reset_stock(self) -> bool:
-        """Move all cards from waste back to stock respecting recycle limits."""
+        """Move all cards from waste back to stock respecting recycle limits.
 
+        Returns:
+            True if the stock was reset, False otherwise.
+        """
         if not self.can_reset_stock():
             return False
 
@@ -316,6 +363,9 @@ class SolitaireGame:
     def auto_move_to_foundation(self) -> bool:
         """Automatically move any valid cards to foundations.
 
+        This method identifies all possible moves from the waste and tableau piles
+        to the foundations and executes them.
+
         Returns:
             True if at least one card was moved, False otherwise.
         """
@@ -358,7 +408,8 @@ class SolitaireGame:
         """Get a summary of the current game state.
 
         Returns:
-            Dictionary containing counts and information about each pile type.
+            A dictionary containing counts and information about each pile type,
+            as well as scoring and move statistics.
         """
         return {
             "stock": len(self.stock.cards),
@@ -382,8 +433,11 @@ class SolitaireGame:
         }
 
     def _apply_scoring_on_foundation_move(self, source_type: PileType) -> None:
-        """Adjust the score for a successful move to a foundation."""
+        """Adjust the score for a successful move to a foundation.
 
+        Args:
+            source_type: The type of the pile the card was moved from.
+        """
         if self.scoring_mode == "vegas":
             self.score += 5
             return
@@ -392,8 +446,14 @@ class SolitaireGame:
             self.score += 10
 
     def _reveal_top_card(self, pile: Pile) -> None:
-        """Flip the next tableau card face up and apply scoring if relevant."""
+        """Flip the next tableau card face up and apply scoring if relevant.
 
+        This is called when a card is moved from a tableau pile, potentially
+        exposing a new face-down card.
+
+        Args:
+            pile: The tableau pile to check.
+        """
         if pile.pile_type != PileType.TABLEAU:
             return
 

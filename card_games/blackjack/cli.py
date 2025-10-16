@@ -4,6 +4,12 @@ This module provides the necessary functions to run a game of Blackjack in the
 terminal. It handles command-line argument parsing, user input prompts, and
 rendering the game state to the console. The main entry point is the `main`
 function, which initializes the game and starts the game loop.
+
+Key Features:
+- Argument parsing for bankroll, minimum bet, number of decks, and random seed.
+- Educational mode with card counting hints.
+- Interactive prompts for bets, side bets, and player actions.
+- Clear rendering of the game table, including hands and card counting info.
 """
 
 from __future__ import annotations
@@ -18,13 +24,27 @@ from card_games.common.cards import format_cards
 def build_parser() -> argparse.ArgumentParser:
     """Build the command-line argument parser for the Blackjack game.
 
+    This function sets up arguments for customizing the game, such as starting
+    bankroll, minimum bet, and number of decks. It also includes an option to
+    enable educational mode.
+
     Returns:
         argparse.ArgumentParser: The configured argument parser.
     """
     parser = argparse.ArgumentParser(description="Play a game of blackjack against the dealer.")
-    parser.add_argument("--bankroll", type=int, default=500, help="Starting bankroll (default: 500)")
+    parser.add_argument(
+        "--bankroll",
+        type=int,
+        default=500,
+        help="Starting bankroll (default: 500)",
+    )
     parser.add_argument("--min-bet", type=int, default=10, help="Minimum bet size (default: 10)")
-    parser.add_argument("--decks", type=int, default=6, help="Number of decks in the shoe (default: 6)")
+    parser.add_argument(
+        "--decks",
+        type=int,
+        default=6,
+        help="Number of decks in the shoe (default: 6)",
+    )
     parser.add_argument("--seed", type=int, help="Optional random seed for deterministic play")
     parser.add_argument(
         "--educational",
@@ -37,6 +57,9 @@ def build_parser() -> argparse.ArgumentParser:
 def render_hand(title: str, hand: BlackjackHand, *, hide_hole: bool = False) -> str:
     """Render a single hand to a string for display in the CLI.
 
+    If ``hide_hole`` is True, the dealer's second card is hidden to simulate
+    the hole card.
+
     Args:
         title (str): The title for the hand (e.g., "Dealer", "Your hand").
         hand (BlackjackHand): The hand to render.
@@ -45,10 +68,10 @@ def render_hand(title: str, hand: BlackjackHand, *, hide_hole: bool = False) -> 
     Returns:
         str: A string representation of the hand.
     """
-    # Copy the cards so we can safely slice without mutating the hand.
+    # Copy the cards to avoid mutating the original hand.
     cards = hand.cards[:]
     if hide_hole and len(cards) >= 2:
-        # Show only the dealer's up-card
+        # Show only the dealer's up-card.
         visible = [str(cards[0]), "??"]
         value = BlackjackHand(cards=[cards[0]]).best_total()
         return f"{title}: {' '.join(visible)} ({value}+?)"
@@ -59,7 +82,8 @@ def render_hand(title: str, hand: BlackjackHand, *, hide_hole: bool = False) -> 
 def prompt_bet(game: BlackjackGame) -> tuple[int, dict[SideBetType, int]]:
     """Prompt the player to enter a bet and optional side bets.
 
-    This function will continue to prompt until valid bets are entered.
+    This function will continue to prompt until valid bets are entered, ensuring
+    they are within the player's bankroll and meet the minimum bet requirement.
 
     Args:
         game (BlackjackGame): The current game instance.
@@ -77,11 +101,11 @@ def prompt_bet(game: BlackjackGame) -> tuple[int, dict[SideBetType, int]]:
             continue
 
         bet = int(raw)
-        if bet < game.min_bet or bet > game.player.bankroll:
+        if not (game.min_bet <= bet <= game.player.bankroll):
             print(f"Bet must be between {game.min_bet} and {game.player.bankroll}.")
             continue
 
-        # Prompt for side bets
+        # Prompt for optional side bets.
         side_bets = {}
         side_bet_prompt = input("Place side bets? (p=Perfect Pairs, t=21+3, n=none): ").strip().lower()
 
@@ -103,7 +127,7 @@ def prompt_bet(game: BlackjackGame) -> tuple[int, dict[SideBetType, int]]:
                         side_bets[SideBetType.TWENTY_ONE_PLUS_THREE] = tp_amount
 
         try:
-            # Validate the bet against the game rules
+            # Validate the bet against the game rules before confirming.
             game.start_round(bet, side_bets=side_bets if side_bets else None)
             return bet, side_bets
         except ValueError as exc:
@@ -113,11 +137,14 @@ def prompt_bet(game: BlackjackGame) -> tuple[int, dict[SideBetType, int]]:
 def display_table(game: BlackjackGame, *, hide_dealer: bool = True) -> None:
     """Display the current state of the table, including all hands.
 
+    This function renders the dealer's and player's hands, along with shoe
+    penetration and card counting information if educational mode is active.
+
     Args:
         game (BlackjackGame): The current game instance.
         hide_dealer (bool): If True, the dealer's hole card is hidden.
     """
-    # Display shoe info and card counting
+    # Display shoe info and card counting details.
     print(f"\n{'='*60}")
     print(f"Shoe: {len(game.shoe.cards)} cards remaining " f"({game.shoe.penetration():.1f}% dealt)")
     if game.educational_mode:
@@ -144,14 +171,14 @@ def display_table(game: BlackjackGame, *, hide_dealer: bool = True) -> None:
         suffix = f" [{', '.join(status)}]" if status else ""
         print(f"{prefix}: {format_cards(hand.cards)} ({hand.best_total()}){suffix}")
 
-        # Display side bet results if any
+        # Display side bet results if any have been resolved.
         if hand.side_bets:
             for sb in hand.side_bets:
                 outcome_str = sb.outcome or "pending"
                 payout_str = f"+${sb.payout}" if sb.payout > 0 else "lost"
                 print(f"  Side bet {sb.bet_type.value}: {outcome_str} ({payout_str})")
 
-        # Display card counting hint for educational mode
+        # Display card counting hint for educational mode.
         if game.educational_mode and not hand.stood and not hand.is_bust():
             hint = game.get_counting_hint(hand)
             if hint:
@@ -161,6 +188,9 @@ def display_table(game: BlackjackGame, *, hide_dealer: bool = True) -> None:
 
 def prompt_action(game: BlackjackGame, hand: BlackjackHand) -> str:
     """Prompt the player for an action (hit, stand, double, split, surrender).
+
+    The function ensures that only valid actions for the current hand state
+    are presented to the player.
 
     Args:
         game (BlackjackGame): The current game instance.
@@ -203,6 +233,9 @@ def prompt_action(game: BlackjackGame, hand: BlackjackHand) -> str:
 def handle_player_turn(game: BlackjackGame) -> None:
     """Handle the player's turn, allowing them to play each of their hands.
 
+    This function iterates through the player's hands (including any created
+    by splitting) and prompts for actions until each hand is resolved.
+
     Args:
         game (BlackjackGame): The current game instance.
     """
@@ -210,7 +243,7 @@ def handle_player_turn(game: BlackjackGame) -> None:
     while index < len(game.player.hands):
         hand = game.player.hands[index]
 
-        # Loop until the hand is stood, bust, blackjack, or surrendered
+        # Loop until the hand is stood, bust, blackjack, or surrendered.
         while not hand.stood and not hand.is_bust() and not hand.is_blackjack() and not hand.surrendered:
             display_table(game)
             action = prompt_action(game, hand)
@@ -229,7 +262,8 @@ def handle_player_turn(game: BlackjackGame) -> None:
             elif action == "split":
                 game.split(hand)
                 print("Hands split into two bets.")
-                # The loop continues to play the current hand (which is now one of the split hands)
+                # The loop continues to play the current hand, which is now
+                # one of the split hands.
                 continue
             elif action == "surrender":
                 game.surrender(hand)
@@ -242,7 +276,8 @@ def handle_player_turn(game: BlackjackGame) -> None:
 def resolve_round(game: BlackjackGame) -> None:
     """Resolve the round after the player's turn is complete.
 
-    This includes the dealer's play and settling all bets.
+    This includes the dealer's play and settling all bets against the dealer's
+    final hand.
 
     Args:
         game (BlackjackGame): The current game instance.
@@ -250,12 +285,12 @@ def resolve_round(game: BlackjackGame) -> None:
     print("Dealer reveals their hand...")
     display_table(game, hide_dealer=False)
 
-    # The dealer only plays if the player hasn't busted all hands
+    # The dealer only plays if the player hasn't busted all hands.
     if not all(hand.is_bust() for hand in game.player.hands):
         game.dealer_play()
         display_table(game, hide_dealer=False)
 
-    # Resolve each of the player's hands against the dealer's
+    # Resolve each of the player's hands against the dealer's.
     for index, hand in enumerate(game.player.hands, start=1):
         outcome = game.resolve(hand)
         description = outcome.value.replace("_", " ").title()
@@ -267,6 +302,9 @@ def resolve_round(game: BlackjackGame) -> None:
 def game_loop(game: BlackjackGame) -> None:
     """The main game loop for the CLI version of Blackjack.
 
+    This loop handles the sequence of betting, playing, and resolving rounds
+    until the player decides to quit or runs out of money.
+
     Args:
         game (BlackjackGame): The initialized game instance.
     """
@@ -276,7 +314,7 @@ def game_loop(game: BlackjackGame) -> None:
             _ = prompt_bet(game)
             display_table(game)
 
-            # Skip player turn if they have blackjack
+            # Skip player turn if they have blackjack.
             if not game.player.hands[0].is_blackjack():
                 handle_player_turn(game)
 
@@ -298,10 +336,12 @@ def game_loop(game: BlackjackGame) -> None:
 def main(argv: Iterable[str] | None = None) -> None:
     """The main entry point for the Blackjack CLI application.
 
-    Parses arguments, initializes the game, and starts the game loop.
+    This function parses command-line arguments, initializes the game instance,
+    and starts the main game loop.
 
     Args:
-        argv (Iterable[str] | None): Command-line arguments to parse.
+        argv (Iterable[str] | None): Command-line arguments to parse. If None,
+            ``sys.argv`` is used.
     """
     parser = build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)

@@ -637,15 +637,14 @@ class TestGinRummy:
         game.deal_cards()
 
         first_player = game.initial_offer_order[0]
-        second_player = game.initial_offer_order[1]
 
-        game.pass_initial_upcard(first_player)
-        game.pass_initial_upcard(second_player)
+        game.pass_initial_upcard()
+        game.pass_initial_upcard()
 
         assert game.blocked_discard_card == game.discard_pile[-1]
-        assert game.can_draw_from_discard(first_player) is False
+        assert game.can_draw_from_discard() is False
         game.draw_from_stock()
-        assert game.can_draw_from_discard(first_player) is True
+        assert game.can_draw_from_discard() is True
 
 
 class TestBridge:

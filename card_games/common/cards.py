@@ -11,6 +11,13 @@ card games. The module includes:
 - ``Deck``: A class for a deck of cards, with methods for shuffling and dealing.
 - ``parse_card``: A function to create a ``Card`` from a two-character string (e.g., "KH" for King of Hearts).
 - ``format_cards``: A utility function to format a collection of cards into a readable string.
+
+Examples:
+    >>> deck = Deck()
+    >>> deck.shuffle()
+    >>> hand = deck.deal(5)
+    >>> print(format_cards(hand))
+    K♠ Q♥ J♦ T♣ 9♥
 """
 
 from __future__ import annotations
@@ -24,10 +31,17 @@ class Suit(str, Enum):
     """Enumeration of the four suits in a standard 52-card deck.
 
     Each suit is represented by a string corresponding to its symbol.
+
     - CLUBS: "♣"
     - DIAMONDS: "♦"
     - HEARTS: "♥"
     - SPADES: "♠"
+
+    Example:
+        >>> Suit.SPADES
+        <Suit.SPADES: '♠'>
+        >>> print(Suit.SPADES)
+        ♠
     """
 
     CLUBS = "♣"
@@ -69,6 +83,13 @@ class Card:
     Attributes:
         rank (str): The card's rank (e.g., 'A', 'K', 'T', '2').
         suit (Suit): The card's suit (e.g., ``Suit.SPADES``).
+
+    Example:
+        >>> card = Card('A', Suit.SPADES)
+        >>> print(card)
+        A♠
+        >>> card.value
+        12
     """
 
     rank: str
@@ -76,6 +97,7 @@ class Card:
 
     def __post_init__(self) -> None:
         """Validate the card's rank after initialization."""
+        # This check ensures that every card has a valid rank.
         if self.rank not in RANK_TO_VALUE:
             raise ValueError(f"Unsupported rank: {self.rank!r}")
 
@@ -105,12 +127,22 @@ class Deck:
 
     Attributes:
         cards (list[Card]): The list of cards currently in the deck.
+
+    Example:
+        >>> deck = Deck()
+        >>> len(deck.cards)
+        52
+        >>> deck.shuffle()
+        >>> top_card = deck.deal()[0]
+        >>> len(deck.cards)
+        51
     """
 
     cards: list[Card] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """Initialize the deck with a standard 52-card set if it's empty."""
+        # If no cards are provided, create a standard 52-card deck.
         if not self.cards:
             self.cards = [Card(rank, suit) for suit in Suit for rank in RANKS]
 
@@ -130,7 +162,7 @@ class Deck:
 
             rng = random
 
-        # ``random.shuffle`` implements Fisher-Yates, giving an unbiased shuffle.
+        # `random.shuffle` implements Fisher-Yates, giving an unbiased shuffle.
         rng.shuffle(self.cards)
 
     def deal(self, count: int = 1) -> list[Card]:
@@ -151,7 +183,7 @@ class Deck:
         if count > len(self.cards):
             raise ValueError("Not enough cards remaining in the deck")
 
-        # Slicing for performance and atomicity
+        # Slicing is used for performance and atomicity.
         dealt, self.cards = self.cards[:count], self.cards[count:]
         return dealt
 
@@ -177,6 +209,12 @@ def parse_card(code: str) -> Card:
     Raises:
         ValueError: If the card code is invalid (e.g., wrong length, unknown
                     rank or suit).
+
+    Example:
+        >>> parse_card("kh")
+        Card(rank='K', suit=<Suit.HEARTS: '♥'>)
+        >>> parse_card("2c")
+        Card(rank='2', suit=<Suit.CLUBS: '♣'>)
     """
     if len(code) != 2:
         raise ValueError(f"Invalid card code: {code!r}")
@@ -218,6 +256,11 @@ def format_cards(cards: Iterable[Card]) -> str:
 
     Returns:
         str: A space-separated string of card representations (e.g., "K♠ Q♥").
+
+    Example:
+        >>> hand = [Card('K', Suit.SPADES), Card('Q', Suit.HEARTS)]
+        >>> format_cards(hand)
+        'K♠ Q♥'
     """
     return " ".join(str(card) for card in cards)
 
