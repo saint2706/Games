@@ -45,13 +45,29 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[gui]"
-          pip install pyinstaller
+          python -m pip install --upgrade pip --retries 3 --timeout 30 || {
+            echo "::warning::pip upgrade failed, continuing with current version";
+            python -m pip --version;
+          }
+          pip install -e ".[gui]" --retries 3 --timeout 60 || {
+            echo "::error::Failed to install package dependencies";
+            exit 1;
+          }
+          pip install pyinstaller --retries 3 --timeout 30 || {
+            echo "::error::Failed to install pyinstaller";
+            exit 1;
+          }
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller build_configs/pyinstaller/games.spec --clean
+          pyinstaller build_configs/pyinstaller/games.spec --clean || {
+            echo "::error::PyInstaller build failed";
+            echo "Build artifacts:";
+            ls -la build/ 2>/dev/null || echo "No build directory";
+            ls -la dist/ 2>/dev/null || echo "No dist directory";
+            exit 1;
+          }
+          echo "✅ PyInstaller build completed"
 
       - name: Validate executable exists
         shell: bash
@@ -122,8 +138,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -e .
+          python -m pip install --upgrade pip --retries 3 --timeout 30 || {
+            echo "::warning::pip upgrade failed, continuing with current version";
+            python -m pip --version;
+          }
+          pip install -e . --retries 3 --timeout 60 || {
+            echo "::error::Failed to install package dependencies";
+            exit 1;
+          }
 
       - name: Test launcher import
         run: |
@@ -149,7 +171,23 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Build Docker image
-        run: docker build -t games-collection:test .
+        run: |
+          # Try to build with retry logic in case of network issues
+          for i in 1 2 3; do
+            echo "Build attempt $i/3..."
+            if docker build -t games-collection:test .; then
+              echo "✅ Docker build successful"
+              exit 0
+            else
+              echo "::warning::Docker build attempt $i failed"
+              if [ $i -lt 3 ]; then
+                echo "Retrying in 5 seconds..."
+                sleep 5
+              fi
+            fi
+          done
+          echo "::error::Docker build failed after 3 attempts"
+          exit 1
 
       - name: Test Docker image
         run: |
@@ -179,17 +217,28 @@ jobs:
         run: ls -lR artifacts/
 
       - name: Verify artifacts exist
+        continue-on-error: false
         run: |
           echo "Checking for expected artifact directories..."
+          missing_artifacts=0
           for os in ubuntu-latest windows-latest macos-latest; do
             artifact_dir="artifacts/games-collection-pyinstaller-${os}-py3.11"
             if [ ! -d "$artifact_dir" ]; then
-              echo "ERROR: Missing artifact directory: $artifact_dir"
-              exit 1
+              echo "::warning::Missing artifact directory: $artifact_dir"
+              missing_artifacts=$((missing_artifacts + 1))
+            else
+              echo "✓ Found artifact directory: $artifact_dir"
             fi
-            echo "✓ Found artifact directory: $artifact_dir"
           done
-          echo "All expected artifacts are present!"
+          
+          if [ $missing_artifacts -gt 0 ]; then
+            echo "::error::$missing_artifacts artifact(s) missing. Release cannot proceed."
+            echo "Available artifacts:"
+            ls -la artifacts/ || echo "No artifacts directory found"
+            exit 1
+          fi
+          
+          echo "✅ All expected artifacts are present!"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
