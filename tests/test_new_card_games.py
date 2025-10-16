@@ -636,8 +636,6 @@ class TestGinRummy:
         game = GinRummyGame(players)
         game.deal_cards()
 
-        first_player = game.initial_offer_order[0]
-
         game.pass_initial_upcard()
         game.pass_initial_upcard()
 

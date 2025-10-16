@@ -21,7 +21,7 @@ from enum import Enum, auto
 from random import Random
 from typing import Any, Dict, Optional
 
-from card_games.common.cards import RANKS, Card, Deck, Suit
+from card_games.common.cards import RANKS, Card, Deck
 from common.architecture.events import EventBus, GameEventType, get_global_event_bus
 
 

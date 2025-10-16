@@ -178,7 +178,7 @@ def demo_human_play() -> None:
             if game.make_move(guess):
                 print(f"  -> Hint: {game.get_hint()}\n")
             else:
-                print(f"  Invalid guess! Please try a number you haven't guessed before.\n")
+                print("  Invalid guess! Please try a number you haven't guessed before.\n")
         except ValueError:
             print("  Please enter a valid integer.\n")
 

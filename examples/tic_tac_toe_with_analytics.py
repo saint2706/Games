@@ -149,13 +149,13 @@ class TicTacToeWithAnalytics:
             duration: The total duration of the game in seconds.
         """
         if winner_symbol == "X":
-            winner_name, loser_name = player1, player2
+            winner_name = player1
             score = 1.0
         elif winner_symbol == "O":
-            winner_name, loser_name = player2, player1
+            winner_name = player2
             score = 0.0
         else:
-            winner_name, loser_name = None, None
+            winner_name = None
             score = 0.5  # Draw
 
         # Record the game outcome (win/loss/draw).

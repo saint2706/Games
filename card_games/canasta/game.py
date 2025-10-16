@@ -6,9 +6,9 @@ the game engine, player and team management, and rule validation for melds.
 
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass, field
 from enum import Enum
-import random
 from random import Random
 from typing import Iterable, Optional, Sequence, Union
 

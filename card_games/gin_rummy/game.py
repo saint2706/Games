@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from random import Random
-from typing import Sequence
+from typing import Optional, Sequence
 
 from card_games.common.cards import Card, Deck
 
@@ -373,9 +373,7 @@ class GinRummyGame:
         if knocker_analysis.deadwood_total == 0:
             knock_type = KnockType.BIG_GIN if len(knocker.hand) == 11 else KnockType.GIN
 
-        remaining_deadwood, layoff_cards = _apply_layoffs(
-            opponent_analysis.deadwood_cards, knocker_analysis.melds
-        )
+        remaining_deadwood, layoff_cards = _apply_layoffs(opponent_analysis.deadwood_cards, knocker_analysis.melds)
         opponent_deadwood = sum(_deadwood_value(c) for c in remaining_deadwood)
         points = 0
         knocker_wins = True

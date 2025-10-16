@@ -313,7 +313,6 @@ class CribbageGame:
     @staticmethod
     def _score_runs(cards: Sequence[Card]) -> int:
         """Calculate points for runs."""
-        from itertools import combinations
 
         sorted_ranks = sorted(list({c.rank for c in cards}), key=lambda r: RANK_TO_VALUE[r])
         if len(sorted_ranks) < 3:

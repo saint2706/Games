@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
+from random import Random
 from typing import Dict, Iterable, List, Optional, Tuple
 
 from card_games.common.cards import Card, Deck, Suit, format_cards

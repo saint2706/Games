@@ -161,7 +161,10 @@ def demo_strategy_tips():
     provider.add_tip(
         StrategyTip(
             title="Position is Power",
-            description="In Poker, acting last is a significant advantage. Play more hands from late positions (like the button) and be more selective from early positions.",
+            description=(
+                "In Poker, acting last is a significant advantage. "
+                "Play more hands from late positions (like the button) and be more selective from early positions."
+            ),
             applies_to="Pre-flop strategy",
             difficulty="beginner",
         )
@@ -169,7 +172,11 @@ def demo_strategy_tips():
     provider.add_tip(
         StrategyTip(
             title="Understand Pot Odds",
-            description="Compare the pot odds to your hand's equity. If your chance of winning is higher than the odds the pot is giving you, a call is mathematically profitable in the long run.",
+            description=(
+                "Compare the pot odds to your hand's equity. "
+                "If your chance of winning is higher than the odds the pot is giving you, "
+                "a call is mathematically profitable in the long run."
+            ),
             applies_to="Calling decisions",
             difficulty="intermediate",
         )

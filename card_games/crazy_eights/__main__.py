@@ -74,6 +74,7 @@ def launch_tk_gui(game: CrazyEightsGame) -> bool:
         return False
     try:
         import tkinter as tk
+
         from card_games.crazy_eights.gui import CrazyEightsGUI
 
         root = tk.Tk()
@@ -98,6 +99,7 @@ def launch_pyqt_gui(game: CrazyEightsGame) -> bool:
         return False
     try:
         from PyQt5.QtWidgets import QApplication
+
         from card_games.crazy_eights.gui_pyqt import CrazyEightsGUI
 
         app = QApplication.instance() or QApplication([])
