@@ -131,19 +131,25 @@ def check_gui_implementation(category: str, game: str, framework: str) -> tuple[
 
 def main() -> int:
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Test GUI applications with different frameworks")
-    parser.add_argument("--list", action="store_true", help="List all games with GUI support")
+    parser = argparse.ArgumentParser(
+        description="Test GUI applications with different frameworks.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument("--list", action="store_true", help="List all games with GUI support.")
     parser.add_argument(
         "--check-framework",
         choices=[*FRAMEWORK_SUFFIXES.keys(), "all"],
-        help="Check framework availability",
+        help="Check framework availability.",
     )
-    parser.add_argument("--check-game", help="Check if specific game has GUI support (format: category/game)")
+    parser.add_argument(
+        "--check-game",
+        help="Check if a specific game has GUI support.\nFormat: category/game (e.g., paper_games/dots_and_boxes)",
+    )
     parser.add_argument(
         "--framework",
         choices=list(FRAMEWORK_SUFFIXES.keys()),
         default="pyqt5",
-        help="Framework to check",
+        help="Framework to check (default: pyqt5).",
     )
 
     args = parser.parse_args()
@@ -179,10 +185,10 @@ def main() -> int:
                 status_parts = []
                 for framework, label in ("tkinter", "Tkinter"), ("pyqt5", "PyQt5"):
                     symbol = "✓" if framework in frameworks else "✗"
-                    status_parts.append(f"[{label}: {symbol}]")
+                    status_parts.append(f"{label}: {symbol}")
 
                 migration_marker = " *" if (category, game) in PYQT5_MIGRATED else ""
-                print(f"  {game:20}{migration_marker} {' '.join(status_parts)}")
+                print(f"  {game:20}{migration_marker} [{' | '.join(status_parts)}]")
 
         if PYQT5_MIGRATED:
             print("\n* denotes games with completed PyQt5 migrations.")
