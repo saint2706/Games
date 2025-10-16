@@ -400,11 +400,122 @@ def test_publish_pypi_has_asset_check():
     assert check_step is not None
     assert "run" in check_step, "Asset check step should have a run script"
 
-    # Verify the script checks for conflicts
+    # Verify the script checks for existing assets (but now allows overwrites)
     run_script = check_step["run"]
     assert "gh release view" in run_script, "Should use gh release view to get existing assets"
-    assert "CONFLICTS" in run_script, "Should check for file conflicts"
-    assert "exit 1" in run_script, "Should exit with error if conflicts found"
+    assert "EXISTING_ASSETS" in run_script, "Should check for existing assets"
+    assert "::warning::" in run_script, "Should warn about existing assets that will be overwritten"
+    # Changed: Now allows overwrites instead of erroring
+    assert "exit 1" not in run_script or "if [ -n \"$EXISTING_ASSETS\" ]" not in run_script, "Should not exit with error for existing assets"
+
+
+def test_publish_pypi_has_upload_with_clobber():
+    """Test that github-release job uploads packages with --clobber flag."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "publish-pypi.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    github_release_job = workflow["jobs"]["github-release"]
+    steps = github_release_job["steps"]
+    step_names = [step.get("name") for step in steps]
+
+    # Verify upload step exists
+    assert "Upload signed packages to GitHub Release" in step_names, "github-release should have upload step"
+
+    # Find the upload step
+    upload_step = None
+    for step in steps:
+        if step.get("name") == "Upload signed packages to GitHub Release":
+            upload_step = step
+            break
+
+    assert upload_step is not None
+    assert "run" in upload_step, "Upload step should have a run script"
+
+    # Verify the script uses gh release upload with --clobber
+    run_script = upload_step["run"]
+    assert "gh release upload" in run_script, "Should use gh release upload"
+    assert "--clobber" in run_script, "Should use --clobber flag to overwrite existing files"
+    assert "dist/*" in run_script, "Should upload all files from dist/"
+
+
+def test_publish_pypi_bump_and_release_has_outputs():
+    """Test that bump-and-release job has version and tag outputs."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "publish-pypi.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    bump_job = workflow["jobs"]["bump-and-release"]
+
+    # Check that outputs are defined
+    assert "outputs" in bump_job, "bump-and-release should have outputs"
+    outputs = bump_job["outputs"]
+
+    # Check that version and tag outputs exist
+    assert "version" in outputs, "bump-and-release should have version output"
+    assert "tag" in outputs, "bump-and-release should have tag output"
+
+
+def test_publish_pypi_bump_and_release_triggers_executables():
+    """Test that bump-and-release job triggers build-executables workflow."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "publish-pypi.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    bump_job = workflow["jobs"]["bump-and-release"]
+    steps = bump_job["steps"]
+    step_names = [step.get("name") for step in steps]
+
+    # Verify the trigger step exists
+    assert "Trigger Build Executables Workflow" in step_names, "bump-and-release should trigger build-executables"
+
+    # Find the trigger step
+    trigger_step = None
+    for step in steps:
+        if step.get("name") == "Trigger Build Executables Workflow":
+            trigger_step = step
+            break
+
+    assert trigger_step is not None
+    assert "run" in trigger_step, "Trigger step should have a run script"
+
+    # Verify the script triggers the workflow
+    run_script = trigger_step["run"]
+    assert "gh workflow run" in run_script, "Should use gh workflow run"
+    assert "build-executables.yml" in run_script, "Should trigger build-executables.yml"
+    assert "--ref" in run_script, "Should specify the ref (tag) to trigger on"
+
+
+def test_publish_pypi_jobs_support_workflow_dispatch():
+    """Test that all jobs properly support workflow_dispatch event."""
+    if yaml is None:
+        pytest.skip("PyYAML not installed")
+
+    workflow_file = REPO_ROOT / ".github" / "workflows" / "publish-pypi.yml"
+    with open(workflow_file) as f:
+        workflow = yaml.safe_load(f)
+
+    jobs_to_check = ["validate-version", "build", "publish-to-pypi", "github-release"]
+
+    for job_name in jobs_to_check:
+        job = workflow["jobs"][job_name]
+
+        # Check that job depends on bump-and-release
+        assert "needs" in job, f"{job_name} should have needs"
+        assert "bump-and-release" in job["needs"], f"{job_name} should depend on bump-and-release"
+
+        # Check that job has conditional that includes workflow_dispatch
+        assert "if" in job, f"{job_name} should have conditional"
+        assert "workflow_dispatch" in job["if"], f"{job_name} should support workflow_dispatch"
 
 
 def test_publish_pypi_has_workflow_dispatch_input():
