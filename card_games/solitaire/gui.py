@@ -32,19 +32,37 @@ from card_games.common.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 from card_games.common.soundscapes import initialize_game_soundscape
 from card_games.solitaire.game import Pile, SolitaireGame
 
+# Constants for card rendering
 CARD_WIDTH = 90
 CARD_HEIGHT = 120
 FACE_DOWN_HEIGHT = 42
 FACE_DOWN_SPACING = 18
 FACE_UP_SPACING = 32
 
-
-SelectedSource = Tuple[str, int, int]
-TargetKey = Tuple[str, int]
+# Type aliases for clarity
+SelectedSource = Tuple[str, int, int]  # (pile_type, pile_index, num_cards)
+TargetKey = Tuple[str, int]  # (pile_type, pile_index)
 
 
 class SolitaireGUI(BaseGUI):
-    """Interactive GUI front-end for the ``SolitaireGame`` engine."""
+    """Interactive GUI front-end for the ``SolitaireGame`` engine.
+
+    This class sets up the Tkinter window, widgets, and event bindings required
+    to play Klondike Solitaire. It communicates with a ``SolitaireGame`` instance
+    to manage game state and execute moves.
+
+    Attributes:
+        game: The underlying ``SolitaireGame`` engine instance.
+        selected_source: A tuple representing the currently selected cards for a move,
+                         or None if no selection has been made.
+        legal_targets: A set of keys for piles that are valid drop targets for the
+                       current selection.
+        status_var: A Tkinter ``StringVar`` for displaying status messages.
+        score_var: A Tkinter ``StringVar`` for the score.
+        moves_var: A Tkinter ``StringVar`` for the move count.
+        recycle_var: A Tkinter ``StringVar`` for the recycle count.
+        draw_mode_var: A Tkinter ``StringVar`` for the draw mode.
+    """
 
     def __init__(
         self,
@@ -55,6 +73,16 @@ class SolitaireGUI(BaseGUI):
         config: Optional[GUIConfig] = None,
         new_game_factory: Optional[Callable[[], SolitaireGame]] = None,
     ) -> None:
+        """Initialize the Solitaire GUI.
+
+        Args:
+            root: The root Tkinter window.
+            game: An instance of the ``SolitaireGame`` engine.
+            enable_sounds: Whether to enable sound effects.
+            config: Optional GUI configuration.
+            new_game_factory: A callable that returns a new ``SolitaireGame`` instance,
+                              used for the "New Game" button.
+        """
         if not TKINTER_AVAILABLE:
             raise RuntimeError("Tkinter is not available on this system.")
 
@@ -99,6 +127,7 @@ class SolitaireGUI(BaseGUI):
         self.tableau_canvases: list[tk.Canvas] = []
         self.tableau_card_positions: list[list[Tuple[float, float, int]]] = []
 
+        # Color definitions for UI elements
         colors = self.current_theme.colors
         self._default_border = colors.border or "#CCCCCC"
         self._target_border = colors.highlight or colors.primary or "#FFD700"
@@ -297,6 +326,7 @@ class SolitaireGUI(BaseGUI):
     # Rendering primitives
     # ------------------------------------------------------------------
     def _draw_stock(self) -> None:
+        """Render the stock pile canvas."""
         if not self.stock_canvas:
             return
         canvas = self.stock_canvas
@@ -337,6 +367,7 @@ class SolitaireGUI(BaseGUI):
             )
 
     def _draw_waste(self) -> None:
+        """Render the waste pile canvas."""
         if not self.waste_canvas:
             return
         canvas = self.waste_canvas
@@ -364,6 +395,7 @@ class SolitaireGUI(BaseGUI):
         self._draw_face_up_card(canvas, card)
 
     def _draw_foundations(self) -> None:
+        """Render the four foundation pile canvases."""
         for idx, canvas in enumerate(self.foundation_canvases):
             canvas.delete("all")
             pile = self.game.foundations[idx]
@@ -394,6 +426,7 @@ class SolitaireGUI(BaseGUI):
                 )
 
     def _draw_tableau(self) -> None:
+        """Render the seven tableau pile canvases."""
         for idx, canvas in enumerate(self.tableau_canvases):
             canvas.delete("all")
             pile = self.game.tableau[idx]
@@ -436,6 +469,14 @@ class SolitaireGUI(BaseGUI):
             self.tableau_card_positions[idx] = positions
 
     def _draw_face_up_card(self, canvas: tk.Canvas, card: Card, *, y: float = 10, height: float = CARD_HEIGHT) -> None:
+        """Draw a single face-up card on a canvas.
+
+        Args:
+            canvas: The Tkinter canvas to draw on.
+            card: The card to draw.
+            y: The top y-coordinate for the card.
+            height: The height of the card rectangle.
+        """
         canvas.create_rectangle(
             10,
             y,
@@ -455,6 +496,15 @@ class SolitaireGUI(BaseGUI):
         )
 
     def _create_pile_frame(self, parent: tk.Widget, bg: str) -> tk.Frame:
+        """Create a standard frame for a card pile.
+
+        Args:
+            parent: The parent widget.
+            bg: The background color.
+
+        Returns:
+            A configured Tkinter Frame.
+        """
         return tk.Frame(
             parent,
             bg=bg,
@@ -470,8 +520,7 @@ class SolitaireGUI(BaseGUI):
     # Event handling & move logic
     # ------------------------------------------------------------------
     def handle_draw(self) -> None:
-        """Draw cards from the stock, updating status accordingly."""
-
+        """Handle the action of drawing cards from the stock."""
         if self.game.draw_from_stock():
             self._set_status("Drew from the stock pile.")
         else:
@@ -483,8 +532,7 @@ class SolitaireGUI(BaseGUI):
         self.update_display()
 
     def handle_reset(self) -> None:
-        """Recycle the waste back into the stock."""
-
+        """Handle the action of recycling the waste back into the stock."""
         if self.game.reset_stock():
             self._set_status("Recycled the waste pile onto the stock.")
         else:
@@ -493,8 +541,7 @@ class SolitaireGUI(BaseGUI):
         self.update_display()
 
     def handle_auto(self) -> None:
-        """Trigger automatic moves to the foundations."""
-
+        """Handle the action of automatically moving cards to foundations."""
         if self.game.auto_move_to_foundation():
             self._set_status("Moved all available cards to the foundations.")
         else:
@@ -503,8 +550,7 @@ class SolitaireGUI(BaseGUI):
         self.update_display()
 
     def handle_new_game(self) -> None:
-        """Start a fresh game using the provided factory."""
-
+        """Handle the action of starting a new game."""
         if not self._new_game_factory:
             self._set_status("New game factory not provided.")
             return
@@ -514,6 +560,13 @@ class SolitaireGUI(BaseGUI):
         self.update_display()
 
     def _on_waste_click(self, _event: tk.Event) -> None:
+        """Handle a click event on the waste pile.
+
+        Selects the top card of the waste pile as the source for a move.
+
+        Args:
+            _event: The Tkinter event (unused).
+        """
         if self.selected_source and self.selected_source[0] == "waste":
             self.clear_selection()
             return
@@ -525,6 +578,15 @@ class SolitaireGUI(BaseGUI):
         self._set_selection(("waste", 0, 1))
 
     def _on_foundation_click(self, index: int) -> None:
+        """Handle a click event on a foundation pile.
+
+        If a source is selected, attempts to move the selected cards to this
+        foundation. Otherwise, selects the top card of this foundation as a
+        source for a move (if allowed by scoring rules).
+
+        Args:
+            index: The index of the clicked foundation pile (0-3).
+        """
         if self.selected_source and ("foundation", index) in self.legal_targets:
             if self._execute_move(("foundation", index)):
                 return
@@ -539,6 +601,16 @@ class SolitaireGUI(BaseGUI):
         self._set_selection(("foundation", index, 1))
 
     def _on_tableau_click(self, index: int, event: tk.Event) -> None:
+        """Handle a click event on a tableau pile.
+
+        Determines which card (or empty space) was clicked. If a source is
+        already selected, it attempts to move the cards here. Otherwise, it
+        selects the clicked face-up cards as the source for a move.
+
+        Args:
+            index: The index of the clicked tableau pile (0-6).
+            event: The Tkinter click event, used to get y-coordinate.
+        """
         target_key = ("tableau", index)
         if self.selected_source and target_key in self.legal_targets:
             if self._execute_move(target_key):
@@ -572,6 +644,15 @@ class SolitaireGUI(BaseGUI):
         self._set_selection(("tableau", index, num_cards))
 
     def _find_card_index(self, y: float, positions: list[Tuple[float, float, int]]) -> Optional[int]:
+        """Find the index of the card at a given y-coordinate in a tableau pile.
+
+        Args:
+            y: The y-coordinate of the click.
+            positions: A list of (start_y, end_y, card_index) tuples for the pile.
+
+        Returns:
+            The index of the clicked card, or None if no card is at that position.
+        """
         for start_y, end_y, card_index in positions[::-1]:
             if start_y <= y <= end_y:
                 return card_index
@@ -580,6 +661,14 @@ class SolitaireGUI(BaseGUI):
         return None
 
     def _execute_move(self, target: TargetKey) -> bool:
+        """Execute a move from the selected source to the given target.
+
+        Args:
+            target: The target pile key for the move.
+
+        Returns:
+            True if the move was successful, False otherwise.
+        """
         if not self.selected_source:
             return False
 
@@ -608,6 +697,15 @@ class SolitaireGUI(BaseGUI):
         return moved
 
     def _get_pile(self, source_type: str, index: int) -> Optional[Pile]:
+        """Retrieve a game pile object based on its type and index.
+
+        Args:
+            source_type: The type of the pile ('waste', 'foundation', 'tableau').
+            index: The index of the pile.
+
+        Returns:
+            The ``Pile`` object, or None if not found.
+        """
         if source_type == "waste":
             return self.game.waste
         if source_type == "foundation":
@@ -617,6 +715,13 @@ class SolitaireGUI(BaseGUI):
         return None
 
     def _set_selection(self, selection: SelectedSource) -> None:
+        """Set the current card selection and compute legal targets.
+
+        If the same selection is made twice, it clears the selection.
+
+        Args:
+            selection: The source pile and cards to select.
+        """
         if self.selected_source == selection:
             self.clear_selection()
             self.update_display()
@@ -632,6 +737,14 @@ class SolitaireGUI(BaseGUI):
         self.legal_targets.clear()
 
     def _compute_legal_targets(self, selection: SelectedSource) -> set[TargetKey]:
+        """Compute all legal destination piles for a given selection.
+
+        Args:
+            selection: The source pile and cards that have been selected.
+
+        Returns:
+            A set of keys for piles that are valid drop targets.
+        """
         source_type, index, num_cards = selection
         source_pile = self._get_pile(source_type, index)
         if not source_pile:
@@ -674,6 +787,7 @@ class SolitaireGUI(BaseGUI):
         return targets
 
     def _apply_highlights(self) -> None:
+        """Apply highlight borders to selected and targetable piles."""
         frames = []
         if self.stock_frame:
             frames.append((self.stock_frame, ("stock", 0)))
@@ -697,6 +811,15 @@ class SolitaireGUI(BaseGUI):
                 frame.configure(highlightbackground=self._target_border, highlightcolor=self._target_border)
 
     def _lookup_frame(self, target_type: str, index: int) -> Optional[tk.Frame]:
+        """Find the Tkinter frame corresponding to a pile key.
+
+        Args:
+            target_type: The type of the pile.
+            index: The index of the pile.
+
+        Returns:
+            The corresponding ``tk.Frame``, or None if not found.
+        """
         if target_type == "waste":
             return self.waste_frame
         if target_type == "foundation":
@@ -708,6 +831,11 @@ class SolitaireGUI(BaseGUI):
         return None
 
     def _set_status(self, message: str) -> None:
+        """Update the message in the status bar.
+
+        Args:
+            message: The message to display.
+        """
         if message:
             self.status_var.set(message)
 
@@ -719,8 +847,17 @@ def run_app(
     scoring_mode: str = "standard",
     seed: Optional[int] = None,
 ) -> None:
-    """Launch the Solitaire GUI application."""
+    """Launch the Solitaire GUI application.
 
+    This function sets up the game engine with the specified rules,
+    initializes the Tkinter root window, and starts the main event loop.
+
+    Args:
+        draw_count: The number of cards to draw from the stock (1 or 3).
+        max_recycles: The maximum number of times the waste can be recycled.
+        scoring_mode: The scoring rules to use ('standard' or 'vegas').
+        seed: An optional seed for the random number generator for reproducible deals.
+    """
     if not TKINTER_AVAILABLE:
         raise RuntimeError("Tkinter is not available; install it to use the GUI.")
 

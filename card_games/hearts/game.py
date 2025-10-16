@@ -1,15 +1,15 @@
-"""Hearts game engine.
+"""Hearts card game engine.
 
-Hearts is a trick-taking card game where the goal is to avoid taking hearts and
-the Queen of Spades (which are worth penalty points). However, a player who takes
-ALL the hearts and the Queen of Spades "shoots the moon" and instead gives 26 points
-to all other players.
+This module implements the classic trick-taking card game Hearts, where the
+primary goal is to avoid taking penalty cards (all hearts and the Queen of
+Spades). A player who successfully "shoots the moon" by taking all penalty
+cards can instead give points to all other players.
 
-The game includes:
-- Passing cards phase (3 cards passed in rotating directions)
-- Trick-taking with hearts and Queen of Spades as penalty cards
-- Shooting the moon detection and scoring
-- AI that tries to avoid hearts
+Key Features:
+- A rotating card passing phase (left, right, across, none).
+- Trick-taking gameplay with standard follow-suit rules.
+- Detection and scoring for "shooting the moon."
+- A basic AI that attempts to avoid taking penalty points.
 """
 
 from __future__ import annotations
@@ -22,12 +22,12 @@ from card_games.common.cards import Card, Deck, Suit
 
 
 class PassDirection(Enum):
-    """Direction to pass cards in Hearts."""
+    """Enumerates the directions for passing cards in Hearts."""
 
     LEFT = auto()
     RIGHT = auto()
     ACROSS = auto()
-    NONE = auto()  # No passing on 4th hand
+    NONE = auto()  # No passing on the fourth hand of a round.
 
 
 TWO_OF_CLUBS = Card("2", Suit.CLUBS)
@@ -36,14 +36,14 @@ QUEEN_OF_SPADES = Card("Q", Suit.SPADES)
 
 @dataclass(eq=False)
 class HeartsPlayer:
-    """Represents a player in Hearts.
+    """Represents a player in a game of Hearts.
 
     Attributes:
-        name: Player's name
-        hand: Cards currently in hand
-        tricks_won: Cards won in tricks this round
-        score: Total score across all rounds
-        is_ai: Whether this is an AI player
+        name: The player's name.
+        hand: A list of cards currently in the player's hand.
+        tricks_won: A list of cards won in tricks during the current round.
+        score: The player's total score across all rounds.
+        is_ai: True if the player is controlled by an AI.
     """
 
     name: str
@@ -53,36 +53,30 @@ class HeartsPlayer:
     is_ai: bool = False
 
     def has_suit(self, suit: Suit) -> bool:
-        """Check if player has any cards of the given suit."""
+        """Check if the player has any cards of a given suit."""
         return any(card.suit == suit for card in self.hand)
 
     def has_only_hearts(self) -> bool:
-        """Check if player has only hearts in hand."""
+        """Check if the player's hand contains only hearts."""
         return all(card.suit == Suit.HEARTS for card in self.hand)
 
     def calculate_round_points(self) -> int:
-        """Calculate points for this round based on tricks won.
+        """Calculate the points for this round based on the tricks won.
 
         Returns:
-            Points (higher is worse in Hearts).
+            The total penalty points (higher is worse in Hearts).
         """
-        points = 0
-        for card in self.tricks_won:
-            if card.suit == Suit.HEARTS:
-                points += 1
-            elif card == QUEEN_OF_SPADES:
-                points += 13
-        return points
+        return sum(1 for card in self.tricks_won if card.suit == Suit.HEARTS) + sum(13 for card in self.tricks_won if card == QUEEN_OF_SPADES)
 
 
 @dataclass(frozen=True)
 class TrickRecord:
-    """Snapshot of a completed trick used for post-round analysis.
+    """A snapshot of a completed trick for post-round analysis.
 
     Attributes:
-        leader: Name of the player who led the trick.
-        cards: Ordered sequence of ``(player_name, card)`` tuples in play order.
-        winner: Name of the player who captured the trick.
+        leader: The name of the player who led the trick.
+        cards: An ordered sequence of (player_name, card) tuples.
+        winner: The name of the player who won the trick.
     """
 
     leader: str

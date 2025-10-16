@@ -1,4 +1,9 @@
-"""Command-line interface for playing Rummy 500."""
+"""Command-line interface for playing Rummy 500.
+
+This module provides a command-line interface (CLI) for playing the Rummy 500
+card game. It handles user input, displays the game state, and manages the
+game loop for both human and AI players.
+"""
 
 from __future__ import annotations
 
@@ -12,8 +17,14 @@ SUIT_SYMBOL_TO_CODE = {"♣": "C", "♦": "D", "♥": "H", "♠": "S"}
 
 
 def card_value(card: Card) -> int:
-    """Return the scoring value for *card*."""
+    """Return the scoring value for *card*.
 
+    Args:
+        card: The card to evaluate.
+
+    Returns:
+        The point value of the card.
+    """
     if card.rank == "A":
         return 15
     if card.rank in {"K", "Q", "J", "T"}:
@@ -22,28 +33,52 @@ def card_value(card: Card) -> int:
 
 
 def sort_cards(cards: Iterable[Card]) -> list[Card]:
-    """Return cards sorted by rank then suit."""
+    """Return cards sorted by rank then suit.
 
+    Args:
+        cards: An iterable of cards to sort.
+
+    Returns:
+        A new list of cards, sorted.
+    """
     return sorted(cards, key=lambda c: (RANK_TO_VALUE[c.rank], c.suit.value))
 
 
 def card_to_code(card: Card) -> str:
-    """Return a two-character code for *card* (e.g., ``AS``)."""
+    """Return a two-character code for *card* (e.g., ``AS``).
 
+    Args:
+        card: The card to convert.
+
+    Returns:
+        A two-character string representing the card.
+    """
     return f"{card.rank}{SUIT_SYMBOL_TO_CODE[card.suit.value]}"
 
 
 def format_cards_with_codes(cards: Sequence[Card]) -> str:
-    """Return cards formatted with both codes and suit symbols."""
+    """Return cards formatted with both codes and suit symbols.
 
+    Args:
+        cards: A sequence of cards to format.
+
+    Returns:
+        A formatted string showing both the code and symbol for each card.
+    """
     if not cards:
         return "—"
     return " ".join(f"{card_to_code(card)}({card})" for card in sort_cards(cards))
 
 
 def display_game_state(game: Rummy500Game) -> None:
-    """Display high-level game information."""
+    """Display high-level game information.
 
+    This function prints a summary of the current game state, including scores,
+    the current player, hand sizes, the discard pile, and table melds.
+
+    Args:
+        game: The current game state.
+    """
     state = game.get_state_summary()
     print("\n" + "=" * 72)
     print(f"RUMMY 500 - {state['phase']}")
@@ -75,8 +110,11 @@ def display_game_state(game: Rummy500Game) -> None:
 
 
 def show_deadwood_summary(summary: dict[str, object]) -> None:
-    """Pretty-print a deadwood summary returned by the game engine."""
+    """Pretty-print a deadwood summary returned by the game engine.
 
+    Args:
+        summary: The deadwood summary dictionary from the game engine.
+    """
     meld_points = summary["meld_points"]
     deadwood_points = summary["deadwood_points"]
     net_points = summary["net_points"]
@@ -96,8 +134,11 @@ def show_deadwood_summary(summary: dict[str, object]) -> None:
 
 
 def show_discard_pile(game: Rummy500Game) -> None:
-    """Display the entire discard pile for reference."""
+    """Display the entire discard pile for reference.
 
+    Args:
+        game: The current game state.
+    """
     if not game.discard_pile:
         print("Discard pile is empty.")
         return
@@ -107,8 +148,15 @@ def show_discard_pile(game: Rummy500Game) -> None:
 
 
 def parse_cards_from_input(text: str, available: Sequence[Card]) -> list[Card] | None:
-    """Convert a user string into concrete cards from *available*."""
+    """Convert a user string into concrete cards from *available*.
 
+    Args:
+        text: The user's input string.
+        available: The sequence of cards the user is allowed to choose from.
+
+    Returns:
+        A list of resolved Card objects, or None if parsing fails.
+    """
     tokens = [token.upper() for token in text.replace(",", " ").split() if token]
     if not tokens:
         return []
@@ -141,8 +189,17 @@ def request_cards(
     minimum: int = 1,
     allow_empty: bool = False,
 ) -> list[Card] | None:
-    """Prompt the user for cards, validating against *available*."""
+    """Prompt the user for cards, validating against *available*.
 
+    Args:
+        prompt: The prompt to display to the user.
+        available: The sequence of cards the user can choose from.
+        minimum: The minimum number of cards required.
+        allow_empty: Whether to allow an empty response.
+
+    Returns:
+        A list of cards, or None if input is invalid.
+    """
     while True:
         raw = input(prompt).strip()
         if not raw:
@@ -167,8 +224,11 @@ def request_cards(
 
 
 def human_draw(game: Rummy500Game) -> None:
-    """Handle the draw phase for the human player."""
+    """Handle the draw phase for the human player.
 
+    Args:
+        game: The current game state.
+    """
     player = game.current_player
     assert player == 0
 
@@ -209,8 +269,11 @@ def human_draw(game: Rummy500Game) -> None:
 
 
 def show_table_melds(game: Rummy500Game) -> None:
-    """Display current table melds with indices."""
+    """Display current table melds with indices.
 
+    Args:
+        game: The current game state.
+    """
     state = game.get_state_summary()
     if not state["melds"]:
         print("There are no melds on the table yet.")
@@ -226,8 +289,11 @@ def show_table_melds(game: Rummy500Game) -> None:
 
 
 def human_meld_phase(game: Rummy500Game) -> None:
-    """Allow the human player to form melds, lay off, and discard."""
+    """Allow the human player to form melds, lay off, and discard.
 
+    Args:
+        game: The current game state.
+    """
     player = game.current_player
     assert player == 0
 
@@ -370,8 +436,14 @@ def human_meld_phase(game: Rummy500Game) -> None:
 
 
 def game_loop(game: Rummy500Game) -> None:
-    """Main game loop for the interactive CLI."""
+    """Main game loop for the interactive CLI.
 
+    This function initializes the game and manages the turn-by-turn flow,
+    handling both human and AI player actions until the game is over.
+
+    Args:
+        game: The Rummy500Game instance to run.
+    """
     print("\n🃏 Welcome to Rummy 500! 🃏")
     print(f"{game.num_players} players - First to 500 points wins!")
     print("Use two-character codes for cards (rank + suit letter, e.g., 'AS' for Ace of Spades).\n")

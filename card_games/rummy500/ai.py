@@ -1,4 +1,9 @@
-"""Simple AI helpers for the Rummy 500 command-line interface."""
+"""Simple AI helpers for the Rummy 500 command-line interface.
+
+This module provides a basic AI for playing Rummy 500. The AI makes decisions
+on drawing, melding, laying off, and discarding based on a simple heuristic
+of maximizing points and minimizing deadwood.
+"""
 
 from __future__ import annotations
 
@@ -11,8 +16,14 @@ from card_games.rummy500.game import GamePhase, Rummy500Game
 
 
 def _card_value(card: Card) -> int:
-    """Return the scoring value for *card*."""
+    """Return the scoring value for *card*.
 
+    Args:
+        card: The card to evaluate.
+
+    Returns:
+        The point value of the card.
+    """
     if card.rank == "A":
         return 15
     if card.rank in {"K", "Q", "J", "T"}:
@@ -22,24 +33,50 @@ def _card_value(card: Card) -> int:
 
 @dataclass
 class DrawDecision:
-    """Container describing how the AI wants to draw cards."""
+    """Container describing how the AI wants to draw cards.
+
+    Attributes:
+        from_discard: Whether to draw from the discard pile.
+        take_count: The number of cards to take from the discard pile.
+    """
 
     from_discard: bool
     take_count: int
 
 
 class Rummy500AI:
-    """Decision helpers for non-human players in the CLI experience."""
+    """Decision helpers for non-human players in the CLI experience.
+
+    This class encapsulates the logic for an AI player, providing methods to
+    make decisions at each stage of the game.
+
+    Attributes:
+        player_index: The index of the player the AI is controlling.
+    """
 
     def __init__(self, player_index: int) -> None:
+        """Initializes the Rummy500AI.
+
+        Args:
+            player_index: The index of the player the AI will control.
+        """
         self.player_index = player_index
 
     # ------------------------------------------------------------------
     # Draw phase
     # ------------------------------------------------------------------
     def choose_draw(self, game: Rummy500Game) -> DrawDecision:
-        """Decide whether to draw from the deck or discard pile."""
+        """Decide whether to draw from the deck or discard pile.
 
+        The AI evaluates the discard pile to see if taking one or more cards
+        improves its hand. If not, it draws from the deck.
+
+        Args:
+            game: The current game state.
+
+        Returns:
+            A DrawDecision object indicating the AI's choice.
+        """
         if game.phase != GamePhase.DRAW:
             return DrawDecision(from_discard=False, take_count=1)
 
@@ -94,8 +131,17 @@ class Rummy500AI:
     # Meld / Layoff phase
     # ------------------------------------------------------------------
     def perform_melds_and_layoffs(self, game: Rummy500Game) -> bool:
-        """Play available melds and lay-offs. Returns True if the AI goes out."""
+        """Play available melds and lay-offs.
 
+        The AI will lay down all possible melds from its hand and then lay off
+        any cards it can on existing melds.
+
+        Args:
+            game: The current game state.
+
+        Returns:
+            True if the AI goes out, False otherwise.
+        """
         if game.phase != GamePhase.MELD:
             return False
 
@@ -117,8 +163,16 @@ class Rummy500AI:
         return False
 
     def choose_discard(self, game: Rummy500Game) -> Card:
-        """Choose the best discard from the current hand."""
+        """Choose the best discard from the current hand.
 
+        The AI chooses a discard that maximizes the net point value of its hand.
+
+        Args:
+            game: The current game state.
+
+        Returns:
+            The card the AI has chosen to discard.
+        """
         hand = list(game.hands[self.player_index])
         assert hand, "Cannot choose a discard from an empty hand"
 
@@ -141,8 +195,18 @@ class Rummy500AI:
     # Internal helpers
     # ------------------------------------------------------------------
     def _is_better_summary(self, candidate: dict, current: dict) -> bool:
-        """Return True if *candidate* is preferable to *current*."""
+        """Return True if *candidate* is preferable to *current*.
 
+        A summary is considered better if it has a higher net score. Ties are
+        broken by lower deadwood points, then higher meld points.
+
+        Args:
+            candidate: The candidate hand summary.
+            current: The current best hand summary.
+
+        Returns:
+            True if the candidate summary is better, False otherwise.
+        """
         if candidate["net_points"] != current["net_points"]:
             return candidate["net_points"] > current["net_points"]
 
@@ -152,8 +216,17 @@ class Rummy500AI:
         return candidate["meld_points"] > current["meld_points"]
 
     def _select_best_layoff(self, game: Rummy500Game) -> Optional[Tuple[int, Card]]:
-        """Return the layoff yielding the greatest immediate benefit."""
+        """Return the layoff yielding the greatest immediate benefit.
 
+        The AI selects the layoff option that gets rid of the highest-value card.
+
+        Args:
+            game: The current game state.
+
+        Returns:
+            A tuple containing the meld index and the card to lay off, or
+            None if no layoff is possible.
+        """
         best_option: Optional[Tuple[int, Card]] = None
         best_value = -1
 

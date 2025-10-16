@@ -1,4 +1,9 @@
-"""Command-line interface helpers for the Klondike Solitaire engine."""
+"""Command-line interface helpers for the Klondike Solitaire engine.
+
+This module provides functions for displaying the game state and handling user
+input for a command-line version of Klondike Solitaire. It is responsible for
+rendering the game board, parsing move commands, and running the main game loop.
+"""
 
 from __future__ import annotations
 
@@ -7,6 +12,9 @@ from card_games.solitaire.game import SolitaireGame
 
 def display_game(game: SolitaireGame) -> None:
     """Display the current game state.
+
+    This function prints a text-based representation of the solitaire game board,
+    including the stock, waste, foundations, and tableau piles.
 
     Args:
         game: The solitaire game instance.
@@ -67,6 +75,9 @@ def display_game(game: SolitaireGame) -> None:
 
 def parse_move(user_input: str, game: SolitaireGame) -> bool:
     """Parse and execute a move command.
+
+    This function takes a string of user input, parses it to determine the
+    intended move, and then executes that move on the game instance.
 
     Args:
         user_input: The user's input string.
@@ -197,6 +208,10 @@ def print_help() -> None:
 
 def game_loop(game: SolitaireGame) -> None:
     """Main game loop for CLI solitaire.
+
+    This function initializes the game display and then enters a loop to
+    prompt the user for moves, process them, and update the display until the
+    game is won or the user quits.
 
     Args:
         game: The solitaire game instance.

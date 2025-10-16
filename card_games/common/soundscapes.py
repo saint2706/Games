@@ -1,13 +1,28 @@
 """Utilities for configuring per-game soundscapes for card game GUIs.
 
 This module centralises the mapping between game identifiers and the sound
-effects that their GUIs should preload.  Each GUI can call
+effects that their GUIs should preload. Each GUI can call
 ``initialize_game_soundscape`` after constructing its ``BaseGUI`` to request a
 ``SoundManager`` instance that has attempted to load the relevant audio cues.
 
 The helper keeps the integration lightweight: if pygame is unavailable or the
 sound assets are missing, it simply returns ``None`` (or the existing manager)
 without raising errors so the GUI continues operating silently.
+
+To add a new game's soundscape:
+1. Add a new entry to the ``GAME_SOUND_CUES`` dictionary.
+2. The key should be the game's identifier (e.g., "solitaire").
+3. The value should be a dictionary mapping cue names to sound file names.
+4. Place the audio files in a ``sounds`` directory next to the game's GUI module.
+
+Example:
+    # In your game's GUI module:
+    # self.sound_manager = initialize_game_soundscape(
+    #     "my_game",
+    #     module_file=__file__,
+    #     enable_sounds=True,
+    #     existing_manager=self.sound_manager,
+    # )
 """
 
 from __future__ import annotations
@@ -17,9 +32,9 @@ from typing import Dict, Optional
 
 from common.sound_manager import SoundManager, create_sound_manager
 
-# Mapping of game identifiers to the sound cue filenames they expect.  The
+# Mapping of game identifiers to the sound cue filenames they expect. The
 # filenames are relative to a ``sounds`` directory that lives alongside the
-# GUI module for that game.  The actual audio files are optional; the helper
+# GUI module for that game. The actual audio files are optional; the helper
 # only loads cues that exist on disk.
 GAME_SOUND_CUES: Dict[str, Dict[str, str]] = {
     "blackjack": {
@@ -114,34 +129,44 @@ def initialize_game_soundscape(
 ) -> Optional[SoundManager]:
     """Create or augment a ``SoundManager`` with the cues for ``game_key``.
 
+    This function finds the appropriate sound cues for a given game and loads
+    them into a ``SoundManager``. It gracefully handles cases where sounds are
+    disabled, the `pygame` library is not available, or sound files are missing.
+
     Args:
-        game_key: Identifier of the game (e.g. ``"blackjack"``).
-        module_file: ``__file__`` of the caller so we can locate the sounds
-            directory that sits next to the module.
-        enable_sounds: Whether the GUI has requested audio playback.
-        existing_manager: A sound manager that may have been initialised by
-            :class:`common.gui_base.BaseGUI` or the caller.
+        game_key: Identifier of the game (e.g., ``"blackjack"``).
+        module_file: The ``__file__`` attribute of the calling module, used to
+            locate the ``sounds`` directory.
+        enable_sounds: A boolean indicating whether the GUI has requested
+            audio playback.
+        existing_manager: An optional existing ``SoundManager`` instance to
+            augment. If not provided, a new one is created.
 
     Returns:
-        A ``SoundManager`` initialised with the requested cues, or ``None`` if
-        sounds are disabled or pygame is unavailable.
+        A ``SoundManager`` instance initialized with the requested cues, or
+        ``None`` if sounds are disabled or `pygame` is unavailable.
     """
-
+    # If sounds are disabled, there's nothing to do.
     if not enable_sounds:
         return existing_manager
 
+    # Determine the directory where sound files are expected to be.
     sounds_dir = Path(module_file).with_name("sounds")
     manager = existing_manager
 
+    # If no sound manager exists, create one.
     if manager is None:
         manager = create_sound_manager(str(sounds_dir) if sounds_dir.exists() else None, enabled=True)
+        # If creation fails (e.g., pygame not installed), return None.
         if manager is None:
             return None
 
+    # Get the sound cues for the specified game.
     cues = GAME_SOUND_CUES.get(game_key, {})
     if not cues or not sounds_dir.exists():
         return manager
 
+    # Load each sound cue into the manager.
     for cue, filename in cues.items():
         file_path = sounds_dir / filename
         if file_path.exists():
