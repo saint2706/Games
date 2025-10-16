@@ -478,61 +478,59 @@ Comprehensive guide covering basic play, strategy, and advanced features.
 ### Test Structure
 
 ```python
-import unittest
+import pytest
 from game_package.game_name import GameEngine, Player
 
-class TestGameEngine(unittest.TestCase):
+class TestGameEngine:
     """Tests for GameEngine class."""
 
-    def setUp(self):
+    @pytest.fixture
+    def game(self):
         """Set up test fixtures."""
-        self.game = GameEngine(num_players=2)
+        return GameEngine(num_players=2)
 
-    def test_initialization(self):
+    def test_initialization(self, game):
         """Test game initializes correctly."""
-        self.assertEqual(len(self.game.players), 2)
-        self.assertEqual(self.game.current_player, 0)
+        assert len(game.players) == 2
+        assert game.current_player == 0
 
-    def test_valid_move(self):
+    def test_valid_move(self, game):
         """Test valid move is accepted."""
-        self.game.start()
-        result = self.game.make_move(valid_move)
-        self.assertTrue(result)
+        game.start()
+        result = game.make_move(valid_move)
+        assert result is True
 
-    def test_invalid_move(self):
+    def test_invalid_move(self, game):
         """Test invalid move is rejected."""
-        self.game.start()
-        result = self.game.make_move(invalid_move)
-        self.assertFalse(result)
+        game.start()
+        result = game.make_move(invalid_move)
+        assert result is False
 
-    def test_game_end(self):
+    def test_game_end(self, game):
         """Test game ends correctly."""
         # Set up winning condition
-        self.assertTrue(self.game.is_game_over())
-        self.assertIsNotNone(self.game.get_winner())
+        assert game.is_game_over() is True
+        assert game.get_winner() is not None
 
-    def test_edge_cases(self):
+    def test_edge_cases(self, game):
         """Test edge cases."""
         # Test boundary conditions
         # Test empty states
         # Test maximum values
         pass
-
-if __name__ == '__main__':
-    unittest.main()
 ```
 
 ### Running Tests
 
 ```bash
 # Run all tests
-python -m unittest discover -s tests -p "test_*.py"
+pytest
 
 # Run specific test file
-python tests/test_game_name.py
+pytest tests/test_game_name.py
 
 # Run specific test
-python -m unittest tests.test_game_name.TestGameEngine.test_valid_move
+pytest tests/test_game_name.py::TestGameEngine::test_valid_move
 ```
 
 ## Documentation
@@ -571,7 +569,7 @@ make html
 1. **Run Tests**: Ensure all tests pass
 
    ```bash
-   python -m unittest discover -s tests
+   pytest
    ```
 
 1. **Check Style**: Code follows style guidelines
@@ -603,7 +601,7 @@ make html
 
    ```bash
    git fetch upstream
-   git rebase upstream/master
+   git rebase upstream/main
    ```
 
 1. **Push**: Push to your fork

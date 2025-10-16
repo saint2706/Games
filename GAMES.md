@@ -721,19 +721,19 @@ python -m paper_games.battleship --grid-size 10
 
 - **Main README**: [README.md](README.md) - Project overview
 - **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute
-- **Architecture**: [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) - Design patterns
+- **Architecture**: [docs/architecture/README.md](docs/architecture/README.md) - Design patterns
 - **Code Quality**: [docs/development/CODE_QUALITY.md](docs/development/CODE_QUALITY.md) - Standards and guidelines
 - **Testing**: [docs/development/TESTING.md](docs/development/TESTING.md) - Testing guide
 - **Development**: [docs/development/IMPLEMENTATION_NOTES.md](docs/development/IMPLEMENTATION_NOTES.md) - Implementation
   details
-- **Roadmap**: [docs/planning/TODO.md](docs/planning/TODO.md) - Future plans
+- **Roadmap**: [docs/planning/README.md](docs/planning/README.md) - Future plans
 
 ## 🎯 Game Statistics
 
 - **Total Games**: 49 playable games (15 card games + 21 paper games + 4 dice games + 4 word games + 5 logic games)
 - **Game Categories**: 5 (Card, Paper, Dice, Word, Logic)
-- **Total Lines of Code**: ~67,500+ (Python)
-- **Test Coverage**: 30%+ overall (goal: 90%+), with 682 tests
+- **Total Lines of Code**: ~229,000+ (Python)
+- **Test Coverage**: 40%+ overall (goal: 90%+), with 682 tests
 - **Supported Platforms**: Linux, macOS, Windows
 
 ## 🤖 AI Opponents
@@ -759,7 +759,7 @@ Most games support multiple interfaces:
 Want to add a new game? See:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
-- [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) - Architecture patterns
+- [docs/architecture/README.md](docs/architecture/README.md) - Architecture patterns
 - [examples/](examples/) - Example implementations
 
 All games follow consistent patterns using base classes from `common/` module.
@@ -770,4 +770,4 @@ See repository license for details.
 
 ______________________________________________________________________
 
-**Last Updated**: October 2025 **Games Count**: 21 playable games **Status**: Active development
+**Last Updated**: 2025-10-16 **Games Count**: 49 playable games **Status**: Active development
