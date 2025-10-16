@@ -272,7 +272,7 @@ The `.actrc` file in the project root configures default behavior:
 --bind
 
 # Enable network access
---container-options "--network host"
+--container-options --network=host
 ```
 
 You can override these defaults with command-line flags.
@@ -618,3 +618,34 @@ Start with:
 ```
 
 Happy testing! 🚀
+
+## Recent Improvements
+
+### Workflow Resilience Enhancements (2025-10)
+
+Recent updates have made workflows more resilient when running locally with act:
+
+#### Retry Logic
+- **Pip operations**: All pip install/upgrade commands now retry up to 3 times with appropriate timeouts
+- **Docker builds**: Build steps retry up to 3 times with 5-second delays between attempts
+- **Network operations**: Transient network failures are automatically handled
+
+#### Graceful Degradation
+- **System dependencies**: Non-critical system package installations continue on error with warnings
+- **Workflow validation**: Validation failures produce warnings instead of blocking the entire CI pipeline
+- **Optional features**: Features that depend on optional dependencies fail gracefully with informative messages
+
+#### Better Error Messages
+- **Installation failures**: Include diagnostic output showing what went wrong
+- **Build failures**: Display build artifacts and directory contents to aid debugging
+- **Artifact verification**: Shows exactly which artifacts are missing and where to find available ones
+
+#### Configuration Fixes
+- **`.actrc` syntax**: Fixed container-options format from quoted to proper syntax: `--container-options --network=host`
+- **Type hints**: Fixed incorrect type annotations that could cause linting failures
+
+These improvements ensure workflows are more reliable when run locally, making it easier to:
+- Debug workflow issues before pushing to GitHub
+- Test workflow changes with confidence
+- Handle transient network or system issues gracefully
+- Get actionable error messages when things do go wrong

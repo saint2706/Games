@@ -31,7 +31,7 @@
 # --container-options "--memory 4g"
 
 # Network mode (uncomment if workflows need network access)
---container-options "--network host"
+--container-options --network=host
 
 # Use artifact server for faster artifact uploads/downloads
 --artifact-server-path /tmp/artifacts
