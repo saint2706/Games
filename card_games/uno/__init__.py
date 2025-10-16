@@ -2,17 +2,40 @@
 
 # Public re-exports make it easy for callers to discover the primary
 # interfaces without digging through submodules.
-from .uno import ConsoleUnoInterface, PlayerDecision, UnoCard, UnoDeck, UnoGame, build_players, main
+from .network import NetworkGameInterface, NetworkProtocolError, UnoNetworkClient, UnoNetworkServer
+from .uno import (
+    ConsoleUnoInterface,
+    CustomDeckLoader,
+    CustomDeckValidationError,
+    HouseRules,
+    PlayerDecision,
+    UnoCard,
+    UnoDeck,
+    UnoGame,
+    UnoInterface,
+    UnoPlayer,
+    build_players,
+    main,
+)
 
 # GUI components are imported conditionally to avoid tkinter dependency
 __all__ = [
     "ConsoleUnoInterface",
+    "CustomDeckLoader",
+    "CustomDeckValidationError",
+    "HouseRules",
     "PlayerDecision",
     "UnoCard",
     "UnoDeck",
+    "UnoInterface",
     "UnoGame",
+    "UnoPlayer",
     "build_players",
     "main",
+    "NetworkGameInterface",
+    "NetworkProtocolError",
+    "UnoNetworkClient",
+    "UnoNetworkServer",
 ]
 
 # Try to import GUI components, but don't fail if tkinter is unavailable
