@@ -1,8 +1,28 @@
-"""Ultimate Tic-Tac-Toe implementation.
+"""Ultimate Tic-Tac-Toe game logic and state management.
 
-Ultimate Tic-Tac-Toe is played on a 3x3 grid of 3x3 tic-tac-toe boards.
-Players must win small boards to claim cells in the meta-board.
-The game is won by getting three in a row on the meta-board.
+This module implements the rules and gameplay for Ultimate Tic-Tac-Toe, a
+variant of the classic game played on a 3x3 grid of smaller 3x3 boards.
+The core concept is that a move in a small board dictates which board the
+opponent must play in next.
+
+The `UltimateTicTacToeGame` class manages the overall game state, including:
+- A grid of 9 `TicTacToeGame` instances for the small boards.
+- A "meta-board" to track which player has won each small board.
+- The logic for determining the active board for the next move.
+- A simple AI for the computer opponent.
+
+Key Game Rules:
+1. To win the game, a player must win three small boards in a row on the
+   meta-board.
+2. The cell where a player makes a move determines the board where the
+   opponent must play next. For example, a move in the top-left cell of a
+   small board sends the opponent to the top-left board.
+3. If the target board is already won or drawn, the opponent can play on
+   any available board.
+
+Classes:
+    UltimateTicTacToeGame: Manages the state and logic for an Ultimate
+                           Tic-Tac-Toe match.
 """
 
 from __future__ import annotations
@@ -15,35 +35,59 @@ from .tic_tac_toe import TicTacToeGame
 
 @dataclass
 class UltimateTicTacToeGame:
-    """Play ultimate tic-tac-toe with meta-board gameplay."""
+    """Manages the state and logic for an Ultimate Tic-Tac-Toe game.
+
+    This class encapsulates the entire game, including the 9 small boards,
+    the meta-board, and the rules for player interaction. It provides methods
+    for making moves, checking for winners, and rendering the game state.
+
+    Attributes:
+        human_symbol (str): The symbol for the human player.
+        computer_symbol (str): The symbol for the computer player.
+        starting_symbol (Optional[str]): The symbol of the player who starts.
+        small_boards (List[TicTacToeGame]): A list of 9 `TicTacToeGame` instances.
+        meta_board (List[Optional[str]]): A list representing the 3x3 meta-board,
+                                          tracking wins, losses, and draws.
+        active_board (Optional[int]): The index of the board where the next move
+                                      must be played. If None, any board is valid.
+        current_turn (str): The symbol of the current player.
+    """
 
     human_symbol: str = "X"
     computer_symbol: str = "O"
     starting_symbol: Optional[str] = None
 
     def __post_init__(self) -> None:
-        """Initialize the ultimate tic-tac-toe game."""
+        """Initializes the Ultimate Tic-Tac-Toe game and its components.
+
+        This method sets up the 9 small boards, the meta-board, and determines
+        the starting player. It is called automatically after the dataclass
+        is initialized.
+
+        Raises:
+            ValueError: If the human and computer symbols are the same.
+        """
         if self.human_symbol == self.computer_symbol:
             raise ValueError("Players must use distinct symbols.")
 
-        # Create 9 small boards (3x3 grid of boards)
+        # Create a 3x3 grid of small Tic-Tac-Toe boards.
         self.small_boards: List[TicTacToeGame] = [
             TicTacToeGame(
                 human_symbol=self.human_symbol,
                 computer_symbol=self.computer_symbol,
-                starting_symbol=self.human_symbol,  # Won't be used for turns
+                starting_symbol=self.human_symbol,  # This won't be used for turn management.
             )
             for _ in range(9)
         ]
 
-        # Meta-board tracking which small boards have been won
+        # The meta-board tracks the winner of each small board.
         self.meta_board: List[Optional[str]] = [None] * 9
 
-        # Active board index (which board the next move must be on)
-        # None means any board can be played
+        # The active_board determines where the next move must be played.
+        # `None` means any open board is a valid target.
         self.active_board: Optional[int] = None
 
-        # Set starting player
+        # Set the starting player for the game.
         if self.starting_symbol is None:
             self.starting_symbol = self.human_symbol
         if self.starting_symbol not in {self.human_symbol, self.computer_symbol}:
@@ -51,7 +95,11 @@ class UltimateTicTacToeGame:
         self.current_turn = self.starting_symbol
 
     def reset(self) -> None:
-        """Reset the game to initial state."""
+        """Resets the game to its initial state.
+
+        This method clears all small boards, the meta-board, and resets the
+        active board and current turn, allowing for a new game to be played.
+        """
         for board in self.small_boards:
             board.reset()
         self.meta_board = [None] * 9
@@ -59,78 +107,88 @@ class UltimateTicTacToeGame:
         self.current_turn = self.starting_symbol
 
     def is_board_active(self, board_index: int) -> bool:
-        """Check if a board can be played on.
+        """Checks if a specific small board can be played on.
+
+        A board is considered active if it is the designated `active_board`
+        or if any board is playable, and it has not yet been won or drawn.
 
         Args:
-            board_index: Index of the board to check (0-8).
+            board_index (int): The index of the board to check (0-8).
 
         Returns:
-            True if the board is active and can be played on.
+            bool: True if the board can be played on, False otherwise.
         """
-        # Board must not be won yet
+        # A board that is already won or drawn cannot be played on.
         if self.meta_board[board_index] is not None:
             return False
 
-        # If there's an active board restriction, must match
+        # If there is a specific active board, only it can be played on.
         if self.active_board is not None:
             return board_index == self.active_board
 
-        # Otherwise, any unwon board is active
+        # Otherwise, any board that is not won or drawn is active.
         return True
 
     def make_move(self, board_index: int, cell_index: int, symbol: str) -> bool:
-        """Make a move on a specific board and cell.
+        """Makes a move on a specific board and cell.
+
+        This method validates the move, places the symbol on the board, updates
+        the meta-board if a small board is won, and determines the next
+        active board.
 
         Args:
-            board_index: Index of the small board (0-8).
-            cell_index: Index of the cell within that board (0-8).
-            symbol: The symbol to place.
+            board_index (int): The index of the small board to play on (0-8).
+            cell_index (int): The index of the cell within that board (0-8).
+            symbol (str): The player's symbol to place.
 
         Returns:
-            True if the move was successful, False otherwise.
+            bool: True if the move was successful, False otherwise.
         """
-        # Validate board is active
+        # Ensure the selected board is active and playable.
         if not self.is_board_active(board_index):
             return False
 
-        # Make the move on the small board
+        # Make the move on the corresponding small board.
         board = self.small_boards[board_index]
         if not board.make_move(cell_index, symbol):
             return False
 
-        # Check if this board is now won
+        # Check if this move wins the small board.
         winner = board.winner()
         if winner:
             self.meta_board[board_index] = winner
         elif board.is_draw():
             self.meta_board[board_index] = "DRAW"
 
-        # Set the next active board
-        # The next move must be on the board corresponding to the cell just played
+        # Determine the next active board based on the cell just played.
+        # The next move must be on the board corresponding to the cell's index.
         if self.meta_board[cell_index] is None:
             self.active_board = cell_index
         else:
-            # That board is already won/drawn, so any board is valid
+            # If the target board is already won or drawn, any open board is valid.
             self.active_board = None
 
         return True
 
     def winner(self) -> Optional[str]:
-        """Determine if there's a winner on the meta-board.
+        """Determines if there is a winner on the meta-board.
+
+        This method checks for three-in-a-row on the meta-board, which
+        signifies an overall game win.
 
         Returns:
-            The winning symbol, or None if no winner yet.
+            Optional[str]: The winning player's symbol, or None if there is no winner yet.
         """
-        # Check all winning lines on the meta-board
+        # Define all possible winning lines on the 3x3 meta-board.
         lines = [
-            (0, 1, 2),
-            (3, 4, 5),
-            (6, 7, 8),
-            (0, 3, 6),
-            (1, 4, 7),
-            (2, 5, 8),
-            (0, 4, 8),
-            (2, 4, 6),
+            (0, 1, 2),  # Top row
+            (3, 4, 5),  # Middle row
+            (6, 7, 8),  # Bottom row
+            (0, 3, 6),  # Left column
+            (1, 4, 7),  # Middle column
+            (2, 5, 8),  # Right column
+            (0, 4, 8),  # Top-left to bottom-right diagonal
+            (2, 4, 6),  # Top-right to bottom-left diagonal
         ]
 
         for a, b, c in lines:
@@ -140,20 +198,27 @@ class UltimateTicTacToeGame:
         return None
 
     def is_draw(self) -> bool:
-        """Check if the game is a draw.
+        """Checks if the entire game has ended in a draw.
+
+        A draw occurs if all small boards are complete (won or drawn), and
+        there is no winner on the meta-board.
 
         Returns:
-            True if all boards are complete but there's no winner.
+            bool: True if the game is a draw, False otherwise.
         """
         if self.winner():
             return False
         return all(cell is not None for cell in self.meta_board)
 
     def available_moves(self) -> List[Tuple[int, int]]:
-        """Get all available moves.
+        """Gets a list of all available moves.
+
+        This method returns all valid moves, which are the empty cells on
+        any active board.
 
         Returns:
-            A list of (board_index, cell_index) tuples for valid moves.
+            List[Tuple[int, int]]: A list of (board_index, cell_index) tuples
+                                   representing all valid moves.
         """
         moves = []
         for board_idx in range(9):
@@ -164,19 +229,23 @@ class UltimateTicTacToeGame:
         return moves
 
     def render(self, show_meta_status: bool = True) -> str:
-        """Render the ultimate tic-tac-toe board.
+        """Renders the Ultimate Tic-Tac-Toe board as a string.
+
+        This method creates a human-readable text representation of the game,
+        including the meta-board status and the full grid of small boards.
 
         Args:
-            show_meta_status: Whether to show the meta-board status.
+            show_meta_status (bool): Whether to include the meta-board status
+                                     at the top of the render.
 
         Returns:
-            A string representation of the board.
+            str: A string representation of the board.
         """
         lines = []
 
         if show_meta_status:
             lines.append("Meta-board status:")
-            # Show which boards are won
+            # Display which boards have been won, lost, or drawn.
             for row in range(3):
                 row_str = "  "
                 for col in range(3):
@@ -189,7 +258,7 @@ class UltimateTicTacToeGame:
                     else:
                         marker = status
 
-                    # Highlight active board
+                    # Highlight the active board for the next move.
                     if self.active_board == idx:
                         marker = f"[{marker}]"
                     else:
@@ -198,19 +267,19 @@ class UltimateTicTacToeGame:
                 lines.append(row_str)
             lines.append("")
 
-        # Render the full board
+        # Render the full 9x9 grid of cells.
         lines.append("Full board (boards numbered 0-8, cells 0-8 within each):")
 
-        # Build the visual representation
+        # Build the visual representation row by row.
         for meta_row in range(3):
-            # For each row of small boards
+            # Iterate through each row of the small boards.
             for small_row in range(3):
                 row_parts = []
                 for meta_col in range(3):
                     board_idx = meta_row * 3 + meta_col
                     board = self.small_boards[board_idx]
 
-                    # Get this row from the small board
+                    # Get the current row from the small board.
                     start = small_row * 3
                     cells = []
                     for i in range(3):
@@ -219,61 +288,71 @@ class UltimateTicTacToeGame:
 
                     row_parts.append(" ".join(cells))
 
-                # Join small boards with separators
+                # Join the small board rows with separators.
                 lines.append("  " + "  │  ".join(row_parts))
 
-            # Add separator between rows of small boards
+            # Add a separator between the rows of small boards.
             if meta_row < 2:
                 lines.append("  " + "─" * 7 + "┼" + "─" * 7 + "┼" + "─" * 7)
 
         return "\n".join(lines)
 
     def swap_turn(self) -> None:
-        """Swap the current turn between players."""
+        """Swaps the current turn between the two players."""
         self.current_turn = self.computer_symbol if self.current_turn == self.human_symbol else self.human_symbol
 
     def human_move(self, board_index: int, cell_index: int) -> bool:
-        """Make a move for the human player.
+        """Makes a move for the human player.
+
+        This is a convenience method that calls `make_move` with the human's symbol.
 
         Args:
-            board_index: Index of the board to play on.
-            cell_index: Index of the cell to play on.
+            board_index (int): The index of the board to play on.
+            cell_index (int): The index of the cell to play on.
 
         Returns:
-            True if the move was successful.
+            bool: True if the move was successful.
         """
         return self.make_move(board_index, cell_index, self.human_symbol)
 
     def computer_move(self) -> Tuple[int, int]:
-        """Make a simple move for the computer.
+        """Makes a simple, heuristic-based move for the computer.
 
-        For simplicity, the computer picks the first available move.
-        A more sophisticated AI could be implemented.
+        This AI uses a basic strategy:
+        1. Prioritize the center cell of the center board.
+        2. Prioritize the center cell of any other active board.
+        3. Default to the first available move.
+
+        A more sophisticated AI (e.g., using minimax) could be implemented for
+        stronger gameplay.
 
         Returns:
-            The (board_index, cell_index) where the move was made.
+            Tuple[int, int]: The (board_index, cell_index) where the move was made.
+
+        Raises:
+            RuntimeError: If there are no available moves for the computer to make.
         """
         moves = self.available_moves()
         if not moves:
             raise RuntimeError("No available moves!")
 
-        # Simple strategy: prefer center cells and boards
-        # Priority: center of center board, then center of any board, then any move
+        # Simple strategy: prioritize center cells and boards.
+        # The highest priority is the center of the center board (board 4, cell 4).
         center_board = 4
         center_cell = 4
 
-        # Try center of center board
+        # 1. Try to take the center of the center board.
         if (center_board, center_cell) in moves:
             self.make_move(center_board, center_cell, self.computer_symbol)
             return (center_board, center_cell)
 
-        # Try center cell of any active board
+        # 2. Try to take the center cell of any other active board.
         for board_idx, cell_idx in moves:
             if cell_idx == center_cell:
                 self.make_move(board_idx, cell_idx, self.computer_symbol)
                 return (board_idx, cell_idx)
 
-        # Take first available move
+        # 3. If no strategic moves are available, take the first available move.
         board_idx, cell_idx = moves[0]
         self.make_move(board_idx, cell_idx, self.computer_symbol)
         return (board_idx, cell_idx)

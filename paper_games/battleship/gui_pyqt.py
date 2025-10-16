@@ -1,7 +1,21 @@
-"""PyQt5-powered graphical interface for Battleship.
+"""PyQt5-powered graphical interface for the Battleship game.
 
-This module provides an interactive Battleship GUI with ship placement,
-AI opponent turns, salvo mode support, and visual feedback for hits and misses.
+This module provides a rich, interactive GUI for playing Battleship, built
+with the PyQt5 framework. It offers a modern user experience with features
+like real-time ship placement previews, themed boards, and animated AI turns.
+
+The GUI is designed to be highly configurable, supporting various board sizes,
+fleet compositions, AI difficulties, and game modes like two-player hot-seat
+and salvo mode.
+
+Classes:
+    BoardTheme: A dataclass for defining the color palette of the game board.
+    BoardCanvas: A custom QGraphicsView for rendering the Battleship board.
+    BattleshipGUI: The main application window that orchestrates the GUI and
+                   game logic.
+
+Functions:
+    run_gui: Launches the PyQt5-based Battleship GUI application.
 """
 
 from __future__ import annotations
@@ -19,7 +33,18 @@ from .battleship import DEFAULT_FLEET, EXTENDED_FLEET, SMALL_FLEET, BattleshipGa
 
 @dataclass
 class BoardTheme:
-    """Color palette for a Battleship board."""
+    """A dataclass that defines the color palette for a Battleship board.
+
+    Attributes:
+        background (QColor): The background color of the board.
+        grid (QColor): The color of the grid lines.
+        hover (QColor): The color of a cell when hovered over.
+        ship (QColor): The color of a placed ship.
+        preview (QColor): The color for previewing ship placement.
+        miss (QColor): The color of a missed shot.
+        hit (QColor): The color of a successful hit.
+        sunk (QColor): The color of a sunk ship.
+    """
 
     background: QColor
     grid: QColor
@@ -32,11 +57,17 @@ class BoardTheme:
 
 
 class BoardCanvas(QGraphicsView):
-    """Custom view for rendering the Battleship board using QGraphicsScene."""
+    """A custom QGraphicsView for rendering the Battleship board.
+
+    This class uses a QGraphicsScene to draw the game board, including the
+    grid, ships, and shot markers. It handles mouse events for interaction,
+    such as hovering and clicking.
+    """
 
     CELL_SIZE = 36
     MARGIN = 24
 
+    # Define color themes for the player and opponent boards.
     PLAYER_THEME = BoardTheme(
         background=QColor("#e3f2fd"),
         grid=QColor("#0d47a1"),
@@ -78,11 +109,18 @@ class BoardCanvas(QGraphicsView):
         self.draw_board()
 
     # ------------------------------------------------------------------
-    # Coordinate helpers
+    # Coordinate Helpers
     # ------------------------------------------------------------------
     def _scene_to_coord(self, point: QPointF) -> Optional[Coordinate]:
-        """Convert a scene position to a board coordinate."""
+        """Converts a QPointF position from the scene to a board coordinate.
 
+        Args:
+            point (QPointF): The position in the scene.
+
+        Returns:
+            Optional[Coordinate]: The (row, col) coordinate, or None if the
+                                  point is outside the grid.
+        """
         x = point.x() - self.MARGIN
         y = point.y() - self.MARGIN
         if x < 0 or y < 0:
@@ -94,9 +132,10 @@ class BoardCanvas(QGraphicsView):
         return None
 
     # ------------------------------------------------------------------
-    # Event handlers
+    # Event Handlers
     # ------------------------------------------------------------------
     def mouseMoveEvent(self, event) -> None:  # type: ignore[override]
+        """Handles mouse movement over the canvas to update the hover state."""
         point = self.mapToScene(event.pos())
         coord = self._scene_to_coord(point)
         if coord != self.hover_coord:
@@ -105,12 +144,14 @@ class BoardCanvas(QGraphicsView):
         super().mouseMoveEvent(event)
 
     def leaveEvent(self, event) -> None:  # type: ignore[override]
+        """Handles the mouse leaving the canvas to clear the hover state."""
         if self.hover_coord is not None:
             self.hover_coord = None
             self.gui.handle_board_leave(self)
         super().leaveEvent(event)
 
     def mousePressEvent(self, event) -> None:  # type: ignore[override]
+        """Handles mouse clicks on the canvas for placing ships or firing shots."""
         if event.button() == Qt.MouseButton.LeftButton:
             point = self.mapToScene(event.pos())
             coord = self._scene_to_coord(point)
@@ -121,15 +162,14 @@ class BoardCanvas(QGraphicsView):
     # Rendering
     # ------------------------------------------------------------------
     def draw_board(self) -> None:
-        """Render the current state of the board."""
-
+        """Renders the current state of the board, including grid, ships, and shots."""
         self.scene.clear()
         view_size = self.MARGIN * 2 + self.CELL_SIZE * self.size
         self.scene.setSceneRect(0, 0, view_size, view_size)
         board = self.gui._board_for_canvas(self)
         show_ships = self.gui._should_show_ships(self)
 
-        # Draw background
+        # Draw the background of the board.
         self.scene.addRect(
             0,
             0,
@@ -139,7 +179,7 @@ class BoardCanvas(QGraphicsView):
             QBrush(self.theme.background),
         )
 
-        # Grid cells
+        # Draw the grid cells with appropriate colors.
         for row in range(self.size):
             for col in range(self.size):
                 x = self.MARGIN + col * self.CELL_SIZE
@@ -147,7 +187,6 @@ class BoardCanvas(QGraphicsView):
                 rect = (x, y, self.CELL_SIZE, self.CELL_SIZE)
 
                 fill_color = self.theme.background
-                shot = None
                 if board is not None:
                     coord = (row, col)
                     shot = board.shots.get(coord)
@@ -166,6 +205,7 @@ class BoardCanvas(QGraphicsView):
                     hover_pen = QPen(self.theme.hover, 2)
                 self.scene.addRect(*rect, hover_pen, QBrush(fill_color))
 
+                # Draw markers for hits and misses.
                 if board is not None:
                     coord = (row, col)
                     shot = board.shots.get(coord)
@@ -186,7 +226,7 @@ class BoardCanvas(QGraphicsView):
                         self.scene.addLine(x + 6, y + 6, x + self.CELL_SIZE - 6, y + self.CELL_SIZE - 6, pen)
                         self.scene.addLine(x + self.CELL_SIZE - 6, y + 6, x + 6, y + self.CELL_SIZE - 6, pen)
 
-        # Border
+        # Draw the border of the board.
         board_rect = (
             self.MARGIN,
             self.MARGIN,
@@ -195,7 +235,7 @@ class BoardCanvas(QGraphicsView):
         )
         self.scene.addRect(*board_rect, QPen(self.theme.grid, 2))
 
-        # Labels
+        # Draw the row and column labels.
         if self.size <= 12:
             for col in range(self.size):
                 x = self.MARGIN + col * self.CELL_SIZE + self.CELL_SIZE / 2 - 6
@@ -210,7 +250,11 @@ class BoardCanvas(QGraphicsView):
 
 
 class BattleshipGUI(QWidget):
-    """Main Battleship GUI window."""
+    """The main application window for the Battleship GUI.
+
+    This class orchestrates the entire application, including building the
+    layout, managing the game state, and handling user interactions.
+    """
 
     def __init__(
         self,
@@ -260,12 +304,12 @@ class BattleshipGUI(QWidget):
     # Layout
     # ------------------------------------------------------------------
     def _build_layout(self) -> None:
-        """Build the window layout."""
-
+        """Builds the main window layout, including boards, labels, and buttons."""
         self.setWindowTitle(self._window_title())
         main_layout = QVBoxLayout(self)
         boards_layout = QHBoxLayout()
 
+        # Player's board layout.
         player_layout = QVBoxLayout()
         player_label = QLabel("Your Fleet")
         player_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -274,6 +318,7 @@ class BattleshipGUI(QWidget):
         player_layout.addWidget(self.player_canvas)
         boards_layout.addLayout(player_layout)
 
+        # Opponent's board layout.
         opponent_layout = QVBoxLayout()
         opponent_label = QLabel("Enemy Waters")
         opponent_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -284,6 +329,7 @@ class BattleshipGUI(QWidget):
 
         main_layout.addLayout(boards_layout)
 
+        # Status and salvo labels.
         self.status_label = QLabel("")
         self.status_label.setWordWrap(True)
         main_layout.addWidget(self.status_label)
@@ -291,7 +337,7 @@ class BattleshipGUI(QWidget):
         self.salvo_label = QLabel("")
         main_layout.addWidget(self.salvo_label)
 
-        # Ship placement controls
+        # Ship placement controls, visible only during the setup phase.
         self.setup_controls = QWidget()
         setup_layout = QHBoxLayout(self.setup_controls)
         setup_layout.setContentsMargins(0, 0, 0, 0)
@@ -307,7 +353,7 @@ class BattleshipGUI(QWidget):
 
         main_layout.addWidget(self.setup_controls)
 
-        # General controls
+        # General game controls.
         controls = QWidget()
         controls_layout = QHBoxLayout(controls)
         controls_layout.setContentsMargins(0, 0, 0, 0)
@@ -326,33 +372,27 @@ class BattleshipGUI(QWidget):
     # Helpers
     # ------------------------------------------------------------------
     def _is_setup_canvas(self, canvas: BoardCanvas) -> bool:
-        """Return whether the given canvas is currently used for ship placement."""
-
+        """Determines if the given canvas is the one being used for ship placement."""
         if not self.setup_phase:
             return False
         if not self.two_player:
             return canvas.is_player
-        if self.setup_player == 1:
-            return canvas.is_player
-        return not canvas.is_player
+        return (self.setup_player == 1 and canvas.is_player) or (self.setup_player == 2 and not canvas.is_player)
 
     def _current_setup_board(self) -> Optional[Board]:
-        """Return the board that is currently being configured during setup."""
-
+        """Returns the board that is currently being configured during setup."""
         if self.game is None:
             return None
         return self.game.player_board if self.setup_player == 1 else self.game.opponent_board
 
     def _board_for_canvas(self, canvas: BoardCanvas) -> Optional[Board]:
-        """Return the Battleship board associated with the provided canvas."""
-
+        """Returns the `Board` instance associated with the provided canvas."""
         if self.game is None:
             return None
         return self.game.player_board if canvas.is_player else self.game.opponent_board
 
     def _should_show_ships(self, canvas: BoardCanvas) -> bool:
-        """Determine whether ship locations should be shown on the canvas."""
-
+        """Determines whether ship locations should be visible on the canvas."""
         if self.game is None:
             return False
         if not self.two_player:
@@ -362,31 +402,24 @@ class BattleshipGUI(QWidget):
         return canvas.is_player
 
     def _is_preview_cell(self, canvas: BoardCanvas, coord: Coordinate) -> bool:
-        """Return whether the coordinate should display the placement preview."""
-
+        """Determines if a cell should be highlighted as part of a placement preview."""
         return self.setup_phase and self._is_setup_canvas(canvas) and coord in self.preview_coords
 
     def _update_canvas_interactivity(self) -> None:
-        """Enable or disable canvases based on the current setup phase."""
-
+        """Enables or disables mouse events on the canvases based on the game phase."""
         if not self.setup_phase:
             self.player_canvas.setEnabled(True)
             self.opponent_canvas.setEnabled(True)
             return
-
         self.player_canvas.setEnabled(self._is_setup_canvas(self.player_canvas))
         self.opponent_canvas.setEnabled(self._is_setup_canvas(self.opponent_canvas))
 
     # ------------------------------------------------------------------
-    # Event handlers from BoardCanvas
+    # Event Handlers from BoardCanvas
     # ------------------------------------------------------------------
     def handle_board_hover(self, canvas: BoardCanvas, coord: Optional[Coordinate]) -> None:
-        """Handle hover events from the board."""
-
-        if not self.setup_phase or self.game is None:
-            canvas.draw_board()
-            return
-        if not self._is_setup_canvas(canvas):
+        """Handles hover events from the board canvases to show placement previews."""
+        if not self.setup_phase or self.game is None or not self._is_setup_canvas(canvas):
             canvas.draw_board()
             return
 
@@ -405,61 +438,59 @@ class BattleshipGUI(QWidget):
 
         ship_length = self.fleet[self.placing_ship_index][1]
         row, col = coord
-        preview: Set[Coordinate] = set()
-        if self.ship_orientation == "h":
-            preview = {(row, col + i) for i in range(ship_length)}
-        else:
-            preview = {(row + i, col) for i in range(ship_length)}
+        preview = {(row, col + i) for i in range(ship_length)} if self.ship_orientation == "h" else {(row + i, col) for i in range(ship_length)}
 
-        if all(board.in_bounds(c) and c not in board.occupied for c in preview):
-            self.preview_coords = preview
-        else:
-            self.preview_coords.clear()
-
+        self.preview_coords = preview if all(board.in_bounds(c) and c not in board.occupied for c in preview) else set()
         self.player_canvas.draw_board()
         self.opponent_canvas.draw_board()
 
     def handle_board_leave(self, canvas: BoardCanvas) -> None:
-        """Handle cursor leaving a board."""
-
+        """Handles the mouse leaving a board canvas to clear the preview."""
         if self.setup_phase and self._is_setup_canvas(canvas) and self.preview_coords:
             self.preview_coords.clear()
             self.player_canvas.draw_board()
             self.opponent_canvas.draw_board()
-            return
-        canvas.draw_board()
+        else:
+            canvas.draw_board()
 
     def handle_board_click(self, canvas: BoardCanvas, coord: Optional[Coordinate]) -> None:
-        """Handle click events from the boards."""
-
+        """Handles click events on the boards for placing ships or firing shots."""
         if self.game is None or coord is None:
             return
 
+        # Handle ship placement during the setup phase.
         if self.setup_phase and self._is_setup_canvas(canvas):
-            if self.placing_ship_index >= len(self.fleet):
-                return
-            board = self._current_setup_board()
-            if board is None:
-                return
-            ship_name, ship_length = self.fleet[self.placing_ship_index]
-            try:
-                board.place_ship(ship_name, ship_length, coord, self.ship_orientation)
-            except ValueError as exc:
-                QMessageBox.warning(self, "Invalid Placement", str(exc))
-                return
-            self.placing_ship_index += 1
-            self.preview_coords.clear()
-            self.player_canvas.draw_board()
-            self.opponent_canvas.draw_board()
-            if self.placing_ship_index >= len(self.fleet):
-                self._finish_player_setup()
-            self._update_status()
+            self._handle_setup_click(coord)
             return
 
-        # Opponent board click
-        if self.setup_phase or self.current_player != 1:
+        # Handle firing shots during the main game phase.
+        if not self.setup_phase and self.current_player == 1:
+            self._handle_player_shot(coord)
+
+    def _handle_setup_click(self, coord: Coordinate) -> None:
+        """Handles a click during the setup phase to place a ship."""
+        if self.game is None or self.placing_ship_index >= len(self.fleet):
             return
-        if coord in self.game.opponent_board.shots:
+        board = self._current_setup_board()
+        if board is None:
+            return
+        ship_name, ship_length = self.fleet[self.placing_ship_index]
+        try:
+            board.place_ship(ship_name, ship_length, coord, self.ship_orientation)
+        except ValueError as exc:
+            QMessageBox.warning(self, "Invalid Placement", str(exc))
+            return
+        self.placing_ship_index += 1
+        self.preview_coords.clear()
+        self.player_canvas.draw_board()
+        self.opponent_canvas.draw_board()
+        if self.placing_ship_index >= len(self.fleet):
+            self._finish_player_setup()
+        self._update_status()
+
+    def _handle_player_shot(self, coord: Coordinate) -> None:
+        """Handles a player's shot at the opponent's board."""
+        if self.game is None or coord in self.game.opponent_board.shots:
             QMessageBox.information(self, "Already Targeted", "You already fired at this location.")
             return
         try:
@@ -469,11 +500,7 @@ class BattleshipGUI(QWidget):
             return
 
         self.opponent_canvas.draw_board()
-        message = {
-            "miss": "Miss!",
-            "hit": "Hit!",
-            "sunk": f"Sunk enemy {ship_name}!" if ship_name else "Sunk!",
-        }[result]
+        message = {"miss": "Miss!", "hit": "Hit!", "sunk": f"Sunk enemy {ship_name}!" if ship_name else "Sunk!"}[result]
         self.status_label.setText(message)
 
         if self.salvo_mode:
@@ -487,21 +514,22 @@ class BattleshipGUI(QWidget):
 
         if self.salvo_mode and self.shots_remaining > 0:
             self._update_status()
-            return
-
-        self.current_player = 2
-        self._update_status()
-        self._begin_ai_turn()
+        else:
+            self.current_player = 2
+            self._update_status()
+            self._begin_ai_turn()
 
     # ------------------------------------------------------------------
-    # Game management
+    # Game Management
     # ------------------------------------------------------------------
     def _window_title(self) -> str:
+        """Generates the window title based on the game settings."""
         mode = "2-Player" if self.two_player else f"vs AI ({self.difficulty.title()})"
         salvo = " [Salvo]" if self.salvo_mode else ""
         return f"Battleship {self.size}x{self.size} - {mode}{salvo}"
 
     def _toggle_orientation(self) -> None:
+        """Toggles the ship placement orientation."""
         self.ship_orientation = "v" if self.ship_orientation == "h" else "h"
         text = "Orientation: Vertical" if self.ship_orientation == "v" else "Orientation: Horizontal"
         self.orientation_button.setText(text)
@@ -511,6 +539,7 @@ class BattleshipGUI(QWidget):
         self._update_status()
 
     def _place_ships_randomly(self) -> None:
+        """Places the current player's ships randomly."""
         if self.game is None or not self.setup_phase:
             return
         board = self._current_setup_board()
@@ -528,6 +557,7 @@ class BattleshipGUI(QWidget):
         self._update_status()
 
     def _finish_player_setup(self) -> None:
+        """Finalizes a player's setup and transitions to the next phase."""
         if self.game is None:
             return
         if self.two_player and self.setup_player == 1:
@@ -552,6 +582,7 @@ class BattleshipGUI(QWidget):
         self._start_player_turn()
 
     def _start_player_turn(self) -> None:
+        """Starts the player's turn, setting up for their shots."""
         if self.game is None:
             return
         self.current_player = 1
@@ -560,23 +591,24 @@ class BattleshipGUI(QWidget):
         self._update_status()
 
     def _begin_ai_turn(self) -> None:
+        """Initiates the AI's turn."""
         if self.game is None or self.two_player:
             return
         self.ai_shots_pending = self.game.get_salvo_count("opponent") if self.salvo_mode else 1
-        self.ai_timer.start(600)
+        self.ai_timer.start(600)  # Delay for a more natural feel.
 
     def _process_ai_shot(self) -> None:
+        """Processes a single AI shot."""
         if self.game is None or self.two_player:
             return
         coord, result, ship_name = self.game.ai_shoot()
         self.player_canvas.draw_board()
         row, col = coord
-        if result == "miss":
-            message = f"AI fired at ({row}, {col}) — Miss!"
-        elif result == "hit":
-            message = f"AI hit a ship at ({row}, {col})!"
-        else:
-            message = f"AI sank your {ship_name} at ({row}, {col})!"
+        message = {
+            "miss": f"AI fired at ({row}, {col}) — Miss!",
+            "hit": f"AI hit a ship at ({row}, {col})!",
+            "sunk": f"AI sank your {ship_name} at ({row}, {col})!",
+        }[result]
         self.status_label.setText(message)
 
         if self.game.player_has_lost():
@@ -586,12 +618,12 @@ class BattleshipGUI(QWidget):
 
         self.ai_shots_pending -= 1
         if self.salvo_mode and self.ai_shots_pending > 0:
-            self.ai_timer.start(600)
-            return
-
-        self._start_player_turn()
+            self.ai_timer.start(600)  # Continue with the next shot.
+        else:
+            self._start_player_turn()
 
     def _new_game(self) -> None:
+        """Resets the game to its initial state for a new match."""
         import random
 
         rng = random.Random(self.seed) if self.seed is not None else None
@@ -621,27 +653,19 @@ class BattleshipGUI(QWidget):
         self._update_status()
 
     def _update_status(self) -> None:
+        """Updates the status label with relevant information for the current game phase."""
         if self.setup_phase:
             if self.placing_ship_index < len(self.fleet):
                 ship_name, ship_length = self.fleet[self.placing_ship_index]
                 orientation = "Horizontal" if self.ship_orientation == "h" else "Vertical"
-                if self.two_player:
-                    prompt = f"Player {self.setup_player}: place your {ship_name}"
-                else:
-                    prompt = f"Place your {ship_name}"
-                self.status_label.setText(f"{prompt} (length {ship_length}) — {orientation}")
+                player_prompt = f"Player {self.setup_player}: place your {ship_name}" if self.two_player else f"Place your {ship_name}"
+                self.status_label.setText(f"{player_prompt} (length {ship_length}) — {orientation}")
             else:
-                if self.two_player and self.setup_player == 1:
-                    self.status_label.setText("Player 1 ready — Pass to Player 2 for placement.")
-                else:
-                    self.status_label.setText("Ready to start! Click to begin.")
-            return
-
-        if self.current_player == 1:
-            if self.salvo_mode:
-                self.status_label.setText(f"Your turn — {self.shots_remaining} shot(s) remaining")
-            else:
-                self.status_label.setText("Your turn — Select a target square")
+                self.status_label.setText(
+                    "Player 1 ready — Pass to Player 2 for placement." if self.two_player and self.setup_player == 1 else "Ready to start! Click to begin."
+                )
+        elif self.current_player == 1:
+            self.status_label.setText(f"Your turn — {self.shots_remaining} shot(s) remaining" if self.salvo_mode else "Your turn — Select a target square")
         else:
             if self.two_player:
                 self.status_label.setText("Player 2's turn")
@@ -650,9 +674,10 @@ class BattleshipGUI(QWidget):
                 self.status_label.setText(turn_msg)
 
     # ------------------------------------------------------------------
-    # Qt lifecycle
+    # Qt Lifecycle
     # ------------------------------------------------------------------
     def closeEvent(self, event) -> None:  # type: ignore[override]
+        """Ensures the AI timer is stopped when the window is closed."""
         self.ai_timer.stop()
         super().closeEvent(event)
 
@@ -666,8 +691,11 @@ def run_gui(
     salvo: bool = False,
     seed: Optional[int] = None,
 ) -> None:
-    """Launch the Battleship PyQt5 GUI."""
+    """Launches the Battleship PyQt5 GUI application.
 
+    This function initializes the QApplication and the main `BattleshipGUI`
+    window, then starts the application's event loop.
+    """
     app = QApplication.instance() or QApplication(sys.argv)
     window = BattleshipGUI(
         size=size,
