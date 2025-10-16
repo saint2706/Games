@@ -79,6 +79,7 @@ dice_games/      Dice-driven experiences like Craps and Farkle
 logic_games/     Puzzle boxes such as Sokoban and Minesweeper
 word_games/      Vocabulary challenges including Crossword and Trivia
 common/          Shared engines, AI strategies, GUIs, persistence, accessibility
+plugins/         Playable game plugins
 scripts/         Launchers registered as console entry points
 docs/            Sphinx documentation (rewritten from scratch)
 examples/        Sample integrations and automation snippets
@@ -88,14 +89,11 @@ tests/           Automated test suite mirroring the package structure
 ## Development workflow
 
 1. Install dependencies with `pip install -e .[dev]`.
-1. Format code with `black .` and `ruff check --fix .` (line length 160).
-1. Run static analysis using `mypy .` and, optionally, `radon cc ...`.
-1. Execute the full test suite: `pytest` or `pytest --cov`. Fixtures live under
-   `tests/fixtures`.
-1. Update documentation in `docs/` and add entries to `CHANGELOG.md` for notable
-   changes.
-
-Pre-commit hooks (`pre-commit install`) help keep commits consistent.
+2. Set up pre-commit hooks with `pre-commit install`.
+3. Format code with `black .` and `ruff check --fix .` (line length 160).
+4. Run static analysis using `mypy .` and, optionally, `radon cc ...`.
+5. Execute the full test suite: `pytest` or `pytest --cov`.
+6. Update documentation in `docs/` and add entries to `CHANGELOG.md` for notable changes.
 
 ## Documentation
 
