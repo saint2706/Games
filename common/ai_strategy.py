@@ -3,13 +3,21 @@
 This module provides a strategy pattern implementation for AI decision-making,
 allowing different AI strategies to be plugged into games without modifying
 the game engine code.
+
+Performance-sensitive strategies such as :class:`HeuristicStrategy` support
+lightweight caching to avoid recomputing expensive heuristic scores. The
+implementation deliberately keeps the caching infrastructure opt-in so that
+game states that are not hashable by default can provide lightweight key
+generation helpers without forcing a global requirement on the engine.
 """
 
 from __future__ import annotations
 
 import random
 from abc import ABC, abstractmethod
-from typing import Callable, Generic, List, Optional, TypeVar
+from collections import OrderedDict
+from threading import Lock
+from typing import Callable, Generic, Hashable, List, Optional, TypeVar
 
 # Type variable for move representation
 MoveType = TypeVar("MoveType")
@@ -177,23 +185,41 @@ class MinimaxStrategy(AIStrategy[MoveType, StateType]):
 class HeuristicStrategy(AIStrategy[MoveType, StateType]):
     """A strategy based on heuristic evaluation.
 
-    This strategy evaluates each move using a provided heuristic function
-    and selects the move with the highest score.
+    This strategy evaluates each move using a provided heuristic function and
+    selects the move with the highest score. Expensive heuristic computations
+    can optionally be cached by supplying a cache key generator.
     """
 
     def __init__(
         self,
         heuristic_fn: Callable[[MoveType, StateType], float],
+        *,
+        cache_key_fn: Optional[Callable[[MoveType, StateType], Hashable]] = None,
+        cache_size: int = 128,
         rng: Optional[random.Random] = None,
     ) -> None:
         """Initialize the heuristic strategy.
 
         Args:
             heuristic_fn: Function that evaluates a move's quality.
+            cache_key_fn: Optional function that produces a hashable cache key
+                from the move and game state. When provided, heuristic results
+                are memoized using a least-recently-used cache.
+            cache_size: Maximum number of cached heuristic evaluations to
+                retain. Must be a positive integer when caching is enabled.
             rng: Optional random number generator for tie-breaking.
+
+        Raises:
+            ValueError: If ``cache_size`` is not a positive integer.
         """
         super().__init__(rng)
         self.heuristic_fn = heuristic_fn
+        self.cache_key_fn = cache_key_fn
+        if cache_size <= 0:
+            raise ValueError("cache_size must be a positive integer")
+        self.cache_size = cache_size
+        self._cache: OrderedDict[Hashable, float] = OrderedDict()
+        self._cache_lock = Lock()
 
     def select_move(
         self,
@@ -215,16 +241,10 @@ class HeuristicStrategy(AIStrategy[MoveType, StateType]):
         if not valid_moves:
             raise ValueError("No valid moves available")
 
-        # Evaluate all moves
-        scored_moves = [(move, self.heuristic_fn(move, game_state)) for move in valid_moves]
+        scored_moves = [(move, self._score_move(move, game_state)) for move in valid_moves]
 
-        # Find the maximum score
         max_score = max(score for _, score in scored_moves)
-
-        # Get all moves with the maximum score
         best_moves = [move for move, score in scored_moves if score == max_score]
-
-        # Return a random best move (for variety)
         return self.rng.choice(best_moves)
 
     def evaluate_move(
@@ -241,4 +261,30 @@ class HeuristicStrategy(AIStrategy[MoveType, StateType]):
         Returns:
             The heuristic score for the move.
         """
-        return self.heuristic_fn(move, game_state)
+        return self._score_move(move, game_state)
+
+    def clear_cache(self) -> None:
+        """Clear any cached heuristic values."""
+        if not self.cache_key_fn:
+            return
+        with self._cache_lock:
+            self._cache.clear()
+
+    def _score_move(self, move: MoveType, game_state: StateType) -> float:
+        """Return the heuristic score for a move, using caching when available."""
+        if not self.cache_key_fn:
+            return self.heuristic_fn(move, game_state)
+
+        cache_key = self.cache_key_fn(move, game_state)
+        with self._cache_lock:
+            cached_score = self._cache.get(cache_key)
+            if cached_score is not None:
+                self._cache.move_to_end(cache_key)
+                return cached_score
+
+        score = self.heuristic_fn(move, game_state)
+        with self._cache_lock:
+            self._cache[cache_key] = score
+            if len(self._cache) > self.cache_size:
+                self._cache.popitem(last=False)
+        return score
