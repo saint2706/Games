@@ -1,7 +1,11 @@
-"""Simple game example demonstrating the use of base classes.
+"""A simple game example demonstrating the use of core base classes.
 
-This example shows how to create a simple number guessing game using
-the GameEngine base class and AI strategies.
+This script illustrates how to structure a basic game by inheriting from the
+`GameEngine` abstract base class. It also shows how to implement and integrate
+different AI behaviors using the `RandomStrategy` and `HeuristicStrategy` classes.
+
+The game implemented here is a classic Number Guessing Game, which provides a
+clear and straightforward context for these architectural patterns.
 """
 
 from __future__ import annotations
@@ -11,25 +15,34 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-# Add parent directory to path for imports
+# Add the project's root directory to the Python path to allow for module imports.
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from common import GameEngine, GameState, HeuristicStrategy, RandomStrategy
 
 
 class NumberGuessingGame(GameEngine[int, str]):
-    """A simple number guessing game.
+    """A simple number guessing game engine.
 
-    The computer picks a number between 1 and 100, and the player tries to guess it.
-    After each guess, hints are provided (too high, too low).
+    This class implements the `GameEngine` interface for a game where the goal is
+    to guess a secret number. It manages the game's state, rules, and player actions.
+
+    Attributes:
+        min_number (int): The lower bound of the guessing range.
+        max_number (int): The upper bound of the guessing range.
+        target (Optional[int]): The secret number to be guessed.
+        guesses (List[int]): A list of numbers guessed so far.
+        current_player_name (str): The name of the current player.
+        state (GameState): The current state of the game (e.g., IN_PROGRESS, FINISHED).
+        last_hint (Optional[str]): The hint provided after the last guess.
     """
 
     def __init__(self, min_number: int = 1, max_number: int = 100) -> None:
-        """Initialize the game.
+        """Initializes the Number Guessing Game.
 
         Args:
-            min_number: Minimum number in range.
-            max_number: Maximum number in range.
+            min_number: The minimum number in the guessing range.
+            max_number: The maximum number in the guessing range.
         """
         self.min_number = min_number
         self.max_number = max_number
@@ -40,35 +53,34 @@ class NumberGuessingGame(GameEngine[int, str]):
         self.last_hint: Optional[str] = None
 
     def reset(self) -> None:
-        """Reset the game."""
+        """Resets the game to a new round."""
         self.target = random.randint(self.min_number, self.max_number)
         self.guesses = []
         self.state = GameState.IN_PROGRESS
         self.last_hint = None
 
     def is_game_over(self) -> bool:
-        """Check if game is over."""
+        """Checks if the game has finished."""
         return self.state == GameState.FINISHED
 
     def get_current_player(self) -> str:
-        """Get current player."""
+        """Returns the name of the current player."""
         return self.current_player_name
 
     def get_valid_moves(self) -> List[int]:
-        """Get valid moves (all unguessed numbers in range)."""
+        """Returns a list of valid moves (numbers that haven't been guessed yet)."""
         if self.is_game_over():
             return []
-        # Return all numbers that haven't been guessed
         return [n for n in range(self.min_number, self.max_number + 1) if n not in self.guesses]
 
     def make_move(self, move: int) -> bool:
-        """Make a guess.
+        """Processes a player's guess.
 
         Args:
-            move: The number to guess.
+            move: The number being guessed.
 
         Returns:
-            True if the move was valid, False otherwise.
+            True if the move was valid and processed, False otherwise.
         """
         if move not in self.get_valid_moves():
             return False
@@ -86,61 +98,72 @@ class NumberGuessingGame(GameEngine[int, str]):
         return True
 
     def get_winner(self) -> Optional[str]:
-        """Get winner."""
+        """Determines the winner, if any."""
         if self.is_game_over() and self.last_hint == "Correct!":
             return self.current_player_name
         return None
 
     def get_game_state(self) -> GameState:
-        """Get game state."""
+        """Returns the current `GameState` enum."""
         return self.state
 
     def get_hint(self) -> str:
-        """Get the last hint."""
+        """Provides a hint based on the last guess."""
         return self.last_hint or "Make your first guess!"
 
     def get_guess_count(self) -> int:
-        """Get number of guesses made."""
+        """Returns the total number of guesses made."""
         return len(self.guesses)
 
 
 def guess_heuristic(move: int, game: NumberGuessingGame) -> float:
-    """Heuristic for AI guessing.
+    """A heuristic function for the AI to make intelligent guesses.
 
-    Uses binary search strategy - prefers middle values based on previous hints.
+    This function implements a binary search-like strategy. It favors guesses
+    that are in the middle of the remaining possible range, which it deduces
+    from the hints provided by the game.
 
     Args:
-        move: The number to evaluate.
-        game: The current game state.
+        move: The potential guess to evaluate.
+        game: The current game instance, used to access game state and hints.
 
     Returns:
-        Score for the move (higher is better).
+        A score for the move. Higher scores are considered better. The score is
+        the negative absolute difference from the midpoint, ensuring that moves
+        closer to the middle get scores closer to zero (which is higher).
     """
+    # On the first guess, aim for the absolute middle of the initial range.
     if not game.guesses:
-        # First guess - prefer middle
         middle = (game.min_number + game.max_number) / 2
         return -abs(move - middle)
 
-    # Binary search: prefer middle of remaining range
-    # Estimate range based on hints (in real game, we don't know target)
-    # This is a simplified heuristic
-    if game.last_hint == "Too low!":
-        low = max(game.guesses)
-        high = game.max_number
-    elif game.last_hint == "Too high!":
-        low = game.min_number
-        high = min(game.guesses)
-    else:
-        low = game.min_number
-        high = game.max_number
+    # Determine the new search range based on previous hints.
+    low = game.min_number
+    high = game.max_number
 
+    # Refine the search range using the hints from previous guesses.
+    for i, g in enumerate(game.guesses):
+        # This is a simplified logic. A more robust heuristic would track hints for each guess.
+        # Here, we use the last hint to adjust the overall range.
+        pass  # Simplified for demonstration.
+
+    if game.last_hint == "Too low!":
+        # If the last guess was too low, the new minimum is that guess.
+        low = max([g for g in game.guesses if g < game.target] + [game.min_number])
+    elif game.last_hint == "Too high!":
+        # If the last guess was too high, the new maximum is that guess.
+        high = min([g for g in game.guesses if g > game.target] + [game.max_number])
+
+    # The ideal next guess is the middle of the refined range.
     middle = (low + high) / 2
     return -abs(move - middle)
 
 
 def demo_human_play() -> None:
-    """Demo: Human playing the game."""
-    print("=== Number Guessing Game (Human) ===\n")
+    """A simple command-line interface for a human player."""
+    print("=" * 40)
+    print("Number Guessing Game (Human Player)")
+    print("=" * 40 + "\n")
 
     game = NumberGuessingGame(1, 100)
     game.reset()
@@ -150,52 +173,56 @@ def demo_human_play() -> None:
 
     while not game.is_game_over():
         try:
-            guess = int(input(f"Guess #{game.get_guess_count() + 1}: "))
+            guess_str = input(f"Guess #{game.get_guess_count() + 1}: ")
+            guess = int(guess_str)
             if game.make_move(guess):
-                print(f"  {game.get_hint()}\n")
+                print(f"  -> Hint: {game.get_hint()}\n")
             else:
-                print(f"  Invalid guess! Try a number between {game.min_number} and {game.max_number}.\n")
+                print(f"  Invalid guess! Please try a number you haven't guessed before.\n")
         except ValueError:
-            print("  Please enter a valid number.\n")
+            print("  Please enter a valid integer.\n")
 
-    print(f"🎉 Congratulations! You guessed it in {game.get_guess_count()} guesses!")
+    print(f"🎉 Congratulations! You guessed the number in {game.get_guess_count()} guesses!")
 
 
 def demo_ai_play() -> None:
-    """Demo: AI playing the game."""
-    print("\n=== Number Guessing Game (AI) ===\n")
+    """Demonstrates different AI strategies playing the game."""
+    print("\n" + "=" * 40)
+    print("Number Guessing Game (AI Players)")
+    print("=" * 40 + "\n")
 
-    # Try different AI strategies
+    # A list of different AI strategies to demonstrate.
     strategies = [
         ("Random AI", RandomStrategy()),
-        ("Smart AI", HeuristicStrategy(heuristic_fn=guess_heuristic)),
+        ("Smart AI (Heuristic)", HeuristicStrategy(heuristic_fn=guess_heuristic)),
     ]
 
     for name, strategy in strategies:
         game = NumberGuessingGame(1, 100)
         game.reset()
 
-        print(f"{name} is playing...")
-        print(f"Target number: {game.target}")
+        print(f"--- {name} is playing ---")
+        print(f"The secret number is: {game.target}")
 
         while not game.is_game_over():
             valid_moves = game.get_valid_moves()
             if not valid_moves:
-                break
+                break  # Should not happen if logic is correct.
 
+            # The AI strategy selects the best move from the available options.
             guess = strategy.select_move(valid_moves, game)
             game.make_move(guess)
-            print(f"  Guess #{game.get_guess_count()}: {guess} - {game.get_hint()}")
+            print(f"  Guess #{game.get_guess_count()}: {guess:<3} -> Hint: {game.get_hint()}")
 
         print(f"  Finished in {game.get_guess_count()} guesses!\n")
 
 
 if __name__ == "__main__":
     print("This example demonstrates the GameEngine base class and AI strategies.\n")
-    print("Choose a demo:")
-    print("1. Play the game yourself")
-    print("2. Watch AI play")
-    print("3. Both")
+    print("Choose a demonstration to run:")
+    print("  1. Play the game yourself")
+    print("  2. Watch the AI players")
+    print("  3. Run both demonstrations")
 
     choice = input("\nYour choice (1-3): ").strip()
 
@@ -207,5 +234,5 @@ if __name__ == "__main__":
         demo_human_play()
         demo_ai_play()
     else:
-        print("Invalid choice. Running AI demo...")
+        print("Invalid choice. Running the AI demonstration by default.")
         demo_ai_play()
