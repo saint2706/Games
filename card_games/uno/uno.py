@@ -20,9 +20,11 @@ Key Components:
 from __future__ import annotations
 
 import argparse
+import json
 import random
 from dataclasses import dataclass
-from typing import Iterable, List, Optional, Protocol, Sequence
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Protocol, Sequence, Tuple, Union
 
 from colorama import Fore, Style
 from colorama import init as colorama_init
@@ -36,6 +38,7 @@ NUMBER_VALUES = tuple(str(n) for n in range(10))
 ACTION_VALUES = ("skip", "reverse", "+2")
 WILD_VALUES = ("wild", "+4")
 BOT_PERSONALITIES = ("easy", "balanced", "aggressive")
+MIN_CUSTOM_DECK_CARDS = 20
 
 # Map colors to their colorama styles for terminal output.
 COLOR_STYLE_MAP = {
@@ -81,6 +84,8 @@ class UnoCard:
 
     color: Optional[str]
     value: str
+    effect: Optional[str] = None
+    effect_params: Optional[Mapping[str, Any]] = None
 
     def is_wild(self) -> bool:
         """Return True if the card is a wild card."""
@@ -88,7 +93,11 @@ class UnoCard:
 
     def is_action(self) -> bool:
         """Return True if the card is an action card (e.g., skip, +2)."""
-        return self.value in ACTION_VALUES or self.value in WILD_VALUES
+        return self.value in ACTION_VALUES or self.value in WILD_VALUES or self.effect is not None
+
+    def has_custom_effect(self) -> bool:
+        """Return True if the card defines a custom deck effect."""
+        return self.effect is not None
 
     def matches(self, active_color: str, active_value: str) -> bool:
         """Check if this card can be played on the given active card."""
@@ -99,7 +108,11 @@ class UnoCard:
         if self.color is None:
             return "Wild +4" if self.value == "+4" else "Wild"
         color_name = self.color.capitalize()
-        return f"{color_name} {self.value.capitalize()}" if self.value in {"skip", "reverse"} else f"{color_name} {self.value}"
+        base = f"{color_name} {self.value.capitalize()}" if self.value in {"skip", "reverse"} else f"{color_name} {self.value}"
+        if self.effect:
+            effect_label = self.effect.replace("_", " ").title()
+            return f"{base} [{effect_label}]"
+        return base
 
     def __str__(self) -> str:
         """Return a compact string representation of the card."""
@@ -111,43 +124,247 @@ class UnoCard:
 class UnoDeck:
     """A mutable deck of Uno cards that can be shuffled and drawn from."""
 
-    def __init__(self, *, rng: Optional[random.Random] = None) -> None:
+    def __init__(self, *, rng: Optional[random.Random] = None, deck_definition: Optional[Mapping[str, Any]] = None) -> None:
         self._rng = rng or random.Random()
         self.cards: List[UnoCard] = []
+        self.colors: Tuple[str, ...] = COLORS
+        self._deck_definition: Optional[Mapping[str, Any]] = deck_definition
         self.populate()
         self.shuffle()
 
     def populate(self) -> None:
-        """Fill the deck with a standard set of 108 Uno cards."""
+        """Fill the deck with either the standard Uno cards or a custom deck."""
         self.cards.clear()
-        for color in COLORS:
-            # Every colour has a single zero card and two of every other
-            # number/action card, mirroring the physical Uno deck.
-            self.cards.append(UnoCard(color, "0"))
-            for value in NUMBER_VALUES[1:] + ACTION_VALUES:
-                self.cards.extend([UnoCard(color, value), UnoCard(color, value)])
-        for _ in range(4):
-            # Wilds do not have a colour and appear four times each.
-            self.cards.extend([UnoCard(None, "wild"), UnoCard(None, "+4")])
+        if self._deck_definition:
+            colors = tuple(self._deck_definition.get("colors", COLORS))
+            if len(colors) < 2:
+                raise ValueError("Custom decks must define at least two colors.")
+            self.colors = colors
+            card_defs = self._deck_definition.get("cards", [])
+            total_cards = 0
+            for card_def in card_defs:
+                color = card_def.get("color")
+                value_raw = card_def.get("value")
+                if value_raw is None:
+                    raise ValueError("Custom deck cards must define a value.")
+                value = str(value_raw)
+                try:
+                    count = int(card_def.get("count", 1))
+                except (TypeError, ValueError) as exc:
+                    raise ValueError("Custom deck card counts must be integers.") from exc
+                if count <= 0:
+                    raise ValueError("Custom deck card counts must be positive.")
+                effect = card_def.get("effect")
+                effect_params = card_def.get("effect_params")
+                params_copy = dict(effect_params) if isinstance(effect_params, Mapping) else None
+                for _ in range(count):
+                    self.cards.append(UnoCard(color, value, effect=effect, effect_params=params_copy))
+                total_cards += count
+            if total_cards < MIN_CUSTOM_DECK_CARDS:
+                raise ValueError(f"Custom decks must provide at least {MIN_CUSTOM_DECK_CARDS} cards.")
+        else:
+            self.colors = COLORS
+            for color in COLORS:
+                # Every colour has a single zero card and two of every other
+                # number/action card, mirroring the physical Uno deck.
+                self.cards.append(UnoCard(color, "0"))
+                for value in NUMBER_VALUES[1:] + ACTION_VALUES:
+                    self.cards.extend([UnoCard(color, value), UnoCard(color, value)])
+            for _ in range(4):
+                # Wilds do not have a colour and appear four times each.
+                self.cards.extend([UnoCard(None, "wild"), UnoCard(None, "+4")])
 
     def shuffle(self) -> None:
         """Shuffle the deck in place."""
+
         self._rng.shuffle(self.cards)
 
     def draw(self) -> UnoCard:
         """Draw a single card from the top of the deck."""
+
         if not self.cards:
             raise RuntimeError("The deck is empty")
-        # ``pop`` models drawing the top-most card from the pile.
         return self.cards.pop()
 
     def extend(self, cards: Iterable[UnoCard]) -> None:
         """Add cards to the deck and reshuffle."""
+
         self.cards.extend(cards)
         self.shuffle()
 
     def __len__(self) -> int:
         return len(self.cards)
+
+
+class CustomDeckValidationError(ValueError):
+    """Raised when a custom deck definition fails validation."""
+
+
+class CustomDeckLoader:
+    """Utility helpers for loading and validating custom Uno deck definitions."""
+
+    _MIN_CARDS = MIN_CUSTOM_DECK_CARDS
+
+    @staticmethod
+    def load_from_file(path: Union[str, Path]) -> Dict[str, Any]:
+        """Load and validate a custom deck from a JSON file."""
+
+        deck_path = Path(path)
+        try:
+            data = json.loads(deck_path.read_text(encoding="utf-8"))
+        except FileNotFoundError as exc:  # pragma: no cover - defensive programming
+            raise CustomDeckValidationError(f"Custom deck file not found: {deck_path}") from exc
+        except json.JSONDecodeError as exc:  # pragma: no cover - defensive programming
+            raise CustomDeckValidationError(f"Invalid JSON in custom deck file: {deck_path}") from exc
+        return CustomDeckLoader.load_from_mapping(data)
+
+    @staticmethod
+    def load_from_mapping(deck_definition: Mapping[str, Any]) -> Dict[str, Any]:
+        """Validate a deck definition provided as a mapping and return a sanitized copy."""
+
+        if not isinstance(deck_definition, Mapping):
+            raise CustomDeckValidationError("Deck definition must be a mapping of values.")
+        return CustomDeckLoader._validate(dict(deck_definition))
+
+    @staticmethod
+    def _validate(deck_definition: Dict[str, Any]) -> Dict[str, Any]:
+        required_keys = {"colors", "cards"}
+        missing = required_keys - set(deck_definition)
+        if missing:
+            missing_keys = ", ".join(sorted(missing))
+            raise CustomDeckValidationError(f"Deck definition missing keys: {missing_keys}")
+
+        colors_raw = deck_definition.get("colors")
+        if not isinstance(colors_raw, Sequence) or isinstance(colors_raw, (str, bytes)):
+            raise CustomDeckValidationError("Deck colors must be a sequence of color names.")
+        colors = [str(color).lower() for color in colors_raw]
+        if len(colors) < 2:
+            raise CustomDeckValidationError("Custom deck must define at least two colors.")
+
+        card_defs_raw = deck_definition.get("cards")
+        if not isinstance(card_defs_raw, Sequence):
+            raise CustomDeckValidationError("Deck cards must be provided as a sequence of definitions.")
+
+        sanitized_cards: List[Dict[str, Any]] = []
+        total_cards = 0
+        for entry in card_defs_raw:
+            if not isinstance(entry, Mapping):
+                raise CustomDeckValidationError("Each card entry must be a mapping of attributes.")
+
+            color_value = entry.get("color")
+            color = None if color_value is None else str(color_value).lower()
+            value = entry.get("value")
+            if value is None:
+                raise CustomDeckValidationError("Card entry missing 'value'.")
+            value_str = str(value)
+            try:
+                count = int(entry.get("count", 1))
+            except (TypeError, ValueError) as exc:
+                raise CustomDeckValidationError("Card 'count' must be an integer.") from exc
+            if count <= 0:
+                raise CustomDeckValidationError("Card 'count' must be positive.")
+
+            effect = entry.get("effect")
+            effect_name = str(effect) if effect is not None else None
+            effect_params = entry.get("effect_params")
+            params_copy = dict(effect_params) if isinstance(effect_params, Mapping) else None
+
+            sanitized_entry: Dict[str, Any] = {"color": color, "value": value_str, "count": count}
+            if effect_name:
+                sanitized_entry["effect"] = effect_name
+            if params_copy:
+                sanitized_entry["effect_params"] = params_copy
+            sanitized_cards.append(sanitized_entry)
+            total_cards += count
+
+        if total_cards < CustomDeckLoader._MIN_CARDS:
+            raise CustomDeckValidationError(f"Custom deck must contain at least {CustomDeckLoader._MIN_CARDS} cards; received {total_cards}.")
+
+        sanitized: Dict[str, Any] = {
+            "name": str(deck_definition.get("name", "Custom Deck")),
+            "description": str(deck_definition.get("description", "")),
+            "colors": tuple(colors),
+            "cards": sanitized_cards,
+        }
+        if "special_rules" in deck_definition:
+            sanitized["special_rules"] = deck_definition["special_rules"]
+        return sanitized
+
+
+class CustomEffectHandler:
+    """Apply custom deck card effects after a card is played."""
+
+    def __init__(self, game: "UnoGame") -> None:
+        self.game = game
+        self._handlers = {
+            "swap_with_any": self._handle_swap_with_any,
+            "steal_card": self._handle_steal_card,
+            "force_draw": self._handle_force_draw,
+        }
+
+    def apply_effect(self, card: UnoCard, player: UnoPlayer) -> None:
+        """Apply the custom effect associated with ``card`` if supported."""
+
+        if not card.effect:
+            return
+        handler = self._handlers.get(card.effect)
+        if not handler:
+            self.game._log(
+                f"{player.name} plays {card.label()}, but no handler exists for '{card.effect}'.",
+                Fore.YELLOW,
+            )
+            return
+        handler(card, player)
+
+    def _handle_swap_with_any(self, card: UnoCard, player: UnoPlayer) -> None:
+        """Allow the player to swap hands with any other participant."""
+
+        target_index = self.game.interface.choose_swap_target(player, self.game.players)
+        target_player: Optional[UnoPlayer] = None
+        if isinstance(target_index, int) and 0 <= target_index < len(self.game.players):
+            candidate = self.game.players[target_index]
+            if candidate is not player:
+                target_player = candidate
+        if target_player is None:
+            opponents = [p for p in self.game.players if p is not player]
+            if not opponents:
+                return
+            target_player = self.game.rng.choice(opponents)
+        self.game._swap_hands(player, target_player)
+        if card.value:
+            target_player.hand.append(UnoCard(card.color, card.value, effect=card.effect, effect_params=card.effect_params))
+            target_player.pending_uno = len(target_player.hand) == 1
+
+    def _handle_steal_card(self, card: UnoCard, player: UnoPlayer) -> None:
+        """Steal a random card from an opponent."""
+
+        opponents = [p for p in self.game.players if p is not player and p.hand]
+        if not opponents:
+            return
+        target = self.game.rng.choice(opponents)
+        stolen_index = self.game.rng.randrange(len(target.hand))
+        stolen_card = target.hand.pop(stolen_index)
+        player.hand.append(stolen_card)
+        player.pending_uno = len(player.hand) == 1
+        target.pending_uno = len(target.hand) == 1
+        self.game._log(f"{player.name} steals a card from {target.name}!", Fore.MAGENTA, style=Style.BRIGHT)
+
+    def _handle_force_draw(self, card: UnoCard, player: UnoPlayer) -> None:
+        """Force the next player in turn order to draw cards."""
+
+        params = card.effect_params or {}
+        try:
+            amount = max(1, int(params.get("amount", 1)))
+        except (TypeError, ValueError):  # pragma: no cover - validated earlier
+            amount = 1
+        target_index = self.game._next_index()
+        target = self.game.players[target_index]
+        self.game._log(
+            f"{player.name} forces {target.name} to draw {amount} card(s)!",
+            Fore.RED,
+            style=Style.BRIGHT,
+        )
+        self.game._draw_cards(target, amount)
 
 
 class UnoPlayer:
@@ -227,11 +444,13 @@ class UnoPlayer:
 
     def preferred_color(self) -> str:
         """Determine the bot's preferred color to switch to after playing a wild."""
-        color_counts = {color: sum(1 for card in self.hand if card.color == color) for color in COLORS}
+        available_colors = getattr(self, "available_colors", COLORS)
+        color_counts = {color: sum(1 for card in self.hand if card.color == color) for color in available_colors}
         max_count = max(color_counts.values()) if color_counts else 0
         top_colors = [color for color, count in color_counts.items() if count == max_count]
         # Break ties randomly so the bots do not behave identically.
-        return random.choice(top_colors) if top_colors else random.choice(COLORS)
+        color_pool = top_colors or list(available_colors)
+        return random.choice(color_pool)
 
     def __str__(self) -> str:
         return self.name
@@ -369,11 +588,13 @@ class ConsoleUnoInterface(UnoInterface):
 
     def choose_color(self, player: UnoPlayer) -> str:
         """Prompt the player to choose a color after playing a wild card."""
+        available_colors = getattr(player, "available_colors", COLORS)
         while True:
-            choice = input("Choose a color (red, yellow, green, blue): ").strip().lower()
-            if choice in COLORS:
+            color_options = ", ".join(available_colors)
+            choice = input(f"Choose a color ({color_options}): ").strip().lower()
+            if choice in available_colors:
                 return choice
-            self.show_message("Invalid color. Please choose one of the four.", color=Fore.RED)
+            self.show_message("Invalid color. Please choose one of the available options.", color=Fore.RED)
 
     def choose_swap_target(self, player: UnoPlayer, players: Sequence[UnoPlayer]) -> int:
         """Prompt the player to choose another player to swap hands with."""
@@ -454,12 +675,20 @@ class UnoGame:
         interface: Optional[UnoInterface] = None,
         house_rules: Optional[HouseRules] = None,
         team_mode: bool = False,
+        custom_deck: Optional[Union[str, Mapping[str, Any]]] = None,
     ) -> None:
         if len(players) < 2:
             raise ValueError("Uno requires at least two players")
         self.players = list(players)
         self.rng = rng or random.Random()
-        self.deck = UnoDeck(rng=self.rng)
+        self.custom_deck_definition: Optional[Dict[str, Any]] = None
+        if custom_deck is not None:
+            if isinstance(custom_deck, (str, Path)):
+                self.custom_deck_definition = CustomDeckLoader.load_from_file(custom_deck)
+            else:
+                self.custom_deck_definition = CustomDeckLoader.load_from_mapping(custom_deck)
+        self.deck = UnoDeck(rng=self.rng, deck_definition=self.custom_deck_definition)
+        self.available_colors: Tuple[str, ...] = tuple(self.deck.colors)
         self.discard_pile: List[UnoCard] = []
         self.current_index = 0
         self.direction = 1  # 1 for clockwise, -1 for counter-clockwise
@@ -469,9 +698,14 @@ class UnoGame:
         self.penalty_amount = 0
         self.plus4_challenge: Optional[dict] = None
         self.interface = interface or ConsoleUnoInterface()
+        self.custom_effect_handler: Optional[CustomEffectHandler] = None
+        if any(card.has_custom_effect() for card in self.deck.cards):
+            self.custom_effect_handler = CustomEffectHandler(self)
         self.event_log: List[tuple[str, str, str]] = []
         self.house_rules = house_rules or HouseRules()
         self.team_mode = team_mode
+        for player in self.players:
+            setattr(player, "available_colors", self.available_colors)
         # Validate team assignments if in team mode
         if self.team_mode:
             teams = set(p.team for p in self.players if p.team is not None)
@@ -488,7 +722,7 @@ class UnoGame:
 
         first_card = self._draw_start_card()
         self.discard_pile.append(first_card)
-        self.active_color = first_card.color or self.rng.choice(COLORS)
+        self.active_color = first_card.color or self.rng.choice(self.available_colors)
         self.active_value = first_card.value
 
         # Some action cards (e.g., Skip) immediately affect turn order.
@@ -821,6 +1055,9 @@ class UnoGame:
         else:
             self.interface.play_sound("card_play")
 
+        if self.custom_effect_handler and card.has_custom_effect():
+            self.custom_effect_handler.apply_effect(card, player)
+
         # Handle jump-in rule: check if another player can play an identical card
         if self.house_rules.jump_in and not card.is_wild():
             jump_in_result = self._check_jump_in(card, player)
@@ -1142,8 +1379,11 @@ __all__ = [
     "UnoGame",
     "UnoPlayer",
     "ConsoleUnoInterface",
+    "UnoInterface",
     "PlayerDecision",
     "HouseRules",
+    "CustomDeckLoader",
+    "CustomDeckValidationError",
     "build_players",
     "main",
 ]

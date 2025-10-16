@@ -165,8 +165,8 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [x] 2v2 team play mode
 - [x] Card animation effects and sound infrastructure in GUI
 - [x] **Complete jump-in rule implementation** ✅ **NEW**
-- [ ] Add online multiplayer capability
-- [ ] Create custom deck designer
+- [x] Add online multiplayer capability ✅ **NEW** — Asyncio-based server/client (`card_games/uno/network.py`) with automated interface tests
+- [x] Create custom deck designer ✅ **NEW** — Validated loader, custom effects, and coverage via dedicated test suite
 
 ### Cross-Game Features
 
