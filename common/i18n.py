@@ -1,6 +1,22 @@
 """Internationalization (i18n) support for games.
 
-This module provides translation and localization support for game interfaces.
+This module provides a robust and easy-to-use system for translating and
+localizing game interfaces. It is built around a central `TranslationManager`
+that handles loading language files, translating text, and managing different
+languages.
+
+Key features include:
+- **JSON-based Translations**: Language files are stored in a simple JSON
+  format, making them easy to create and edit.
+- **Fallback Language**: A fallback language (English, by default) is used if
+  a translation is not found in the current language.
+- **Dynamic Language Switching**: The application's language can be changed at
+  runtime.
+- **Singleton Manager**: A global `TranslationManager` instance is used to
+  ensure consistency across the application.
+- **Shorthand Function**: A convenient `_()` function is provided as a
+  shorthand for `get_translation_manager().translate()`, which is a common
+  convention in i18n systems.
 """
 
 from __future__ import annotations
@@ -11,44 +27,52 @@ from typing import Any, Dict, Optional
 
 
 class TranslationManager:
-    """Manager for translations and localization.
+    """A manager for handling translations and localization.
+
+    This class is responsible for loading translation files, retrieving
+    translated strings, and managing the current language of the application.
 
     Attributes:
-        current_language: Currently active language code.
-        fallback_language: Fallback language if translation not found.
-        translations: Dictionary of loaded translations.
+        current_language: The currently active language code (e.g., "en", "fr").
+        fallback_language: The language to use if a translation is not found
+                           in the current language.
+        translations: A dictionary that stores the loaded translations for
+                      each language.
     """
 
     def __init__(self, translations_dir: Optional[Path] = None, default_language: str = "en") -> None:
-        """Initialize translation manager.
+        """Initialize the translation manager.
 
         Args:
-            translations_dir: Directory containing translation files.
-            default_language: Default language code.
+            translations_dir: The directory where the translation files (JSON)
+                              are located. If not provided, it defaults to a
+                              "translations" subdirectory.
+            default_language: The default language to use for the application.
         """
         self.translations_dir = translations_dir or Path(__file__).parent / "translations"
         self.current_language = default_language
         self.fallback_language = "en"
         self.translations: Dict[str, Dict[str, str]] = {}
 
-        # Load default language
+        # Load the default language upon initialization
         self._load_language(default_language)
 
     def _load_language(self, language: str) -> bool:
-        """Load translation file for a language.
+        """Load the translation file for a given language.
 
         Args:
-            language: Language code to load.
+            language: The language code of the translation file to load.
 
         Returns:
-            True if loaded successfully.
+            True if the language was loaded successfully, False otherwise.
         """
         if language in self.translations:
             return True
 
         filepath = self.translations_dir / f"{language}.json"
         if not filepath.exists():
-            # Create default translations directory and file if missing
+            # If the default English file is missing, create it with default
+            # translations.
             if language == "en":
                 self.translations[language] = self._get_default_translations()
                 return True
@@ -63,10 +87,10 @@ class TranslationManager:
             return False
 
     def _get_default_translations(self) -> Dict[str, str]:
-        """Get default English translations.
+        """Provide a set of default English translations as a fallback.
 
         Returns:
-            Dictionary of default translations.
+            A dictionary of default English translations.
         """
         return {
             # Common UI elements
@@ -106,39 +130,43 @@ class TranslationManager:
         }
 
     def translate(self, key: str, **kwargs: Any) -> str:
-        """Translate a key to the current language.
+        """Translate a given key into the current language.
+
+        If the key is not found in the current language, it will try the
+        fallback language. If it's still not found, the key itself is
+        returned.
 
         Args:
-            key: Translation key.
-            **kwargs: Optional format parameters.
+            key: The translation key to look up.
+            **kwargs: Optional keyword arguments for string formatting.
 
         Returns:
-            Translated string or key if not found.
+            The translated string, or the key if no translation is found.
         """
-        # Try current language
+        # First, try to find the translation in the current language
         if self.current_language in self.translations:
             text = self.translations[self.current_language].get(key)
             if text:
                 return text.format(**kwargs) if kwargs else text
 
-        # Try fallback language
+        # If not found, try the fallback language
         if self.fallback_language != self.current_language:
             if self.fallback_language in self.translations:
                 text = self.translations[self.fallback_language].get(key)
                 if text:
                     return text.format(**kwargs) if kwargs else text
 
-        # Return key if no translation found
+        # If no translation is found in either language, return the key
         return key
 
     def set_language(self, language: str) -> bool:
-        """Set the current language.
+        """Set the current language for the application.
 
         Args:
-            language: Language code to set.
+            language: The language code to set as the current language.
 
         Returns:
-            True if language was set successfully.
+            True if the language was set successfully, False otherwise.
         """
         if self._load_language(language):
             self.current_language = language
@@ -146,12 +174,15 @@ class TranslationManager:
         return False
 
     def get_available_languages(self) -> list[str]:
-        """Get list of available languages.
+        """Get a list of all available languages.
+
+        This is determined by the JSON files present in the translations
+        directory.
 
         Returns:
-            List of language codes.
+            A sorted list of available language codes.
         """
-        languages = ["en"]  # Always include English
+        languages = ["en"]  # English is always available as a fallback
 
         if self.translations_dir.exists():
             for filepath in self.translations_dir.glob("*.json"):
@@ -162,26 +193,25 @@ class TranslationManager:
         return sorted(languages)
 
     def add_translation(self, language: str, key: str, value: str) -> None:
-        """Add or update a translation.
+        """Add or update a translation in memory.
 
         Args:
-            language: Language code.
-            key: Translation key.
-            value: Translation value.
+            language: The language code for the translation.
+            key: The translation key.
+            value: The translated string.
         """
         if language not in self.translations:
             self.translations[language] = {}
-
         self.translations[language][key] = value
 
     def save_translations(self, language: str) -> bool:
-        """Save translations for a language to file.
+        """Save the translations for a given language to a JSON file.
 
         Args:
-            language: Language code to save.
+            language: The language code of the translations to save.
 
         Returns:
-            True if saved successfully.
+            True if the translations were saved successfully, False otherwise.
         """
         if language not in self.translations:
             return False
@@ -198,13 +228,14 @@ class TranslationManager:
             return False
 
     def get_language_name(self, language: str) -> str:
-        """Get human-readable name for a language code.
+        """Get the human-readable name for a given language code.
 
         Args:
-            language: Language code.
+            language: The language code (e.g., "en", "es").
 
         Returns:
-            Human-readable language name.
+            The human-readable name of the language (e.g., "English",
+            "Español").
         """
         language_names = {
             "en": "English",
@@ -222,15 +253,20 @@ class TranslationManager:
         return language_names.get(language, language.upper())
 
 
-# Global translation manager
+# A global instance of the TranslationManager to ensure a single source of
+# truth for translations throughout the application.
 _translation_manager: Optional[TranslationManager] = None
 
 
 def get_translation_manager() -> TranslationManager:
-    """Get the global translation manager.
+    """Get the global singleton instance of the `TranslationManager`.
+
+    This function ensures that a single instance of the `TranslationManager`
+    is used throughout the application, providing a consistent state for
+    translations.
 
     Returns:
-        Global TranslationManager instance.
+        The global `TranslationManager` instance.
     """
     global _translation_manager
     if _translation_manager is None:
@@ -239,34 +275,37 @@ def get_translation_manager() -> TranslationManager:
 
 
 def _(key: str, **kwargs: Any) -> str:
-    """Shorthand function for translation.
+    """A shorthand function for translating a key.
+
+    This function provides a convenient, concise way to access translations,
+    following a common convention in i18n systems (e.g., gettext).
 
     Args:
-        key: Translation key.
-        **kwargs: Optional format parameters.
+        key: The translation key to look up.
+        **kwargs: Optional keyword arguments for string formatting.
 
     Returns:
-        Translated string.
+        The translated string.
     """
     return get_translation_manager().translate(key, **kwargs)
 
 
 def set_language(language: str) -> bool:
-    """Set the current application language.
+    """A convenience function to set the current application language.
 
     Args:
-        language: Language code to set.
+        language: The language code to set as the current language.
 
     Returns:
-        True if language was set successfully.
+        True if the language was set successfully, False otherwise.
     """
     return get_translation_manager().set_language(language)
 
 
 def get_current_language() -> str:
-    """Get the current application language.
+    """A convenience function to get the current application language.
 
     Returns:
-        Current language code.
+        The current language code.
     """
     return get_translation_manager().current_language
