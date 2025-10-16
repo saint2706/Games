@@ -130,6 +130,30 @@ class AchievementRegistry:
                     ),
                 ]
             ),
+            "blackjack": _GameAchievementConfig(
+                achievements=[
+                    Achievement(
+                        id="blackjack_hot_streak",
+                        name="Hot Hand",
+                        description="Win three blackjack hands in a row.",
+                        category=AchievementCategory.MASTERY,
+                        rarity=AchievementRarity.UNCOMMON,
+                        game="blackjack",
+                        points=40,
+                        condition=_game_condition("blackjack", lambda stats: stats["win_streak"] >= 3),
+                    ),
+                    Achievement(
+                        id="blackjack_card_shark",
+                        name="Card Shark",
+                        description="Win twenty blackjack games.",
+                        category=AchievementCategory.PROGRESSION,
+                        rarity=AchievementRarity.RARE,
+                        game="blackjack",
+                        points=70,
+                        condition=_game_condition("blackjack", lambda stats: stats["wins"] >= 20),
+                    ),
+                ]
+            ),
             "nim": _GameAchievementConfig(
                 achievements=[
                     Achievement(
@@ -152,6 +176,102 @@ class AchievementRegistry:
                         points=90,
                         hidden=True,
                         condition=_game_condition("nim", lambda stats: stats["perfect_games"] >= 1),
+                    ),
+                ]
+            ),
+            "connect_four": _GameAchievementConfig(
+                achievements=[
+                    Achievement(
+                        id="connect_four_first_win",
+                        name="Line Breaker",
+                        description="Win your first game of Connect Four.",
+                        category=AchievementCategory.GAMEPLAY,
+                        rarity=AchievementRarity.COMMON,
+                        game="connect_four",
+                        points=15,
+                        condition=_game_condition("connect_four", lambda stats: stats["wins"] >= 1),
+                    ),
+                    Achievement(
+                        id="connect_four_streak_4",
+                        name="Vertical Virtuoso",
+                        description="Achieve a four game win streak in Connect Four.",
+                        category=AchievementCategory.MASTERY,
+                        rarity=AchievementRarity.UNCOMMON,
+                        game="connect_four",
+                        points=45,
+                        condition=_game_condition("connect_four", lambda stats: stats["best_win_streak"] >= 4),
+                    ),
+                ]
+            ),
+            "go_fish": _GameAchievementConfig(
+                achievements=[
+                    Achievement(
+                        id="go_fish_collector",
+                        name="Net Gain",
+                        description="Win five games of Go Fish.",
+                        category=AchievementCategory.GAMEPLAY,
+                        rarity=AchievementRarity.UNCOMMON,
+                        game="go_fish",
+                        points=30,
+                        condition=_game_condition("go_fish", lambda stats: stats["wins"] >= 5),
+                    ),
+                    Achievement(
+                        id="go_fish_streak_3",
+                        name="School Leader",
+                        description="Maintain a three game win streak in Go Fish.",
+                        category=AchievementCategory.MASTERY,
+                        rarity=AchievementRarity.RARE,
+                        game="go_fish",
+                        points=55,
+                        condition=_game_condition("go_fish", lambda stats: stats["best_win_streak"] >= 3),
+                    ),
+                ]
+            ),
+            "sudoku": _GameAchievementConfig(
+                achievements=[
+                    Achievement(
+                        id="sudoku_first_completion",
+                        name="Puzzle Novice",
+                        description="Complete your first Sudoku grid.",
+                        category=AchievementCategory.GAMEPLAY,
+                        rarity=AchievementRarity.COMMON,
+                        game="sudoku",
+                        points=20,
+                        condition=_game_condition("sudoku", lambda stats: stats["wins"] >= 1),
+                    ),
+                    Achievement(
+                        id="sudoku_dedicated_solver",
+                        name="Grid Analyst",
+                        description="Finish ten Sudoku challenges.",
+                        category=AchievementCategory.PROGRESSION,
+                        rarity=AchievementRarity.UNCOMMON,
+                        game="sudoku",
+                        points=55,
+                        condition=_game_condition("sudoku", lambda stats: stats["games_played"] >= 10),
+                    ),
+                ]
+            ),
+            "battleship": _GameAchievementConfig(
+                achievements=[
+                    Achievement(
+                        id="battleship_fleet_commander",
+                        name="Fleet Commander",
+                        description="Win your first Battleship engagement.",
+                        category=AchievementCategory.GAMEPLAY,
+                        rarity=AchievementRarity.COMMON,
+                        game="battleship",
+                        points=20,
+                        condition=_game_condition("battleship", lambda stats: stats["wins"] >= 1),
+                    ),
+                    Achievement(
+                        id="battleship_unsinkable",
+                        name="Unsinkable",
+                        description="Secure a three game Battleship win streak.",
+                        category=AchievementCategory.MASTERY,
+                        rarity=AchievementRarity.RARE,
+                        game="battleship",
+                        points=65,
+                        condition=_game_condition("battleship", lambda stats: stats["best_win_streak"] >= 3),
                     ),
                 ]
             ),

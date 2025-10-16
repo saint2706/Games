@@ -9,11 +9,15 @@ from __future__ import annotations
 
 import argparse
 import sys
+import textwrap
 from typing import Callable, Dict, List, Optional
 
 from common.challenges import get_default_challenge_manager
 from common.daily_challenges import DailyChallengeScheduler, DailyChallengeSelection
+from common.game_catalog import get_default_game_catalogue
+from common.leaderboard_service import CrossGameLeaderboardEntry, CrossGameLeaderboardService
 from common.profile_service import ProfileService, ProfileServiceError, get_profile_service
+from common.recommendation_service import RecommendationResult, RecommendationService
 from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata
 from common.tutorial_session import TutorialSession
 
@@ -79,6 +83,9 @@ GAME_MAP: dict[str, tuple[str, Callable[[], None]]] = {
 }
 
 SLUG_TO_ENTRY = {value[0]: value for value in GAME_MAP.values()}
+
+
+RECOMMENDATION_SERVICE = RecommendationService(get_default_game_catalogue())
 
 
 def parse_args() -> argparse.Namespace:
@@ -161,6 +168,34 @@ def run_smoke_test(game_identifier: str, gui_framework: str | None) -> int:
     return 0
 
 
+def _gather_launcher_insights(
+    service: ProfileService,
+    *,
+    leaderboard_limit: int = 3,
+    recommendation_limit: int = 3,
+) -> tuple[List[CrossGameLeaderboardEntry], List[RecommendationResult]]:
+    """Return the leaderboard and recommendation snapshots for the launcher."""
+
+    aggregator = CrossGameLeaderboardService(service.profile_dir, active_profile=service.active_profile)
+    leaderboard = aggregator.leaderboard(limit=leaderboard_limit)
+    recommendations = RECOMMENDATION_SERVICE.recommend(
+        service.active_profile,
+        aggregator.analytics_snapshot(),
+        limit=recommendation_limit,
+    )
+    return leaderboard, recommendations
+
+
+def _format_recommendation(result: RecommendationResult) -> str:
+    """Return a wrapped description of ``result`` for terminal display."""
+
+    reasons = ", ".join(result.reasons)
+    summary = f"{result.game_name}: {result.explanation}" if result.explanation else result.game_name
+    if reasons:
+        summary += f" ({reasons})"
+    return textwrap.fill(summary, width=70, subsequent_indent="      ")
+
+
 def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) -> None:
     """Print the launcher header."""
     profile = service.active_profile
@@ -176,6 +211,9 @@ def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) ->
         status_color = Fore.GREEN if completed else Fore.YELLOW
     else:
         status_color = ""
+    achievements = profile.achievement_manager
+    achievements_line = f"Achievements: {achievements.get_unlocked_count()}/{achievements.get_total_count()} " f"({achievements.get_total_points()} pts)"
+    leaderboard, recommendations = _gather_launcher_insights(service)
     if HAS_COLORAMA:
         print(f"\n{Fore.CYAN}{Style.BRIGHT}{'=' * 60}")
         print(f"{Fore.CYAN}{Style.BRIGHT}{'GAMES COLLECTION':^60}")
@@ -184,6 +222,7 @@ def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) ->
         print(f"{Fore.MAGENTA}{xp_line}{Style.RESET_ALL}\n")
         print(f"{status_color}{summary_line}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}{streak_line}{Style.RESET_ALL}\n")
+        print(f"{Fore.GREEN}{achievements_line}{Style.RESET_ALL}")
     else:
         print("\n" + "=" * 60)
         print(f"{'GAMES COLLECTION':^60}")
@@ -192,6 +231,35 @@ def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) ->
         print(xp_line)
         print(summary_line)
         print(streak_line + "\n")
+        print(achievements_line)
+
+    if leaderboard:
+        title = "Top Players"
+        header_line = f"{title}:"
+        if HAS_COLORAMA:
+            header_line = f"{Fore.BLUE}{title}:{Style.RESET_ALL}"
+        print("\n" + header_line)
+        for idx, entry in enumerate(leaderboard, 1):
+            marker = "*" if entry.player_id == profile.player_id else " "
+            line = f"  {marker}{idx}. {entry.display_name} – {entry.total_wins} wins, {entry.achievement_points} pts"
+            print(line)
+    else:
+        if HAS_COLORAMA:
+            print(f"\n{Fore.BLUE}Top Players:{Style.RESET_ALL} (Play a game to start ranking!)")
+        else:
+            print("\nTop Players: Play a game to start ranking!")
+
+    if recommendations:
+        heading = "Suggested Games"
+        if HAS_COLORAMA:
+            heading = f"{Fore.YELLOW}{heading}:{Style.RESET_ALL}"
+        else:
+            heading += ":"
+        print("\n" + heading)
+        for recommendation in recommendations:
+            print("  " + _format_recommendation(recommendation))
+    else:
+        print("\nSuggested Games: Play more titles to generate personalised tips.")
 
 
 def print_menu(service: ProfileService) -> None:
@@ -259,6 +327,14 @@ def print_menu(service: ProfileService) -> None:
     print("  S. Switch profile")
     print("  R. Rename active profile")
     print("  X. Reset active profile\n")
+
+    if HAS_COLORAMA:
+        print(f"{Fore.BLUE}Insights:{Style.RESET_ALL}")
+    else:
+        print("Insights:")
+    print("  C. View cross-game leaderboard")
+    print("  A. View achievement progress")
+    print("  M. View personalised recommendations\n")
 
     for category, games in categories.items():
         if HAS_COLORAMA:
@@ -346,6 +422,74 @@ def _handle_profile_reset(service: ProfileService) -> None:
     else:
         print(message)
     input("Press Enter to return to the menu…")
+
+
+def _handle_leaderboard_view(service: ProfileService) -> None:
+    """Display the cross-game leaderboard."""
+
+    aggregator = CrossGameLeaderboardService(service.profile_dir, active_profile=service.active_profile)
+    entries = aggregator.leaderboard(limit=10)
+    print("\nCross-Game Leaderboard:")
+    if not entries:
+        print("  No leaderboard data yet. Play a few games to generate stats.")
+    else:
+        print("  Rank  Player               Wins  XP    Points  Streak")
+        for index, entry in enumerate(entries, 1):
+            marker = "*" if entry.player_id == service.active_profile.player_id else " "
+            line = (
+                f"{marker} {index:>2}. {entry.display_name:<18} "
+                f"{entry.total_wins:>4} {entry.experience:>5} {entry.achievement_points:>7} {entry.daily_challenge_streak:>6}"
+            )
+            print(line)
+    input("\nPress Enter to return to the menu…")
+
+
+def _handle_achievement_overview(service: ProfileService) -> None:
+    """Print the achievement progress summary."""
+
+    summary = service.active_profile.achievement_manager.summary()
+    print("\n" + summary + "\n")
+    input("Press Enter to return to the menu…")
+
+
+def _handle_recommendations_view(service: ProfileService) -> None:
+    """Display personalised recommendations and accept optional feedback."""
+
+    aggregator = CrossGameLeaderboardService(service.profile_dir, active_profile=service.active_profile)
+    recommendations = RECOMMENDATION_SERVICE.recommend(service.active_profile, aggregator.analytics_snapshot(), limit=5)
+    print("\nPersonalised Recommendations:")
+    if not recommendations:
+        print("  We need more play history to make suggestions.")
+        input("\nPress Enter to return to the menu…")
+        return
+
+    for index, recommendation in enumerate(recommendations, 1):
+        print(f"  {index}. {_format_recommendation(recommendation)}")
+
+    prompt = input("\nEnter a number to mark it as helpful, prefix with '!' to mark as not interested, or press Enter to finish: ").strip()
+    if prompt:
+        accepted = True
+        token = prompt
+        if token.startswith("!"):
+            accepted = False
+            token = token[1:]
+        try:
+            selection = int(token) - 1
+        except ValueError:
+            print("Invalid selection. Feedback not recorded.")
+        else:
+            if 0 <= selection < len(recommendations):
+                result = recommendations[selection]
+                RECOMMENDATION_SERVICE.record_feedback(service.active_profile, result.game_id, accepted)
+                service.save_active_profile()
+                if accepted:
+                    print(f"Noted that {result.game_name} looked appealing. Enjoy!")
+                else:
+                    print(f"Understood. We'll suggest {result.game_name} less often.")
+            else:
+                print("Selection out of range. Feedback not recorded.")
+
+    input("\nPress Enter to return to the menu…")
 
 
 def _format_metadata_summary(metadata: TutorialMetadata) -> str:
@@ -682,6 +826,15 @@ def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeS
         return True
     if normalized == "x":
         _handle_profile_reset(service)
+        return True
+    if normalized == "c":
+        _handle_leaderboard_view(service)
+        return True
+    if normalized == "a":
+        _handle_achievement_overview(service)
+        return True
+    if normalized == "m":
+        _handle_recommendations_view(service)
         return True
     if normalized == "t":
         launch_tutorial_browser(service)

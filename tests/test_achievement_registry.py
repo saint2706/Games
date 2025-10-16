@@ -25,6 +25,15 @@ def test_registry_registers_core_and_game_achievements() -> None:
     assert core_ids.issubset(manager.achievements.keys())
     assert game_ids.issubset(manager.achievements.keys())
 
+    expanded_games = {
+        "blackjack_hot_streak",
+        "connect_four_first_win",
+        "go_fish_collector",
+        "sudoku_first_completion",
+        "battleship_fleet_commander",
+    }
+    assert expanded_games.issubset(manager.achievements.keys())
+
 
 def test_player_profile_unlocks_emit_events(tmp_path: pathlib.Path) -> None:
     """Recording games on a profile should unlock achievements and emit events."""

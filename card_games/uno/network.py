@@ -31,12 +31,8 @@ class NetworkGameInterface(UnoInterface):
     def __init__(self, players: Sequence[UnoPlayer], loop: asyncio.AbstractEventLoop) -> None:
         self.loop = loop
         self._players = {player.name: player for player in players}
-        self._responses: Dict[str, asyncio.Queue[Dict[str, Any]]] = {
-            player.name: asyncio.Queue() for player in players
-        }
-        self._outgoing: Dict[str, asyncio.Queue[Dict[str, Any]]] = {
-            player.name: asyncio.Queue() for player in players
-        }
+        self._responses: Dict[str, asyncio.Queue[Dict[str, Any]]] = {player.name: asyncio.Queue() for player in players}
+        self._outgoing: Dict[str, asyncio.Queue[Dict[str, Any]]] = {player.name: asyncio.Queue() for player in players}
 
     # ------------------------------------------------------------------
     # Helpers
@@ -283,7 +279,6 @@ class UnoNetworkServer:
     async def start(self) -> None:
         """Start accepting player connections."""
 
-        loop = asyncio.get_running_loop()
         self._server = await asyncio.start_server(self._handle_client, self.host, self.port)
         sockets = self._server.sockets or []
         if sockets:
