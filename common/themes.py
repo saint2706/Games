@@ -1,35 +1,54 @@
-"""Unified theme system for GUI components.
+"""A unified theme system for GUI components.
 
-This module provides a centralized theme system that supports dark mode, light mode,
-and custom themes across all game GUIs.
+This module provides a centralized and extensible theme system that allows for
+consistent styling across all game GUIs. It supports predefined themes like
+"light," "dark," and "high_contrast," and makes it easy to create and register
+custom themes.
+
+The core components are:
+- `ThemeColors`: A data class that defines the color palette for a theme.
+- `ThemeConfig`: A data class that encapsulates the entire configuration for a
+  theme, including colors, fonts, and other style attributes.
+- `ThemeManager`: A singleton class that manages all available themes,
+  including registering new themes, setting the current theme, and retrieving
+  theme configurations.
+
+The `get_theme_manager` function provides global access to the `ThemeManager`
+instance, ensuring that all parts of the application can access the same set
+of themes.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Dict, Optional
 
 
 @dataclass
 class ThemeColors:
-    """Color scheme for a theme.
+    """A data class representing the color scheme for a theme.
+
+    Each attribute corresponds to a specific UI element, allowing for detailed
+    customization of the application's appearance.
 
     Attributes:
-        background: Main background color
-        foreground: Main foreground/text color
-        primary: Primary accent color
-        secondary: Secondary accent color
-        success: Success state color
-        warning: Warning state color
-        error: Error state color
-        info: Information color
-        button_bg: Button background color
-        button_fg: Button foreground color
-        button_active_bg: Active button background
-        button_active_fg: Active button foreground
-        border: Border color
-        highlight: Highlight color
-        canvas_bg: Canvas/game board background
+        background: The main background color of the application.
+        foreground: The main color for text and other foreground elements.
+        primary: The primary accent color, used for important UI elements.
+        secondary: The secondary accent color, used for less prominent
+                   elements.
+        success: The color used to indicate a successful operation.
+        warning: The color used to indicate a warning.
+        error: The color used to indicate an error.
+        info: The color used for informational messages.
+        button_bg: The background color for buttons.
+        button_fg: The foreground (text) color for buttons.
+        button_active_bg: The background color for buttons when they are
+                          active or hovered over.
+        button_active_fg: The foreground color for active buttons.
+        border: The color for borders around widgets.
+        highlight: The color used to highlight selected items or text.
+        canvas_bg: The background color for game boards or canvases.
     """
 
     background: str = "#FFFFFF"
@@ -51,15 +70,20 @@ class ThemeColors:
 
 @dataclass
 class ThemeConfig:
-    """Configuration for a complete theme.
+    """A data class for the complete configuration of a theme.
+
+    This class combines a `ThemeColors` object with other style attributes,
+    such as font settings and button styles, to provide a comprehensive
+    definition of a theme.
 
     Attributes:
-        name: Theme name
-        colors: Color scheme
-        font_family: Default font family
-        font_size: Default font size
-        button_relief: Button relief style (flat, raised, sunken, ridge, groove)
-        high_contrast: Whether this is a high contrast theme
+        name: The unique name of the theme (e.g., "light", "dark").
+        colors: A `ThemeColors` object defining the color palette.
+        font_family: The default font family for the theme.
+        font_size: The default font size for the theme.
+        button_relief: The relief style for buttons (e.g., "flat", "raised").
+        high_contrast: A flag indicating whether this is a high-contrast
+                       theme, which can be used for accessibility purposes.
     """
 
     name: str
@@ -70,7 +94,7 @@ class ThemeConfig:
     high_contrast: bool = False
 
 
-# Predefined themes
+# Predefined theme configurations that can be used out of the box.
 LIGHT_THEME = ThemeConfig(
     name="light",
     colors=ThemeColors(
@@ -138,13 +162,14 @@ HIGH_CONTRAST_THEME = ThemeConfig(
 
 
 class ThemeManager:
-    """Manager for themes across the application.
+    """A manager for handling themes across the application.
 
-    This class provides methods to register, retrieve, and apply themes to GUI components.
+    This class provides a centralized system for registering, retrieving, and
+    applying themes to GUI components, ensuring a consistent look and feel.
     """
 
     def __init__(self) -> None:
-        """Initialize the theme manager with default themes."""
+        """Initialize the theme manager with the default themes."""
         self._themes: Dict[str, ThemeConfig] = {
             "light": LIGHT_THEME,
             "dark": DARK_THEME,
@@ -153,32 +178,33 @@ class ThemeManager:
         self._current_theme: ThemeConfig = LIGHT_THEME
 
     def register_theme(self, theme: ThemeConfig) -> None:
-        """Register a custom theme.
+        """Register a new custom theme.
 
         Args:
-            theme: Theme configuration to register
+            theme: The `ThemeConfig` object to be registered.
         """
         self._themes[theme.name] = theme
 
     def get_theme(self, name: str) -> Optional[ThemeConfig]:
-        """Get a theme by name.
+        """Get a theme by its name.
 
         Args:
-            name: Theme name
+            name: The name of the theme to retrieve.
 
         Returns:
-            Theme configuration or None if not found
+            The `ThemeConfig` object if found, otherwise `None`.
         """
         return self._themes.get(name)
 
     def set_current_theme(self, name: str) -> bool:
-        """Set the current active theme.
+        """Set the current active theme for the application.
 
         Args:
-            name: Theme name to activate
+            name: The name of the theme to be activated.
 
         Returns:
-            True if theme was set, False if theme not found
+            True if the theme was successfully set, False if the theme was
+            not found.
         """
         theme = self.get_theme(name)
         if theme:
@@ -190,15 +216,15 @@ class ThemeManager:
         """Get the currently active theme.
 
         Returns:
-            Current theme configuration
+            The `ThemeConfig` object for the current theme.
         """
         return self._current_theme
 
     def list_themes(self) -> list[str]:
-        """List all available theme names.
+        """Get a list of the names of all available themes.
 
         Returns:
-            List of theme names
+            A list of theme names.
         """
         return list(self._themes.keys())
 
@@ -209,50 +235,35 @@ class ThemeManager:
         color_overrides: Optional[Dict[str, str]] = None,
         **kwargs,
     ) -> ThemeConfig:
-        """Create a custom theme based on an existing theme.
+        """Create a new custom theme by extending an existing one.
+
+        This allows for easy creation of new themes by only specifying the
+        attributes that need to be changed from a base theme.
 
         Args:
-            name: Name for the new theme
-            base_theme: Name of base theme to extend
-            color_overrides: Dictionary of color overrides
-            **kwargs: Additional theme config overrides
+            name: The name for the new theme.
+            base_theme: The name of the base theme to extend.
+            color_overrides: A dictionary of color attributes to override.
+            **kwargs: Additional theme configuration attributes to override
+                      (e.g., `font_size`, `button_relief`).
 
         Returns:
-            New theme configuration
+            The newly created `ThemeConfig` object.
 
         Raises:
-            ValueError: If base theme doesn't exist
+            ValueError: If the specified base theme does not exist.
         """
         base = self.get_theme(base_theme)
         if not base:
             raise ValueError(f"Base theme '{base_theme}' not found")
 
-        # Create new colors based on base
-        colors_dict = {
-            "background": base.colors.background,
-            "foreground": base.colors.foreground,
-            "primary": base.colors.primary,
-            "secondary": base.colors.secondary,
-            "success": base.colors.success,
-            "warning": base.colors.warning,
-            "error": base.colors.error,
-            "info": base.colors.info,
-            "button_bg": base.colors.button_bg,
-            "button_fg": base.colors.button_fg,
-            "button_active_bg": base.colors.button_active_bg,
-            "button_active_fg": base.colors.button_active_fg,
-            "border": base.colors.border,
-            "highlight": base.colors.highlight,
-            "canvas_bg": base.colors.canvas_bg,
-        }
-
-        # Apply color overrides
+        # Create a new color configuration based on the base theme
+        colors_dict = asdict(base.colors)
         if color_overrides:
             colors_dict.update(color_overrides)
-
         new_colors = ThemeColors(**colors_dict)
 
-        # Create new theme config
+        # Create a new theme configuration, inheriting from the base theme
         theme_config = {
             "name": name,
             "colors": new_colors,
@@ -268,15 +279,19 @@ class ThemeManager:
         return new_theme
 
 
-# Global theme manager instance
+# A global instance of the ThemeManager to ensure a single source of truth
+# for theme management throughout the application.
 _theme_manager: Optional[ThemeManager] = None
 
 
 def get_theme_manager() -> ThemeManager:
-    """Get the global theme manager instance.
+    """Get the global singleton instance of the `ThemeManager`.
+
+    This function ensures that a single instance of the `ThemeManager` is
+    used throughout the application, providing a consistent state for themes.
 
     Returns:
-        Global ThemeManager instance
+        The global `ThemeManager` instance.
     """
     global _theme_manager
     if _theme_manager is None:
