@@ -1,4 +1,15 @@
-"""Boggle game engine, dictionary integration, and command line interface."""
+"""Boggle game engine, dictionary integration, and command-line interface.
+
+This module provides a complete implementation of the Boggle game, including:
+- A `BoggleGame` engine that adheres to the official rules, supporting
+  various board sizes, dice layouts, and timed rounds.
+- Integration with a `BoggleDictionary` for word validation.
+- A `BoggleCLI` for playing the game in a terminal.
+
+The game engine manages the board generation, word submission, scoring,
+and multiplayer logic, while the CLI provides a user-friendly interface
+for interacting with the game.
+"""
 
 from __future__ import annotations
 
@@ -14,11 +25,14 @@ from .dictionary import BoggleDictionary
 
 @dataclass(frozen=True)
 class BoggleMove:
-    """Move representing a submitted word in Boggle.
+    """Represents a submitted word in a Boggle game.
+
+    This dataclass is used to encapsulate a player's move, which consists of
+    the word they are submitting and their player ID.
 
     Args:
-        word: Candidate word submitted by the player.
-        player_id: Zero-based index of the submitting player.
+        word (str): The candidate word submitted by the player.
+        player_id (int): The zero-based index of the submitting player.
     """
 
     word: str
@@ -27,14 +41,18 @@ class BoggleMove:
 
 @dataclass
 class SubmissionFeedback:
-    """Feedback describing the outcome of a submission.
+    """Provides feedback on the outcome of a word submission.
+
+    This class is used to communicate the result of a word submission back
+    to the user interface, indicating whether the word was accepted, how many
+    points it was worth, and why it might have been rejected.
 
     Attributes:
-        word: Word that was evaluated.
-        player_id: Index of the submitting player.
-        accepted: Whether the submission counted as a valid word.
-        points: Number of points awarded for this submission.
-        reason: Additional information for rejected or zero-point submissions.
+        word (str): The word that was evaluated.
+        player_id (int): The index of the submitting player.
+        accepted (bool): True if the submission was accepted as a valid word.
+        points (int): The number of points awarded for the submission.
+        reason (Optional[str]): An explanation for rejected or zero-point submissions.
     """
 
     word: str
@@ -45,13 +63,16 @@ class SubmissionFeedback:
 
 
 class BoggleGame(GameEngine[BoggleMove, int]):
-    """Engine implementing the official Boggle rules.
+    """An engine that implements the official rules of Boggle.
 
-    The engine supports lexicon-backed dictionary lookups, official dice layouts,
-    multiplayer duplicate detection, and timer-based rounds.
+    This engine manages the entire game lifecycle, including board generation
+    using official dice layouts, word validation against a dictionary,
+    scoring, and handling multiplayer interactions like duplicate word detection.
     """
 
+    # Scoring table based on official Boggle rules.
     SCORE_TABLE = {3: 1, 4: 1, 5: 2, 6: 3, 7: 5}
+    # Official dice layouts for 4x4 and 5x5 Boggle.
     DICE_LAYOUTS = {
         4: [
             "AAEEGN",
@@ -111,18 +132,18 @@ class BoggleGame(GameEngine[BoggleMove, int]):
         player_names: Optional[Iterable[str]] = None,
         seed: Optional[int] = None,
     ) -> None:
-        """Initialize the Boggle game engine.
+        """Initializes the Boggle game engine.
 
         Args:
-            size: Board dimension (4 for classic, 5 for Big Boggle, etc.).
-            time_limit: Duration of the round in seconds.
-            dictionary: Pre-loaded dictionary instance to use.
-            language: Language code for dictionary lookup when ``dictionary`` is not provided.
-            lexicon: Lexicon identifier for the selected language.
-            player_names: Iterable of player display names.
-            seed: Optional seed for deterministic board generation.
+            size (int): The dimension of the game board (e.g., 4 for 4x4).
+            time_limit (int): The duration of the round in seconds.
+            dictionary (Optional[BoggleDictionary]): A pre-loaded dictionary instance.
+                                                    If not provided, one will be created.
+            language (str): The language code for the dictionary (e.g., "en").
+            lexicon (str): The lexicon identifier for the dictionary.
+            player_names (Optional[Iterable[str]]): An iterable of player display names.
+            seed (Optional[int]): An optional seed for deterministic board generation.
         """
-
         self.size = size
         self.time_limit = time_limit
         self._dictionary = dictionary or BoggleDictionary(language=language, lexicon=lexicon)
@@ -141,8 +162,7 @@ class BoggleGame(GameEngine[BoggleMove, int]):
         self.reset()
 
     def reset(self) -> None:
-        """Reset the round, generate a new board, and start the timer."""
-
+        """Resets the game to a new round, generating a new board and starting the timer."""
         self._grid = self._generate_board()
         self._scores = {index: 0 for index in range(len(self._players))}
         self._player_words = {index: set() for index in range(len(self._players))}
@@ -155,16 +175,21 @@ class BoggleGame(GameEngine[BoggleMove, int]):
         self._last_feedback = None
 
     def _generate_board(self) -> List[List[str]]:
-        """Generate a board using official dice layouts when available."""
+        """Generates a new Boggle board, using official dice layouts if available.
 
+        Returns:
+            List[List[str]]: A 2D list representing the generated board.
+        """
         layout = self.DICE_LAYOUTS.get(self.size)
         cells: List[str]
         if layout:
+            # If an official layout exists, shuffle the dice and roll them.
             dice = layout.copy()
             self._rng.shuffle(dice)
             rolls = [self._rng.choice(die) for die in dice]
             cells = rolls[: self.size * self.size]
         else:
+            # Otherwise, create a board with random letters.
             alphabet = "EERTTYLNSAOIUHDCPMGFKWVBXZJQ"
             cells = [self._rng.choice(alphabet) for _ in range(self.size * self.size)]
         grid = [[self._format_tile(cells[row * self.size + col]) for col in range(self.size)] for row in range(self.size)]
@@ -172,32 +197,29 @@ class BoggleGame(GameEngine[BoggleMove, int]):
 
     @staticmethod
     def _format_tile(letter: str) -> str:
-        """Format a die roll for board presentation.
+        """Formats a die roll for display, handling the "Qu" tile.
 
         Args:
-            letter: Letter rolled from a die.
+            letter (str): The letter rolled from a die.
 
         Returns:
-            Formatted representation suitable for display and traversal.
+            str: The formatted letter, with "Q" becoming "Qu".
         """
-
         if letter.upper() == "Q":
             return "Qu"
         return letter.upper()
 
     def is_game_over(self) -> bool:
-        """Determine whether the round has ended.
+        """Determines if the game round has ended.
 
         Returns:
-            True when the round is finished, otherwise False.
+            bool: True if the round is finished, False otherwise.
         """
-
         self._update_state()
         return self._state == GameState.FINISHED
 
     def _update_state(self) -> None:
-        """Transition to ``FINISHED`` when the timer expires."""
-
+        """Transitions the game state to `FINISHED` if the timer has expired."""
         if self._state != GameState.IN_PROGRESS or self._start_time is None:
             return
         if self.time_limit <= 0:
@@ -207,119 +229,84 @@ class BoggleGame(GameEngine[BoggleMove, int]):
             self._end_time = time.monotonic()
 
     def get_current_player(self) -> int:
-        """Return the active player index (unused in free-form submission).
-
-        Returns:
-            Always returns ``0`` because turns are not sequential in Boggle.
+        """Returns the active player index. In Boggle, turns are not sequential,
+        so this always returns 0.
         """
-
         return 0
 
     def get_valid_moves(self) -> List[BoggleMove]:
-        """Return an empty list because the search space is too large.
-
-        Returns:
-            Empty list (valid moves are not enumerated).
-        """
-
+        """Returns an empty list, as enumerating all possible words is impractical."""
         return []
 
     def make_move(self, move: BoggleMove) -> bool:
-        """Validate and register a player's word submission.
+        """Validates and registers a player's word submission.
+
+        This method checks if the word is valid (in the dictionary, on the
+        board, etc.) and updates the game state accordingly.
 
         Args:
-            move: Submitted move containing the word and player index.
+            move (BoggleMove): The move containing the submitted word and player ID.
 
         Returns:
-            ``True`` when the submission is accepted (even if worth zero points) and ``False`` otherwise.
+            bool: True if the submission is accepted (even if worth zero points),
+                  False otherwise.
         """
-
         self._update_state()
         if self.is_game_over():
-            self._last_feedback = SubmissionFeedback(
-                word=move.word,
-                player_id=move.player_id,
-                accepted=False,
-                points=0,
-                reason="Round has already finished.",
-            )
+            self._last_feedback = SubmissionFeedback(word=move.word, player_id=move.player_id, accepted=False, points=0, reason="Round has already finished.")
             return False
         if move.player_id not in self._scores:
-            self._last_feedback = SubmissionFeedback(
-                word=move.word,
-                player_id=move.player_id,
-                accepted=False,
-                points=0,
-                reason="Unknown player.",
-            )
+            self._last_feedback = SubmissionFeedback(word=move.word, player_id=move.player_id, accepted=False, points=0, reason="Unknown player.")
             return False
         normalized = move.word.strip().upper()
         if len(normalized) < 3:
             self._last_feedback = SubmissionFeedback(
-                word=normalized,
-                player_id=move.player_id,
-                accepted=False,
-                points=0,
-                reason="Words must be at least three letters.",
+                word=normalized, player_id=move.player_id, accepted=False, points=0, reason="Words must be at least three letters."
             )
             return False
         if normalized in self._player_words[move.player_id]:
             self._last_feedback = SubmissionFeedback(
-                word=normalized,
-                player_id=move.player_id,
-                accepted=False,
-                points=0,
-                reason="Word already submitted by this player.",
+                word=normalized, player_id=move.player_id, accepted=False, points=0, reason="Word already submitted by this player."
             )
             return False
         if not self._dictionary.contains(normalized):
             self._last_feedback = SubmissionFeedback(
-                word=normalized,
-                player_id=move.player_id,
-                accepted=False,
-                points=0,
-                reason="Word not found in dictionary.",
+                word=normalized, player_id=move.player_id, accepted=False, points=0, reason="Word not found in dictionary."
             )
             return False
         if not self.is_word_in_grid(normalized):
             self._last_feedback = SubmissionFeedback(
-                word=normalized,
-                player_id=move.player_id,
-                accepted=False,
-                points=0,
-                reason="Word cannot be formed on the board.",
+                word=normalized, player_id=move.player_id, accepted=False, points=0, reason="Word cannot be formed on the board."
             )
             return False
+        # If all checks pass, record the word and evaluate its score.
         self._player_words[move.player_id].add(normalized)
         claims = self._word_claims.setdefault(normalized, set())
         claims.add(move.player_id)
         accepted, points, reason = self._evaluate_word(normalized, move.player_id)
-        self._last_feedback = SubmissionFeedback(
-            word=normalized,
-            player_id=move.player_id,
-            accepted=accepted,
-            points=points,
-            reason=reason,
-        )
+        self._last_feedback = SubmissionFeedback(word=normalized, player_id=move.player_id, accepted=accepted, points=points, reason=reason)
         return accepted
 
     def _evaluate_word(self, word: str, player_id: int) -> Tuple[bool, int, Optional[str]]:
-        """Update scores for ``word`` and return feedback information.
+        """Updates scores based on a newly claimed word and returns feedback.
+
+        This method handles the logic for awarding and revoking points when
+        words are claimed by multiple players.
 
         Args:
-            word: Word that has just been claimed.
-            player_id: Player submitting the word.
+            word (str): The word that has just been claimed.
+            player_id (int): The ID of the player submitting the word.
 
         Returns:
-            Tuple where the first item is whether the submission counts, the second is the
-            awarded points, and the third is an optional explanatory message.
+            Tuple[bool, int, Optional[str]]: A tuple containing whether the
+                submission counts, the points awarded, and an optional message.
         """
-
         points = self._score_for_word(word)
         self._word_points.setdefault(word, points)
         claims = self._word_claims[word]
         previous_owner = self._word_owners.get(word)
         if len(claims) == 1:
+            # First player to claim the word gets the points.
             if previous_owner != player_id:
                 if previous_owner is not None:
                     self._scores[previous_owner] -= self._word_points[word]
@@ -327,20 +314,20 @@ class BoggleGame(GameEngine[BoggleMove, int]):
                 self._word_owners[word] = player_id
             return True, self._word_points[word], None
         if previous_owner is not None:
+            # If another player claims a word, the original owner loses the points.
             self._scores[previous_owner] -= self._word_points[word]
             self._word_owners.pop(word, None)
         return True, 0, "Duplicate word - no points awarded."
 
     def _score_for_word(self, word: str) -> int:
-        """Return the official Boggle score for ``word``.
+        """Returns the official Boggle score for a given word based on its length.
 
         Args:
-            word: Word to evaluate.
+            word (str): The word to evaluate.
 
         Returns:
-            Integer number of points granted for the word.
+            int: The number of points the word is worth.
         """
-
         length = len(word)
         if length <= 2:
             return 0
@@ -349,15 +336,14 @@ class BoggleGame(GameEngine[BoggleMove, int]):
         return self.SCORE_TABLE.get(length, 0)
 
     def is_word_in_grid(self, word: str) -> bool:
-        """Determine whether ``word`` can be formed from adjacent tiles.
+        """Determines if a word can be formed from adjacent tiles on the board.
 
         Args:
-            word: Candidate word to search for.
+            word (str): The candidate word to search for.
 
         Returns:
-            True if the word can be constructed on the current board, otherwise False.
+            bool: True if the word can be constructed, False otherwise.
         """
-
         target = word.upper()
         for row in range(self.size):
             for col in range(self.size):
@@ -373,22 +359,21 @@ class BoggleGame(GameEngine[BoggleMove, int]):
         col: int,
         visited: Set[Tuple[int, int]],
     ) -> bool:
-        """Depth-first search helper to determine if the word exists.
+        """A recursive depth-first search to find a word on the board.
 
         Args:
-            word: Word being matched.
-            index: Position within ``word`` currently being checked.
-            row: Row of the tile under consideration.
-            col: Column of the tile under consideration.
-            visited: Coordinates already used in the search path.
+            word (str): The word being matched.
+            index (int): The current position within the word being checked.
+            row (int): The row of the tile under consideration.
+            col (int): The column of the tile under consideration.
+            visited (Set[Tuple[int, int]]): The coordinates already used in the search path.
 
         Returns:
-            True if the path yields the word, otherwise False.
+            bool: True if a valid path for the word is found, False otherwise.
         """
-
         if index >= len(word):
             return True
-        if row < 0 or row >= self.size or col < 0 or col >= self.size:
+        if not (0 <= row < self.size and 0 <= col < self.size):
             return False
         position = (row, col)
         if position in visited:
@@ -396,57 +381,50 @@ class BoggleGame(GameEngine[BoggleMove, int]):
         tile = self._grid[row][col].upper()
         if not word.startswith(tile, index):
             return False
-        updated = set(visited)
-        updated.add(position)
+        updated_visited = set(visited)
+        updated_visited.add(position)
         next_index = index + len(tile)
+        # Explore all 8 neighboring cells.
         for dr in (-1, 0, 1):
             for dc in (-1, 0, 1):
                 if dr == 0 and dc == 0:
                     continue
-                if self._search_from(word, next_index, row + dr, col + dc, updated):
+                if self._search_from(word, next_index, row + dr, col + dc, updated_visited):
                     return True
         return False
 
     def end_game(self) -> None:
-        """Force the round to end immediately."""
-
+        """Forces the round to end immediately."""
         self._state = GameState.FINISHED
         self._end_time = time.monotonic()
 
     def get_winner(self) -> Optional[int]:
-        """Return the index of the winning player or ``None`` for a tie.
+        """Returns the index of the winning player, or None for a tie.
 
         Returns:
-            Index of the winning player or ``None`` when there is a tie/no winner.
+            Optional[int]: The index of the winning player, or None if there is a tie.
         """
-
-        if not self.is_game_over():
-            return None
-        if not self._scores:
+        if not self.is_game_over() or not self._scores:
             return None
         top_score = max(self._scores.values())
         leaders = [player_id for player_id, score in self._scores.items() if score == top_score]
-        if len(leaders) == 1:
-            return leaders[0]
-        return None
+        return leaders[0] if len(leaders) == 1 else None
 
     def get_game_state(self) -> GameState:
-        """Return the current state of the round.
+        """Returns the current state of the game round.
 
         Returns:
-            Game state enumeration describing the round status.
+            GameState: The current status of the round (e.g., IN_PROGRESS, FINISHED).
         """
-
         self._update_state()
         return self._state
 
     def get_state_representation(self) -> dict:
-        """Return a serialisable snapshot of the current game state.
+        """Returns a serializable snapshot of the current game state.
 
         Returns:
-            Dictionary containing the board, scores, word claims, and timer data.
+            dict: A dictionary containing the board, scores, word claims, and timer data.
         """
-
         return {
             "grid": [row.copy() for row in self._grid],
             "scores": self.get_scores(),
@@ -455,105 +433,96 @@ class BoggleGame(GameEngine[BoggleMove, int]):
         }
 
     def get_grid(self) -> List[List[str]]:
-        """Return a copy of the current board.
+        """Returns a copy of the current game board.
 
         Returns:
-            Two-dimensional list representing the grid.
+            List[List[str]]: A 2D list representing the grid.
         """
-
         return [row.copy() for row in self._grid]
 
     def get_score(self) -> int:
-        """Return the combined score across all players.
+        """Returns the combined score across all players.
 
         Returns:
-            Sum of all player scores.
+            int: The sum of all player scores.
         """
-
         return sum(self._scores.values())
 
     def get_scores(self) -> Dict[str, int]:
-        """Return the scoreboard keyed by player name.
+        """Returns the scoreboard, keyed by player name.
 
         Returns:
-            Mapping of player display name to score.
+            Dict[str, int]: A mapping of player display names to their scores.
         """
-
         return {self._players[player_id]: self._scores[player_id] for player_id in range(len(self._players))}
 
     def get_found_words(self) -> Dict[str, Set[str]]:
-        """Return the set of words submitted by each player.
+        """Returns the set of words submitted by each player.
 
         Returns:
-            Mapping of player names to the set of words they entered.
+            Dict[str, Set[str]]: A mapping of player names to the set of words they entered.
         """
-
         return {self._players[player_id]: set(words) for player_id, words in self._player_words.items()}
 
     def get_unique_words(self, player_id: int) -> Set[str]:
-        """Return words uniquely found by the specified player.
+        """Returns the set of words found uniquely by the specified player.
 
         Args:
-            player_id: Index of the player.
+            player_id (int): The index of the player.
 
         Returns:
-            Set of words credited solely to the specified player.
+            Set[str]: A set of words credited solely to the specified player.
         """
-
         return {word for word in self._player_words.get(player_id, set()) if len(self._word_claims.get(word, set())) == 1}
 
     def get_word_claims(self) -> Dict[str, Set[str]]:
-        """Return which players claimed each word.
+        """Returns which players claimed each submitted word.
 
         Returns:
-            Mapping from word to the set of player names who submitted it.
+            Dict[str, Set[str]]: A mapping from each word to the set of player names
+                                 who submitted it.
         """
-
         return {word: {self._players[player_id] for player_id in claimants} for word, claimants in self._word_claims.items()}
 
     def get_remaining_time(self) -> Optional[int]:
-        """Return the number of seconds left in the round.
+        """Returns the number of seconds left in the round.
 
         Returns:
-            Integer seconds remaining or ``None`` if the timer is disabled.
+            Optional[int]: The integer number of seconds remaining, or None if the
+                           timer is disabled.
         """
-
         if self.time_limit <= 0 or self._start_time is None:
             return None
         elapsed = time.monotonic() - self._start_time
-        remaining = max(int(self.time_limit - elapsed), 0)
-        return remaining
+        return max(int(self.time_limit - elapsed), 0)
 
     def get_last_feedback(self) -> Optional[SubmissionFeedback]:
-        """Return feedback for the most recent submission.
+        """Returns feedback for the most recent word submission.
 
         Returns:
-            Submission feedback instance or ``None`` if no submission has been made.
+            Optional[SubmissionFeedback]: A feedback instance, or None if no
+                                          submission has been made yet.
         """
-
         return self._last_feedback
 
     def get_players(self) -> List[str]:
-        """Return a copy of the registered player names.
+        """Returns a copy of the registered player names.
 
         Returns:
-            List of player display names.
+            List[str]: A list of player display names.
         """
-
         return list(self._players)
 
 
 class BoggleCLI:
-    """Interactive command-line interface for Boggle."""
+    """An interactive command-line interface for playing Boggle."""
 
     def __init__(self) -> None:
-        """Initialise the CLI wrapper."""
-
+        """Initializes the CLI wrapper."""
         self.game: Optional[BoggleGame] = None
 
     def run(self) -> None:
-        """Start a Boggle round in the terminal."""
-
+        """Starts a new Boggle round in the terminal."""
         print("Welcome to Boggle!")
         size = self._prompt_int("Enter board size (4 or 5 recommended) [4]: ", default=4)
         time_limit = self._prompt_int("Enter round length in seconds [180]: ", default=180)
@@ -590,16 +559,15 @@ class BoggleCLI:
             self._print_summary()
 
     def _prompt_int(self, prompt: str, *, default: int) -> int:
-        """Prompt the user for an integer with a default fallback.
+        """Prompts the user for an integer, with a default fallback value.
 
         Args:
-            prompt: Message displayed to the player.
-            default: Value returned when the user supplies no or invalid input.
+            prompt (str): The message to display to the player.
+            default (int): The value to return if the user provides no or invalid input.
 
         Returns:
-            Integer entered by the user or the default value.
+            int: The integer entered by the user, or the default value.
         """
-
         try:
             response = input(prompt).strip()
             return int(response) if response else default
@@ -608,12 +576,11 @@ class BoggleCLI:
             return default
 
     def _prompt_players(self) -> List[str]:
-        """Collect player names from stdin.
+        """Collects player names from standard input.
 
         Returns:
-            List of player display names.
+            List[str]: A list of player display names.
         """
-
         count = max(self._prompt_int("Number of players [1]: ", default=1), 1)
         players: List[str] = []
         for index in range(count):
@@ -623,8 +590,7 @@ class BoggleCLI:
         return players
 
     def _print_board(self) -> None:
-        """Display the current board to the terminal."""
-
+        """Displays the current game board to the terminal."""
         if not self.game:
             return
         print("\nYour Boggle Board:")
@@ -634,8 +600,7 @@ class BoggleCLI:
         print("-" * (self.game.size * 4))
 
     def _print_timer(self) -> None:
-        """Display the countdown timer if enabled."""
-
+        """Displays the countdown timer if it is enabled."""
         if not self.game:
             return
         remaining = self.game.get_remaining_time()
@@ -643,15 +608,15 @@ class BoggleCLI:
             print(f"Time remaining: {remaining} seconds")
 
     def _parse_submission(self, entry: str) -> Tuple[Optional[int], str]:
-        """Parse user input into a player index and word.
+        """Parses user input into a player index and a word.
 
         Args:
-            entry: Raw submission string entered by the user.
+            entry (str): The raw submission string entered by the user.
 
         Returns:
-            Tuple of (player index, word). Player index is ``None`` when parsing fails.
+            Tuple[Optional[int], str]: A tuple containing the player index and the word.
+                                       The player index is `None` if parsing fails.
         """
-
         if not self.game:
             return None, ""
         players = self.game.get_players()
@@ -669,8 +634,7 @@ class BoggleCLI:
         return None, ""
 
     def _print_scores(self) -> None:
-        """Print the scoreboard."""
-
+        """Prints the current scoreboard."""
         if not self.game:
             return
         print("Scores:")
@@ -678,8 +642,9 @@ class BoggleCLI:
             print(f"  {player}: {score}")
 
     def _print_summary(self) -> None:
-        """Present round results including duplicates and winners."""
-
+        """Presents the final results of the round, including unique words,
+        duplicates, and the winner.
+        """
         if not self.game:
             return
         print("\nRound complete!")

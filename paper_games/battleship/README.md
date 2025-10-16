@@ -1,272 +1,123 @@
-# Battleship Game
+# Battleship
 
-A feature-rich implementation of the classic Battleship game with multiple gameplay modes and configurations.
+A feature-rich and well-documented implementation of the classic Battleship game, offering multiple gameplay modes, a challenging AI, and two distinct graphical user interfaces (Tkinter and PyQt5).
 
 ## Features
 
 ### Grid Size Options
+Choose between two standard board sizes for different game dynamics:
+- **8x8**: Ideal for faster games and quick matches.
+- **10x10**: The classic, traditional Battleship experience.
 
-Play on different board sizes:
-
-- **8x8**: Faster games, ideal for quick matches
-- **10x10**: Classic Battleship size
-
+**Usage:**
 ```bash
+# For a 10x10 game (default)
+python -m paper_games.battleship
+
+# For an 8x8 game
 python -m paper_games.battleship --size 8
-python -m paper_games.battleship --size 10
 ```
 
 ### Fleet Configurations
+Select from three different fleet compositions to vary the challenge:
+- **Small Fleet (4 ships)**: Perfect for 8x8 boards.
+- **Default Fleet (5 ships)**: The standard Battleship configuration.
+- **Extended Fleet (7 ships)**: A more complex game with additional ships.
 
-Choose from three fleet types:
-
-#### Small Fleet (4 ships)
-
-Perfect for 8x8 boards:
-
-- Battleship (4 cells)
-- Cruiser (3 cells)
-- Submarine (3 cells)
-- Destroyer (2 cells)
-
-#### Default Fleet (5 ships)
-
-Classic Battleship configuration:
-
-- Carrier (5 cells)
-- Battleship (4 cells)
-- Cruiser (3 cells)
-- Submarine (3 cells)
-- Destroyer (2 cells)
-
-#### Extended Fleet (7 ships)
-
-More challenging with additional ships:
-
-- Carrier (5 cells)
-- Battleship (4 cells)
-- Cruiser (3 cells)
-- Submarine (3 cells)
-- Destroyer (2 cells)
-- Patrol Boat (2 cells)
-- Frigate (3 cells)
-
+**Usage:**
 ```bash
 python -m paper_games.battleship --fleet small
-python -m paper_games.battleship --fleet default
-python -m paper_games.battleship --fleet extended
 ```
 
 ### AI Difficulty Levels
+Face off against an AI with three distinct difficulty levels:
+- **Easy**: The AI shoots randomly, offering a more predictable opponent.
+- **Medium**: The AI uses its "hunt and target" strategy 70% of the time.
+- **Hard**: The AI always uses its optimal hunting strategy, making for a challenging opponent.
 
-Three difficulty levels with distinct strategies:
-
-- **Easy**: AI shoots randomly without strategy
-- **Medium**: AI uses hunting strategy 70% of the time
-- **Hard**: AI always uses optimal hunting strategy (targets adjacent cells after hits)
-
+**Usage:**
 ```bash
-python -m paper_games.battleship --difficulty easy
-python -m paper_games.battleship --difficulty medium
 python -m paper_games.battleship --difficulty hard
 ```
 
 ### 2-Player Hot-Seat Mode
+Play against a friend on the same computer in a turn-based "hot-seat" mode. The game prompts players to look away during their opponent's turn to keep ship placements secret.
 
-Play against a friend on the same computer:
-
-- Each player sets up their own fleet
-- Turn-based gameplay with screen hiding
-- No AI opponent
-
+**Usage:**
 ```bash
 python -m paper_games.battleship --two-player
 ```
 
 ### Salvo Mode
+Enable a strategic variant where the number of shots per turn is equal to your number of unsunk ships. As you lose ships, your firepower decreases, adding a new layer of strategy.
 
-A strategic variant where you get multiple shots per turn:
-
-- Number of shots equals your number of unsunk ships
-- As your ships sink, you get fewer shots
-- Adds strategic depth to gameplay
-
+**Usage:**
 ```bash
 python -m paper_games.battleship --salvo
 ```
 
 ### Reproducible Games
+Use a random seed to ensure reproducible ship placements and AI behavior, perfect for testing strategies or replaying interesting scenarios.
 
-Set a random seed for reproducible ship placement and AI behavior:
-
+**Usage:**
 ```bash
 python -m paper_games.battleship --seed 12345
 ```
 
-## Usage Examples
+## Graphical User Interfaces (GUIs)
+This project includes two separate, fully-featured GUIs built with different frameworks: **Tkinter** and **PyQt5**. Both provide an intuitive, visual way to play the game.
 
-### Quick 8x8 Game
+### GUI Features
+- **Interactive Ship Placement**: Visually place your ships with a real-time preview.
+- **Orientation Toggle**: Easily switch between horizontal and vertical placement.
+- **Random Placement**: Automatically place your ships for a quick start.
+- **Dual Board View**: See your fleet and your shots on the enemy's board side-by-side.
+- **Clear Visual Feedback**: Instantly see hits, misses, and sunk ships.
+- **Full Game Mode Support**: All command-line options (size, fleet, difficulty, etc.) are supported.
 
+### Running the GUIs
+
+**Tkinter GUI (Default):**
 ```bash
-python -m paper_games.battleship --size 8 --fleet small --difficulty easy
+# Run with default settings
+python -m paper_games.battleship.gui
+
+# Run with custom options
+python -m paper_games.battleship.gui --size 8 --fleet small --salvo
 ```
 
-### Challenging Solo Game
-
+**PyQt5 GUI:**
 ```bash
-python -m paper_games.battleship --difficulty hard --salvo
-```
+# Run with default settings
+python -m paper_games.battleship.gui_pyqt
 
-### 2-Player Match with Salvo
-
-```bash
-python -m paper_games.battleship --two-player --salvo
-```
-
-### Extended Fleet on Large Board
-
-```bash
-python -m paper_games.battleship --size 10 --fleet extended --difficulty hard
+# Run with custom options
+python -m paper_games.battleship.gui_pyqt --size 8 --fleet small --salvo
 ```
 
 ## Command-Line Options
-
+All game options can be configured via the command line:
 ```
 usage: python -m paper_games.battleship [-h] [--size {8,10}]
                                         [--fleet {small,default,extended}]
                                         [--difficulty {easy,medium,hard}]
                                         [--two-player] [--salvo] [--seed SEED]
 
-Play Battleship with configurable options
-
 options:
   -h, --help            show this help message and exit
-  --size {8,10}         Board size (8x8 or 10x10)
+  --size {8,10}         The size of the game board (8 for 8x8, 10 for 10x10).
   --fleet {small,default,extended}
-                        Fleet configuration
+                        The fleet configuration to use.
   --difficulty {easy,medium,hard}
-                        AI difficulty level
-  --two-player          Enable 2-player hot-seat mode (no AI)
-  --salvo               Enable salvo mode (shots per turn = unsunk ships)
-  --seed SEED           Random seed for reproducible games
+                        The AI difficulty level.
+  --two-player          Enable two-player hot-seat mode.
+  --salvo               Enable salvo mode.
+  --seed SEED           A random seed for reproducible games.
 ```
 
-## Gameplay
-
-### Ship Placement
-
-- Choose manual placement to position each ship
-- Or use automatic random placement for quick setup
-
-### Shooting
-
-- Enter coordinates as "row col" (e.g., "3 5")
-- In salvo mode, you'll make multiple shots per turn
-
-### Winning
-
-- Sink all opponent ships to win
-- In salvo mode, protect your ships to maintain firepower
-
-## API Usage
-
-```python
-from paper_games.battleship import (
-    BattleshipGame,
-    DEFAULT_FLEET,
-    EXTENDED_FLEET,
-    SMALL_FLEET,
-)
-
-# Create a game with custom configuration
-game = BattleshipGame(
-    size=10,
-    fleet=EXTENDED_FLEET,
-    difficulty="hard",
-    salvo_mode=True,
-)
-
-# Setup ships
-game.setup_random()
-
-# Make moves
-result, ship_name = game.player_shoot((3, 5))
-coord, result, ship_name = game.ai_shoot()
-
-# Check win conditions
-if game.opponent_has_lost():
-    print("You win!")
-```
-
-## Testing
-
-Run the test suite:
-
-```bash
-python tests/test_battleship.py
-```
-
-All tests validate:
-
-- Board size configurations
-- Fleet variations
-- AI difficulty behaviors
-- Game mode flags
-- Salvo shot counting
-
-## GUI Mode
-
-The game includes a graphical user interface with interactive ship placement.
-
-### Features
-
-#### Ship Placement Phase
-
-- **Interactive placement**: Click on the board to place ships
-- **Orientation toggle**: Switch between horizontal and vertical with a button
-- **Visual preview**: Green highlight shows valid placement before clicking
-- **Random placement**: "Place Randomly" button for quick setup
-- **Real-time validation**: Invalid placements won't show a preview
-
-#### Gameplay Phase
-
-- **Dual board view**: Your fleet (left) and enemy waters (right)
-- **Visual feedback**:
-  - Gray squares show your ships
-  - Blue circles (○) indicate misses
-  - Red X marks (✗) indicate hits
-- **Status updates**: Clear messages about whose turn and shot results
-- **All game modes supported**: Board sizes, fleets, AI difficulties, 2-player, salvo mode
-
-### Usage
-
-Run the GUI with default settings (10x10 board, default fleet, medium AI):
-
-```bash
-python -m paper_games.battleship.gui
-```
-
-Or with custom options:
-
-```bash
-python -m paper_games.battleship.gui --size 8 --fleet small --difficulty hard --salvo
-```
-
-### From Python Code
-
-```python
-from paper_games.battleship import run_gui
-
-# Run with default settings
-run_gui()
-
-# Run with custom settings
-run_gui(size=8, fleet="small", difficulty="hard", salvo=True)
-```
-
-### Screenshots
-
-The GUI provides an intuitive visual interface with two main screens:
-
-1. **Ship Placement**: Interactive board with ship placement controls (see `../../docs/images/battleship_gui_setup.png`)
-1. **Active Gameplay**: Dual-board view showing your fleet and enemy waters (see `../../docs/images/battleship_gui_game.png`)
+## Module Structure
+The codebase is organized into a set of focused, well-documented modules:
+- `battleship.py`: The core game engine, including game state, ship placement, and AI logic.
+- `cli.py`: The command-line interface for playing the game in a terminal.
+- `gui.py`: The Tkinter-based graphical user interface.
+- `gui_pyqt.py`: The PyQt5-based graphical user interface.
