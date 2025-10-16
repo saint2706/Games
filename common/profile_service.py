@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Dict, List, Optional
 
+from common.leaderboard_service import CrossGameLeaderboardEntry, CrossGameLeaderboardService
 from common.profile import PlayerProfile, get_default_profile_dir, load_or_create_profile
 
 
@@ -126,6 +127,12 @@ class ProfileService:
         available = {path.stem for path in self.profile_dir.glob("*.json")}
         available.add(self._active_profile_id)
         return sorted(available)
+
+    def leaderboard(self, *, sort_by: str = "achievement_points", limit: int = 10) -> List[CrossGameLeaderboardEntry]:
+        """Return the cross-game leaderboard built from all known profiles."""
+
+        service = CrossGameLeaderboardService(self.profile_dir, active_profile=self._active_profile)
+        return service.leaderboard(sort_by=sort_by, limit=limit)
 
     def select_profile(self, player_id: str, display_name: Optional[str] = None) -> PlayerProfile:
         """Load ``player_id`` and mark it as the active profile."""
@@ -258,3 +265,14 @@ def set_profile_service(service: Optional[ProfileService]) -> None:
 
     global _GLOBAL_PROFILE_SERVICE
     _GLOBAL_PROFILE_SERVICE = service
+
+
+def build_cross_game_leaderboard(
+    service: ProfileService,
+    *,
+    sort_by: str = "achievement_points",
+    limit: int = 10,
+) -> List[CrossGameLeaderboardEntry]:
+    """Convenience wrapper mirroring :meth:`ProfileService.leaderboard`."""
+
+    return service.leaderboard(sort_by=sort_by, limit=limit)

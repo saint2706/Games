@@ -177,9 +177,12 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [x] Implement cross-game tutorial system using existing documentation ✅ - `common/tutorial_registry.py` federates tutorials, hints, and probability calculators
 - [x] Add daily challenges with rotation across different games
 - [x] Create game recommendation system based on play history ✅ - `common/recommendation_service.py` blends analytics-driven suggestions
-- [ ] Implement cross-game leaderboard integration
-- [ ] Broaden achievement catalog coverage to more games beyond the initial Tic-Tac-Toe, Hangman, Nim, and daily challenge sets
-- [ ] Surface profile, achievement, and recommendation data inside the launcher UI for easier discovery
+- [x] Implement cross-game leaderboard integration ✅ **NEW** - Launcher now pulls aggregated rankings from the global
+  profile directory via `common/leaderboard_service.py`
+- [x] Broaden achievement catalog coverage to more games beyond the initial Tic-Tac-Toe, Hangman, Nim, and daily challenge
+  sets ✅ **NEW** - Blackjack, Connect Four, Go Fish, Sudoku, and Battleship ship with bespoke unlocks
+- [x] Surface profile, achievement, and recommendation data inside the launcher UI for easier discovery ✅ **NEW** - Launcher
+  header shows achievement totals, community leaderboard highlights, and personalised suggestions
 
 ## 🏗️ Technical Improvements
 
