@@ -1,151 +1,118 @@
-# Architecture Examples
+# Games Collection - Code Examples
 
-This directory contains example scripts demonstrating the architecture components.
+This directory contains a set of Python scripts that demonstrate the various systems, architectural components, and best practices used throughout the Games Collection project. Each script is a self-contained demonstration designed to be run and understood easily.
 
-## Running Examples
+## How to Run Examples
 
-All examples should be run from the repository root with the correct PYTHONPATH:
+All examples should be run from the **root directory** of the repository to ensure that all module imports work correctly.
+
+You can run them using the following command format:
 
 ```bash
-cd /home/runner/work/Games/Games
-PYTHONPATH=/home/runner/work/Games/Games python examples/architecture_demo.py
+# Replace <example_name> with the name of the script you want to run.
+python -m examples.<example_name>
 ```
 
-Or use the Python module approach:
+For example, to run the architecture demonstration:
 
 ```bash
-cd /home/runner/work/Games/Games
 python -m examples.architecture_demo
 ```
 
+---
+
 ## Available Examples
 
-### cli_utils_demo.py
+### 1. Core Architecture & Engine
 
-Comprehensive demonstration of CLI enhancement features:
+These examples demonstrate the fundamental building blocks of the game engine and architecture.
 
-- **ASCII Art** - Banners, boxes, victory/defeat art
-- **Rich Text** - Headers, status messages, highlighting
-- **Progress Indicators** - Progress bars and spinners
-- **Interactive Menus** - Arrow key navigation with fallback
-- **Command History** - History navigation and autocomplete
-- **Themes** - Predefined and custom color schemes
+- **`simple_game_example.py`**
+  - **Purpose**: Shows the most basic implementation of a game by inheriting from the `GameEngine` abstract base class.
+  - **Features**:
+    - A simple `NumberGuessingGame` class.
+    - Integration of `RandomStrategy` and `HeuristicStrategy` for AI players.
+    - A clear, minimal example of the core game loop.
 
-Run with:
+- **`architecture_demo.py`**
+  - **Purpose**: A comprehensive showcase of all interconnected architectural components working together.
+  - **Features**:
+    - **Plugin System**: Dynamically discovers and loads a game plugin.
+    - **Event System**: Logs events as they are published by the game engine.
+    - **Observer Pattern**: Notifies observers of game state changes.
+    - **Settings, Save/Load, and Replay**: Demonstrates state persistence, configuration, and action recording/undo.
 
-```bash
-python examples/cli_utils_demo.py
-```
+### 2. Command-Line Interface (CLI)
 
-### cli_enhanced_game.py
+These examples focus on the tools available for building rich and interactive CLI applications.
 
-Complete working game using all CLI utilities - a number guessing game with:
+- **`cli_utils_demo.py`**
+  - **Purpose**: A gallery of all available CLI enhancement features.
+  - **Features**:
+    - `ASCIIArt`: Banners, boxes, and status art.
+    - `RichText`: Colored and styled text.
+    - `ProgressBar` and `Spinner`: For indicating progress.
+    - `InteractiveMenu`: For keyboard-navigable menus.
+    - `CommandHistory` and `THEMES`.
 
-- Interactive menu system
-- Difficulty selection
-- Progress bars and spinners
-- Command history and autocomplete
-- Themed UI elements
-- Status messages and ASCII art
+- **`cli_enhanced_game.py`**
+  - **Purpose**: A fully-functional Number Guessing Game that uses all the `cli_utils` to create a polished user experience.
+  - **Features**:
+    - An interactive main menu and difficulty selection.
+    - Themed UI elements and status messages.
+    - Loading animations and user input with autocomplete hints.
 
-Run with:
+### 3. Graphical User Interface (GUI)
 
-```bash
-python examples/cli_enhanced_game.py
-```
+This example demonstrates the features available for building graphical interfaces with `tkinter`.
 
-### architecture_demo.py
+- **`gui_enhancements_demo.py`**
+  - **Purpose**: An interactive demo of all GUI enhancement features in a single window.
+  - **Features**:
+    - **Theming**: Switch between light, dark, and high-contrast modes in real-time.
+    - **Animations**: Simple visual feedback on button clicks.
+    - **Accessibility**: Controls for high-contrast mode and enhanced focus indicators.
+    - **Internationalization (i18n)**: A dropdown to change the application's language.
+    - **Keyboard Shortcuts**: A help system (F1) to display available shortcuts.
 
-A comprehensive demonstration of all architecture components:
+### 4. Analytics and Player Data
 
-1. **Plugin System** - Loading and managing plugins
-1. **Game Engine** - Creating game instances
-1. **Event System** - Event-driven architecture
-1. **Observer Pattern** - State change notifications
-1. **Settings System** - Configuration management
-1. **Replay System** - Action recording
-1. **Save/Load System** - Game state persistence
-1. **Replay Analysis** - Reviewing recorded actions
-1. **Undo System** - Undoing/redoing actions
-1. **Event History** - Analyzing event patterns
+These examples show how to instrument games to collect, analyze, and display data.
 
-The demo uses the example number guessing game plugin to demonstrate all features in action.
+- **`analytics_demo.py`**
+  - **Purpose**: Demonstrates each component of the analytics system individually.
+  - **Features**:
+    - `GameStatistics`: Tracking wins, losses, and game durations.
+    - `PerformanceMetrics`: Monitoring player decision times.
+    - `EloRating`: Managing a competitive player rating system.
+    - `Heatmap`, `Dashboard`, and `ReplayAnalyzer`.
 
-### gui_enhancements_demo.py
+- **`tic_tac_toe_with_analytics.py`**
+  - **Purpose**: A practical example of integrating the analytics system into a complete game (`TicTacToe`).
+  - **Features**:
+    - Records game outcomes, player decisions, and ELO ratings after each match.
+    - Loads and persists analytics data across sessions.
+    - Displays a summary dashboard and a move-frequency heatmap.
 
-An interactive demonstration of all GUI enhancement features:
+### 5. Educational Features
 
-1. **Theme System** - Switch between light, dark, and high contrast themes
-1. **Animation Framework** - Visual effects and transitions
-1. **Accessibility Features** - High contrast mode, focus indicators
-1. **Internationalization** - Multi-language support
-1. **Keyboard Shortcuts** - Complete shortcut system with F1 help
+This example showcases the tools designed to help players learn and improve.
 
-To run:
+- **`educational_demo.py`**
+  - **Purpose**: A tour of the educational components available in the collection.
+  - **Features**:
+    - **Tutorial Modes**: Step-by-step guides for games like Poker and Blackjack.
+    - **Probability Calculators**: Tools to analyze odds (e.g., pot odds, bust probability).
+    - **Game Theory Explainer**: Definitions and examples of core AI concepts.
+    - **Strategy Tips** and **Challenge Packs**.
 
-```bash
-python examples/gui_enhancements_demo.py
-```
+---
 
-Features demonstrated:
+## Creating Your Own Example
 
-- Real-time theme switching with color updates
-- Animated button highlights
-- Accessibility toggles (high contrast, focus indicators)
-- Language selection (shows available translations)
-- Keyboard shortcuts (F1 for help, Ctrl+T/L for themes, Esc to quit)
+To add a new example:
 
-### Expected Output
-
-When you run the demo, you'll see:
-
-- Plugin discovery and loading
-- Event notifications as game progresses
-- State change observations
-- Settings loading and usage
-- Game being played with 4 guesses
-- Save/load operations
-- Replay analysis showing all actions
-- Undo/redo functionality
-- Event statistics
-
-## Creating Your Own Examples
-
-To create a new example:
-
-1. Create a Python file in this directory
-1. Import the architecture components you need
-1. Use the example_plugin or create your own test plugin
-1. Make the file executable: `chmod +x your_example.py`
-1. Add documentation to this README
-
-Example template:
-
-```python
-#!/usr/bin/env python
-"""Your example description."""
-
-from pathlib import Path
-from common.architecture import PluginManager
-
-def main():
-    # Your example code here
-    pass
-
-if __name__ == "__main__":
-    main()
-```
-
-## Tips
-
-- Always run examples from the repository root
-- Use `PYTHONPATH` to ensure imports work correctly
-- Check the plugin system is working with `discover_plugins()`
-- Use temporary directories for save/settings to avoid cluttering the repo
-- Add descriptive output so others can follow what's happening
-
-## Further Reading
-
-- See `ARCHITECTURE.md` for detailed component documentation
-- Check `plugins/README.md` for plugin development guide
-- Review `tests/test_architecture.py` for usage patterns
+1.  Create a new Python file in this directory (e.g., `your_example.py`).
+2.  Follow the structure of the existing examples, including a docstring explaining the purpose of the script.
+3.  Ensure the script can be run from the root directory.
+4.  Update this `README.md` file to include a description of your new example.
