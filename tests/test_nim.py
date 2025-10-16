@@ -1,3 +1,5 @@
+"""Tests for the Nim game AI and logic."""
+
 import itertools
 import pathlib
 import sys

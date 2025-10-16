@@ -1,3 +1,5 @@
+"""Tests for the GUI test script."""
+
 from __future__ import annotations
 
 import importlib.machinery

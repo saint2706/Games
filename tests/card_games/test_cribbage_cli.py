@@ -1,4 +1,4 @@
-"""Regression tests for the Cribbage CLI helpers and AI heuristics."""
+"""Tests for the Cribbage game CLI and AI."""
 
 from __future__ import annotations
 

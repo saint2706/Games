@@ -1,4 +1,4 @@
-"""Unit tests for the double-deck Pinochle engine."""
+"""Tests for the Pinochle game logic."""
 
 from __future__ import annotations
 

@@ -1,3 +1,5 @@
+"""Tests for Nim game enhancements and variants."""
+
 import pathlib
 import sys
 

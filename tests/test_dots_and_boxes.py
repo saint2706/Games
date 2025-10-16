@@ -1,3 +1,5 @@
+"""Tests for the Dots and Boxes game logic and AI."""
+
 import pathlib
 import random
 import sys

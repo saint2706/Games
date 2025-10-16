@@ -1,3 +1,5 @@
+"""Tests for the profile service, which manages player profiles."""
+
 from __future__ import annotations
 
 from datetime import date
