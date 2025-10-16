@@ -1,3 +1,5 @@
+"""Tests for the Tic-Tac-Toe game, including variants and features."""
+
 import pathlib
 import sys
 import tempfile

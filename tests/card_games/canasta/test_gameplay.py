@@ -1,3 +1,5 @@
+"""Tests for the Canasta game logic."""
+
 from __future__ import annotations
 
 from card_games.canasta.game import CanastaGame, CanastaPlayer, DrawSource, JokerCard, is_wild, minimum_meld_points, validate_meld

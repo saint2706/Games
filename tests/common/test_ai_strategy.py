@@ -1,6 +1,6 @@
-from __future__ import annotations
+"""Tests for AI strategy components."""
 
-"""Tests for the heuristic AI strategy caching helpers."""
+from __future__ import annotations
 
 from typing import Dict, Tuple
 
