@@ -1,10 +1,13 @@
-"""Liar's Dice implementation.
+"""Liar's Dice Game Package.
 
-Bluffing dice game where players bid on dice combinations
+This package contains all modules related to the Liar's Dice game, including
+the game engine and command-line interface.
+
+Modules:
+    liars_dice: Core game logic and bluffing engine.
+    cli: Command-line entry point for playing Liar's Dice.
 """
 
-from __future__ import annotations
+from .liars_dice import LiarsDiceGame
 
 __all__ = ["LiarsDiceGame"]
-
-from .liars_dice import LiarsDiceGame

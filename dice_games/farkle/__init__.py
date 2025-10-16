@@ -1,13 +1,13 @@
-"""Farkle dice game implementation.
+"""Farkle Game Package.
 
-Farkle is a risk-based scoring game where players roll dice and can choose
-to stop and bank their points or continue rolling to accumulate more points,
-with the risk of "farkling" (getting no scoring dice) and losing all points
-for that turn.
+This package contains all modules related to the Farkle dice game, including the
+game engine and command-line interface.
+
+Modules:
+    farkle: Core game logic and scoring engine.
+    cli: Command-line entry point for playing Farkle.
 """
 
-from __future__ import annotations
+from .farkle import FarkleGame
 
 __all__ = ["FarkleGame"]
-
-from .farkle import FarkleGame

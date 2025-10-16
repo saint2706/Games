@@ -1,10 +1,13 @@
-"""Craps casino dice game implementation.
+"""Craps Game Package.
 
-Casino dice game with pass/don't pass betting and various side bets.
+This package contains all modules related to the Craps dice game, including the
+game engine and command-line interface.
+
+Modules:
+    craps: Core game logic and betting engine.
+    cli: Command-line entry point for playing Craps.
 """
 
-from __future__ import annotations
+from .craps import CrapsGame
 
 __all__ = ["CrapsGame"]
-
-from .craps import CrapsGame
