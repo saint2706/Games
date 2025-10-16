@@ -23,7 +23,7 @@ availability.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Iterable, Optional
 
 # Attempt to import pygame, but treat it as an optional dependency.
 # This allows the game to run without sound if pygame is not installed.
@@ -52,7 +52,14 @@ class SoundManager:
         volume: The master volume level for all sounds, from 0.0 to 1.0.
     """
 
-    def __init__(self, sounds_dir: Optional[str] = None, *, enabled: bool = True, volume: float = 1.0) -> None:
+    def __init__(
+        self,
+        sounds_dir: Optional[str] = None,
+        *,
+        enabled: bool = True,
+        volume: float = 1.0,
+        preload: bool = False,
+    ) -> None:
         """Initialize the sound manager.
 
         Args:
@@ -62,37 +69,85 @@ class SoundManager:
                      initialization.
             volume: The initial master volume level, from 0.0 (muted) to 1.0
                     (full volume).
+            preload: Whether to eagerly load discovered sound files. If False,
+                     sounds are loaded lazily upon first playback request.
         """
         self.sounds_dir = Path(sounds_dir) if sounds_dir else None
         self.sounds: Dict[str, "pygame.mixer.Sound"] = {}
+        self._sound_paths: Dict[str, Path] = {}
         self.enabled = enabled and PYGAME_AVAILABLE
         self._volume = max(0.0, min(1.0, volume))
+        self._initialized = False
 
-        # Initialize the pygame mixer if it's available and enabled
+        if self.sounds_dir and self.sounds_dir.exists():
+            self._sound_paths = self._discover_sound_files()
+
         if PYGAME_AVAILABLE and self.enabled and self.sounds_dir:
-            try:
-                pygame.mixer.init()
-                if self.sounds_dir.exists():
-                    self._load_sounds()
-            except Exception as e:
-                # If initialization fails, disable sound and log a warning
-                print(f"Warning: Could not initialize pygame mixer: {e}")
-                self.enabled = False
+            self._initialize_mixer()
+            if preload:
+                self._load_sounds()
 
-    def _load_sounds(self) -> None:
-        """Load all supported sound files from the specified sounds directory."""
-        if not self.sounds_dir or not self.sounds_dir.exists():
+    def _initialize_mixer(self) -> None:
+        """Initialize the pygame mixer when available."""
+        if self._initialized or not PYGAME_AVAILABLE or not self.enabled:
             return
 
-        # Load all .wav and .mp3 files from the directory
+        try:
+            pygame.mixer.init()
+            self._initialized = True
+        except Exception as exc:  # pragma: no cover - depends on pygame setup
+            print(f"Warning: Could not initialize pygame mixer: {exc}")
+            self.enabled = False
+
+    def _ensure_initialized(self) -> bool:
+        """Ensure the pygame mixer is ready for use."""
+        if not PYGAME_AVAILABLE or not self.enabled:
+            return False
+
+        if not self._initialized:
+            self._initialize_mixer()
+
+        return self._initialized
+
+    def _discover_sound_files(self) -> Dict[str, Path]:
+        """Discover sound files within the configured directory."""
+        if not self.sounds_dir:
+            return {}
+
+        sound_paths: Dict[str, Path] = {}
         for extension in ("*.wav", "*.mp3"):
             for filepath in self.sounds_dir.glob(extension):
-                sound_type = filepath.stem
-                try:
-                    self.sounds[sound_type] = pygame.mixer.Sound(str(filepath))
-                except Exception as e:
-                    # Log a warning if a specific sound file fails to load
-                    print(f"Warning: Could not load {filepath.name}: {e}")
+                sound_paths[filepath.stem] = filepath
+
+        return sound_paths
+
+    def _load_sounds(self, sound_types: Optional[Iterable[str]] = None) -> None:
+        """Load sound files from the specified sounds directory."""
+        if not self.sounds_dir or not self.sounds_dir.exists() or not self._ensure_initialized():
+            return
+
+        to_load = sound_types if sound_types is not None else self._sound_paths.keys()
+
+        for sound_type in to_load:
+            if sound_type in self.sounds:
+                continue
+
+            filepath = self._sound_paths.get(sound_type)
+            if not filepath:
+                continue
+
+            try:
+                self.sounds[sound_type] = pygame.mixer.Sound(str(filepath))
+            except Exception as exc:
+                # Log a warning if a specific sound file fails to load
+                print(f"Warning: Could not load {filepath.name}: {exc}")
+
+    def _ensure_sound_loaded(self, sound_type: str) -> None:
+        """Load a sound on demand when it is requested for playback."""
+        if sound_type in self.sounds:
+            return
+
+        self._load_sounds([sound_type])
 
     def add_sound(self, sound_type: str, filepath: str) -> bool:
         """Add a specific sound file to the manager.
@@ -104,14 +159,17 @@ class SoundManager:
         Returns:
             True if the sound was loaded successfully, False otherwise.
         """
-        if not self.is_available():
+        path = Path(filepath)
+        self._sound_paths[sound_type] = path
+
+        if not self.is_available() or not self._ensure_initialized():
             return False
 
         try:
-            self.sounds[sound_type] = pygame.mixer.Sound(filepath)
+            self.sounds[sound_type] = pygame.mixer.Sound(str(path))
             return True
-        except Exception as e:
-            print(f"Warning: Could not load sound file {filepath}: {e}")
+        except Exception as exc:
+            print(f"Warning: Could not load sound file {filepath}: {exc}")
             return False
 
     def play(self, sound_type: str, volume: Optional[float] = None) -> bool:
@@ -126,7 +184,12 @@ class SoundManager:
         Returns:
             True if the sound was played successfully, False otherwise.
         """
-        if not self.is_available() or sound_type not in self.sounds:
+        if not self.is_available():
+            return False
+
+        self._ensure_sound_loaded(sound_type)
+
+        if sound_type not in self.sounds:
             return False
 
         try:
@@ -211,8 +274,18 @@ class SoundManager:
         """
         return list(self.sounds.keys())
 
+    def available_sounds(self) -> list[str]:
+        """Get a list of all discovered sound identifiers."""
+        return sorted(set(self._sound_paths.keys()) | set(self.sounds.keys()))
 
-def create_sound_manager(sounds_dir: Optional[str] = None, enabled: bool = True, volume: float = 1.0) -> Optional[SoundManager]:
+
+def create_sound_manager(
+    sounds_dir: Optional[str] = None,
+    enabled: bool = True,
+    volume: float = 1.0,
+    *,
+    preload: bool = False,
+) -> Optional[SoundManager]:
     """A factory function to create a `SoundManager` instance.
 
     This is the recommended way to create a sound manager, as it handles the
@@ -222,6 +295,7 @@ def create_sound_manager(sounds_dir: Optional[str] = None, enabled: bool = True,
         sounds_dir: An optional directory path for the sound files.
         enabled: A flag to enable or disable sound effects.
         volume: The initial master volume level, from 0.0 to 1.0.
+        preload: Whether to eagerly load discovered sound files.
 
     Returns:
         A `SoundManager` instance if `pygame` is available, otherwise `None`.
@@ -229,4 +303,4 @@ def create_sound_manager(sounds_dir: Optional[str] = None, enabled: bool = True,
     if not PYGAME_AVAILABLE:
         return None
 
-    return SoundManager(sounds_dir, enabled=enabled, volume=volume)
+    return SoundManager(sounds_dir, enabled=enabled, volume=volume, preload=preload)

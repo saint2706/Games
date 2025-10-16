@@ -6,7 +6,11 @@ internationalization, and keyboard shortcuts.
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
+
+import common.sound_manager as sound_manager
 
 # Test theme system
 from common.themes import ThemeColors, ThemeConfig, ThemeManager, get_theme_manager
@@ -125,6 +129,54 @@ class TestSoundManager:
         manager = SoundManager(sounds_dir=None, enabled=False)
         sounds = manager.list_sounds()
         assert isinstance(sounds, list)
+
+    def test_sound_manager_lazy_loading(self, tmp_path, monkeypatch):
+        """Ensure sounds from directories are loaded lazily on demand."""
+        loaded: list[str] = []
+        played: list[str] = []
+
+        class DummySound:
+            """Simple dummy sound to capture load and play events."""
+
+            def __init__(self, filepath: str) -> None:
+                loaded.append(filepath)
+                self.filepath = filepath
+                self.volume = 1.0
+
+            def set_volume(self, volume: float) -> None:
+                self.volume = volume
+
+            def play(self) -> None:
+                played.append(self.filepath)
+
+            def stop(self) -> None:
+                played.append(f"stop:{self.filepath}")
+
+        mixer_state = {"initialized": False}
+
+        def dummy_init() -> None:
+            mixer_state["initialized"] = True
+
+        dummy_mixer = SimpleNamespace(init=dummy_init, stop=lambda: None, Sound=DummySound)
+        dummy_pygame = SimpleNamespace(mixer=dummy_mixer)
+
+        monkeypatch.setattr(sound_manager, "pygame", dummy_pygame, raising=False)
+        monkeypatch.setattr(sound_manager, "PYGAME_AVAILABLE", True, raising=False)
+
+        sounds_dir = tmp_path / "sounds"
+        sounds_dir.mkdir()
+        sound_file = sounds_dir / "click.wav"
+        sound_file.write_bytes(b"fake")
+
+        manager = SoundManager(str(sounds_dir), enabled=True)
+        assert manager.available_sounds() == ["click"]
+        assert manager.list_sounds() == []
+
+        assert manager.play("click") is True
+        assert mixer_state["initialized"] is True
+        assert loaded == [str(sound_file)]
+        assert played == [str(sound_file)]
+        assert manager.list_sounds() == ["click"]
 
     def test_create_sound_manager_factory(self):
         """Test sound manager factory function."""
