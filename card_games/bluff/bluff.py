@@ -1255,18 +1255,9 @@ def run_cli(argv: Optional[Sequence[str]] = None) -> None:
             )
         return
 
-    game = BluffGame(
-        difficulty,
-        rounds=args.rounds,
-        rng=rng,
-        record_replay=args.record_replay,
-        seed=args.seed,
-        deck_type=deck_type,
-        team_play=args.team_play,
-    )
-
+    # TODO: Implement CLI game logic
     print("Welcome to Bluff!")
-    # ... (rest of the CLI logic remains the same)
+    print("CLI interface not yet implemented. Please use --gui mode.")
 
 
 def _prompt_card_index(hand_size: int) -> int:

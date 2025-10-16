@@ -68,9 +68,17 @@ def validate_base_gui() -> tuple[bool, list[str]]:
         messages.append("✓ GUIConfig defaults correct")
 
     required_methods = [
-        "__init__", "build_layout", "update_display", "create_header",
-        "create_status_label", "create_log_widget", "log_message", "clear_log",
-        "apply_theme", "set_theme", "play_sound",
+        "__init__",
+        "build_layout",
+        "update_display",
+        "create_header",
+        "create_status_label",
+        "create_log_widget",
+        "log_message",
+        "clear_log",
+        "apply_theme",
+        "set_theme",
+        "play_sound",
     ]
     success, msg = check_class_attributes(BaseGUI, required_methods)
     messages.append(msg)
@@ -93,8 +101,15 @@ def validate_dots_and_boxes() -> tuple[bool, list[str]]:
     from paper_games.dots_and_boxes.gui_pyqt import BoardCanvas, DotsAndBoxesGUI
 
     required_attrs_gui = [
-        "__init__", "_build_layout", "_update_chain_info", "_make_move",
-        "_computer_turn", "_update_status", "_game_over", "_show_hint", "_new_game",
+        "__init__",
+        "_build_layout",
+        "_update_chain_info",
+        "_make_move",
+        "_computer_turn",
+        "_update_status",
+        "_game_over",
+        "_show_hint",
+        "_new_game",
     ]
     success, msg = check_class_attributes(DotsAndBoxesGUI, required_attrs_gui)
     messages.append(msg)
@@ -102,8 +117,12 @@ def validate_dots_and_boxes() -> tuple[bool, list[str]]:
         all_passed = False
 
     required_attrs_canvas = [
-        "__init__", "paintEvent", "mousePressEvent", "mouseMoveEvent",
-        "leaveEvent", "_get_edge_from_position",
+        "__init__",
+        "paintEvent",
+        "mousePressEvent",
+        "mouseMoveEvent",
+        "leaveEvent",
+        "_get_edge_from_position",
     ]
     success, msg = check_class_attributes(BoardCanvas, required_attrs_canvas)
     messages.append(msg)
@@ -119,6 +138,7 @@ def validate_tests() -> tuple[bool, list[str]]:
     messages = []
 
     import pathlib
+
     test_file = pathlib.Path(__file__).parent.parent / "tests" / "test_gui_pyqt.py"
     if not test_file.exists():
         messages.append("✗ Test file not found")
@@ -126,12 +146,14 @@ def validate_tests() -> tuple[bool, list[str]]:
     messages.append("✓ Test file exists")
 
     import sys
+
     tests_dir = test_file.parent
     if str(tests_dir) not in sys.path:
         sys.path.insert(0, str(tests_dir))
 
     try:
         import test_gui_pyqt
+
         if not test_gui_pyqt.PYQT5_AVAILABLE:
             messages.append("✗ PyQt5 not available in tests")
             return False, messages
@@ -155,10 +177,7 @@ def main() -> int:
         "Test Suite": validate_tests,
     }
 
-    all_passed = all(
-        _validate_and_print(title, validation_fn)
-        for title, validation_fn in validations.items()
-    )
+    all_passed = all(_validate_and_print(title, validation_fn) for title, validation_fn in validations.items())
 
     print("\n" + "=" * 70)
     if all_passed:

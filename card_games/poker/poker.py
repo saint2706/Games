@@ -17,13 +17,11 @@ from __future__ import annotations
 
 import argparse
 import itertools
-import json
 import random
 from dataclasses import dataclass, field
-from datetime import datetime
 from enum import Enum
-from pathlib import Path
-from typing import Iterable, Sequence
+from itertools import combinations
+from typing import Iterable, Optional, Sequence
 
 from ..common.cards import Card, Deck, format_cards
 from .poker_core import HandRank, best_hand

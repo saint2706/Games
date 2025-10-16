@@ -9,8 +9,7 @@ from __future__ import annotations
 from itertools import combinations
 from typing import Sequence
 
-from card_games.common.cards import RANK_TO_VALUE, Card, Deck
-from card_games.cribbage.ai import choose_pegging_card, select_discards
+from card_games.common.cards import Card, Deck
 from card_games.cribbage.game import CribbageGame, GamePhase
 
 
