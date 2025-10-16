@@ -203,7 +203,7 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 
 - [ ] Profile and optimize AI decision-making algorithms
 - [x] Implement caching for expensive computations
-- [ ] Add lazy loading for resources
+- [x] Add lazy loading for resources ✅ **NEW**
 - [ ] Optimize GUI rendering and update cycles
 - [ ] Implement parallel processing for Monte Carlo simulations
 
