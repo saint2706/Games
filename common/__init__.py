@@ -14,6 +14,18 @@ This package provides shared functionality including:
 - MCP configuration loading and validation
 """
 
+from .ai_enhancements import (
+    AITrainingExample,
+    AITrainingSession,
+    AIDifficultyLevel,
+    DifficultyAdjuster,
+    NeuralNetworkStrategy,
+    NeuralNetworkTrainingExample,
+    PersonalityProfile,
+    ReinforcementLearningAgent,
+    ReinforcementLearningConfig,
+    TrainableEnvironment,
+)
 from .ai_strategy import AIStrategy, HeuristicStrategy, MinimaxStrategy, RandomStrategy
 from .architecture.engine import GameEngine, GamePhase, GameState
 from .architecture.events import Event, EventBus, EventHandler, FunctionEventHandler, GameEventType, get_global_event_bus, set_global_event_bus
@@ -76,6 +88,16 @@ __all__ = [
     "RandomStrategy",
     "MinimaxStrategy",
     "HeuristicStrategy",
+    "ReinforcementLearningAgent",
+    "ReinforcementLearningConfig",
+    "NeuralNetworkStrategy",
+    "AITrainingSession",
+    "AITrainingExample",
+    "NeuralNetworkTrainingExample",
+    "DifficultyAdjuster",
+    "AIDifficultyLevel",
+    "PersonalityProfile",
+    "TrainableEnvironment",
     # Event system
     "Event",
     "EventBus",
