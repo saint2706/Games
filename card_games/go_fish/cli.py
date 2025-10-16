@@ -1,18 +1,21 @@
-"""Command-line interface for the Go Fish card game."""
+"""Command-line interface for the Go Fish card game with autosave support."""
 
 from __future__ import annotations
 
+from pathlib import Path
+from typing import Optional
+
 from card_games.common.cards import RANKS
 from card_games.go_fish.game import GoFishGame, Player
+from common.architecture.persistence import SaveLoadManager
+
+_AUTOSAVE_NAME = "go_fish_autosave"
+_AUTOSAVE_PATH = Path("./saves") / f"{_AUTOSAVE_NAME}.save"
 
 
 def display_game(game: GoFishGame, show_all_hands: bool = False) -> None:
-    """Display the current game state.
+    """Display the current game state."""
 
-    Args:
-        game: The Go Fish game instance
-        show_all_hands: If True, show all players' hands (for debugging)
-    """
     summary = game.get_state_summary()
     print("\n" + "=" * 70)
     print(f"GO FISH - {summary['current_player']}'s Turn")
@@ -29,7 +32,6 @@ def display_game(game: GoFishGame, show_all_hands: bool = False) -> None:
 
     print("=" * 70)
 
-    # Show current player's hand
     current_player = game.get_current_player()
     print(f"\n{current_player.name}'s hand:")
     display_hand(current_player)
@@ -42,23 +44,16 @@ def display_game(game: GoFishGame, show_all_hands: bool = False) -> None:
 
 
 def display_hand(player: Player) -> None:
-    """Display a player's hand organized by rank.
+    """Display a player's hand organized by rank."""
 
-    Args:
-        player: The player whose hand to display
-    """
     if not player.hand:
         print("  (no cards)")
         return
 
-    # Group cards by rank
     rank_groups: dict[str, list[str]] = {}
     for card in player.hand:
-        if card.rank not in rank_groups:
-            rank_groups[card.rank] = []
-        rank_groups[card.rank].append(str(card))
+        rank_groups.setdefault(card.rank, []).append(str(card))
 
-    # Display in rank order
     for rank in RANKS:
         if rank in rank_groups:
             cards_str = ", ".join(rank_groups[rank])
@@ -67,14 +62,8 @@ def display_hand(player: Player) -> None:
 
 
 def get_player_input(game: GoFishGame) -> tuple[str, str]:
-    """Get player input for their turn.
+    """Get player input for their turn."""
 
-    Args:
-        game: The Go Fish game instance
-
-    Returns:
-        Tuple of (target_player_name, rank)
-    """
     current_player = game.get_current_player()
     other_players = [p for p in game.players if p != current_player]
 
@@ -85,48 +74,48 @@ def get_player_input(game: GoFishGame) -> tuple[str, str]:
     while True:
         try:
             player_input = input("\nWho do you want to ask? (number or name): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nInput cancelled. Try again.")
+            continue
 
-            # Try to parse as number
-            target_player = None
-            try:
-                idx = int(player_input) - 1
-                if 0 <= idx < len(other_players):
-                    target_player = other_players[idx]
-            except ValueError:
-                # Try as name
-                target_player = game.get_player_by_name(player_input)
-                if target_player == current_player:
-                    target_player = None
+        target_player = None
+        try:
+            idx = int(player_input) - 1
+            if 0 <= idx < len(other_players):
+                target_player = other_players[idx]
+        except ValueError:
+            target_player = game.get_player_by_name(player_input)
+            if target_player == current_player:
+                target_player = None
 
-            if target_player is None:
-                print("Invalid player. Try again.")
-                continue
+        if target_player is None:
+            print("Invalid player. Try again.")
+            continue
 
-            # Get rank
-            rank_input = input(f"What rank do you want to ask {target_player.name} for? ").strip().upper()
-            if rank_input == "10":
-                rank_input = "T"
+        rank_input = input(f"What rank do you want to ask {target_player.name} for? ").strip().upper()
+        if rank_input == "10":
+            rank_input = "T"
 
-            if rank_input not in RANKS:
-                print(f"Invalid rank. Valid ranks: {', '.join(RANKS)}")
-                continue
+        if rank_input not in RANKS:
+            print(f"Invalid rank. Valid ranks: {', '.join(RANKS)}")
+            continue
 
-            if not current_player.has_rank(rank_input):
-                print(f"You don't have any {rank_input}s! You must ask for a rank you have.")
-                continue
+        if not current_player.has_rank(rank_input):
+            print(f"You don't have any {rank_input}s! You must ask for a rank you have.")
+            continue
 
-            return target_player.name, rank_input
-
-        except (ValueError, KeyboardInterrupt):
-            print("\nInvalid input. Try again.")
+        return target_player.name, rank_input
 
 
 def game_loop(game: GoFishGame) -> None:
-    """Main game loop for Go Fish.
+    """Main game loop for Go Fish with autosave integration."""
 
-    Args:
-        game: The Go Fish game instance
-    """
+    save_manager = SaveLoadManager()
+    resumed_game = _load_autosave(save_manager)
+    if resumed_game is not None:
+        game = resumed_game
+        print("\nResumed saved Go Fish match.")
+
     print("\n" + "=" * 70)
     print("WELCOME TO GO FISH!")
     print("=" * 70)
@@ -149,20 +138,19 @@ def game_loop(game: GoFishGame) -> None:
         current_player = game.get_current_player()
         print(f"\n{current_player.name}'s turn!")
 
-        # Get player action
         target_name, rank = get_player_input(game)
-
-        # Execute action
         result = game.ask_for_cards(target_name, rank)
 
         print(f"\n{result['message']}")
+
+        if result.get("success"):
+            _save_autosave(save_manager, game, metadata={"last_action": result["message"], "next_turn": result["next_turn"]})
 
         if result.get("game_over"):
             break
 
         input("\nPress Enter to continue...")
 
-    # Game over - show final results
     summary = game.get_state_summary()
     print("\n" + "=" * 70)
     print("GAME OVER!")
@@ -175,3 +163,54 @@ def game_loop(game: GoFishGame) -> None:
     winner_info = max(summary["players"], key=lambda p: p["books"])
     print(f"\n🎉 {winner_info['name']} wins with {winner_info['books']} books!")
     print("=" * 70)
+
+    _clear_autosave(save_manager)
+
+
+def _load_autosave(save_manager: SaveLoadManager) -> Optional[GoFishGame]:
+    """Load an autosaved game if available and approved by the player."""
+
+    if not _AUTOSAVE_PATH.exists():
+        return None
+
+    try:
+        choice = input("Found a saved Go Fish match. Resume? [y/N]: ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        choice = ""
+
+    if not choice.startswith("y"):
+        save_manager.delete_save(_AUTOSAVE_PATH)
+        return None
+
+    try:
+        data = save_manager.load(_AUTOSAVE_PATH)
+    except FileNotFoundError:
+        return None
+
+    state = data.get("state", {})
+    if not state:
+        return None
+
+    return GoFishGame.from_state(state)
+
+
+def _save_autosave(save_manager: SaveLoadManager, game: GoFishGame, *, metadata: Optional[dict[str, str]] = None) -> None:
+    """Persist the current game state to the autosave slot."""
+
+    summary = game.get_state_summary()
+    autosave_metadata = {
+        "current_player": summary["current_player"],
+        "deck_cards": str(summary["deck_cards"]),
+        "last_action": summary["last_action"],
+    }
+    if metadata:
+        autosave_metadata.update(metadata)
+
+    save_manager.save("go_fish", game.to_state(), save_name=_AUTOSAVE_NAME, metadata=autosave_metadata)
+
+
+def _clear_autosave(save_manager: SaveLoadManager) -> None:
+    """Remove the autosave file once a match completes."""
+
+    if _AUTOSAVE_PATH.exists():
+        save_manager.delete_save(_AUTOSAVE_PATH)

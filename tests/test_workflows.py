@@ -338,9 +338,7 @@ def test_workflows_define_concurrency():
         concurrency = workflow["concurrency"]
         assert isinstance(concurrency, dict), f"{workflow_file.name} concurrency must be a mapping"
         assert concurrency.get("group"), f"{workflow_file.name} concurrency must define a group"
-        assert (
-            concurrency.get("cancel-in-progress") is True
-        ), f"{workflow_file.name} should cancel in-progress runs"
+        assert concurrency.get("cancel-in-progress") is True, f"{workflow_file.name} should cancel in-progress runs"
 
 
 def test_publish_pypi_has_bump_and_release_job():

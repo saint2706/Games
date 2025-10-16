@@ -148,12 +148,14 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [x] Add enhanced GUI features (themes, sounds, animations) to all card games via `common/gui_base_pyqt.py`, shared themes, and soundscapes
 - [x] **Implement save/load functionality in games** ✅ - War game now supports save/load using `SaveLoadManager`
 - [x] **Add replay/undo functionality to strategy games** ✅ - Tic-tac-toe now supports undo using `ReplayManager`
-- [ ] Apply event-driven architecture to remaining games for better state management
+- [x] Apply event-driven architecture to more games ✅ **NEW** - Go Fish and Connect Four now emit structured
+  `GameEventType` payloads for lifecycle, turn, and scoring updates, aligning with the shared event bus patterns
 - [x] **Integrate CLI enhancements into games** ✅ - Hangman now uses `InteractiveMenu`, `ASCIIArt`, `RichText`
 - [x] **Universal statistics system for card games** ✅ **NEW** - `card_games/common/stats.py` wrapper created and
   integrated into War game
 
-- [ ] Expand save/load integration beyond War so additional card and board games persist matches by default
+- [x] Expand save/load integration beyond War so additional card and board games persist matches by default ✅ **NEW** -
+  Go Fish and Connect Four include autosave/resume flows backed by `SaveLoadManager`
 
 **See `ENHANCEMENTS_APPLIED.md` for detailed documentation of implemented features.**
 
