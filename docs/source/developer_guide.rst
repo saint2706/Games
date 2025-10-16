@@ -22,7 +22,7 @@ Code style checklist
 --------------------
 
 * **Python version** – Target Python 3.9+.
-* **Formatting** – Run ``black`` with a 160-character line limit::
+* **Formatting** – Run ``black`` with a 160-character line limit, as configured in ``pyproject.toml``::
 
        black .
 
@@ -44,13 +44,11 @@ Code style checklist
 Testing
 -------
 
-Pytest drives the automated test suite. Run all tests with coverage enabled::
+Pytest drives the automated test suite. Run all tests with::
 
-    pytest --cov=card_games --cov=paper_games --cov=dice_games \
-           --cov=logic_games --cov=word_games
+    pytest
 
-The ``tests`` directory mirrors the package structure and contains fixtures for
-common setups. Add regression tests whenever you introduce new behaviour or fix
+The ``tests`` directory is configured as the default `testpaths` in `pyproject.toml`, so the command is simple. Add regression tests whenever you introduce new behaviour or fix
 bugs.
 
 Documentation workflow
