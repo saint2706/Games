@@ -1,7 +1,17 @@
 """Minesweeper game engine implementation.
 
-This module implements the core logic for the classic Minesweeper game,
-including board generation, mine placement, and reveal mechanics.
+This module provides the core logic for the classic Minesweeper game. It
+includes functionality for board generation, mine placement, cell state
+management, and the rules for revealing cells and winning the game.
+
+The `MinesweeperGame` class is the main entry point, offering a complete,
+framework-agnostic implementation of the game's mechanics. It supports
+both standard difficulty levels and custom board configurations.
+
+Classes:
+    CellState: An enumeration of the possible states for a cell.
+    Difficulty: An enumeration of standard game difficulty levels.
+    MinesweeperGame: The main game engine for Minesweeper.
 """
 
 from __future__ import annotations
@@ -14,7 +24,7 @@ from common.game_engine import GameEngine, GameState
 
 
 class CellState(Enum):
-    """State of a minesweeper cell."""
+    """An enumeration of the possible states for a single Minesweeper cell."""
 
     HIDDEN = "hidden"
     REVEALED = "revealed"
@@ -25,8 +35,11 @@ class CellState(Enum):
     EMPTY = "empty"
 
     def render(self) -> str:
-        """Return a printable token suitable for textual boards."""
+        """Return a printable character token suitable for textual boards.
 
+        Returns:
+            A single character representation of the cell state.
+        """
         return {
             CellState.UNKNOWN: "?",
             CellState.FILLED: "█",
@@ -35,35 +48,41 @@ class CellState(Enum):
 
 
 class Difficulty(Enum):
-    """Minesweeper difficulty levels."""
+    """An enumeration of the standard Minesweeper difficulty levels.
 
-    BEGINNER = (9, 9, 10)  # 9x9, 10 mines
-    INTERMEDIATE = (16, 16, 40)  # 16x16, 40 mines
-    EXPERT = (16, 30, 99)  # 16x30, 99 mines
+    Each difficulty level defines the board dimensions (rows and columns) and
+    the number of mines.
+    """
+
+    BEGINNER = (9, 9, 10)
+    INTERMEDIATE = (16, 16, 40)
+    EXPERT = (16, 30, 99)
 
     @property
     def rows(self) -> int:
-        """Get number of rows."""
+        """Return the number of rows for this difficulty."""
         return self.value[0]
 
     @property
     def cols(self) -> int:
-        """Get number of columns."""
+        """Return the number of columns for this difficulty."""
         return self.value[1]
 
     @property
     def mines(self) -> int:
-        """Get number of mines."""
+        """Return the number of mines for this difficulty."""
         return self.value[2]
 
 
 class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
-    """Minesweeper game engine.
+    """The game engine for the classic Minesweeper puzzle.
 
-    Classic mine detection game. Players reveal cells, using numbered hints
-    to deduce mine locations. Game is won by revealing all non-mine cells.
+    This class encapsulates the complete logic for a game of Minesweeper,
+    including board setup, player moves, and win/loss conditions. It is
+    designed to be independent of any specific user interface.
 
-    Move format: (row, col, action) where action is 'reveal' or 'flag'
+    The move format is a tuple of (row, col, action), where the action
+    can be 'reveal', 'flag', 'question', 'unflag', or 'chord'.
     """
 
     def __init__(
@@ -74,15 +93,18 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         custom_cols: Optional[int] = None,
         custom_mines: Optional[int] = None,
     ) -> None:
-        """Initialize Minesweeper game.
+        """Initialize the Minesweeper game.
 
         Args:
-            difficulty: Game difficulty level used when no custom dimensions are provided.
-            custom_rows: Optional number of rows for custom boards.
-            custom_cols: Optional number of columns for custom boards.
-            custom_mines: Optional mine count for custom boards.
-        """
+            difficulty: The difficulty level to use if no custom dimensions
+                are provided.
+            custom_rows: The number of rows for a custom board.
+            custom_cols: The number of columns for a custom board.
+            custom_mines: The number of mines for a custom board.
 
+        Raises:
+            ValueError: If custom dimensions are partially specified or invalid.
+        """
         if any(value is not None for value in (custom_rows, custom_cols, custom_mines)):
             if custom_rows is None or custom_cols is None or custom_mines is None:
                 raise ValueError("Custom rows, cols and mines must all be provided together.")
@@ -102,11 +124,11 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         self.reset()
 
     def reset(self) -> None:
-        """Reset the game to initial state."""
+        """Reset the game to its initial state with a new board."""
         self.state = GameState.NOT_STARTED
-        self.board: List[List[bool]] = []  # True = mine
+        self.board: List[List[bool]] = []  # True if a cell contains a mine.
         self.cell_states: List[List[CellState]] = []
-        self.numbers: List[List[int]] = []  # Adjacent mine counts
+        self.numbers: List[List[int]] = []  # Number of adjacent mines.
         self.revealed_count = 0
         self.flagged_positions: Set[Tuple[int, int]] = set()
         self.game_won = False
@@ -114,14 +136,21 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         self._initialize_board()
 
     def _initialize_board(self) -> None:
-        """Initialize empty board."""
+        """Initialize the board with empty cells."""
         self.board = [[False] * self.cols for _ in range(self.rows)]
         self.cell_states = [[CellState.HIDDEN] * self.cols for _ in range(self.rows)]
         self.numbers = [[0] * self.cols for _ in range(self.rows)]
 
     def _adjacent_positions(self, row: int, col: int) -> List[Tuple[int, int]]:
-        """Get valid adjacent positions for a cell."""
+        """Return a list of valid adjacent positions for a given cell.
 
+        Args:
+            row: The row of the cell.
+            col: The column of the cell.
+
+        Returns:
+            A list of (row, col) tuples for all valid neighbors.
+        """
         neighbors: List[Tuple[int, int]] = []
         for dr in [-1, 0, 1]:
             for dc in [-1, 0, 1]:
@@ -133,39 +162,39 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         return neighbors
 
     def _place_mines(self, first_row: int, first_col: int) -> None:
-        """Place mines on board, avoiding first click.
+        """Place mines on the board, ensuring the first click is safe.
 
         Args:
-            first_row: Row of first click
-            first_col: Column of first click
+            first_row: The row of the player's first click.
+            first_col: The column of the player's first click.
         """
-        # Get all positions except first click and neighbors
+        # Exclude the first-clicked cell and its neighbors from mine placement.
         forbidden = {(first_row, first_col)}
         for nr, nc in self._adjacent_positions(first_row, first_col):
             forbidden.add((nr, nc))
 
         available = [(r, c) for r in range(self.rows) for c in range(self.cols) if (r, c) not in forbidden]
 
-        # Place mines randomly
+        # Place mines randomly in the available positions.
         mine_positions = random.sample(available, min(self.num_mines, len(available)))
         for row, col in mine_positions:
             self.board[row][col] = True
 
-        # Calculate numbers
+        # Calculate the number of adjacent mines for each cell.
         for row in range(self.rows):
             for col in range(self.cols):
                 if not self.board[row][col]:
                     self.numbers[row][col] = self._count_adjacent_mines(row, col)
 
     def _count_adjacent_mines(self, row: int, col: int) -> int:
-        """Count mines adjacent to a cell.
+        """Count the number of mines adjacent to a given cell.
 
         Args:
-            row: Row index
-            col: Column index
+            row: The row of the cell.
+            col: The column of the cell.
 
         Returns:
-            Number of adjacent mines
+            The number of adjacent mines.
         """
         count = 0
         for nr, nc in self._adjacent_positions(row, col):
@@ -174,21 +203,18 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         return count
 
     def _count_adjacent_flags(self, row: int, col: int) -> int:
-        """Count flagged cells adjacent to the given position."""
-
+        """Count the number of flagged cells adjacent to a given position."""
         return sum(1 for nr, nc in self._adjacent_positions(row, col) if self.cell_states[nr][nc] == CellState.FLAGGED)
 
     def _reveal_all_mines(self) -> None:
-        """Reveal all mines after a loss and mark game state."""
-
+        """Reveal all mine locations, typically after a loss."""
         for row in range(self.rows):
             for col in range(self.cols):
                 if self.board[row][col]:
                     self.cell_states[row][col] = CellState.REVEALED
 
     def _reveal_remaining_safe_cells(self) -> None:
-        """Reveal all safe cells, typically when the game is won."""
-
+        """Reveal all remaining safe cells, typically when the game is won."""
         for row in range(self.rows):
             for col in range(self.cols):
                 if not self.board[row][col] and self.cell_states[row][col] != CellState.REVEALED:
@@ -196,8 +222,18 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
                     self.revealed_count += 1
 
     def _chord_cell(self, row: int, col: int) -> bool:
-        """Reveal surrounding cells when the number of adjacent flags matches the cell number."""
+        """Reveal surrounding cells if the number of adjacent flags matches the cell's number.
 
+        This action, known as "chording," is a common feature in many
+        Minesweeper implementations that speeds up gameplay.
+
+        Args:
+            row: The row of the cell to chord.
+            col: The column of the cell to chord.
+
+        Returns:
+            True if the chord action was successful, False otherwise.
+        """
         if self.cell_states[row][col] != CellState.REVEALED:
             return False
 
@@ -231,18 +267,18 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         return success
 
     def is_game_over(self) -> bool:
-        """Check if game is over."""
+        """Return True if the game is over (won or lost), False otherwise."""
         return self.game_won or self.game_lost
 
     def get_current_player(self) -> int:
-        """Get current player (always 0 for single-player)."""
+        """Return the current player. In this single-player game, it is always 0."""
         return 0
 
     def get_valid_moves(self) -> List[Tuple[int, int, str]]:
-        """Get all valid moves.
+        """Return a list of all valid moves for the current game state.
 
         Returns:
-            List of (row, col, action) tuples
+            A list of (row, col, action) tuples representing all valid moves.
         """
         moves: List[Tuple[int, int, str]] = []
         for row in range(self.rows):
@@ -264,21 +300,21 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         return moves
 
     def make_move(self, move: Tuple[int, int, str]) -> bool:
-        """Execute a move.
+        """Execute a player's move and update the game state.
 
         Args:
-            move: Tuple of (row, col, action)
+            move: A tuple of (row, col, action) representing the move.
 
         Returns:
-            True if move was valid
+            True if the move was valid and applied, False otherwise.
         """
         row, col, action = move
 
-        # Validate position
+        # Validate the move coordinates.
         if not (0 <= row < self.rows and 0 <= col < self.cols):
             return False
 
-        # First move: place mines
+        # Place mines on the first move.
         if self.state == GameState.NOT_STARTED:
             self.state = GameState.IN_PROGRESS
             self._place_mines(row, col)
@@ -289,7 +325,7 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
             if cell_state == CellState.FLAGGED:
                 return False
 
-            # Hit a mine - game over
+            # If the player hits a mine, the game is over.
             if self.board[row][col]:
                 self.cell_states[row][col] = CellState.REVEALED
                 self.game_lost = True
@@ -297,10 +333,10 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
                 self._reveal_all_mines()
                 return True
 
-            # Reveal cell and cascade if needed
+            # Reveal the cell and cascade if it has no adjacent mines.
             self._reveal_cell(row, col)
 
-            # Check for win
+            # Check for a win condition.
             total_cells = self.rows * self.cols
             if self.revealed_count == total_cells - self.num_mines:
                 self.game_won = True
@@ -346,11 +382,11 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         return False
 
     def _reveal_cell(self, row: int, col: int) -> None:
-        """Reveal a cell and cascade if it's a zero.
+        """Recursively reveal a cell and its neighbors if it's a zero.
 
         Args:
-            row: Row index
-            col: Column index
+            row: The row of the cell to reveal.
+            col: The column of the cell to reveal.
         """
         if self.cell_states[row][col] in {CellState.REVEALED, CellState.FLAGGED}:
             return
@@ -358,34 +394,38 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
         self.cell_states[row][col] = CellState.REVEALED
         self.revealed_count += 1
 
-        # Cascade reveal if cell has no adjacent mines
+        # If the cell has no adjacent mines, cascade the reveal.
         if self.numbers[row][col] == 0:
             for nr, nc in self._adjacent_positions(row, col):
                 self._reveal_cell(nr, nc)
 
     def get_winner(self) -> int | None:
-        """Get winner if game is over."""
+        """Return the winner of the game.
+
+        Returns:
+            0 if the game is won, otherwise None.
+        """
         if self.game_won:
             return 0
         return None
 
     def get_game_state(self) -> GameState:
-        """Get current game state.
+        """Return the current state of the game.
 
         Returns:
-            Current state of the game
+            The current `GameState` enum member.
         """
         return self.state
 
     def get_cell_display(self, row: int, col: int) -> str:
-        """Get display string for a cell.
+        """Return the display character for a given cell.
 
         Args:
-            row: Row index
-            col: Column index
+            row: The row of the cell.
+            col: The column of the cell.
 
         Returns:
-            String representation of the cell
+            A string representing the cell for display in a text-based UI.
         """
         state = self.cell_states[row][col]
 
@@ -393,13 +433,13 @@ class MinesweeperGame(GameEngine[Tuple[int, int, str], int]):
             return "·"
         elif state == CellState.FLAGGED:
             if self.game_lost and not self.board[row][col]:
-                return "✗"
+                return "✗"  # Incorrectly flagged mine
             return "F"
         elif state == CellState.QUESTION:
             return "?"
         elif state == CellState.REVEALED:
             if self.board[row][col]:
-                return "*"  # Mine
+                return "*"  # A revealed mine
             num = self.numbers[row][col]
             return str(num) if num > 0 else " "
         return "?"

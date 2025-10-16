@@ -1,4 +1,19 @@
-"""Registration helpers wiring logic games into the progression service."""
+"""Registration helpers for wiring logic games into the progression service.
+
+This module is responsible for creating and registering the default logic
+puzzle definitions with the `LogicPuzzleService`. It defines a series of
+factory functions, one for each game type, that are responsible for
+instantiating the corresponding game engine with the correct parameters.
+
+The `register_default_logic_games` function serves as the main entry point,
+constructing the `LogicPuzzleDefinition` for each game, complete with its
+level packs and difficulty settings. This function is called automatically
+when the `logic_games` package is imported, ensuring that the games are
+available for use in any application front-end.
+
+Functions:
+    register_default_logic_games: Registers all default logic puzzles.
+"""
 
 from __future__ import annotations
 
@@ -13,10 +28,23 @@ from .progression import LOGIC_PUZZLE_SERVICE, LevelPack, LogicPuzzleDefinition,
 from .sliding_puzzle import SlidingPuzzleGame
 from .sokoban import SokobanGame
 
+# A flag to ensure that the registration process runs only once.
 _REGISTERED = False
 
 
 def _minesweeper_factory(params: Dict[str, Any]) -> MinesweeperGame:
+    """Factory function to create a `MinesweeperGame` instance.
+
+    This function supports both standard difficulty levels and custom
+    board configurations.
+
+    Args:
+        params: A dictionary of parameters, which can include 'difficulty'
+                or 'rows', 'cols', and 'mines' for custom games.
+
+    Returns:
+        An initialized `MinesweeperGame` instance.
+    """
     difficulty_key = params.get("difficulty", "beginner").upper()
     rows = params.get("rows")
     cols = params.get("cols")
@@ -28,6 +56,17 @@ def _minesweeper_factory(params: Dict[str, Any]) -> MinesweeperGame:
 
 
 def _picross_factory(params: Dict[str, Any]) -> PicrossGame:
+    """Factory function to create a `PicrossGame` instance.
+
+    Generates a random solution grid based on the given size and density.
+
+    Args:
+        params: A dictionary of parameters, including 'size', 'density',
+                and an optional 'seed' for the random number generator.
+
+    Returns:
+        An initialized `PicrossGame` instance.
+    """
     size = int(params.get("size", 10))
     density = float(params.get("density", 0.45))
     seed = params.get("seed")
@@ -36,24 +75,55 @@ def _picross_factory(params: Dict[str, Any]) -> PicrossGame:
     for _ in range(size):
         row = [1 if rng.random() < density else 0 for _ in range(size)]
         solution.append(row)
+    # Ensure the puzzle is not empty.
     if not any(any(cell for cell in row) for row in solution):
         solution[0][0] = 1
     return PicrossGame(solution=solution)
 
 
 def _sliding_factory(params: Dict[str, Any]) -> SlidingPuzzleGame:
+    """Factory function to create a `SlidingPuzzleGame` instance.
+
+    Args:
+        params: A dictionary of parameters, including 'size' and the
+                number of 'shuffle_moves'.
+
+    Returns:
+        An initialized `SlidingPuzzleGame` instance.
+    """
     size = int(params.get("size", 4))
     shuffle_moves = int(params.get("shuffle_moves", size * size * 12))
     return SlidingPuzzleGame(size=size, shuffle_moves=shuffle_moves)
 
 
 def _lights_out_factory(params: Dict[str, Any]) -> LightsOutGame:
+    """Factory function to create a `LightsOutGame` instance.
+
+    Args:
+        params: A dictionary of parameters, including 'size' and the
+                number of 'scramble_moves'.
+
+    Returns:
+        An initialized `LightsOutGame` instance.
+    """
     size = int(params.get("size", 5))
     scramble = int(params.get("scramble_moves", size**2))
     return LightsOutGame(size=size, scramble_moves=scramble)
 
 
 def _sokoban_factory(params: Dict[str, Any]) -> SokobanGame:
+    """Factory function to create a `SokobanGame` instance.
+
+    This function supports both pre-defined levels by index and custom
+    level layouts.
+
+    Args:
+        params: A dictionary of parameters, which can include 'level_index'
+                or a 'custom_level' layout.
+
+    Returns:
+        An initialized `SokobanGame` instance.
+    """
     level_index = int(params.get("level_index", 0))
     custom_level = params.get("custom_level")
     if custom_level:
@@ -63,12 +133,17 @@ def _sokoban_factory(params: Dict[str, Any]) -> SokobanGame:
 
 
 def register_default_logic_games() -> None:
-    """Register default logic game definitions with the global service."""
+    """Register the default logic game definitions with the global service.
 
+    This function defines the progression structure for each game, including
+    level packs and difficulty tiers. It ensures that this registration
+    process only occurs once.
+    """
     global _REGISTERED
     if _REGISTERED:
         return
 
+    # Register the Minesweeper game with its level packs.
     LOGIC_PUZZLE_SERVICE.register_puzzle(
         LogicPuzzleDefinition(
             game_key="logic_games.minesweeper",
@@ -121,6 +196,7 @@ def register_default_logic_games() -> None:
         )
     )
 
+    # Register the Picross game with its level packs.
     LOGIC_PUZZLE_SERVICE.register_puzzle(
         LogicPuzzleDefinition(
             game_key="logic_games.picross",
@@ -165,6 +241,7 @@ def register_default_logic_games() -> None:
         )
     )
 
+    # Register the Sliding Puzzle game with its level packs.
     LOGIC_PUZZLE_SERVICE.register_puzzle(
         LogicPuzzleDefinition(
             game_key="logic_games.sliding_puzzle",
@@ -203,6 +280,7 @@ def register_default_logic_games() -> None:
         )
     )
 
+    # Register the Lights Out game with its level packs.
     LOGIC_PUZZLE_SERVICE.register_puzzle(
         LogicPuzzleDefinition(
             game_key="logic_games.lights_out",
@@ -233,6 +311,7 @@ def register_default_logic_games() -> None:
         )
     )
 
+    # Register the Sokoban game with its level packs.
     LOGIC_PUZZLE_SERVICE.register_puzzle(
         LogicPuzzleDefinition(
             game_key="logic_games.sokoban",
@@ -274,6 +353,7 @@ def register_default_logic_games() -> None:
     _REGISTERED = True
 
 
+# Automatically register the default games when the module is imported.
 register_default_logic_games()
 
 

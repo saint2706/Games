@@ -1,4 +1,22 @@
-"""Graphical interfaces for the logic games progression hub."""
+"""Graphical user interfaces for the logic games progression hub.
+
+This module provides two GUI implementations for interacting with the logic
+puzzle progression system: one based on Tkinter and another on PyQt5. Both
+GUIs offer a consistent user experience, allowing players to select a game
+and difficulty, start and complete puzzles, request hints, and view their
+progress.
+
+The `_LogicGameGUIController` class encapsulates the business logic, making
+it easy to share functionality between the different GUI frameworks. This
+controller interfaces with the `LogicPuzzleService` to manage game state,
+progression, and analytics.
+
+Classes:
+    _SessionState: A simple data class to hold the runtime state of the GUI.
+    _LogicGameGUIController: A mixin providing the core logic for the GUIs.
+    LogicGamesTkinterGUI: A Tkinter-based GUI for the logic games hub.
+    LogicGamesPyQtGUI: A PyQt5-based GUI for the logic games hub.
+"""
 
 from __future__ import annotations
 
@@ -30,7 +48,13 @@ if PYQT5_AVAILABLE:  # pragma: no cover - exercised in integration environments
 
 @dataclass(slots=True)
 class _SessionState:
-    """Runtime state shared by the GUI implementations."""
+    """A data class for holding the runtime state shared by GUI implementations.
+
+    Attributes:
+        active_game: The key of the currently selected game.
+        active_difficulty: The key of the currently selected difficulty.
+        session_start: The timestamp when the current puzzle session started.
+    """
 
     active_game: Optional[str] = None
     active_difficulty: Optional[str] = None
@@ -38,9 +62,25 @@ class _SessionState:
 
 
 class _LogicGameGUIController:
-    """Utility mixin providing business logic for GUI front-ends."""
+    """A utility mixin that provides business logic for the GUI front-ends.
+
+    This controller manages the interaction between the user interface and the
+    `LogicPuzzleService`. It handles game selection, progression tracking,
+    puzzle lifecycle management, and hint requests.
+
+    Attributes:
+        service: An instance of `LogicPuzzleService` for game logic.
+        player_id: The identifier for the current player.
+        state: An instance of `_SessionState` to maintain the GUI's state.
+    """
 
     def __init__(self, service: LogicPuzzleService, player_id: str) -> None:
+        """Initialize the GUI controller.
+
+        Args:
+            service: The `LogicPuzzleService` instance to use.
+            player_id: The ID of the player.
+        """
         self.service = service
         self.player_id = player_id
         self.state = _SessionState()
@@ -53,24 +93,33 @@ class _LogicGameGUIController:
     # Progress helpers
     # ------------------------------------------------------------------
     def available_games(self) -> List[str]:
+        """Return a list of keys for all registered games."""
         return self.service.registered_games()
 
     def set_active_game(self, game_key: str) -> None:
+        """Set the currently active game and update the available difficulties.
+
+        Args:
+            game_key: The key of the game to set as active.
+        """
         self.state.active_game = game_key
         available = self.available_difficulties()
         self.state.active_difficulty = available[0].key if available else None
 
     def available_difficulties(self) -> List[PuzzleDifficulty]:
+        """Return a list of available difficulties for the active game."""
         if not self.state.active_game:
             return []
         return self.service.get_available_difficulties(self.state.active_game, self.player_id)
 
     def completion_summary(self) -> Dict[str, int]:
+        """Return a summary of puzzle completions for the current player."""
         if not self.state.active_game:
             return {}
         return self.service.completion_summary(self.state.active_game, self.player_id)
 
     def upcoming_unlock(self) -> Optional[str]:
+        """Return the key of the next difficulty to be unlocked, if any."""
         if not self.state.active_game:
             return None
         definition = self.service.get_definition(self.state.active_game)
@@ -78,6 +127,7 @@ class _LogicGameGUIController:
         return self.service.get_next_locked_difficulty(definition, progress)
 
     def leaderboard_text(self) -> str:
+        """Generate a formatted string for the leaderboard of the active game."""
         if not self.state.active_game:
             return _("Select a puzzle to view the leaderboard.")
         leaderboard = self.service.leaderboard(self.state.active_game, limit=5)
@@ -92,6 +142,11 @@ class _LogicGameGUIController:
     # Gameplay lifecycle helpers
     # ------------------------------------------------------------------
     def start_new_puzzle(self) -> str:
+        """Start a new puzzle and return a status message.
+
+        Returns:
+            A message indicating the result of the action.
+        """
         if not self.state.active_game or not self.state.active_difficulty:
             return _("Please select a puzzle and difficulty to begin.")
         engine = self.service.generate_puzzle(self.state.active_game, self.state.active_difficulty)
@@ -108,6 +163,11 @@ class _LogicGameGUIController:
         )
 
     def complete_puzzle(self) -> str:
+        """Record the completion of the current puzzle.
+
+        Returns:
+            A message indicating the result of the action.
+        """
         if not self.state.active_game or not self.state.active_difficulty:
             return _("No puzzle is currently active.")
         if self.state.session_start is None:
@@ -135,6 +195,11 @@ class _LogicGameGUIController:
         )
 
     def request_hint(self) -> str:
+        """Request a hint for the current puzzle.
+
+        Returns:
+            A hint string or a message indicating that no hint is available.
+        """
         if not self.state.active_game or not self.state.active_difficulty:
             return _("Select a puzzle before requesting hints.")
         hint = self.service.get_hint(self.state.active_game, self.state.active_difficulty)
@@ -144,7 +209,12 @@ class _LogicGameGUIController:
 
 
 class LogicGamesTkinterGUI(TkBaseGUI, _LogicGameGUIController):
-    """Tkinter GUI showcasing progression and hints for logic puzzles."""
+    """A Tkinter-based GUI for the logic puzzle progression hub.
+
+    This class provides a graphical interface for playing logic games,
+    tracking progress, and receiving hints, all built with the Tkinter
+    toolkit.
+    """
 
     def __init__(
         self,
@@ -154,6 +224,14 @@ class LogicGamesTkinterGUI(TkBaseGUI, _LogicGameGUIController):
         service: LogicPuzzleService = LOGIC_PUZZLE_SERVICE,
         player_id: str = "solo",
     ) -> None:
+        """Initialize the Tkinter GUI.
+
+        Args:
+            root: The root Tkinter window. If None, a new one is created.
+            config: The GUI configuration object.
+            service: The `LogicPuzzleService` instance to use.
+            player_id: The ID of the player.
+        """
         if not TKINTER_AVAILABLE:  # pragma: no cover - defensive guard
             raise RuntimeError("Tkinter is not available in this environment.")
         root = root or tk.Tk()
@@ -164,9 +242,11 @@ class LogicGamesTkinterGUI(TkBaseGUI, _LogicGameGUIController):
         self.update_display()
 
     def build_layout(self) -> None:  # pragma: no cover - layout tested via update_display
+        """Build the main layout of the GUI."""
         self._build_layout()
 
     def _build_layout(self) -> None:
+        """Construct the individual widgets of the GUI."""
         self.root.configure(padx=12, pady=12)
         self.main_frame = tk.Frame(self.root, bg=self.current_theme.colors.background)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
@@ -208,10 +288,12 @@ class LogicGamesTkinterGUI(TkBaseGUI, _LogicGameGUIController):
         self.log_widget.pack(fill=tk.BOTH, expand=True)
 
     def _on_game_changed(self) -> None:
+        """Handle the event when the selected game is changed."""
         self.set_active_game(self.game_var.get())
         self.update_display()
 
     def _handle_start(self) -> None:
+        """Handle the 'Start Puzzle' button click."""
         if not self.difficulty_var.get() and self.available_difficulties():
             first = next(iter(self._difficulty_display_map), "")
             self.difficulty_var.set(first)
@@ -223,15 +305,18 @@ class LogicGamesTkinterGUI(TkBaseGUI, _LogicGameGUIController):
         self.update_display()
 
     def _handle_complete(self) -> None:
+        """Handle the 'Complete' button click."""
         message = self.complete_puzzle()
         self.log_message(self.log_widget, message)
         self.update_display()
 
     def _handle_hint(self) -> None:
+        """Handle the 'Hint' button click."""
         message = self.request_hint()
         self.log_message(self.log_widget, message)
 
     def update_display(self) -> None:
+        """Update the GUI elements to reflect the current state."""
         games = self.available_games()
         self.game_menu["values"] = games
         if self.state.active_game not in games and games:
@@ -268,7 +353,12 @@ class LogicGamesTkinterGUI(TkBaseGUI, _LogicGameGUIController):
 
 
 class LogicGamesPyQtGUI(QtBaseGUI, _LogicGameGUIController):
-    """PyQt5 GUI companion for the logic puzzle progression system."""
+    """A PyQt5-based GUI for the logic puzzle progression system.
+
+    This class provides a graphical interface for playing logic games,
+    tracking progress, and receiving hints, all built with the PyQt5
+    framework.
+    """
 
     def __init__(
         self,
@@ -278,6 +368,14 @@ class LogicGamesPyQtGUI(QtBaseGUI, _LogicGameGUIController):
         service: LogicPuzzleService = LOGIC_PUZZLE_SERVICE,
         player_id: str = "solo",
     ) -> None:
+        """Initialize the PyQt5 GUI.
+
+        Args:
+            root: The root QWidget. If None, a new one is created.
+            config: The GUI configuration object.
+            service: The `LogicPuzzleService` instance to use.
+            player_id: The ID of the player.
+        """
         if not PYQT5_AVAILABLE:  # pragma: no cover - defensive guard
             raise RuntimeError("PyQt5 is not available in this environment.")
         root = root or QWidget()
@@ -287,9 +385,11 @@ class LogicGamesPyQtGUI(QtBaseGUI, _LogicGameGUIController):
         self.update_display()
 
     def build_layout(self) -> None:  # pragma: no cover - layout handled in _build_layout
+        """Build the main layout of the GUI."""
         self._build_layout()
 
     def _build_layout(self) -> None:
+        """Construct the individual widgets of the GUI."""
         layout = QVBoxLayout()
         header = self.create_header(self.root, _("Logic Puzzle Hub"))
         layout.addWidget(header)
@@ -330,10 +430,12 @@ class LogicGamesPyQtGUI(QtBaseGUI, _LogicGameGUIController):
         self.root.setLayout(layout)
 
     def _on_game_changed(self, value: str) -> None:
+        """Handle the event when the selected game is changed."""
         self.set_active_game(value)
         self.update_display()
 
     def _handle_start(self) -> None:
+        """Handle the 'Start Puzzle' button click."""
         if self.difficulty_combo.count() and not self.state.active_difficulty:
             self.state.active_difficulty = self.difficulty_combo.itemData(0)
         selected_index = self.difficulty_combo.currentIndex()
@@ -344,15 +446,18 @@ class LogicGamesPyQtGUI(QtBaseGUI, _LogicGameGUIController):
         self.update_display()
 
     def _handle_complete(self) -> None:
+        """Handle the 'Complete' button click."""
         message = self.complete_puzzle()
         self.log_widget.append(message)
         self.update_display()
 
     def _handle_hint(self) -> None:
+        """Handle the 'Hint' button click."""
         message = self.request_hint()
         self.log_widget.append(message)
 
     def update_display(self) -> None:
+        """Update the GUI elements to reflect the current state."""
         games = self.available_games()
         self.game_combo.clear()
         self.game_combo.addItems(games)
