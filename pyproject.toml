@@ -19,7 +19,7 @@ exclude = [
 
 [project]
 name = "games-collection"
-version = "1.4.0"
+version = "1.5.0"
 description = "A comprehensive collection of classic card, paper, dice, logic, and word games with AI opponents and both CLI and GUI interfaces"
 readme = "README.md"
 requires-python = ">=3.9"
