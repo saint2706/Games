@@ -15,9 +15,9 @@ This package provides shared functionality including:
 """
 
 from .ai_enhancements import (
+    AIDifficultyLevel,
     AITrainingExample,
     AITrainingSession,
-    AIDifficultyLevel,
     DifficultyAdjuster,
     NeuralNetworkStrategy,
     NeuralNetworkTrainingExample,

@@ -120,7 +120,7 @@ class PersonalityProfile:
         adjusted: Dict[MoveType, float] = {}
         for move, score in scores.items():
             normalised = (score - min_score) / score_range
-            amplified = normalised ** aggression_factor
+            amplified = normalised**aggression_factor
             adjusted_score = score + amplified * score_range * 0.25 * caution_factor
             adjusted[move] = adjusted_score
         return adjusted
@@ -141,9 +141,7 @@ class ExplainableStrategyMixin(Generic[MoveType, StateType]):
         return self._last_explanation
 
 
-class ReinforcementLearningAgent(
-    ExplainableStrategyMixin[MoveType, StateType], AIStrategy[MoveType, StateType]
-):
+class ReinforcementLearningAgent(ExplainableStrategyMixin[MoveType, StateType], AIStrategy[MoveType, StateType]):
     """Q-learning strategy that supports training and persistence."""
 
     def __init__(
@@ -178,34 +176,19 @@ class ReinforcementLearningAgent(
             raise ValueError("No valid moves available")
 
         encoded_state = self.state_encoder(game_state)
-        exploitation_scores = {
-            move: self._q_table.get((encoded_state, self.move_encoder(move)), 0.0)
-            for move in valid_moves
-        }
-        biased_scores = (
-            self.personality.bias_scores(exploitation_scores)
-            if self.personality
-            else exploitation_scores
-        )
-        exploration_rate = (
-            self.personality.adjust_exploration(self.config.exploration_rate)
-            if self.personality
-            else self.config.exploration_rate
-        )
+        exploitation_scores = {move: self._q_table.get((encoded_state, self.move_encoder(move)), 0.0) for move in valid_moves}
+        biased_scores = self.personality.bias_scores(exploitation_scores) if self.personality else exploitation_scores
+        exploration_rate = self.personality.adjust_exploration(self.config.exploration_rate) if self.personality else self.config.exploration_rate
         if self.rng.random() < exploration_rate:
             chosen_move = self.rng.choice(valid_moves)
-            self._last_explanation = (
-                f"Exploration selected move {chosen_move!r} with rate {exploration_rate:.2f}."
-            )
+            self._last_explanation = f"Exploration selected move {chosen_move!r} with rate {exploration_rate:.2f}."
             return chosen_move
 
         best_score = max(biased_scores.values())
         best_moves = [move for move, score in biased_scores.items() if math.isclose(score, best_score, rel_tol=1e-9)]
         chosen_move = self.rng.choice(best_moves)
         q_value = exploitation_scores[chosen_move]
-        self._last_explanation = (
-            f"Exploitation selected move {chosen_move!r} with predicted value {q_value:.3f}."
-        )
+        self._last_explanation = f"Exploitation selected move {chosen_move!r} with predicted value {q_value:.3f}."
         return chosen_move
 
     def update(
@@ -224,10 +207,7 @@ class ReinforcementLearningAgent(
         current_q = self._q_table.get((state_key, move_key), 0.0)
         next_best = 0.0
         if next_valid_moves:
-            next_best = max(
-                self._q_table.get((next_state_key, self.move_encoder(candidate)), 0.0)
-                for candidate in next_valid_moves
-            )
+            next_best = max(self._q_table.get((next_state_key, self.move_encoder(candidate)), 0.0) for candidate in next_valid_moves)
         target = reward + self.config.discount_factor * next_best
         updated_q = current_q + self.config.learning_rate * (target - current_q)
         self._q_table[(state_key, move_key)] = updated_q
@@ -303,7 +283,7 @@ class DifficultyAdjuster(Generic[MoveType, StateType]):
     level: AIDifficultyLevel = AIDifficultyLevel.MEDIUM
     _history: Deque[float] = field(default_factory=deque, init=False)
 
-    def record_result(self, player_score: float, ai_score: float) -> DifficultyLevel:
+    def record_result(self, player_score: float, ai_score: float) -> AIDifficultyLevel:
         """Record a result and update the difficulty level."""
 
         if len(self._history) >= self.window:
@@ -356,9 +336,7 @@ class _FeedForwardNetwork:
         self.weights: List[List[List[float]]] = []
         self.biases: List[List[float]] = []
         for in_size, out_size in zip(self.layer_sizes[:-1], self.layer_sizes[1:]):
-            layer_weights = [
-                [rng.uniform(-0.5, 0.5) for _ in range(in_size)] for _ in range(out_size)
-            ]
+            layer_weights = [[rng.uniform(-0.5, 0.5) for _ in range(in_size)] for _ in range(out_size)]
             layer_biases = [rng.uniform(-0.5, 0.5) for _ in range(out_size)]
             self.weights.append(layer_weights)
             self.biases.append(layer_biases)
@@ -401,17 +379,12 @@ class _FeedForwardNetwork:
         for _ in range(epochs):
             for example in dataset:
                 activations, pre_activations = self._forward_internal(example.features)
-                deltas: List[List[float]] = [
-                    [0.0 for _ in layer_biases] for layer_biases in self.biases
-                ]
+                deltas: List[List[float]] = [[0.0 for _ in layer_biases] for layer_biases in self.biases]
                 output = activations[-1][0]
                 deltas[-1][0] = output - example.target
                 for layer in range(len(self.weights) - 2, -1, -1):
                     for neuron_index, z_value in enumerate(pre_activations[layer]):
-                        downstream = sum(
-                            self.weights[layer + 1][k][neuron_index] * deltas[layer + 1][k]
-                            for k in range(len(self.weights[layer + 1]))
-                        )
+                        downstream = sum(self.weights[layer + 1][k][neuron_index] * deltas[layer + 1][k] for k in range(len(self.weights[layer + 1])))
                         derivative = 1.0 - math.tanh(z_value) ** 2
                         deltas[layer][neuron_index] = downstream * derivative
                 for layer, (weights, biases) in enumerate(zip(self.weights, self.biases)):
@@ -424,9 +397,7 @@ class _FeedForwardNetwork:
                             neuron_weights[weight_index] = weight - update
 
 
-class NeuralNetworkStrategy(
-    ExplainableStrategyMixin[MoveType, StateType], AIStrategy[MoveType, StateType]
-):
+class NeuralNetworkStrategy(ExplainableStrategyMixin[MoveType, StateType], AIStrategy[MoveType, StateType]):
     """Strategy that evaluates moves using a tiny neural network."""
 
     def __init__(
@@ -468,9 +439,7 @@ class NeuralNetworkStrategy(
 
         if not valid_moves:
             raise ValueError("No valid moves available")
-        feature_map: Dict[MoveType, Sequence[float]] = {
-            move: list(self.feature_extractor(game_state, move)) for move in valid_moves
-        }
+        feature_map: Dict[MoveType, Sequence[float]] = {move: list(self.feature_extractor(game_state, move)) for move in valid_moves}
         self.ensure_network(len(next(iter(feature_map.values()))))
         if self._network is None:
             raise ValueError("Network initialisation failed")
@@ -561,4 +530,3 @@ __all__ = [
     "ReinforcementLearningConfig",
     "TrainableEnvironment",
 ]
-

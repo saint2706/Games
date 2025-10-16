@@ -13,7 +13,6 @@ from typing import Dict
 
 from common.recommendation_service import GameDescriptor
 
-
 _DEFAULT_GAME_CATALOGUE: Dict[str, GameDescriptor] = {
     "poker": GameDescriptor(
         game_id="poker",
@@ -106,4 +105,3 @@ def get_default_game_catalogue() -> Dict[str, GameDescriptor]:
 
 # Backwards compatibility helper for older documentation references.
 get_default_game_catalog = get_default_game_catalogue
-

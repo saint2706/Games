@@ -7,9 +7,9 @@ from dataclasses import dataclass
 from typing import List, Sequence
 
 from common.ai_enhancements import (
+    AIDifficultyLevel,
     AITrainingExample,
     AITrainingSession,
-    AIDifficultyLevel,
     DifficultyAdjuster,
     NeuralNetworkStrategy,
     NeuralNetworkTrainingExample,
@@ -142,4 +142,3 @@ class TestAITrainingSession:
         assert q_values
         dataset = session.prepare_supervised_dataset(lambda state, move: [float(move)])
         assert dataset == [NeuralNetworkTrainingExample(features=[1.0], target=1.0)]
-

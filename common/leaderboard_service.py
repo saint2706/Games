@@ -138,4 +138,3 @@ class CrossGameLeaderboardService:
         """Return an iterable over the loaded profiles."""
 
         return self._profiles.values()
-
