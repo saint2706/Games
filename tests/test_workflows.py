@@ -406,7 +406,7 @@ def test_publish_pypi_has_asset_check():
     assert "EXISTING_ASSETS" in run_script, "Should check for existing assets"
     assert "::warning::" in run_script, "Should warn about existing assets that will be overwritten"
     # Changed: Now allows overwrites instead of erroring
-    assert "exit 1" not in run_script or "if [ -n \"$EXISTING_ASSETS\" ]" not in run_script, "Should not exit with error for existing assets"
+    assert "exit 1" not in run_script or 'if [ -n "$EXISTING_ASSETS" ]' not in run_script, "Should not exit with error for existing assets"
 
 
 def test_publish_pypi_has_upload_with_clobber():
