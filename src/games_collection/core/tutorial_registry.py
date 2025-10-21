@@ -14,7 +14,13 @@ from games_collection.catalog.registry import get_game_by_slug
 from .educational import DocumentationTutorialMode, ProbabilityCalculator, StrategyTip, StrategyTipProvider, TutorialMode
 from .game_engine import GameEngine, GameState
 
-ProjectPath = Path(__file__).resolve().parents[2]
+# NOTE: ``parents[3]`` resolves to the repository root (``src`` -> project).
+# Using ``parents[2]`` pointed to ``src/`` which prevented the documentation
+# catalogue from being located when the package was imported outside of the
+# source tree (e.g. in tests). That left the tutorial registry empty because no
+# modules were discovered. Adjusting to ``parents[3]`` ensures the catalogue is
+# read correctly from ``docs/source``.
+ProjectPath = Path(__file__).resolve().parents[3]
 CatalogPath = ProjectPath / "docs" / "source" / "players" / "games_catalog.rst"
 
 
