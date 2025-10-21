@@ -230,7 +230,11 @@ def load_default_mcp_config() -> MCPConfig:
     """
     # Find the repository root (where .github directory is)
     current_file = pathlib.Path(__file__).resolve()
-    repo_root = current_file.parents[1]  # Go up from core/ to repo root
+    # ``parents[3]`` walks from ``core/`` -> ``games_collection/`` -> ``src/`` ->
+    # repository root. Using ``parents[1]`` left us inside the package, which
+    # meant the loader looked for ``src/games_collection/.github`` and failed to
+    # locate the actual configuration in the repo-level ``.github`` directory.
+    repo_root = current_file.parents[3]
     config_path = repo_root / ".github" / "mcp-config.json"
 
     return MCPConfig.load_from_file(config_path)
