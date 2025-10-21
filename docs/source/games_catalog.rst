@@ -1,1 +1,0 @@
-players/games_catalog.rst
