@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import importlib.machinery
 import importlib.util
-import pkgutil
 
 import pytest
 
@@ -24,13 +23,28 @@ def test_list_gui_games_includes_existing_pyqt() -> None:
 def test_list_gui_games_detects_new_pyqt_module(monkeypatch: pytest.MonkeyPatch) -> None:
     """Verify that newly available PyQt modules are reported without manual updates."""
 
-    original_walk_packages = pkgutil.walk_packages
+    from games_collection.catalog.registry import GameMetadata
+    from games_collection.catalog.registry import iter_genre as original_iter_genre
+
     original_find_spec = importlib.util.find_spec
 
-    def fake_walk_packages(path=None, prefix: str = "", onerror=None):  # type: ignore[override]
-        yield from original_walk_packages(path, prefix, onerror)
-        if prefix == "games_collection.games.card.":
-            yield pkgutil.ModuleInfo(None, "games_collection.games.card.fake_new_game", True)
+    # Create a fake game metadata
+    fake_game = GameMetadata(
+        slug="fake_new_game",
+        name="Fake New Game",
+        genre="card",
+        package="games_collection.games.card.fake_new_game",
+        entry_point="games_collection.games.card.fake_new_game.__main__:main",
+        description="A fake game for testing",
+        tags=("test",),
+    )
+
+    def fake_iter_genre(genre: str):  # type: ignore[override]
+        """Return games including the fake game for card genre."""
+        original_games = original_iter_genre(genre)
+        if genre == "card":
+            return original_games + (fake_game,)
+        return original_games
 
     def fake_find_spec(name: str):  # type: ignore[override]
         if name == "games_collection.games.card.fake_new_game.gui_pyqt":
@@ -39,7 +53,8 @@ def test_list_gui_games_detects_new_pyqt_module(monkeypatch: pytest.MonkeyPatch)
             return None
         return original_find_spec(name)
 
-    monkeypatch.setattr(pkgutil, "walk_packages", fake_walk_packages)
+    # Patch the imported function in the test_gui module
+    monkeypatch.setattr(test_gui, "iter_genre", fake_iter_genre)
     monkeypatch.setattr(importlib.util, "find_spec", fake_find_spec)
 
     games = test_gui.list_gui_games()

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import importlib
 import importlib.util
+import sys
 from typing import Dict, List, Optional
 
 from games_collection.catalog.registry import GameMetadata, iter_genre
