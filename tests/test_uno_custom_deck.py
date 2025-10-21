@@ -7,7 +7,7 @@ from typing import Sequence
 
 import pytest
 
-from card_games.uno import (
+from games_collection.games.card.uno import (
     CustomDeckLoader,
     CustomDeckValidationError,
     HouseRules,

@@ -42,14 +42,14 @@ class TestDotsAndBoxesPyQt:
     @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
     def test_dots_boxes_pyqt_gui_import(self):
         """Test that Dots and Boxes PyQt5 GUI can be imported."""
-        from paper_games.dots_and_boxes.gui_pyqt import DotsAndBoxesGUI
+        from games_collection.games.paper.dots_and_boxes.gui_pyqt import DotsAndBoxesGUI
 
         assert DotsAndBoxesGUI is not None
 
     def test_dots_boxes_pyqt_gui_initialization(self, qtbot):
         """Test Dots and Boxes PyQt5 GUI initialization."""
         try:
-            from paper_games.dots_and_boxes.gui_pyqt import DotsAndBoxesGUI
+            from games_collection.games.paper.dots_and_boxes.gui_pyqt import DotsAndBoxesGUI
 
             window = DotsAndBoxesGUI(size=2, show_hints=False)
             qtbot.addWidget(window)
@@ -71,7 +71,7 @@ class TestBattleshipPyQt:
     def test_battleship_pyqt_gui_initialization(self, qtbot):
         """Test Battleship PyQt5 GUI initialization."""
         try:
-            from paper_games.battleship.gui_pyqt import BattleshipGUI
+            from games_collection.games.paper.battleship.gui_pyqt import BattleshipGUI
 
             window = BattleshipGUI(size=8, fleet_type="small", difficulty="easy", salvo_mode=False)
             qtbot.addWidget(window)
@@ -91,14 +91,14 @@ class TestBaseGUIPyQt:
 
     def test_base_gui_pyqt_import(self):
         """Test that PyQt5 BaseGUI can be imported."""
-        from common.gui_base_pyqt import BaseGUI, GUIConfig
+        from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 
         assert BaseGUI is not None
         assert GUIConfig is not None
 
     def test_gui_config_defaults(self):
         """Test GUIConfig default values."""
-        from common.gui_base_pyqt import GUIConfig
+        from games_collection.core.gui_base_pyqt import GUIConfig
 
         config = GUIConfig()
         assert config.window_title == "Game"
@@ -115,15 +115,15 @@ class TestGoFishPyQt:
     @pytest.mark.skipif(not sys.platform.startswith("linux") or not sys.stdout.isatty(), reason="Requires display")
     def test_go_fish_pyqt_gui_import(self):
         """Test that Go Fish PyQt5 GUI can be imported."""
-        from card_games.go_fish.gui_pyqt import GoFishGUI
+        from games_collection.games.card.go_fish.gui_pyqt import GoFishGUI
 
         assert GoFishGUI is not None
 
     def test_go_fish_pyqt_gui_initialization(self, qtbot):
         """Test Go Fish PyQt5 GUI initialization."""
         try:
-            from card_games.go_fish.game import GoFishGame
-            from card_games.go_fish.gui_pyqt import GoFishGUI
+            from games_collection.games.card.go_fish.game import GoFishGame
+            from games_collection.games.card.go_fish.gui_pyqt import GoFishGUI
 
             game = GoFishGame(num_players=2)
             window = GoFishGUI(game)
@@ -138,9 +138,9 @@ class TestGoFishPyQt:
 
 
 GUI_IMPORT_CASES = [
-    ("paper_games.dots_and_boxes.gui_pyqt", "DotsAndBoxesGUI"),
-    ("paper_games.battleship.gui_pyqt", "BattleshipGUI"),
-    ("card_games.go_fish.gui_pyqt", "GoFishGUI"),
+    ("games_collection.games.paper.dots_and_boxes.gui_pyqt", "DotsAndBoxesGUI"),
+    ("games_collection.games.paper.battleship.gui_pyqt", "BattleshipGUI"),
+    ("games_collection.games.card.go_fish.gui_pyqt", "GoFishGUI"),
 ]
 
 
@@ -159,7 +159,7 @@ class TestBlackjackPyQt:
 
     def test_blackjack_pyqt_gui_import(self):
         """Test that Blackjack PyQt5 GUI can be imported."""
-        from card_games.blackjack.gui_pyqt import BlackjackTable
+        from games_collection.games.card.blackjack.gui_pyqt import BlackjackTable
 
         assert BlackjackTable is not None
 
@@ -167,7 +167,7 @@ class TestBlackjackPyQt:
     def test_blackjack_pyqt_gui_initialization(self, qtbot):
         """Test Blackjack PyQt5 GUI initialization."""
         try:
-            from card_games.blackjack.gui_pyqt import BlackjackTable
+            from games_collection.games.card.blackjack.gui_pyqt import BlackjackTable
 
             window = BlackjackTable(bankroll=200, min_bet=10, decks=4)
             qtbot.addWidget(window)
@@ -182,7 +182,7 @@ class TestBluffPyQt:
 
     def test_bluff_pyqt_gui_import(self):
         """Test that Bluff PyQt5 GUI can be imported."""
-        from card_games.bluff.gui_pyqt import BluffPyQtGUI
+        from games_collection.games.card.bluff.gui_pyqt import BluffPyQtGUI
 
         assert BluffPyQtGUI is not None
 
@@ -190,8 +190,8 @@ class TestBluffPyQt:
     def test_bluff_pyqt_gui_initialization(self, qtbot):
         """Test Bluff PyQt5 GUI initialization."""
         try:
-            from card_games.bluff.bluff import DECK_TYPES, DIFFICULTIES, BluffGame
-            from card_games.bluff.gui_pyqt import BluffPyQtGUI
+            from games_collection.games.card.bluff.bluff import DECK_TYPES, DIFFICULTIES, BluffGame
+            from games_collection.games.card.bluff.gui_pyqt import BluffPyQtGUI
 
             game = BluffGame(
                 DIFFICULTIES["Medium"],
@@ -213,7 +213,7 @@ class TestCrazyEightsPyQt:
     def test_crazy_eights_pyqt_gui_import(self):
         """Test that Crazy Eights PyQt5 GUI can be imported."""
 
-        from card_games.crazy_eights.gui_pyqt import CrazyEightsGUI
+        from games_collection.games.card.crazy_eights.gui_pyqt import CrazyEightsGUI
 
         assert CrazyEightsGUI is not None
 
@@ -222,8 +222,8 @@ class TestCrazyEightsPyQt:
         """Test Crazy Eights PyQt5 GUI initialization."""
 
         try:
-            from card_games.crazy_eights.game import CrazyEightsGame
-            from card_games.crazy_eights.gui_pyqt import CrazyEightsGUI
+            from games_collection.games.card.crazy_eights.game import CrazyEightsGame
+            from games_collection.games.card.crazy_eights.gui_pyqt import CrazyEightsGUI
 
             game = CrazyEightsGame(num_players=3)
             window = CrazyEightsGUI(game)
@@ -239,7 +239,7 @@ class TestHeartsPyQt:
 
     def test_hearts_pyqt_gui_import(self):
         """Test that Hearts PyQt5 GUI can be imported."""
-        from card_games.hearts.gui_pyqt import HeartsGUI, run_app
+        from games_collection.games.card.hearts.gui_pyqt import HeartsGUI, run_app
 
         assert HeartsGUI is not None
         assert callable(run_app)
@@ -248,8 +248,8 @@ class TestHeartsPyQt:
     def test_hearts_pyqt_gui_initialization(self, qtbot):
         """Test Hearts PyQt5 GUI initialization."""
         try:
-            from card_games.hearts.game import HeartsGame, HeartsPlayer
-            from card_games.hearts.gui_pyqt import HeartsGUI
+            from games_collection.games.card.hearts.game import HeartsGame, HeartsPlayer
+            from games_collection.games.card.hearts.gui_pyqt import HeartsGUI
 
             players = [
                 HeartsPlayer(name="Human", is_ai=False),
@@ -272,7 +272,7 @@ class TestSolitairePyQt:
     def test_solitaire_pyqt_gui_import(self):
         """Test that Solitaire PyQt5 GUI can be imported."""
 
-        from card_games.solitaire.gui_pyqt import SolitaireWindow
+        from games_collection.games.card.solitaire.gui_pyqt import SolitaireWindow
 
         assert SolitaireWindow is not None
 
@@ -281,8 +281,8 @@ class TestSolitairePyQt:
         """Test Solitaire PyQt5 GUI initialization."""
 
         try:
-            from card_games.solitaire.game import SolitaireGame
-            from card_games.solitaire.gui_pyqt import SolitaireWindow
+            from games_collection.games.card.solitaire.game import SolitaireGame
+            from games_collection.games.card.solitaire.gui_pyqt import SolitaireWindow
 
             game = SolitaireGame()
             window = SolitaireWindow(game)
@@ -299,7 +299,7 @@ class TestSpadesPyQt:
     def test_spades_pyqt_gui_import(self):
         """Test that Spades PyQt5 GUI can be imported."""
 
-        from card_games.spades.gui_pyqt import SpadesPyQtGUI
+        from games_collection.games.card.spades.gui_pyqt import SpadesPyQtGUI
 
         assert SpadesPyQtGUI is not None
 
@@ -308,7 +308,7 @@ class TestSpadesPyQt:
         """Test Spades PyQt5 GUI initialization."""
 
         try:
-            from card_games.spades.gui_pyqt import SpadesPyQtGUI
+            from games_collection.games.card.spades.gui_pyqt import SpadesPyQtGUI
 
             window = SpadesPyQtGUI()
             qtbot.addWidget(window)
@@ -325,7 +325,7 @@ class TestUnoPyQt:
     def test_uno_pyqt_gui_import(self):
         """Ensure the Uno PyQt5 GUI can be imported."""
 
-        from card_games.uno.gui_pyqt import PyQtUnoInterface
+        from games_collection.games.card.uno.gui_pyqt import PyQtUnoInterface
 
         assert PyQtUnoInterface is not None
 
@@ -334,8 +334,8 @@ class TestUnoPyQt:
         """Test Uno PyQt5 GUI initialization."""
 
         try:
-            from card_games.uno.gui_pyqt import PyQtUnoInterface
-            from card_games.uno.uno import UnoPlayer
+            from games_collection.games.card.uno.gui_pyqt import PyQtUnoInterface
+            from games_collection.games.card.uno.uno import UnoPlayer
 
             players = [UnoPlayer("You", is_human=True), UnoPlayer("Bot", personality="balanced")]
             window = PyQtUnoInterface(players)
@@ -354,7 +354,7 @@ class TestGinRummyPyQt:
 
     def test_gin_rummy_pyqt_gui_import(self):
         """Test that the Gin Rummy PyQt5 GUI can be imported."""
-        from card_games.gin_rummy.gui_pyqt import GinRummyPyQtGUI
+        from games_collection.games.card.gin_rummy.gui_pyqt import GinRummyPyQtGUI
 
         assert GinRummyPyQtGUI is not None
 
@@ -362,7 +362,7 @@ class TestGinRummyPyQt:
     def test_gin_rummy_pyqt_gui_initialization(self, qtbot):
         """Test Gin Rummy PyQt5 GUI initialization."""
         try:
-            from card_games.gin_rummy.gui_pyqt import GinRummyPyQtGUI
+            from games_collection.games.card.gin_rummy.gui_pyqt import GinRummyPyQtGUI
 
             window = GinRummyPyQtGUI()
             qtbot.addWidget(window)
@@ -379,18 +379,18 @@ class TestGinRummyPyQt:
 def test_pyqt5_modules_available():
     """Test that PyQt5 GUI modules can be imported."""
     gui_modules = [
-        "paper_games.battleship.gui_pyqt",
-        "paper_games.dots_and_boxes.gui_pyqt",
-        "card_games.go_fish.gui_pyqt",
-        "card_games.gin_rummy.gui_pyqt",
-        "card_games.blackjack.gui_pyqt",
-        "card_games.bluff.gui_pyqt",
-        "card_games.crazy_eights.gui_pyqt",
-        "card_games.hearts.gui_pyqt",
-        "card_games.solitaire.gui_pyqt",
-        "card_games.spades.gui_pyqt",
-        "card_games.uno.gui_pyqt",
-        "common.gui_base_pyqt",
+        "games_collection.games.paper.battleship.gui_pyqt",
+        "games_collection.games.paper.dots_and_boxes.gui_pyqt",
+        "games_collection.games.card.go_fish.gui_pyqt",
+        "games_collection.games.card.gin_rummy.gui_pyqt",
+        "games_collection.games.card.blackjack.gui_pyqt",
+        "games_collection.games.card.bluff.gui_pyqt",
+        "games_collection.games.card.crazy_eights.gui_pyqt",
+        "games_collection.games.card.hearts.gui_pyqt",
+        "games_collection.games.card.solitaire.gui_pyqt",
+        "games_collection.games.card.spades.gui_pyqt",
+        "games_collection.games.card.uno.gui_pyqt",
+        "games_collection.core.gui_base_pyqt",
     ]
 
     available_modules = []

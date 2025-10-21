@@ -1,22 +1,27 @@
-"""A collection of interactive, text-based and GUI-based card game implementations.
+"""Compatibility shim exposing card game packages at the legacy import path."""
 
-This package provides a suite of classic card games, each with its own engine,
-bot AI, and user interface. The games included are:
-- Blackjack
-- Bluff (also known as Cheat or I Doubt It)
-- Poker (Texas Hold'em)
-- Uno
+from __future__ import annotations
 
-Each game can be run as a standalone application from the command line.
-"""
+from importlib import import_module
+from types import ModuleType
+from typing import Iterable
 
-# Export the subpackages so ``import card_games`` presents the available games
-# in a discoverable list.
-__all__ = [
-    "poker",
-    "bluff",
-    "uno",
-    "blackjack",
-    "pinochle",
-    "canasta",
-]
+import games_collection.games.card as _card_package
+
+__all__ = tuple(getattr(_card_package, "__all__", ()))
+
+
+def __getattr__(name: str) -> ModuleType:
+    """Defer attribute access to :mod:`games_collection.games.card`."""
+
+    return getattr(_card_package, name)
+
+
+def __dir__() -> Iterable[str]:
+    """Return the available attributes for the compatibility package."""
+
+    return sorted(set(__all__) | set(globals()) | set(dir(_card_package)))
+
+
+__path__ = list(getattr(_card_package, "__path__", ()))
+__spec__ = getattr(_card_package, "__spec__", None)

@@ -3,7 +3,16 @@ requires = ["setuptools>=68.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["src", "."]
+include = [
+    "games_collection*",
+    "card_games",
+    "paper_games",
+    "dice_games",
+    "logic_games",
+    "word_games",
+    "common",
+]
 exclude = [
     "tests*",
     "docs*",
@@ -16,6 +25,7 @@ exclude = [
 
 [tool.setuptools.package-data]
 "*" = ["*.md", "*.txt", "*.rst"]
+games_collection.catalog = ["*.json"]
 
 [project]
 name = "games-collection"
@@ -108,46 +118,46 @@ gui = [
 games-collection = "scripts.launcher:main"
 
 # Card Games
-games-uno = "card_games.uno.uno:main"
-games-poker = "card_games.poker.poker:main"
-games-blackjack = "card_games.blackjack.blackjack:main"
-games-hearts = "card_games.hearts.hearts:main"
-games-spades = "card_games.spades.spades:main"
-games-bridge = "card_games.bridge.bridge:main"
-games-gin-rummy = "card_games.gin_rummy.gin_rummy:main"
-games-go-fish = "card_games.go_fish.go_fish:main"
-games-crazy-eights = "card_games.crazy_eights.crazy_eights:main"
-games-war = "card_games.war.war:main"
-games-solitaire = "card_games.solitaire.solitaire:main"
-games-bluff = "card_games.bluff.bluff:main"
-games-cribbage = "card_games.cribbage.__main__:main"
-games-euchre = "card_games.euchre.__main__:main"
-games-rummy500 = "card_games.rummy500.__main__:main"
+games-uno = "games_collection.games.card.uno.uno:main"
+games-poker = "games_collection.games.card.poker.poker:main"
+games-blackjack = "games_collection.games.card.blackjack.blackjack:main"
+games-hearts = "games_collection.games.card.hearts.hearts:main"
+games-spades = "games_collection.games.card.spades.spades:main"
+games-bridge = "games_collection.games.card.bridge.bridge:main"
+games-gin-rummy = "games_collection.games.card.gin_rummy.gin_rummy:main"
+games-go-fish = "games_collection.games.card.go_fish.go_fish:main"
+games-crazy-eights = "games_collection.games.card.crazy_eights.crazy_eights:main"
+games-war = "games_collection.games.card.war.war:main"
+games-solitaire = "games_collection.games.card.solitaire.solitaire:main"
+games-bluff = "games_collection.games.card.bluff.bluff:main"
+games-cribbage = "games_collection.games.card.cribbage.__main__:main"
+games-euchre = "games_collection.games.card.euchre.__main__:main"
+games-rummy500 = "games_collection.games.card.rummy500.__main__:main"
 
 # Paper Games  
-games-tic-tac-toe = "paper_games.tic_tac_toe.tic_tac_toe:main"
-games-battleship = "paper_games.battleship.battleship:main"
-games-checkers = "paper_games.checkers.checkers:main"
-games-connect-four = "paper_games.connect_four.connect_four:main"
-games-othello = "paper_games.othello.othello:main"
-games-dots-and-boxes = "paper_games.dots_and_boxes.dots_and_boxes:main"
-games-hangman = "paper_games.hangman.hangman:main"
-games-nim = "paper_games.nim.nim:main"
-games-sudoku = "paper_games.sudoku.sudoku:main"
-games-mancala = "paper_games.mancala.mancala:main"
+games-tic-tac-toe = "games_collection.games.paper.tic_tac_toe.tic_tac_toe:main"
+games-battleship = "games_collection.games.paper.battleship.battleship:main"
+games-checkers = "games_collection.games.paper.checkers.checkers:main"
+games-connect-four = "games_collection.games.paper.connect_four.connect_four:main"
+games-othello = "games_collection.games.paper.othello.othello:main"
+games-dots-and-boxes = "games_collection.games.paper.dots_and_boxes.dots_and_boxes:main"
+games-hangman = "games_collection.games.paper.hangman.hangman:main"
+games-nim = "games_collection.games.paper.nim.nim:main"
+games-sudoku = "games_collection.games.paper.sudoku.sudoku:main"
+games-mancala = "games_collection.games.paper.mancala.mancala:main"
 
 # Dice Games
-games-craps = "dice_games.craps.craps:main"
-games-bunco = "dice_games.bunco.bunco:main"
-games-liars-dice = "dice_games.liars_dice.liars_dice:main"
+games-craps = "games_collection.games.dice.craps.craps:main"
+games-bunco = "games_collection.games.dice.bunco.bunco:main"
+games-liars-dice = "games_collection.games.dice.liars_dice.liars_dice:main"
 
 # Word Games
-games-unscramble = "word_games.unscramble.unscramble:main"
-games-wordle = "word_games.wordle.wordle:main"
+games-unscramble = "games_collection.games.word.unscramble.unscramble:main"
+games-wordle = "games_collection.games.word.wordle.wordle:main"
 
 # Logic Games
-games-mastermind = "logic_games.mastermind.mastermind:main"
-games-codebreaker = "logic_games.codebreaker.codebreaker:main"
+games-mastermind = "games_collection.games.logic.mastermind.mastermind:main"
+games-codebreaker = "games_collection.games.logic.codebreaker.codebreaker:main"
 
 [tool.black]
 line-length = 160
@@ -193,7 +203,7 @@ wrap = 120
 [tool.mutmut]
 # Mutation testing configuration
 # Paths to mutate
-paths_to_mutate = ["paper_games/", "card_games/"]
+paths_to_mutate = ["src/games_collection/games/paper/", "src/games_collection/games/card/"]
 
 # Paths to exclude from mutation
 paths_to_exclude = "*/tests/*,*/demo*.py,*/gui.py,*/__main__.py,*/__init__.py"

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from card_games.canasta.game import CanastaGame, CanastaPlayer, DrawSource, JokerCard, is_wild, minimum_meld_points, validate_meld
-from card_games.common.cards import Card, Suit
+from games_collection.games.card.canasta.game import CanastaGame, CanastaPlayer, DrawSource, JokerCard, is_wild, minimum_meld_points, validate_meld
+from games_collection.games.card.common.cards import Card, Suit
 
 
 def test_validate_meld_accepts_mixed_canasta() -> None:

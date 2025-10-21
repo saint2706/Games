@@ -43,21 +43,21 @@ Launching a game
     Prefer explicit module execution or want to inspect command-line options?
     Run games with ``python -m``::
 
-       python -m card_games.blackjack --help
-       python -m paper_games.connect_four --mode ai
-       python -m dice_games.craps
+       python -m games_collection.games.card.blackjack --help
+       python -m games_collection.games.paper.connect_four --mode ai
+       python -m games_collection.games.dice.craps
 
 GUI support
 -----------
 
 Most titles ship with a Tkinter-based GUI that can be triggered with a flag::
 
-    python -m card_games.blackjack --gui
+    python -m games_collection.games.card.blackjack --gui
 
 PyQt5 implementations are gradually rolling out. When available they can be
 selected explicitly::
 
-    python -m paper_games.dots_and_boxes --gui-framework pyqt5
+    python -m games_collection.games.paper.dots_and_boxes --gui-framework pyqt5
 
 Not every game features a GUI yet; consult the ``players/games_catalog`` for the
 latest status.
@@ -75,11 +75,11 @@ dismissing it quietly moves that title further down the queue.
 Double-deck Pinochle
 --------------------
 
-The new :mod:`card_games.pinochle` package models the classic partnership
+The new :mod:`games_collection.games.card.pinochle` package models the classic partnership
 variant with a full double-deck shoe. Launch it from the terminal (it will try
 the PyQt GUI, then Tk, before falling back to text mode)::
 
-    python -m card_games.pinochle
+    python -m games_collection.games.card.pinochle
 
 Prefer the command line immediately? Use the ``--cli`` flag. The interface
 guides all four players through three distinct phases:

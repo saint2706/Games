@@ -6,7 +6,7 @@ import random
 from dataclasses import dataclass
 from typing import List, Sequence
 
-from common.ai_enhancements import (
+from games_collection.core.ai_enhancements import (
     AIDifficultyLevel,
     AITrainingExample,
     AITrainingSession,

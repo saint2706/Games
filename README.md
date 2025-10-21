@@ -17,8 +17,9 @@ algorithms.
 - **Multiple interfaces** – Launch titles from the command line, via the
   `games-collection` menu, or with Tkinter/PyQt graphical front ends where
   available.
-- **Reusable infrastructure** – Common modules provide AI strategies, save/load
-  support, event dispatch, replay recording, accessibility helpers, and more.
+- **Reusable infrastructure** – Shared modules under ``games_collection.core``
+  provide AI strategies, save/load support, event dispatch, replay recording,
+  accessibility helpers, and more.
 - **Educational tooling** – Several games ship with hint systems, tutorials, and
   probability calculators that make the collection a useful teaching aid.
 
@@ -63,27 +64,40 @@ After installation you have several options:
   flags or to inspect help text:
 
   ```bash
-  python -m card_games.blackjack --help
-  python -m paper_games.connect_four --gui
-  python -m dice_games.craps
+  python -m games_collection.games.card.blackjack --help
+  python -m games_collection.games.paper.connect_four --gui
+  python -m games_collection.games.dice.craps
   ```
+
+  Legacy import paths such as ``card_games.blackjack`` remain available through
+  compatibility shims to ease migration for external integrations.
 
 Many games accept a `--gui` flag to launch graphical interfaces. PyQt5 is the primary GUI framework, with Tkinter available as a fallback. You can select a specific framework with `--gui-framework pyqt5` or `--gui-framework tkinter`.
 
 ## Repository layout
 
 ```text
-card_games/      Card-based titles such as Blackjack, Poker, Uno, and Hearts
-paper_games/     Board and pencil games including Chess, Sudoku, and Yahtzee
-dice_games/      Dice-driven experiences like Craps and Farkle
-logic_games/     Puzzle boxes such as Sokoban and Minesweeper
-word_games/      Vocabulary challenges including Crossword and Trivia
-common/          Shared engines, AI strategies, GUIs, persistence, accessibility
-plugins/         Playable game plugins
-scripts/         Launchers registered as console entry points
-docs/            Sphinx documentation (rewritten from scratch)
-examples/        Sample integrations and automation snippets
-tests/           Automated test suite mirroring the package structure
+src/
+├── games_collection/
+│   ├── catalog/             Metadata registry powering docs and launchers
+│   ├── core/                Shared engines, AI strategies, GUIs, persistence
+│   └── games/
+│       ├── card/            Card-based titles (Blackjack, Poker, Uno, Hearts)
+│       ├── paper/           Board and pencil games (Chess, Sudoku, Yahtzee)
+│       ├── dice/            Dice-driven experiences (Craps, Farkle)
+│       ├── logic/           Puzzle boxes (Sokoban, Minesweeper)
+│       └── word/            Vocabulary challenges (Crossword, Trivia)
+card_games/                  Compatibility shim for legacy imports
+paper_games/                 Compatibility shim for legacy imports
+dice_games/                  Compatibility shim for legacy imports
+logic_games/                 Compatibility shim for legacy imports
+word_games/                  Compatibility shim for legacy imports
+common/                      Compatibility shim for legacy imports
+plugins/                     Playable game plugins
+scripts/                     Launchers registered as console entry points
+docs/                        Sphinx documentation
+examples/                    Sample integrations and automation snippets
+tests/                       Automated test suite mirroring the package structure
 ```
 
 ## Development workflow

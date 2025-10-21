@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import time
 
-from common.cli_utils import THEMES, ASCIIArt, Color, CommandHistory, InteractiveMenu, ProgressBar, RichText, Spinner, get_terminal_size
+from games_collection.core.cli_utils import THEMES, ASCIIArt, Color, CommandHistory, InteractiveMenu, ProgressBar, RichText, Spinner, get_terminal_size
 
 
 def demo_ascii_art() -> None:

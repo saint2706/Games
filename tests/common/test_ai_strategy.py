@@ -6,7 +6,7 @@ from typing import Dict, Tuple
 
 import pytest
 
-from common.ai_strategy import HeuristicStrategy
+from games_collection.core.ai_strategy import HeuristicStrategy
 
 
 class CallCountingHeuristic:

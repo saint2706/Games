@@ -14,8 +14,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Type
 
-from common.architecture.engine import GameEngine, GamePhase, GameState
-from common.architecture.plugin import GamePlugin, PluginMetadata
+from games_collection.core.architecture.engine import GameEngine, GamePhase, GameState
+from games_collection.core.architecture.plugin import GamePlugin, PluginMetadata
 
 
 class SimpleNumberGuessingGame(GameEngine):

@@ -42,10 +42,10 @@ Always clear history with `EventBus.clear_history()` when reusing a bus across s
 
 | Package | Migrated Modules | Pending Migration |
 | ------- | ---------------- | ----------------- |
-| `dice_games` | `craps.craps`, `farkle.farkle` (full), CLIs adopting shared bus. | `bunco`, `liars_dice` (emit direct state changes). |
-| `card_games` | Pending – most engines invoke direct callbacks without events. |
-| `paper_games` | Pending – board/word games still notify controllers directly. |
-| `logic_games` | Pending – AI modules poll engine state without events. |
-| `word_games` | Pending – hangman/unscramble rely on direct method calls. |
+| `games_collection.games.dice` | `craps.craps`, `farkle.farkle` (full), CLIs adopting shared bus. | `bunco`, `liars_dice` (emit direct state changes). |
+| `games_collection.games.card` | Pending – most engines invoke direct callbacks without events. |
+| `games_collection.games.paper` | Pending – board/word games still notify controllers directly. |
+| `games_collection.games.logic` | Pending – AI modules poll engine state without events. |
+| `games_collection.games.word` | Pending – hangman/unscramble rely on direct method calls. |
 
 Future work should prioritize the pending modules, progressively refactoring them to the standardized contract defined here.

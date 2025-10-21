@@ -35,14 +35,14 @@ global-exclude scripts/workflow_*.py
 global-exclude scripts/*.sh
 
 # Include game-specific documentation
-recursive-include card_games *.md
-recursive-include paper_games *.md
-recursive-include dice_games *.md
-recursive-include word_games *.md
-recursive-include logic_games *.md
+recursive-include src/games_collection/games/card *.md
+recursive-include src/games_collection/games/paper *.md
+recursive-include src/games_collection/games/dice *.md
+recursive-include src/games_collection/games/word *.md
+recursive-include src/games_collection/games/logic *.md
 
 # Include sound file documentation (but not the actual sound files)
-recursive-include card_games/uno/sounds *.md
+recursive-include src/games_collection/games/card/uno/sounds *.md
 
 # Exclude compiled Python files
 global-exclude *.pyc

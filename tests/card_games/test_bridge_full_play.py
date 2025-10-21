@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from card_games.bridge.game import AuctionState, Bid, BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
-from card_games.common.cards import RANKS, Card, Suit
+from games_collection.games.card.bridge.game import AuctionState, Bid, BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
+from games_collection.games.card.common.cards import RANKS, Card, Suit
 
 
 def _match_call(token: str, legal_calls: Iterable[Call]) -> Call:

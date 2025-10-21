@@ -15,7 +15,7 @@ This guide summarises the rules and controls implemented by the Canasta package.
 
 ## CLI Controls
 
-1. Start the game with `python -m card_games.canasta.cli`.
+1. Start the game with `python -m games_collection.games.card.canasta.cli`.
 1. On your turn choose whether to draw from the stock or discard pile.
 1. Enter card indices to lay melds; blank input skips melding.
 1. Choose a card to discard. If your team has a canasta and both hands are empty, you may elect to go out.
@@ -24,13 +24,13 @@ This guide summarises the rules and controls implemented by the Canasta package.
 
 ### Tkinter
 
-- Launch with `python -m card_games.canasta.gui`.
+- Launch with `python -m games_collection.games.card.canasta.gui`.
 - Buttons drive the flow: **Draw Stock**, **Take Discard**, **Lay Meld**, **Discard**, **Go Out**, and **Next Turn**.
 - Use the hand list to select cards for melding or discarding. Melds appear in the "Team Melds" pane and the log tracks draw/discard events.
 
 ### PyQt
 
-- Launch with `python -m card_games.canasta.gui_pyqt` (requires PyQt5).
+- Launch with `python -m games_collection.games.card.canasta.gui_pyqt` (requires PyQt5).
 - Functionality mirrors the Tkinter GUI with the same action buttons and selection workflow.
 - A log pane records actions and scoring breakdowns when the round ends.
 

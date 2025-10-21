@@ -24,10 +24,10 @@ that could not be auto-fixed:
 ::
 
    F841 Local variable `lead_suit` is assigned to but never used
-      --> card_games/euchre/game.py:246:9
+      --> src/games_collection/games/card/euchre/game.py:246:9
 
    F841 Local variable `defending_tricks` is assigned to but never used
-      --> card_games/euchre/game.py:268:9
+      --> src/games_collection/games/card/euchre/game.py:268:9
 
    F841 Local variable `reporter` is assigned to but never used
       --> tests/test_crash_reporter.py:125:9
@@ -41,7 +41,7 @@ Solution Implemented
 1. Fixed Unused Variables (Code Quality)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-card_games/euchre/game.py (line 246)
+src/games_collection/games/card/euchre/game.py (line 246)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Before:**
@@ -63,7 +63,7 @@ card_games/euchre/game.py (line 246)
 in the logic. The comment suggested it was planned to be used, but the
 current implementation doesn’t need it.
 
-card_games/euchre/game.py (line 268)
+src/games_collection/games/card/euchre/game.py (line 268)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Before:**
@@ -122,9 +122,9 @@ Ran ``mdformat .`` to format 11 markdown files:
 -  ``.github/workflows/events/README.md``
 -  ``CHANGELOG.md``
 -  ``operations/archive/debug_report``
--  ``card_games/cribbage/README.md``
--  ``card_games/euchre/README.md``
--  ``card_games/rummy500/README.md``
+-  ``src/games_collection/games/card/cribbage/README.md``
+-  ``src/games_collection/games/card/euchre/README.md``
+-  ``src/games_collection/games/card/rummy500/README.md``
 -  ``docs/deployment/DEPLOYMENT.md``
 -  ``developers/guides/implementation_notes``
 -  ``developers/guides/local_workflows``

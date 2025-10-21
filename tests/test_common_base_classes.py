@@ -7,7 +7,7 @@ in the common module.
 import unittest
 from typing import Any, List, Optional
 
-from common import GameEngine, GamePhase, GameState, HeuristicStrategy, RandomStrategy
+from games_collection.core import GameEngine, GamePhase, GameState, HeuristicStrategy, RandomStrategy
 
 
 class SimpleTestGame(GameEngine):

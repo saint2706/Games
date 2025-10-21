@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from common.leaderboard_service import CrossGameLeaderboardService
-from common.profile_service import ProfileService
+from games_collection.core.leaderboard_service import CrossGameLeaderboardService
+from games_collection.core.profile_service import ProfileService
 
 
 def test_cross_game_leaderboard_orders_by_wins(tmp_path: Path) -> None:

@@ -43,6 +43,7 @@ block_cipher = None
 # Analysis section below, it's good practice for clarity and can be used
 # for more complex scripting within this file.
 game_modules = [
+    'games_collection',
     'card_games',
     'paper_games',
     'dice_games',

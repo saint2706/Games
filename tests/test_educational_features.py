@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from common import (
+from games_collection.core import (
     Challenge,
     ChallengeManager,
     ChallengePack,
@@ -270,7 +270,7 @@ class TestPokerEducational:
     def test_poker_probability_calculator_import(self):
         """Test that poker educational module can be imported."""
         try:
-            from card_games.poker.educational import PokerProbabilityCalculator
+            from games_collection.games.card.poker.educational import PokerProbabilityCalculator
 
             calc = PokerProbabilityCalculator()
             assert calc is not None
@@ -280,7 +280,7 @@ class TestPokerEducational:
     def test_poker_tutorial_import(self):
         """Test that poker tutorial can be imported."""
         try:
-            from card_games.poker.educational import PokerTutorialMode
+            from games_collection.games.card.poker.educational import PokerTutorialMode
 
             tutorial = PokerTutorialMode()
             assert tutorial is not None
@@ -295,7 +295,7 @@ class TestBlackjackEducational:
     def test_blackjack_probability_calculator_import(self):
         """Test that blackjack educational module can be imported."""
         try:
-            from card_games.blackjack.educational import BlackjackProbabilityCalculator
+            from games_collection.games.card.blackjack.educational import BlackjackProbabilityCalculator
 
             calc = BlackjackProbabilityCalculator()
             assert calc is not None
@@ -305,7 +305,7 @@ class TestBlackjackEducational:
     def test_blackjack_tutorial_import(self):
         """Test that blackjack tutorial can be imported."""
         try:
-            from card_games.blackjack.educational import BlackjackTutorialMode
+            from games_collection.games.card.blackjack.educational import BlackjackTutorialMode
 
             tutorial = BlackjackTutorialMode()
             assert tutorial is not None
@@ -316,7 +316,7 @@ class TestBlackjackEducational:
     def test_blackjack_bust_probability(self):
         """Test blackjack bust probability calculation."""
         try:
-            from card_games.blackjack.educational import BlackjackProbabilityCalculator
+            from games_collection.games.card.blackjack.educational import BlackjackProbabilityCalculator
 
             calc = BlackjackProbabilityCalculator()
 

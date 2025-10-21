@@ -33,7 +33,7 @@ dependencies beyond what’s already required for the project.
 
 .. code:: python
 
-   from common.cli_utils import (
+   from games_collection.core.cli_utils import (
        ASCIIArt,
        Color,
        CommandHistory,
@@ -98,7 +98,7 @@ Quick Start
 
 .. code:: python
 
-   from common.cli_utils import ASCIIArt, RichText, ProgressBar, InteractiveMenu, Color
+   from games_collection.core.cli_utils import ASCIIArt, RichText, ProgressBar, InteractiveMenu, Color
 
    # Display a banner
    print(ASCIIArt.banner("My Game", Color.CYAN))
@@ -553,7 +553,7 @@ Complete Game Menu Example
 
 .. code:: python
 
-   from common.cli_utils import (
+   from games_collection.core.cli_utils import (
        ASCIIArt,
        Color,
        InteractiveMenu,
@@ -599,7 +599,7 @@ Status Message Examples
 
 .. code:: python
 
-   from common.cli_utils import RichText
+   from games_collection.core.cli_utils import RichText
 
    # Game events
    print(RichText.success("Level completed!"))
@@ -608,7 +608,7 @@ Status Message Examples
    print(RichText.info("Checkpoint saved."))
 
    # With custom theme
-   from common.cli_utils import THEMES
+   from games_collection.core.cli_utils import THEMES
    theme = THEMES["forest"]
    print(RichText.success("Achievement unlocked!", theme))
 
@@ -617,7 +617,7 @@ Custom Theme Example
 
 .. code:: python
 
-   from common.cli_utils import Theme, Color, RichText
+   from games_collection.core.cli_utils import Theme, Color, RichText
 
    # Create custom theme
    custom_theme = Theme(
@@ -645,7 +645,7 @@ Choose a theme for your game and use it consistently:
 
 .. code:: python
 
-   from common.cli_utils import THEMES
+   from games_collection.core.cli_utils import THEMES
 
    GAME_THEME = THEMES["ocean"]
 

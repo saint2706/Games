@@ -7,7 +7,7 @@ PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from card_games.bluff.bluff import DECK_TYPES, DIFFICULTIES, BluffGame, BluffTournament, PlayerPattern
+from games_collection.games.card.bluff.bluff import DECK_TYPES, DIFFICULTIES, BluffGame, BluffTournament, PlayerPattern
 
 
 def test_deck_types_exist():

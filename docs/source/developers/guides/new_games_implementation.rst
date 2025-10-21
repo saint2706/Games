@@ -25,8 +25,8 @@ Games Implemented
 
 -  **Description**: Risk-based dice scoring game with push-your-luck
    mechanics
--  **Location**: ``dice_games/farkle/``
--  **Run**: ``python -m dice_games.farkle``
+-  **Location**: ``src/games_collection/games/dice/farkle/``
+-  **Run**: ``python -m games_collection.games.dice.farkle``
 -  **Features**:
 
    -  6 dice rolling with scoring combinations
@@ -39,8 +39,8 @@ Games Implemented
 ^^^^^^^^
 
 -  **Description**: Classic casino dice game with betting mechanics
--  **Location**: ``dice_games/craps/``
--  **Run**: ``python -m dice_games.craps``
+-  **Location**: ``src/games_collection/games/dice/craps/``
+-  **Run**: ``python -m games_collection.games.dice.craps``
 -  **Features**:
 
    -  Pass line and don’t pass betting
@@ -52,8 +52,8 @@ Games Implemented
 ^^^^^^^^^^^^^^
 
 -  **Description**: Bluffing game with hidden dice and bidding
--  **Location**: ``dice_games/liars_dice/``
--  **Run**: ``python -m dice_games.liars_dice``
+-  **Location**: ``src/games_collection/games/dice/liars_dice/``
+-  **Run**: ``python -m games_collection.games.dice.liars_dice``
 -  **Features**:
 
    -  Hidden dice rolls for each player
@@ -65,8 +65,8 @@ Games Implemented
 ^^^^^^^^
 
 -  **Description**: Fast-paced party dice game with rounds
--  **Location**: ``dice_games/bunco/``
--  **Run**: ``python -m dice_games.bunco``
+-  **Location**: ``src/games_collection/games/dice/bunco/``
+-  **Run**: ``python -m games_collection.games.dice.bunco``
 -  **Features**:
 
    -  6 rounds of play
@@ -81,8 +81,8 @@ Games Implemented
 ^^^^^^^^^^^^^^
 
 -  **Description**: Multiple choice trivia questions
--  **Location**: ``word_games/trivia/``
--  **Run**: ``python -m word_games.trivia``
+-  **Location**: ``src/games_collection/games/word/trivia/``
+-  **Run**: ``python -m games_collection.games.word.trivia``
 -  **Features**:
 
    -  Multiple choice format
@@ -94,8 +94,8 @@ Games Implemented
 ^^^^^^^^^^^^
 
 -  **Description**: Crossword puzzle solving with clues
--  **Location**: ``word_games/crossword/``
--  **Run**: ``python -m word_games.crossword``
+-  **Location**: ``src/games_collection/games/word/crossword/``
+-  **Run**: ``python -m games_collection.games.word.crossword``
 -  **Features**:
 
    -  Grid-based puzzle layout
@@ -107,8 +107,8 @@ Games Implemented
 ^^^^^^^^^^^
 
 -  **Description**: Word rearrangement game
--  **Location**: ``word_games/anagrams/``
--  **Run**: ``python -m word_games.anagrams``
+-  **Location**: ``src/games_collection/games/word/anagrams/``
+-  **Run**: ``python -m games_collection.games.word.anagrams``
 -  **Features**:
 
    -  Scrambled word challenges
@@ -120,8 +120,8 @@ Games Implemented
 ^^^^^^^^^^^^^^
 
 -  **Description**: Tile-based word building (Scrabble-like)
--  **Location**: ``word_games/wordbuilder/``
--  **Run**: ``python -m word_games.wordbuilder``
+-  **Location**: ``src/games_collection/games/word/wordbuilder/``
+-  **Run**: ``python -m games_collection.games.word.wordbuilder``
 -  **Features**:
 
    -  Letter tiles with point values
@@ -136,8 +136,8 @@ Games Implemented
 ^^^^^^^^^^^^^^
 
 -  **Description**: Classic mine detection puzzle
--  **Location**: ``logic_games/minesweeper/``
--  **Run**: ``python -m logic_games.minesweeper``
+-  **Location**: ``src/games_collection/games/logic/minesweeper/``
+-  **Run**: ``python -m games_collection.games.logic.minesweeper``
 -  **Features**:
 
    -  Three difficulty levels (Beginner, Intermediate, Expert)
@@ -150,8 +150,8 @@ Games Implemented
 ^^^^^^^^^^^
 
 -  **Description**: Warehouse box-pushing puzzle
--  **Location**: ``logic_games/sokoban/``
--  **Run**: ``python -m logic_games.sokoban``
+-  **Location**: ``src/games_collection/games/logic/sokoban/``
+-  **Run**: ``python -m games_collection.games.logic.sokoban``
 -  **Features**:
 
    -  Grid-based movement
@@ -164,8 +164,8 @@ Games Implemented
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  **Description**: Number tile sliding game
--  **Location**: ``logic_games/sliding_puzzle/``
--  **Run**: ``python -m logic_games.sliding_puzzle``
+-  **Location**: ``src/games_collection/games/logic/sliding_puzzle/``
+-  **Run**: ``python -m games_collection.games.logic.sliding_puzzle``
 -  **Features**:
 
    -  Configurable grid sizes (default 3x3)
@@ -177,8 +177,8 @@ Games Implemented
 ^^^^^^^^^^^^^^
 
 -  **Description**: Toggle-based light puzzle
--  **Location**: ``logic_games/lights_out/``
--  **Run**: ``python -m logic_games.lights_out``
+-  **Location**: ``src/games_collection/games/logic/lights_out/``
+-  **Run**: ``python -m games_collection.games.logic.lights_out``
 -  **Features**:
 
    -  Grid-based toggling (cell + neighbors)
@@ -190,8 +190,8 @@ Games Implemented
 ^^^^^^^^^^^^^^^^^^^^^
 
 -  **Description**: Picture logic puzzle with number hints
--  **Location**: ``logic_games/picross/``
--  **Run**: ``python -m logic_games.picross``
+-  **Location**: ``src/games_collection/games/logic/picross/``
+-  **Run**: ``python -m games_collection.games.logic.picross``
 -  **Features**:
 
    -  Row and column number hints
@@ -236,9 +236,9 @@ Testing
 
 Comprehensive test suite added in ``tests/``:
 
--  ``test_dice_games.py`` - 9 tests for dice games
--  ``test_word_games.py`` - 14 tests for word games
--  ``test_logic_games.py`` - 16 tests for logic games
+-  ``test_games_collection.games.dice.py`` - 9 tests for dice games
+-  ``test_games_collection.games.word.py`` - 14 tests for word games
+-  ``test_games_collection.games.logic.py`` - 16 tests for logic games
 
 **Total**: 39 tests, all passing
 
@@ -275,9 +275,9 @@ Updated Files
 
 3. **Category Package Files**
 
-   -  ``dice_games/__init__.py`` - Added exports for all dice games
-   -  ``word_games/__init__.py`` - Added exports for all word games
-   -  ``logic_games/__init__.py`` - Added exports for all logic games
+   -  ``src/games_collection/games/dice/__init__.py`` - Added exports for all dice games
+   -  ``src/games_collection/games/word/__init__.py`` - Added exports for all word games
+   -  ``src/games_collection/games/logic/__init__.py`` - Added exports for all logic games
 
 Usage Examples
 --------------
@@ -290,23 +290,23 @@ All games can be run using Python’s module syntax:
 .. code:: bash
 
    # Dice games
-   python -m dice_games.farkle
-   python -m dice_games.craps
-   python -m dice_games.liars_dice
-   python -m dice_games.bunco
+   python -m games_collection.games.dice.farkle
+   python -m games_collection.games.dice.craps
+   python -m games_collection.games.dice.liars_dice
+   python -m games_collection.games.dice.bunco
 
    # Word games
-   python -m word_games.trivia
-   python -m word_games.crossword
-   python -m word_games.anagrams
-   python -m word_games.wordbuilder
+   python -m games_collection.games.word.trivia
+   python -m games_collection.games.word.crossword
+   python -m games_collection.games.word.anagrams
+   python -m games_collection.games.word.wordbuilder
 
    # Logic games
-   python -m logic_games.minesweeper
-   python -m logic_games.sokoban
-   python -m logic_games.sliding_puzzle
-   python -m logic_games.lights_out
-   python -m logic_games.picross
+   python -m games_collection.games.logic.minesweeper
+   python -m games_collection.games.logic.sokoban
+   python -m games_collection.games.logic.sliding_puzzle
+   python -m games_collection.games.logic.lights_out
+   python -m games_collection.games.logic.picross
 
 Importing Games
 ~~~~~~~~~~~~~~~
@@ -315,7 +315,7 @@ Games can be imported and used programmatically:
 
 .. code:: python
 
-   from dice_games import FarkleGame
+   from games_collection.games.dice import FarkleGame
    from word_games import TriviaGame
    from logic_games import MinesweeperGame
 

@@ -6,8 +6,8 @@ from datetime import date
 from pathlib import Path
 from typing import List
 
-from common.profile import PlayerProfile
-from common.profile_service import ProfileService
+from games_collection.core.profile import PlayerProfile
+from games_collection.core.profile_service import ProfileService
 
 
 def _load_profile(path: Path, player_id: str) -> PlayerProfile:

@@ -21,7 +21,7 @@ Minimal integration example:
 
 .. code:: python
 
-   from common.analytics import GameStatistics, PerformanceMetrics, EloRating
+   from games_collection.core.analytics import GameStatistics, PerformanceMetrics, EloRating
 
    class MyGame:
        def __init__(self):
@@ -104,7 +104,7 @@ Add analytics trackers to your game class:
 .. code:: python
 
    from pathlib import Path
-   from common.analytics import (
+   from games_collection.core.analytics import (
        GameStatistics,
        PerformanceMetrics,
        EloRating,
@@ -219,7 +219,7 @@ Show statistics to players:
 
 .. code:: python
 
-   from common.analytics import Dashboard
+   from games_collection.core.analytics import Dashboard
 
    def show_statistics(self):
        # Create dashboard
@@ -292,7 +292,7 @@ Analyze completed games:
 
 .. code:: python
 
-   from common.analytics import ReplayAnalyzer
+   from games_collection.core.analytics import ReplayAnalyzer
 
    def analyze_game(self, game_history):
        analyzer = ReplayAnalyzer(game_name=self.game_name)
@@ -344,7 +344,7 @@ Track and display AI difficulty:
 
 .. code:: python
 
-   from common.analytics.rating_systems import calculate_ai_difficulty_rating
+   from games_collection.core.analytics.rating_systems import calculate_ai_difficulty_rating
 
    def evaluate_ai_difficulty(self, ai_player):
        """Calculate AI opponent difficulty rating."""
@@ -473,7 +473,7 @@ Example 1: Simple Card Game
 
 .. code:: python
 
-   from common.analytics import GameStatistics, EloRating
+   from games_collection.core.analytics import GameStatistics, EloRating
 
    class CardGame:
        def __init__(self):
@@ -500,7 +500,7 @@ Example 2: Board Game with Position Tracking
 
 .. code:: python
 
-   from common.analytics import GameStatistics, Heatmap
+   from games_collection.core.analytics import GameStatistics, Heatmap
 
    class BoardGame:
        def __init__(self, board_size=8):
@@ -525,7 +525,7 @@ Example 3: Real-time Strategy Game
 
 .. code:: python
 
-   from common.analytics import PerformanceMetrics, ReplayAnalyzer
+   from games_collection.core.analytics import PerformanceMetrics, ReplayAnalyzer
 
    class RTSGame:
        def __init__(self):
@@ -626,7 +626,7 @@ Further Resources
 
 -  See ``examples/analytics_demo.py`` for comprehensive demonstrations
 -  See ``examples/tic_tac_toe_with_analytics.py`` for real integration
--  Check ``common/analytics/README.md`` for API documentation
+-  Check ``src/games_collection/core/analytics/README.md`` for API documentation
 -  Run tests: ``pytest tests/test_analytics.py -v``
 
 Support

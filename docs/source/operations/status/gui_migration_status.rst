@@ -20,82 +20,31 @@ Status by Category
 Paper Games (2/2 completed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-+--------+------+--------------------------+--------------------------+
-| Game   | St   | GUI File                 | Notes                    |
-|        | atus |                          |                          |
-+========+======+==========================+==========================+
-| Dots   | ✅   | ``paper_games/dots       | Proof of concept         |
-| and    | Comp | _and_boxes/gui_pyqt.py`` | migration                |
-| Boxes  | lete |                          |                          |
-+--------+------+--------------------------+--------------------------+
-| Batt   | ✅   | ``paper_games/           | Drag/preview placement   |
-| leship | Comp | battleship/gui_pyqt.py`` | and salvo support        |
-|        | lete |                          |                          |
-+--------+------+--------------------------+--------------------------+
+All Paper games with graphical interfaces have completed PyQt5 ports:
+
+- ``games_collection.games.paper.dots_and_boxes.gui_pyqt`` – Proof-of-concept migration demonstrating shared widgets.
+- ``games_collection.games.paper.battleship.gui_pyqt`` – Drag-and-drop salvo placement with preview overlays.
 
 Card Games (14/14 completed)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-+-------+------+------------------------+-----------------------------+
-| Game  | St   | GUI File               | Notes                       |
-|       | atus |                        |                             |
-+=======+======+========================+=============================+
-| Blac  | ✅   | ``card_games/b         | PyQt table with betting and |
-| kjack | Comp | lackjack/gui_pyqt.py`` | animations                  |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| Bluff | ✅   | ``card_gam             | Multi-player with log and   |
-|       | Comp | es/bluff/gui_pyqt.py`` | challenge dialogs           |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| B     | ✅   | ``card_game            | PyQt port with automated    |
-| ridge | Comp | s/bridge/gui_pyqt.py`` | bidding/play                |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| Ca    | ✅   | ``card_games           | Melding system with         |
-| nasta | Comp | /canasta/gui_pyqt.py`` | canastas                    |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| Crazy | ✅   | ``card_games/craz      | Feature parity with Tkinter |
-| E     | Comp | y_eights/gui_pyqt.py`` | GUI                         |
-| ights | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| Gin   | ✅   | ``card_games/g         | Melding system              |
-| Rummy | Comp | in_rummy/gui_pyqt.py`` |                             |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| Go    | ✅   | ``card_games           | Simplest card game GUI      |
-| Fish  | Comp | /go_fish/gui_pyqt.py`` |                             |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| H     | ✅   | ``card_game            | Trick-taking, point         |
-| earts | Comp | s/hearts/gui_pyqt.py`` | avoidance                   |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| Pin   | ✅   | ``card_games/          | Bidding and melding         |
-| ochle | Comp | pinochle/gui_pyqt.py`` |                             |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| Poker | ✅   | ``card_gam             | Betting interface           |
-|       | Comp | es/poker/gui_pyqt.py`` |                             |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| Soli  | ✅   | ``card_games/s         | Most complex GUI with       |
-| taire | Comp | olitaire/gui_pyqt.py`` | toolbar and canvas          |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| S     | ✅   | ``card_game            | Bidding, trick display, and |
-| pades | Comp | s/spades/gui_pyqt.py`` | scoring                     |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| Uno   | ✅   | ``card_g               | Mirrors Tk interface with   |
-|       | Comp | ames/uno/gui_pyqt.py`` | PyQt widgets                |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
-| War   | ✅   | ``card_g               | Flashing war canvas,        |
-|       | Comp | ames/war/gui_pyqt.py`` | Save/Load integration       |
-|       | lete |                        |                             |
-+-------+------+------------------------+-----------------------------+
+All Card games with graphical interfaces have completed PyQt5 ports:
+
+- ``games_collection.games.card.blackjack.gui_pyqt`` – Casino table with animations.
+- ``games_collection.games.card.bluff.gui_pyqt`` – Multiplayer interface with chat-style log and challenge dialogs.
+- ``games_collection.games.card.bridge.gui_pyqt`` – Automated bidding and play visualiser.
+- ``games_collection.games.card.canasta.gui_pyqt`` – Meld management with dynamic scoring.
+- ``games_collection.games.card.crazy_eights.gui_pyqt`` – Feature parity with the Tkinter GUI.
+- ``games_collection.games.card.gin_rummy.gui_pyqt`` – Meld tracking and discard coaching.
+- ``games_collection.games.card.go_fish.gui_pyqt`` – Family-friendly layout with avatar support.
+- ``games_collection.games.card.hearts.gui_pyqt`` – Trick tracking and point avoidance helpers.
+- ``games_collection.games.card.pinochle.gui_pyqt`` – Partnership bidding and melding assistance.
+- ``games_collection.games.card.poker.gui_pyqt`` – Betting interface with tournament overlays.
+- ``games_collection.games.card.solitaire.gui_pyqt`` – Toolbar-driven controls and animated tableau.
+- ``games_collection.games.card.spades.gui_pyqt`` – Bidding, trick display, and scoreboard widgets.
+- ``games_collection.games.card.uno.gui_pyqt`` – Mirrors the Tkinter interface with PyQt widgets.
+- ``games_collection.games.card.war.gui_pyqt`` – Flashing war canvas and save/load integration.
+
 
 Migration Guidelines
 --------------------
@@ -181,7 +130,7 @@ The migration successfully:
 
 For future GUI development, use the PyQt5 framework and refer to:
 
--  ``common/gui_base_pyqt.py`` - Base GUI class
+-  ``src/games_collection/core/gui_base_pyqt.py`` - Base GUI class
 -  Existing implementations as examples
 -  Migration guide for reference patterns
 
@@ -191,6 +140,6 @@ Related Resources
 -  `PyQt5
    Documentation <https://www.riverbankcomputing.com/static/Docs/PyQt5/>`__
 -  `Qt5 Documentation <https://doc.qt.io/qt-5/>`__
--  `Base GUI Class <../../common/gui_base_pyqt.py>`__
+-  `Base GUI Class <../../src/games_collection/core/gui_base_pyqt.py>`__
 -  `Example
-   Implementation <../../paper_games/dots_and_boxes/gui_pyqt.py>`__
+   Implementation <../../src/games_collection/games/paper/dots_and_boxes/gui_pyqt.py>`__

@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 # Add the parent directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from card_games.uno.uno import HouseRules, UnoCard, UnoGame, build_players
+from games_collection.games.card.uno.uno import HouseRules, UnoCard, UnoGame, build_players
 
 
 class MockInterface:

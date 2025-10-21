@@ -1,35 +1,27 @@
-"""A collection of interactive word and trivia game implementations.
-
-This package provides a suite of word-based and trivia games, each with its own engine,
-scoring system, and user interface. The games include:
-- Trivia Quiz - Multiple choice questions from various categories
-- Crossword - Create and solve crossword puzzles with clue system
-- Anagrams - Word rearrangement game with scoring system
-- WordBuilder - Tile-based word building game (Scrabble-like)
-
-Each game can be run as a standalone application from the command line.
-"""
+"""Compatibility shim exposing word game packages at the legacy import path."""
 
 from __future__ import annotations
 
-# Export the subpackages so ``import word_games`` presents the available games
-# in a discoverable list.
-__all__ = [
-    "AnagramsGame",
-    "AsyncWordPlaySession",
-    "CrosswordClue",
-    "CrosswordGame",
-    "CrosswordPackManager",
-    "DictionaryValidator",
-    "TriviaAPIClient",
-    "TriviaCache",
-    "TriviaGame",
-    "TriviaQuestion",
-    "WordBuilderGame",
-    "WordPlaySession",
-]
+from importlib import import_module
+from types import ModuleType
+from typing import Iterable
 
-from .anagrams import AnagramsGame
-from .crossword import CrosswordClue, CrosswordGame, CrosswordPackManager
-from .trivia import TriviaAPIClient, TriviaCache, TriviaGame, TriviaQuestion
-from .wordbuilder import AsyncWordPlaySession, DictionaryValidator, WordBuilderGame, WordPlaySession
+import games_collection.games.word as _word_package
+
+__all__ = tuple(getattr(_word_package, "__all__", ()))
+
+
+def __getattr__(name: str) -> ModuleType:
+    """Defer attribute access to :mod:`games_collection.games.word`."""
+
+    return getattr(_word_package, name)
+
+
+def __dir__() -> Iterable[str]:
+    """Return the available attributes for the compatibility package."""
+
+    return sorted(set(__all__) | set(globals()) | set(dir(_word_package)))
+
+
+__path__ = list(getattr(_word_package, "__path__", ()))
+__spec__ = getattr(_word_package, "__spec__", None)

@@ -1,0 +1,636 @@
+{
+  "games": [
+    {
+      "slug": "blackjack",
+      "name": "Blackjack",
+      "genre": "card",
+      "package": "games_collection.games.card.blackjack",
+      "entry_point": "games_collection.games.card.blackjack.__main__:main",
+      "description": "Blackjack from the card games collection.",
+      "tags": [
+        "card",
+        "casino"
+      ],
+      "average_duration": 900,
+      "difficulty": 2,
+      "mechanics": [
+        "betting",
+        "hand-management"
+      ]
+    },
+    {
+      "slug": "bluff",
+      "name": "Bluff",
+      "genre": "card",
+      "package": "games_collection.games.card.bluff",
+      "entry_point": "games_collection.games.card.bluff.__main__:main",
+      "description": "Bluff from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "bridge",
+      "name": "Bridge",
+      "genre": "card",
+      "package": "games_collection.games.card.bridge",
+      "entry_point": "games_collection.games.card.bridge.__main__:main",
+      "description": "Bridge from the card games collection.",
+      "tags": [
+        "card",
+        "partnership"
+      ],
+      "average_duration": 2400,
+      "difficulty": 5,
+      "mechanics": [
+        "trick-taking",
+        "bidding"
+      ]
+    },
+    {
+      "slug": "canasta",
+      "name": "Canasta",
+      "genre": "card",
+      "package": "games_collection.games.card.canasta",
+      "entry_point": "games_collection.games.card.canasta.__main__:main",
+      "description": "Canasta from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "crazy_eights",
+      "name": "Crazy Eights",
+      "genre": "card",
+      "package": "games_collection.games.card.crazy_eights",
+      "entry_point": "games_collection.games.card.crazy_eights.__main__:main",
+      "description": "Crazy Eights from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "cribbage",
+      "name": "Cribbage",
+      "genre": "card",
+      "package": "games_collection.games.card.cribbage",
+      "entry_point": "games_collection.games.card.cribbage.__main__:main",
+      "description": "Cribbage from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "euchre",
+      "name": "Euchre",
+      "genre": "card",
+      "package": "games_collection.games.card.euchre",
+      "entry_point": "games_collection.games.card.euchre.__main__:main",
+      "description": "Euchre from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "gin_rummy",
+      "name": "Gin Rummy",
+      "genre": "card",
+      "package": "games_collection.games.card.gin_rummy",
+      "entry_point": "games_collection.games.card.gin_rummy.__main__:main",
+      "description": "Gin Rummy from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "go_fish",
+      "name": "Go Fish",
+      "genre": "card",
+      "package": "games_collection.games.card.go_fish",
+      "entry_point": "games_collection.games.card.go_fish.__main__:main",
+      "description": "Go Fish from the card games collection.",
+      "tags": [
+        "card",
+        "family"
+      ],
+      "average_duration": 600,
+      "difficulty": 1,
+      "mechanics": [
+        "set-collection",
+        "memory"
+      ]
+    },
+    {
+      "slug": "hearts",
+      "name": "Hearts",
+      "genre": "card",
+      "package": "games_collection.games.card.hearts",
+      "entry_point": "games_collection.games.card.hearts.__main__:main",
+      "description": "Hearts from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "pinochle",
+      "name": "Pinochle",
+      "genre": "card",
+      "package": "games_collection.games.card.pinochle",
+      "entry_point": "games_collection.games.card.pinochle.__main__:main",
+      "description": "Pinochle from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "poker",
+      "name": "Poker",
+      "genre": "card",
+      "package": "games_collection.games.card.poker",
+      "entry_point": "games_collection.games.card.poker.__main__:main",
+      "description": "Poker from the card games collection.",
+      "tags": [
+        "card",
+        "multiplayer"
+      ],
+      "average_duration": 1800,
+      "difficulty": 4,
+      "mechanics": [
+        "betting",
+        "hand-evaluation",
+        "bluffing"
+      ]
+    },
+    {
+      "slug": "rummy500",
+      "name": "Rummy 500",
+      "genre": "card",
+      "package": "games_collection.games.card.rummy500",
+      "entry_point": "games_collection.games.card.rummy500.__main__:main",
+      "description": "Rummy500 from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "solitaire",
+      "name": "Solitaire",
+      "genre": "card",
+      "package": "games_collection.games.card.solitaire",
+      "entry_point": "games_collection.games.card.solitaire.__main__:main",
+      "description": "Solitaire from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "spades",
+      "name": "Spades",
+      "genre": "card",
+      "package": "games_collection.games.card.spades",
+      "entry_point": "games_collection.games.card.spades.__main__:main",
+      "description": "Spades from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "uno",
+      "name": "Uno",
+      "genre": "card",
+      "package": "games_collection.games.card.uno",
+      "entry_point": "games_collection.games.card.uno.__main__:main",
+      "description": "Uno from the card games collection.",
+      "tags": [
+        "card",
+        "family"
+      ],
+      "average_duration": 1200,
+      "difficulty": 1,
+      "mechanics": [
+        "shedding",
+        "take-that"
+      ]
+    },
+    {
+      "slug": "war",
+      "name": "War",
+      "genre": "card",
+      "package": "games_collection.games.card.war",
+      "entry_point": "games_collection.games.card.war.__main__:main",
+      "description": "War from the card games collection.",
+      "tags": [
+        "card"
+      ]
+    },
+    {
+      "slug": "bunco",
+      "name": "Bunco",
+      "genre": "dice",
+      "package": "games_collection.games.dice.bunco",
+      "entry_point": "games_collection.games.dice.bunco.__main__:main",
+      "description": "Bunco from the dice games collection.",
+      "tags": [
+        "dice"
+      ]
+    },
+    {
+      "slug": "craps",
+      "name": "Craps",
+      "genre": "dice",
+      "package": "games_collection.games.dice.craps",
+      "entry_point": "games_collection.games.dice.craps.__main__:main",
+      "description": "Craps from the dice games collection.",
+      "tags": [
+        "dice"
+      ]
+    },
+    {
+      "slug": "farkle",
+      "name": "Farkle",
+      "genre": "dice",
+      "package": "games_collection.games.dice.farkle",
+      "entry_point": "games_collection.games.dice.farkle.__main__:main",
+      "description": "Farkle from the dice games collection.",
+      "tags": [
+        "dice"
+      ]
+    },
+    {
+      "slug": "liars_dice",
+      "name": "Liar's Dice",
+      "genre": "dice",
+      "package": "games_collection.games.dice.liars_dice",
+      "entry_point": "games_collection.games.dice.liars_dice.__main__:main",
+      "description": "Liars Dice from the dice games collection.",
+      "tags": [
+        "dice"
+      ]
+    },
+    {
+      "slug": "lights_out",
+      "name": "Lights Out",
+      "genre": "logic",
+      "package": "games_collection.games.logic.lights_out",
+      "entry_point": "games_collection.games.logic.lights_out.__main__:main",
+      "description": "Lights Out from the logic games collection.",
+      "tags": [
+        "logic"
+      ]
+    },
+    {
+      "slug": "minesweeper",
+      "name": "Minesweeper",
+      "genre": "logic",
+      "package": "games_collection.games.logic.minesweeper",
+      "entry_point": "games_collection.games.logic.minesweeper.__main__:main",
+      "description": "Minesweeper from the logic games collection.",
+      "tags": [
+        "logic"
+      ]
+    },
+    {
+      "slug": "picross",
+      "name": "Picross",
+      "genre": "logic",
+      "package": "games_collection.games.logic.picross",
+      "entry_point": "games_collection.games.logic.picross.__main__:main",
+      "description": "Picross from the logic games collection.",
+      "tags": [
+        "logic"
+      ]
+    },
+    {
+      "slug": "sliding_puzzle",
+      "name": "Sliding Puzzle",
+      "genre": "logic",
+      "package": "games_collection.games.logic.sliding_puzzle",
+      "entry_point": "games_collection.games.logic.sliding_puzzle.__main__:main",
+      "description": "Sliding Puzzle from the logic games collection.",
+      "tags": [
+        "logic"
+      ]
+    },
+    {
+      "slug": "sokoban",
+      "name": "Sokoban",
+      "genre": "logic",
+      "package": "games_collection.games.logic.sokoban",
+      "entry_point": "games_collection.games.logic.sokoban.__main__:main",
+      "description": "Sokoban from the logic games collection.",
+      "tags": [
+        "logic"
+      ]
+    },
+    {
+      "slug": "backgammon",
+      "name": "Backgammon",
+      "genre": "paper",
+      "package": "games_collection.games.paper.backgammon",
+      "entry_point": "games_collection.games.paper.backgammon.__main__:main",
+      "description": "Backgammon from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "battleship",
+      "name": "Battleship",
+      "genre": "paper",
+      "package": "games_collection.games.paper.battleship",
+      "entry_point": "games_collection.games.paper.battleship.__main__:main",
+      "description": "Battleship from the paper games collection.",
+      "tags": [
+        "board",
+        "head-to-head"
+      ],
+      "average_duration": 900,
+      "difficulty": 2,
+      "mechanics": [
+        "deduction",
+        "hidden-information"
+      ]
+    },
+    {
+      "slug": "boggle",
+      "name": "Boggle",
+      "genre": "paper",
+      "package": "games_collection.games.paper.boggle",
+      "entry_point": "games_collection.games.paper.boggle.__main__:main",
+      "description": "Boggle from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "checkers",
+      "name": "Checkers",
+      "genre": "paper",
+      "package": "games_collection.games.paper.checkers",
+      "entry_point": "games_collection.games.paper.checkers.__main__:main",
+      "description": "Checkers from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "chess",
+      "name": "Chess",
+      "genre": "paper",
+      "package": "games_collection.games.paper.chess",
+      "entry_point": "games_collection.games.paper.chess.__main__:main",
+      "description": "Chess from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "connect_four",
+      "name": "Connect Four",
+      "genre": "paper",
+      "package": "games_collection.games.paper.connect_four",
+      "entry_point": "games_collection.games.paper.connect_four.__main__:main",
+      "description": "Connect Four from the paper games collection.",
+      "tags": [
+        "board",
+        "family"
+      ],
+      "average_duration": 480,
+      "difficulty": 2,
+      "mechanics": [
+        "abstract",
+        "pattern-building"
+      ]
+    },
+    {
+      "slug": "dots_and_boxes",
+      "name": "Dots and Boxes",
+      "genre": "paper",
+      "package": "games_collection.games.paper.dots_and_boxes",
+      "entry_point": "games_collection.games.paper.dots_and_boxes.__main__:main",
+      "description": "Dots And Boxes from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "four_square_writing",
+      "name": "Four Square Writing",
+      "genre": "paper",
+      "package": "games_collection.games.paper.four_square_writing",
+      "entry_point": "games_collection.games.paper.four_square_writing.__main__:main",
+      "description": "Four Square Writing from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "hangman",
+      "name": "Hangman",
+      "genre": "paper",
+      "package": "games_collection.games.paper.hangman",
+      "entry_point": "games_collection.games.paper.hangman.__main__:main",
+      "description": "Hangman from the paper games collection.",
+      "tags": [
+        "paper",
+        "party"
+      ],
+      "average_duration": 420,
+      "difficulty": 1,
+      "mechanics": [
+        "word",
+        "guessing"
+      ]
+    },
+    {
+      "slug": "mancala",
+      "name": "Mancala",
+      "genre": "paper",
+      "package": "games_collection.games.paper.mancala",
+      "entry_point": "games_collection.games.paper.mancala.__main__:main",
+      "description": "Mancala from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "mastermind",
+      "name": "Mastermind",
+      "genre": "paper",
+      "package": "games_collection.games.paper.mastermind",
+      "entry_point": "games_collection.games.paper.mastermind.__main__:main",
+      "description": "Mastermind from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "nim",
+      "name": "Nim",
+      "genre": "paper",
+      "package": "games_collection.games.paper.nim",
+      "entry_point": "games_collection.games.paper.nim.__main__:main",
+      "description": "Nim from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "othello",
+      "name": "Othello",
+      "genre": "paper",
+      "package": "games_collection.games.paper.othello",
+      "entry_point": "games_collection.games.paper.othello.__main__:main",
+      "description": "Othello from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "pentago",
+      "name": "Pentago",
+      "genre": "paper",
+      "package": "games_collection.games.paper.pentago",
+      "entry_point": "games_collection.games.paper.pentago.__main__:main",
+      "description": "Pentago from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "snakes_and_ladders",
+      "name": "Snakes And Ladders",
+      "genre": "paper",
+      "package": "games_collection.games.paper.snakes_and_ladders",
+      "entry_point": "games_collection.games.paper.snakes_and_ladders.__main__:main",
+      "description": "Snakes And Ladders from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "sprouts",
+      "name": "Sprouts",
+      "genre": "paper",
+      "package": "games_collection.games.paper.sprouts",
+      "entry_point": "games_collection.games.paper.sprouts.__main__:main",
+      "description": "Sprouts from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "sudoku",
+      "name": "Sudoku",
+      "genre": "paper",
+      "package": "games_collection.games.paper.sudoku",
+      "entry_point": "games_collection.games.paper.sudoku.__main__:main",
+      "description": "Sudoku from the paper games collection.",
+      "tags": [
+        "logic",
+        "solo"
+      ],
+      "average_duration": 900,
+      "difficulty": 3,
+      "mechanics": [
+        "logic",
+        "deduction"
+      ]
+    },
+    {
+      "slug": "tic_tac_toe",
+      "name": "Tic-Tac-Toe",
+      "genre": "paper",
+      "package": "games_collection.games.paper.tic_tac_toe",
+      "entry_point": "games_collection.games.paper.tic_tac_toe.__main__:main",
+      "description": "Tic Tac Toe from the paper games collection.",
+      "tags": [
+        "paper",
+        "classic"
+      ],
+      "average_duration": 180,
+      "difficulty": 1,
+      "mechanics": [
+        "abstract",
+        "pattern-building"
+      ]
+    },
+    {
+      "slug": "twenty_questions",
+      "name": "Twenty Questions",
+      "genre": "paper",
+      "package": "games_collection.games.paper.twenty_questions",
+      "entry_point": "games_collection.games.paper.twenty_questions.__main__:main",
+      "description": "Twenty Questions from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "unscramble",
+      "name": "Unscramble",
+      "genre": "paper",
+      "package": "games_collection.games.paper.unscramble",
+      "entry_point": "games_collection.games.paper.unscramble.__main__:main",
+      "description": "Unscramble from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "yahtzee",
+      "name": "Yahtzee",
+      "genre": "paper",
+      "package": "games_collection.games.paper.yahtzee",
+      "entry_point": "games_collection.games.paper.yahtzee.__main__:main",
+      "description": "Yahtzee from the paper games collection.",
+      "tags": [
+        "paper"
+      ]
+    },
+    {
+      "slug": "anagrams",
+      "name": "Anagrams",
+      "genre": "word",
+      "package": "games_collection.games.word.anagrams",
+      "entry_point": "games_collection.games.word.anagrams.__main__:main",
+      "description": "Anagrams from the word games collection.",
+      "tags": [
+        "word"
+      ]
+    },
+    {
+      "slug": "crossword",
+      "name": "Crossword",
+      "genre": "word",
+      "package": "games_collection.games.word.crossword",
+      "entry_point": "games_collection.games.word.crossword.__main__:main",
+      "description": "Crossword from the word games collection.",
+      "tags": [
+        "word"
+      ]
+    },
+    {
+      "slug": "trivia",
+      "name": "Trivia",
+      "genre": "word",
+      "package": "games_collection.games.word.trivia",
+      "entry_point": "games_collection.games.word.trivia.__main__:main",
+      "description": "Trivia from the word games collection.",
+      "tags": [
+        "word"
+      ]
+    },
+    {
+      "slug": "wordbuilder",
+      "name": "Wordbuilder",
+      "genre": "word",
+      "package": "games_collection.games.word.wordbuilder",
+      "entry_point": "games_collection.games.word.wordbuilder.__main__:main",
+      "description": "Wordbuilder from the word games collection.",
+      "tags": [
+        "word"
+      ]
+    }
+  ]
+}

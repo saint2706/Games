@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from card_games.common.cards import Card, Deck, Suit
-from card_games.cribbage.ai import choose_pegging_card, select_discards
-from card_games.cribbage.game import CribbageGame, GamePhase
+from games_collection.games.card.common.cards import Card, Deck, Suit
+from games_collection.games.card.cribbage.ai import choose_pegging_card, select_discards
+from games_collection.games.card.cribbage.game import CribbageGame, GamePhase
 
 
 def test_select_discards_prefers_strong_hand() -> None:

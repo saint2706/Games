@@ -100,7 +100,7 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 **Next steps:**
 
-- [x] Add adaptive AI opponents for Farkle and Liar's Dice leveraging `common/ai_strategy.py`
+- [x] Add adaptive AI opponents for Farkle and Liar's Dice leveraging `src/games_collection/core/ai_strategy.py`
 - [x] Implement Bunco tournament brackets and scoring summaries in CLI and GUI front-ends
 - [x] Expand Craps betting options (odds bets, place bets) with analytics tracking hooks
 
@@ -128,13 +128,13 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 **Next steps:**
 
-- [x] Add PyQt5/Tkinter GUIs for logic games using `common/gui_base.py` and `common/gui_base_pyqt.py` ✅ `logic_games/gui.py` now
+- [x] Add PyQt5/Tkinter GUIs for logic games using `src/games_collection/core/gui_base.py` and `src/games_collection/core/gui_base_pyqt.py` ✅ `src/games_collection/games/logic/gui.py` now
       provides shared hubs for both toolkits.
-- [x] Implement progressive level packs and difficulty unlocks across puzzle titles ✅ `logic_games/progression.py` and
-      `logic_games/registry.py` wire structured packs for Sokoban, Minesweeper, Picross, Lights Out, and Sliding Puzzle.
+- [x] Implement progressive level packs and difficulty unlocks across puzzle titles ✅ `src/games_collection/games/logic/progression.py` and
+      `src/games_collection/games/logic/registry.py` wire structured packs for Sokoban, Minesweeper, Picross, Lights Out, and Sliding Puzzle.
 - [x] Provide in-game hint systems tied to the tutorial registry helpers ✅ the progression service fetches tutorial hints and
       strategy tips via the global registry.
-- [x] Track per-puzzle leaderboards and completion analytics via `common/analytics` ✅ completions feed into
+- [x] Track per-puzzle leaderboards and completion analytics via `src/games_collection/core/analytics` ✅ completions feed into
       `GameStatistics` records for leaderboard summaries.
 - [x] Generate larger or custom puzzle sets with configurable parameters ✅ generators support custom parameters for batch
       puzzle creation.
@@ -145,13 +145,13 @@ For detailed implementation notes, see [IMPLEMENTATION_NOTES.md](IMPLEMENTATION_
 
 Many infrastructure improvements exist but aren't yet applied to all games:
 
-- [x] Add enhanced GUI features (themes, sounds, animations) to all card games via `common/gui_base_pyqt.py`, shared themes, and soundscapes
+- [x] Add enhanced GUI features (themes, sounds, animations) to all card games via `src/games_collection/core/gui_base_pyqt.py`, shared themes, and soundscapes
 - [x] **Implement save/load functionality in games** ✅ - War game now supports save/load using `SaveLoadManager`
 - [x] **Add replay/undo functionality to strategy games** ✅ - Tic-tac-toe now supports undo using `ReplayManager`
 - [x] Apply event-driven architecture to more games ✅ **NEW** - Go Fish and Connect Four now emit structured
   `GameEventType` payloads for lifecycle, turn, and scoring updates, aligning with the shared event bus patterns
 - [x] **Integrate CLI enhancements into games** ✅ - Hangman now uses `InteractiveMenu`, `ASCIIArt`, `RichText`
-- [x] **Universal statistics system for card games** ✅ **NEW** - `card_games/common/stats.py` wrapper created and
+- [x] **Universal statistics system for card games** ✅ **NEW** - `src/games_collection/games/card/src/games_collection/core/stats.py` wrapper created and
   integrated into War game
 
 - [x] Expand save/load integration beyond War so additional card and board games persist matches by default ✅ **NEW** -
@@ -165,20 +165,20 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [x] 2v2 team play mode
 - [x] Card animation effects and sound infrastructure in GUI
 - [x] **Complete jump-in rule implementation** ✅ **NEW**
-- [x] Add online multiplayer capability ✅ **NEW** — Asyncio-based server/client (`card_games/uno/network.py`) with automated interface tests
+- [x] Add online multiplayer capability ✅ **NEW** — Asyncio-based server/client (`src/games_collection/games/card/uno/network.py`) with automated interface tests
 - [x] Create custom deck designer ✅ **NEW** — Validated loader, custom effects, and coverage via dedicated test suite
 
 ### Cross-Game Features
 
-- [x] **Implement universal statistics tracking system** ✅ **PARTIAL** - Created `card_games/common/stats.py` wrapper,
+- [x] **Implement universal statistics tracking system** ✅ **PARTIAL** - Created `src/games_collection/games/card/src/games_collection/core/stats.py` wrapper,
   integrated into War game as example
-- [x] Add achievement system across all games ✅ - `common/achievements.py` and `common/achievements_registry.py` provide shared unlock tracking and notifications
-- [x] Create unified profile and progression system ✅ - `common/profile.py` persists player progress, achievements, and challenge streaks
-- [x] Implement cross-game tutorial system using existing documentation ✅ - `common/tutorial_registry.py` federates tutorials, hints, and probability calculators
+- [x] Add achievement system across all games ✅ - `src/games_collection/core/achievements.py` and `src/games_collection/core/achievements_registry.py` provide shared unlock tracking and notifications
+- [x] Create unified profile and progression system ✅ - `src/games_collection/core/profile.py` persists player progress, achievements, and challenge streaks
+- [x] Implement cross-game tutorial system using existing documentation ✅ - `src/games_collection/core/tutorial_registry.py` federates tutorials, hints, and probability calculators
 - [x] Add daily challenges with rotation across different games
-- [x] Create game recommendation system based on play history ✅ - `common/recommendation_service.py` blends analytics-driven suggestions
+- [x] Create game recommendation system based on play history ✅ - `src/games_collection/core/recommendation_service.py` blends analytics-driven suggestions
 - [x] Implement cross-game leaderboard integration ✅ **NEW** - Launcher now pulls aggregated rankings from the global
-  profile directory via `common/leaderboard_service.py`
+  profile directory via `src/games_collection/core/leaderboard_service.py`
 - [x] Broaden achievement catalog coverage to more games beyond the initial Tic-Tac-Toe, Hangman, Nim, and daily challenge
   sets ✅ **NEW** - Blackjack, Connect Four, Go Fish, Sudoku, and Battleship ship with bespoke unlocks
 - [x] Surface profile, achievement, and recommendation data inside the launcher UI for easier discovery ✅ **NEW** - Launcher

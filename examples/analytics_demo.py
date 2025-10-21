@@ -17,9 +17,9 @@ from __future__ import annotations
 
 import time
 
-from common.analytics import Dashboard, EloRating, GameStatistics, Heatmap, PerformanceMetrics, ReplayAnalyzer
-from common.analytics.rating_systems import calculate_ai_difficulty_rating
-from common.analytics.visualization import create_leaderboard_display
+from games_collection.core.analytics import Dashboard, EloRating, GameStatistics, Heatmap, PerformanceMetrics, ReplayAnalyzer
+from games_collection.core.analytics.rating_systems import calculate_ai_difficulty_rating
+from games_collection.core.analytics.visualization import create_leaderboard_display
 
 
 def demo_game_statistics() -> None:

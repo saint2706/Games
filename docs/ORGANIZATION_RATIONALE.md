@@ -17,32 +17,22 @@ decisions.
 
 ```
 Games/
-├── card_games/          # Card-based games
-│   ├── poker/
-│   ├── blackjack/
-│   ├── bluff/
-│   ├── uno/
-│   ├── hearts/
-│   ├── spades/
-│   ├── gin_rummy/
-│   ├── bridge/
-│   ├── solitaire/
-│   └── common/         # Shared card utilities
-├── paper_games/        # Paper-and-pencil games
-│   ├── tic_tac_toe/
-│   ├── battleship/
-│   ├── hangman/
-│   ├── dots_and_boxes/
-│   ├── nim/
-│   ├── unscramble/
-│   ├── connect_four/
-│   ├── checkers/
-│   ├── mancala/
-│   ├── othello/
-│   └── sudoku/
-├── dice_games/         # Dice-based games (new category)
-├── word_games/         # Word and trivia games (new category)
-└── logic_games/        # Logic puzzles and brain teasers (new category)
+├── src/
+│   └── games_collection/
+│       ├── catalog/                       # Declarative registry consumed by tooling
+│       ├── core/                          # Shared utilities (engines, GUIs, AI)
+│       └── games/
+│           ├── card/                      # Card-based games (Poker, Blackjack, Uno, ...)
+│           ├── paper/                     # Paper-and-pencil games (Chess, Sudoku, ...)
+│           ├── dice/                      # Dice-based games (Craps, Farkle, ...)
+│           ├── logic/                     # Logic puzzles (Sokoban, Minesweeper, ...)
+│           └── word/                      # Word and trivia games (Crossword, Trivia, ...)
+├── src/games_collection/games/card/                            # Compatibility shim for legacy imports
+├── src/games_collection/games/paper/                           # Compatibility shim for legacy imports
+├── src/games_collection/games/dice/                            # Compatibility shim for legacy imports
+├── src/games_collection/games/logic/                           # Compatibility shim for legacy imports
+├── src/games_collection/games/word/                            # Compatibility shim for legacy imports
+└── common/                                # Compatibility shim for legacy imports
 ```
 
 ### Rationale
@@ -61,11 +51,12 @@ Games/
 
 **Current Categories:**
 
-- `card_games/` - Card-based games using standard or specialized decks
-- `paper_games/` - Paper-and-pencil games and board games
-- `dice_games/` - Dice-based games with random elements (new, awaiting implementations)
-- `word_games/` - Word-based games, trivia, and linguistic challenges (new, awaiting implementations)
-- `logic_games/` - Logic puzzles, brain teasers, and problem-solving games (new, awaiting implementations)
+- `src/games_collection/games/card/` - Card-based games using standard or specialized decks
+- `src/games_collection/games/paper/` - Paper-and-pencil games and board games
+- `src/games_collection/games/dice/` - Dice-based games with random elements
+- `src/games_collection/games/word/` - Word-based games, trivia, and linguistic challenges
+- `src/games_collection/games/logic/` - Logic puzzles, brain teasers, and problem-solving games
+- `src/games_collection/catalog/registry.json` - Declarative metadata powering documentation, launchers, and recommendations
 
 **Alternative Approaches Considered:**
 
@@ -118,7 +109,7 @@ game_name/
 
 #### 3. Common Utilities
 
-**card_games/common/**: Card-specific utilities (Card, Deck, Hand, Suit) **common/**: Repository-wide utilities (game
+**src/games_collection/games/card/src/games_collection/core/**: Card-specific utilities (Card, Deck, Hand, Suit) **src/games_collection/core/**: Repository-wide utilities (game
 engine base, GUI base, AI strategies)
 
 **Why separate common modules?**
@@ -195,7 +186,7 @@ engine base, GUI base, AI strategies)
 Before:
 
 - 3 separate MCP debug files (FINAL_MCP_DEBUG_REPORT.md, MCP_TEST_RESULTS.md, .github/MCP_DEBUG_SUMMARY.md)
-- Multiple implementation summary documents (IMPLEMENTATION_SUMMARY.md, Q4_2025_IMPLEMENTATION_SUMMARY.md, CARD_GAMES_IMPLEMENTATION.md, card_games/IMPLEMENTATION_SUMMARY.md)
+- Multiple implementation summary documents (IMPLEMENTATION_SUMMARY.md, Q4_2025_IMPLEMENTATION_SUMMARY.md, CARD_GAMES_IMPLEMENTATION.md, src/games_collection/games/card/IMPLEMENTATION_SUMMARY.md)
 - Duplicate architecture info (ARCHITECTURE.md, ARCHITECTURE_STRUCTURE.txt)
 - DOCUMENTATION_CLEANUP_SUMMARY.md (historical cleanup notes)
 
@@ -218,7 +209,7 @@ After:
 ### Common Module Structure
 
 ```
-common/
+src/games_collection/core/
 ├── __init__.py
 ├── architecture/           # Architectural patterns
 │   ├── engine.py          # Game engine abstraction
@@ -260,8 +251,8 @@ common/
 tests/
 ├── conftest.py                    # Shared fixtures
 ├── fixtures/                      # Test data
-├── test_card_games.py            # Card game tests
-├── test_paper_games.py           # Paper game tests
+├── test_games_collection.games.card.py            # Card game tests
+├── test_games_collection.games.paper.py           # Paper game tests
 ├── test_architecture.py          # Architecture tests
 ├── test_plugin_system.py         # Plugin tests
 ├── test_cli_utils.py             # CLI utilities tests
@@ -309,7 +300,7 @@ game-specific unit tests if needed.
 - All games follow same module structure
 - All documentation follows same categorization
 - All tests in centralized location
-- Common patterns in common/ module
+- Common patterns in src/games_collection/core/ module
 
 ### 3. Scalability
 
@@ -317,7 +308,7 @@ game-specific unit tests if needed.
 
 **Applied:**
 
-- Easy to add new game categories (board_games/, dice_games/)
+- Easy to add new game categories (board_games/, src/games_collection/games/dice/)
 - Easy to add new documentation categories (docs/tutorials/, docs/guides/)
 - Common module supports new architectural patterns
 - Plugin system allows third-party games
@@ -361,7 +352,7 @@ game-specific unit tests if needed.
 
 **Applied:**
 
-- Clear directory names (card_games/, paper_games/, docs/)
+- Clear directory names (src/games_collection/games/card/, src/games_collection/games/paper/, docs/)
 - Consistent naming conventions
 - README files at each level
 - Comprehensive game catalog
@@ -373,9 +364,9 @@ game-specific unit tests if needed.
 As the repository grows, we may add:
 
 - **board_games/**: Chess, Go, Backgammon
-- **dice_games/**: Yahtzee, Craps, Farkle
-- **word_games/**: Wordle, Boggle (if distinct from paper_games)
-- **puzzle_games/**: Sliding puzzles, logic puzzles (if distinct from paper_games)
+- **src/games_collection/games/dice/**: Yahtzee, Craps, Farkle
+- **src/games_collection/games/word/**: Wordle, Boggle (if distinct from the paper catalogue)
+- **puzzle_games/**: Sliding puzzles, logic puzzles (if distinct from the paper catalogue)
 
 ### Maintaining Organization
 

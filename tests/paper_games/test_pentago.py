@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from common.game_engine import GameState
-from paper_games.pentago import PentagoGame, PentagoMove
+from games_collection.core.game_engine import GameState
+from games_collection.games.paper.pentago import PentagoGame, PentagoMove
 
 
 def test_quadrant_rotation_moves_marble() -> None:

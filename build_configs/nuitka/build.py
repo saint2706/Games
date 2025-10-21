@@ -61,6 +61,7 @@ def build_with_nuitka() -> int:
         "--output-filename=games-collection",  # Name of the final executable
         # --- Package and Module Inclusion ---
         # Explicitly include all game packages to ensure they are part of the build
+        "--include-package=games_collection",
         "--include-package=card_games",
         "--include-package=paper_games",
         "--include-package=dice_games",

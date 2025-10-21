@@ -43,7 +43,7 @@ This guide covers different deployment methods for the Games Collection.
 
 ## Release Validation
 
-All PyPI releases are gated by an automated smoke test that runs in GitHub Actions whenever a release is published or the workflow is dispatched manually. The workflow builds the source and wheel distributions, installs the generated wheel into an isolated virtual environment, and verifies two representative entry points: `games-collection --help` and `python -m card_games.go_fish --gui-framework pyqt5 --help`. The PyPI upload proceeds only if these commands succeed, ensuring that the published artifacts are installable and expose their CLI help correctly.
+All PyPI releases are gated by an automated smoke test that runs in GitHub Actions whenever a release is published or the workflow is dispatched manually. The workflow builds the source and wheel distributions, installs the generated wheel into an isolated virtual environment, and verifies two representative entry points: `games-collection --help` and `python -m games_collection.games.card.go_fish --gui-framework pyqt5 --help`. The PyPI upload proceeds only if these commands succeed, ensuring that the published artifacts are installable and expose their CLI help correctly.
 
 ## Installation from PyPI
 
@@ -167,7 +167,7 @@ docker-compose up -d
 docker-compose exec games bash
 
 # Run a game
-python -m card_games.war
+python -m games_collection.games.card.war
 ```
 
 ### Using Docker Directly
@@ -225,8 +225,8 @@ pip install -e .[dev]
 
 ```bash
 # Using Python module syntax
-python -m card_games.war
-python -m paper_games.tic_tac_toe
+python -m games_collection.games.card.war
+python -m games_collection.games.paper.tic_tac_toe
 
 # Or using the launcher
 python scripts/launcher.py
@@ -275,10 +275,10 @@ python scripts/launcher.py
 
 ```bash
 # Test basic import
-python -c "from card_games.war import WarGame; print('Success!')"
+python -c "from games_collection.games.card.war import WarGame; print('Success!')"
 
 # Test crash reporter
-python -c "from common.crash_reporter import CrashReporter; print('Success!')"
+python -c "from games_collection.core.crash_reporter import CrashReporter; print('Success!')"
 
 # Test launcher
 python scripts/launcher.py

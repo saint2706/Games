@@ -7,9 +7,9 @@ from typing import Dict
 
 import pytest
 
-from common.analytics.game_stats import GameStatistics, PlayerStats
-from common.profile import GameProfile, PlayerProfile
-from common.recommendation_service import GameDescriptor, RecommendationService
+from games_collection.core.analytics.game_stats import GameStatistics, PlayerStats
+from games_collection.core.profile import GameProfile, PlayerProfile
+from games_collection.core.recommendation_service import GameDescriptor, RecommendationService
 
 
 def build_stats(game_name: str, total_games: int, challenge_completions: int) -> GameStatistics:

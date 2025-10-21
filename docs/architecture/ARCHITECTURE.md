@@ -5,7 +5,7 @@ extensible game implementations.
 
 ## Overview
 
-The `common/architecture` module provides a comprehensive set of architectural patterns and utilities to support game
+The `src/games_collection/core/architecture` module provides a comprehensive set of architectural patterns and utilities to support game
 development:
 
 1. **Plugin System** - Add third-party games without modifying core code
@@ -20,14 +20,14 @@ development:
 
 ### 1. Plugin System
 
-Located in `common/architecture/plugin.py`
+Located in `src/games_collection/core/architecture/plugin.py`
 
 The plugin system allows third-party developers to add new games without modifying the core codebase.
 
 #### Basic Usage
 
 ```python
-from common.architecture import GamePlugin, PluginManager, PluginMetadata
+from games_collection.core.architecture import GamePlugin, PluginManager, PluginMetadata
 
 class MyGamePlugin(GamePlugin):
     def get_metadata(self):
@@ -63,14 +63,14 @@ manager.load_plugin("my_game")
 
 ### 2. Event-Driven Architecture
 
-Located in `common/architecture/events.py`
+Located in `src/games_collection/core/architecture/events.py`
 
 The event system enables loose coupling between game components.
 
 #### Basic Usage
 
 ```python
-from common.architecture import EventBus, EventHandler, Event
+from games_collection.core.architecture import EventBus, EventHandler, Event
 
 class GameEventHandler(EventHandler):
     def handle(self, event: Event):
@@ -102,14 +102,14 @@ history = bus.get_history("PLAYER_MOVE")
 
 ### 3. Observer Pattern
 
-Located in `common/architecture/observer.py`
+Located in `src/games_collection/core/architecture/observer.py`
 
 The observer pattern allows GUIs to stay synchronized with game state changes.
 
 #### Basic Usage
 
 ```python
-from common.architecture import Observable, Observer
+from games_collection.core.architecture import Observable, Observer
 
 class GameStateObserver(Observer):
     def update(self, observable, **kwargs):
@@ -134,14 +134,14 @@ model.set_score(100)  # Observer will be notified
 
 ### 4. Save/Load System
 
-Located in `common/architecture/persistence.py`
+Located in `src/games_collection/core/architecture/persistence.py`
 
 Provides consistent save/load functionality across all games.
 
 #### Basic Usage
 
 ```python
-from common.architecture import SaveLoadManager
+from games_collection.core.architecture import SaveLoadManager
 from pathlib import Path
 
 manager = SaveLoadManager(save_dir=Path("./saves"))
@@ -172,14 +172,14 @@ info = manager.get_save_info(filepath)
 
 ### 5. Replay/Undo System
 
-Located in `common/architecture/replay.py`
+Located in `src/games_collection/core/architecture/replay.py`
 
 Record game actions for replay functionality and implement undo/redo.
 
 #### Basic Usage
 
 ```python
-from common.architecture import ReplayManager
+from games_collection.core.architecture import ReplayManager
 import time
 
 manager = ReplayManager(max_history=100)
@@ -205,14 +205,14 @@ if manager.can_redo():
 
 ### 6. Unified Settings System
 
-Located in `common/architecture/settings.py`
+Located in `src/games_collection/core/architecture/settings.py`
 
 Centralized configuration management for all games.
 
 #### Basic Usage
 
 ```python
-from common.architecture import SettingsManager
+from games_collection.core.architecture import SettingsManager
 from pathlib import Path
 
 manager = SettingsManager(config_dir=Path("./config"))
@@ -237,14 +237,14 @@ global_settings = manager.get_global_settings()
 
 ### 7. Game Engine Abstraction
 
-Located in `common/architecture/engine.py`
+Located in `src/games_collection/core/architecture/engine.py`
 
 Provides a common interface for all game engines.
 
 #### Basic Usage
 
 ```python
-from common.architecture import GameEngine, GameState, GamePhase
+from games_collection.core.architecture import GameEngine, GameState, GamePhase
 
 class MyGameEngine(GameEngine):
     def initialize(self, **kwargs):
@@ -280,7 +280,7 @@ engine.initialize()
 Here's a complete example integrating multiple architecture components:
 
 ```python
-from common.architecture import (
+from games_collection.core.architecture import (
     GameEngine, GameState, GamePhase,
     EventBus, SaveLoadManager, ReplayManager,
     Observable, SettingsManager
@@ -403,7 +403,7 @@ ______________________________________________________________________
 ### Component Structure
 
 ```
-📦 common/architecture/          Core Architecture Components
+📦 src/games_collection/core/architecture/          Core Architecture Components
 ├── 🎮 engine.py                 Game Engine Abstraction Layer
 │   ├── GameEngine (ABC)         - Base class for all games
 │   ├── GameState                - State container

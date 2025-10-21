@@ -6,10 +6,10 @@ from typing import List
 
 import pytest
 
-import dice_games.craps.craps as craps_module
-import dice_games.farkle.farkle as farkle_module
-from common import Event, EventBus, EventHandler, GameEventType
-from dice_games import CrapsGame, FarkleGame
+import games_collection.games.dice.craps.craps as craps_module
+import games_collection.games.dice.farkle.farkle as farkle_module
+from games_collection.core import Event, EventBus, EventHandler, GameEventType
+from games_collection.games.dice import CrapsGame, FarkleGame
 
 
 class RecordingHandler(EventHandler):

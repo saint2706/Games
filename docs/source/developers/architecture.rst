@@ -7,16 +7,16 @@ of abstractions. This section summarises the most important components.
 Package layout
 --------------
 
-- ``card_games/``
-- ``paper_games/``
-- ``dice_games/``
-- ``logic_games/``
-- ``word_games/``
+- ``src/games_collection/games/card/``
+- ``src/games_collection/games/paper/``
+- ``src/games_collection/games/dice/``
+- ``src/games_collection/games/logic/``
+- ``src/games_collection/games/word/``
 
   Genre-specific packages. Each game lives in its own subpackage that exposes a
   ``main`` function for CLI play and, when available, GUI launchers.
 
-- ``common/`` – Cross-cutting utilities shared by every game. Highlights
+- ``src/games_collection/core/`` – Cross-cutting utilities shared by every game. Highlights
   include:
 
   * ``common.game_engine.GameEngine`` – Base class that standardises turn
@@ -41,7 +41,7 @@ Package layout
   * ``common.animations`` – Utilities for creating animations.
 
 
-- ``common/architecture/`` – Core infrastructure for the game engine.
+- ``src/games_collection/core/architecture/`` – Core infrastructure for the game engine.
 
   * ``events`` – A lightweight event dispatcher.
   * ``persistence`` – Helpers for saving and loading game state.

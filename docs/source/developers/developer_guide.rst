@@ -39,7 +39,7 @@ Code style checklist
 * **Complexity** – Keep cyclomatic complexity at or below 10. The ``radon``
   configuration matches this target::
 
-       radon cc card_games paper_games dice_games logic_games word_games -a -s
+      radon cc src/games_collection/games/card src/games_collection/games/paper src/games_collection/games/dice src/games_collection/games/logic src/games_collection/games/word -a -s
 
 Testing
 -------

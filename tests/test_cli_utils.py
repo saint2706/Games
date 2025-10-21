@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from common.cli_utils import (
+from games_collection.core.cli_utils import (
     THEMES,
     ASCIIArt,
     Color,

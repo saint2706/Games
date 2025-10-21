@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from common.challenges import DifficultyLevel, get_default_challenge_manager
-from common.daily_challenges import DailyChallengeScheduler
+from games_collection.core.challenges import DifficultyLevel, get_default_challenge_manager
+from games_collection.core.daily_challenges import DailyChallengeScheduler
 
 
 def test_scheduler_persists_selection(tmp_path) -> None:

@@ -5,10 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from common.educational import StrategyTip, StrategyTipProvider, TutorialMode, TutorialStep
-from common.game_engine import GameEngine, GameState
-from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, SimpleProgressProbabilityCalculator, TutorialMetadata, TutorialRegistration
-from logic_games.progression import LOGIC_PUZZLE_SERVICE, LevelPack, LogicPuzzleDefinition, LogicPuzzleService, PuzzleDifficulty
+from games_collection.core.educational import StrategyTip, StrategyTipProvider, TutorialMode, TutorialStep
+from games_collection.core.game_engine import GameEngine, GameState
+from games_collection.core.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, SimpleProgressProbabilityCalculator, TutorialMetadata, TutorialRegistration
+from games_collection.games.logic.progression import LOGIC_PUZZLE_SERVICE, LevelPack, LogicPuzzleDefinition, LogicPuzzleService, PuzzleDifficulty
 
 
 class DummyGame(GameEngine[None, int]):

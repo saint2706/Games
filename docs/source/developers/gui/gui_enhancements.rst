@@ -25,7 +25,7 @@ The GUI enhancements provide a unified system for:
 Features
 --------
 
-1. Theme System (``common/themes.py``)
+1. Theme System (``src/games_collection/core/themes.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Provides a unified theming system with predefined themes and custom
@@ -43,7 +43,7 @@ Usage
 
 .. code:: python
 
-   from common.themes import get_theme_manager
+   from games_collection.core.themes import get_theme_manager
 
    # Get theme manager
    theme_mgr = get_theme_manager()
@@ -87,7 +87,7 @@ Each theme has the following color properties:
 -  ``highlight`` - Highlight color
 -  ``canvas_bg`` - Canvas/game board background
 
-2. Sound Manager (``common/sound_manager.py``)
+2. Sound Manager (``src/games_collection/core/sound_manager.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Cross-platform sound effects system using pygame.mixer (optional
@@ -111,7 +111,7 @@ Usage
 
 .. code:: python
 
-   from common.sound_manager import create_sound_manager
+   from games_collection.core.sound_manager import create_sound_manager
 
    # Create sound manager
    sound_mgr = create_sound_manager(
@@ -151,7 +151,7 @@ Place sound files in a dedicated directory:
    ├── click.wav
    └── error.wav
 
-3. Animation Framework (``common/animations.py``)
+3. Animation Framework (``src/games_collection/core/animations.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Provides smooth animations and transitions for GUI elements.
@@ -171,7 +171,7 @@ Usage
 
 .. code:: python
 
-   from common.animations import (
+   from games_collection.core.animations import (
        animate_widget_highlight,
        animate_color_transition,
        PulseAnimation
@@ -192,7 +192,7 @@ Usage
    )
    pulse.start()
 
-4. Accessibility Features (``common/accessibility.py``)
+4. Accessibility Features (``src/games_collection/core/accessibility.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Provides accessibility support for users with disabilities.
@@ -215,7 +215,7 @@ Usage
 
 .. code:: python
 
-   from common.accessibility import (
+   from games_collection.core.accessibility import (
        get_accessibility_manager,
        create_accessible_button
    )
@@ -247,7 +247,7 @@ Usage
        accessible_label="Start a new game"
    )
 
-5. Internationalization (i18n) (``common/i18n.py``)
+5. Internationalization (i18n) (``src/games_collection/core/i18n.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Multi-language support with translation system.
@@ -270,7 +270,7 @@ Usage
 
 .. code:: python
 
-   from common.i18n import (
+   from games_collection.core.i18n import (
        get_translation_manager,
        _,
        set_language
@@ -310,7 +310,7 @@ The system includes default English translations for common UI elements:
 -  ``volume``, ``theme``, ``language``, ``difficulty``
 -  And many more…
 
-6. Keyboard Shortcuts (``common/keyboard_shortcuts.py``)
+6. Keyboard Shortcuts (``src/games_collection/core/keyboard_shortcuts.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Centralized keyboard shortcut management.
@@ -333,7 +333,7 @@ Usage
 
 .. code:: python
 
-   from common.keyboard_shortcuts import (
+   from games_collection.core.keyboard_shortcuts import (
        get_shortcut_manager,
        register_shortcut
    )
@@ -384,7 +384,7 @@ The system registers these default shortcuts:
 -  ``F1`` - Show Help
 -  ``Ctrl+,`` - Open Settings
 
-7. Enhanced BaseGUI (``common/gui_base.py``)
+7. Enhanced BaseGUI (``src/games_collection/core/gui_base.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``BaseGUI`` class has been enhanced to integrate all these features.
@@ -394,7 +394,7 @@ New Configuration Options
 
 .. code:: python
 
-   from common.gui_base import GUIConfig
+   from games_collection.core.gui_base import GUIConfig
 
    config = GUIConfig(
        window_title="My Game",
@@ -449,8 +449,8 @@ Here’s a complete example integrating all features:
 .. code:: python
 
    import tkinter as tk
-   from common.gui_base import BaseGUI, GUIConfig
-   from common import _
+   from games_collection.core.gui_base import BaseGUI, GUIConfig
+   from games_collection.core import _
 
    class MyGameGUI(BaseGUI):
        def __init__(self, root):
@@ -499,7 +499,7 @@ Here’s a complete example integrating all features:
            self.play_sound("game_start")
 
            # Animate button
-           from common.animations import animate_widget_highlight
+           from games_collection.core.animations import animate_widget_highlight
            animate_widget_highlight(self.game_button)
 
            # Announce for screen readers
@@ -587,8 +587,8 @@ To migrate existing GUIs to use these enhancements:
 
    .. code:: python
 
-      from common.gui_base import BaseGUI, GUIConfig
-      from common import _
+      from games_collection.core.gui_base import BaseGUI, GUIConfig
+      from games_collection.core import _
 
 2. **Update GUIConfig**:
 

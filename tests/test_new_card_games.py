@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from card_games.bridge import BridgeGame, BridgePlayer
-from card_games.common.cards import Card, Deck, Suit
-from card_games.gin_rummy import GinRummyGame, GinRummyPlayer
-from card_games.gin_rummy.game import KnockType
-from card_games.hearts import HeartsGame, HeartsPlayer
-from card_games.solitaire import SolitaireGame
-from card_games.spades import SpadesGame, SpadesPlayer
+from games_collection.games.card.bridge import BridgeGame, BridgePlayer
+from games_collection.games.card.common.cards import Card, Deck, Suit
+from games_collection.games.card.gin_rummy import GinRummyGame, GinRummyPlayer
+from games_collection.games.card.gin_rummy.game import KnockType
+from games_collection.games.card.hearts import HeartsGame, HeartsPlayer
+from games_collection.games.card.solitaire import SolitaireGame
+from games_collection.games.card.spades import SpadesGame, SpadesPlayer
 
 
 class TestSolitaire:
@@ -53,7 +53,7 @@ class TestSolitaire:
         assert game.is_won() is False
 
         # Simulate winning condition
-        from card_games.common.cards import Card, Suit
+        from games_collection.games.card.common.cards import Card, Suit
 
         for foundation in game.foundations:
             foundation.cards = [Card(r, Suit.HEARTS) for r in ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"]]
@@ -482,7 +482,7 @@ class TestGinRummy:
     def test_analyze_hand_chooses_best_melds(self):
         """Optimal meld search should prefer runs that free high cards."""
 
-        from card_games.common.cards import Card, Suit
+        from games_collection.games.card.common.cards import Card, Suit
 
         players = [GinRummyPlayer("Player", is_ai=True) for _ in range(2)]
         game = GinRummyGame(players)
@@ -506,7 +506,7 @@ class TestGinRummy:
     def test_calculate_round_score_gin_and_big_gin(self):
         """Gin and big gin scoring should award the correct bonuses."""
 
-        from card_games.common.cards import Card, Suit
+        from games_collection.games.card.common.cards import Card, Suit
 
         players = [GinRummyPlayer("Knocker"), GinRummyPlayer("Opponent")]
         game = GinRummyGame(players)
@@ -550,7 +550,7 @@ class TestGinRummy:
     def test_knock_with_layoff_and_undercut(self):
         """Layoffs reduce opponent deadwood and can trigger undercuts."""
 
-        from card_games.common.cards import Card, Suit
+        from games_collection.games.card.common.cards import Card, Suit
 
         players = [GinRummyPlayer("Knocker"), GinRummyPlayer("Opponent")]
         game = GinRummyGame(players)
@@ -609,7 +609,7 @@ class TestGinRummy:
     def test_stock_reshuffle(self):
         """Drawing from an empty stock should recycle the discard pile."""
 
-        from card_games.common.cards import Card, Suit
+        from games_collection.games.card.common.cards import Card, Suit
 
         players = [GinRummyPlayer(f"Player {i}") for i in range(2)]
         game = GinRummyGame(players)
@@ -677,7 +677,7 @@ class TestBridge:
         players = [BridgePlayer("Player", is_ai=True) for _ in range(4)]
         game = BridgeGame(players)
 
-        from card_games.common.cards import Card, Suit
+        from games_collection.games.card.common.cards import Card, Suit
 
         players[0].hand = [
             Card("A", Suit.HEARTS),  # 4 points

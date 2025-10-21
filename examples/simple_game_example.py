@@ -18,7 +18,7 @@ from typing import List, Optional
 # Add the project's root directory to the Python path to allow for module imports.
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from common import GameEngine, GameState, HeuristicStrategy, RandomStrategy
+from games_collection.core import GameEngine, GameState, HeuristicStrategy, RandomStrategy
 
 
 class NumberGuessingGame(GameEngine[int, str]):

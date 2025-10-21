@@ -41,7 +41,7 @@ Implementation Components
 1. Base Infrastructure
 ^^^^^^^^^^^^^^^^^^^^^^
 
-**File**: ``common/gui_base_pyqt.py``
+**File**: ``src/games_collection/core/gui_base_pyqt.py``
 
 -  Abstract base class ``BaseGUI`` for PyQt5 applications
 -  ``GUIConfig`` dataclass for configuration
@@ -60,9 +60,9 @@ Implementation Components
 
 **Files**:
 
--  ``paper_games/dots_and_boxes/gui_pyqt.py``
--  ``card_games/go_fish/gui_pyqt.py``
--  ``card_games/bluff/gui_pyqt.py``
+-  ``src/games_collection/games/paper/dots_and_boxes/gui_pyqt.py``
+-  ``src/games_collection/games/card/go_fish/gui_pyqt.py``
+-  ``src/games_collection/games/card/bluff/gui_pyqt.py``
 
 **Highlights**:
 
@@ -77,20 +77,20 @@ Implementation Components
 -  Timers (``QTimer.singleShot``) replacing ``tk.after`` for
    asynchronous turns
 -  Dynamic UI updates that mirror CLI narration
--  **Dots and Boxes** (``paper_games/dots_and_boxes/gui_pyqt.py``)
+-  **Dots and Boxes** (``src/games_collection/games/paper/dots_and_boxes/gui_pyqt.py``)
 
    -  Custom ``BoardCanvas`` widget with QPainter for game board
       rendering
    -  Mouse event handling (click, move, hover)
    -  AI opponent integration, hints, and score tracking
 
--  **Go Fish** (``card_games/go_fish/gui_pyqt.py``)
+-  **Go Fish** (``src/games_collection/games/card/go_fish/gui_pyqt.py``)
 
    -  Scoreboard and control panels implemented with Qt layouts
    -  Animated feedback via timers for book celebrations
    -  Scrollable hand view with grouped ranks
 
--  **Spades** (``card_games/spades/gui_pyqt.py``)
+-  **Spades** (``src/games_collection/games/card/spades/gui_pyqt.py``)
 
    -  Bidding, trick tracking, and scoring panels reconstructed with
       ``QGroupBox``
@@ -98,7 +98,7 @@ Implementation Components
       sequencing
    -  Log and breakdown panels built with ``QTextEdit``
 
-**File**: ``card_games/blackjack/gui_pyqt.py``
+**File**: ``src/games_collection/games/card/blackjack/gui_pyqt.py``
 
 -  Full blackjack table interface with betting controls and action
    buttons
@@ -112,8 +112,8 @@ Implementation Components
 3. Card Game Ports
 ^^^^^^^^^^^^^^^^^^
 
-**Files**: ``card_games/go_fish/gui_pyqt.py``,
-``card_games/war/gui_pyqt.py``
+**Files**: ``src/games_collection/games/card/go_fish/gui_pyqt.py``,
+``src/games_collection/games/card/war/gui_pyqt.py``
 
 -  Go Fish GUI demonstrates rich widget layouts with scoreboards,
    grouped hand displays, and celebratory animations driven by
@@ -187,7 +187,7 @@ Implementation Components
    python scripts/test_gui.py --list
 
    # Check specific game
-   python scripts/test_gui.py --check-game paper_games/dots_and_boxes --framework pyqt5
+   python scripts/test_gui.py --check-game src/games_collection/games/paper/dots_and_boxes --framework pyqt5
 
 Technical Highlights
 --------------------
@@ -256,7 +256,7 @@ operations/status/gui_migration_status (operations/status/gui_migration_status)\
 Infrastructure (Complete)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  ✅ PyQt5 base infrastructure (``common/gui_base_pyqt.py``)
+-  ✅ PyQt5 base infrastructure (``src/games_collection/core/gui_base_pyqt.py``)
 -  ✅ Test framework
 -  ✅ Documentation
 -  ✅ Development tools
@@ -334,10 +334,10 @@ Guidelines for New GUI Development
 For new games or GUI features:
 
 1. **Use PyQt5** as the primary GUI framework
-2. **Inherit from BaseGUI** in ``common/gui_base_pyqt.py`` for
+2. **Inherit from BaseGUI** in ``src/games_collection/core/gui_base_pyqt.py`` for
    consistency
 3. **Reference existing implementations** as examples (e.g.,
-   ``card_games/solitaire/gui_pyqt.py`` for complex GUIs)
+   ``src/games_collection/games/card/solitaire/gui_pyqt.py`` for complex GUIs)
 4. **Follow the migration guide** in ``developers/gui/migration_guide`` for best
    practices
 5. **Add tests** in ``tests/test_gui_pyqt.py``
