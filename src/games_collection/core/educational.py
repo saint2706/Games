@@ -131,7 +131,7 @@ class DocumentationTutorialMode(TutorialMode[StateType, MoveType]):
     def _create_tutorial_steps(self) -> List[TutorialStep]:
         """Generate tutorial steps from metadata."""
 
-        doc_path = self.metadata.get("doc_path", "docs/source/games_catalog.rst")
+        doc_path = self.metadata.get("doc_path", "docs/source/players/games_catalog.rst")
         summary = self.metadata.get("summary", "Follow the official rules outlined in the documentation.")
         objectives = list(self.metadata.get("objectives", []))
         if not objectives:
