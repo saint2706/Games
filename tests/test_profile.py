@@ -8,8 +8,8 @@ from datetime import date, datetime
 
 import pytest
 
-from common.achievements import Achievement, AchievementCategory
-from common.profile import GameProfile, PlayerProfile, get_default_profile_dir, load_or_create_profile
+from games_collection.core.achievements import Achievement, AchievementCategory
+from games_collection.core.profile import GameProfile, PlayerProfile, get_default_profile_dir, load_or_create_profile
 
 
 class TestGameProfile:

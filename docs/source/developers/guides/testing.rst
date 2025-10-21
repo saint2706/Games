@@ -83,7 +83,7 @@ Before committing code:
    ./scripts/run_tests.sh fast
 
    # 3. Check coverage of changed files
-   pytest --cov=paper_games/your_module --cov-report=term-missing
+   pytest --cov=src/games_collection/games/paper/your_module --cov-report=term-missing
 
    # 4. Run full test suite (if you have time)
    pytest
@@ -167,7 +167,7 @@ Run tests with coverage:
 
 .. code:: bash
 
-   pytest --cov=paper_games --cov=card_games --cov-report=html --cov-report=term-missing
+   pytest --cov=games_collection.games.paper --cov=games_collection.games.card --cov-report=html --cov-report=term-missing
 
 View HTML coverage report:
 
@@ -193,7 +193,7 @@ Check current coverage:
 
 .. code:: bash
 
-   pytest --cov=paper_games --cov=card_games --cov-report=term-missing
+   pytest --cov=games_collection.games.paper --cov=games_collection.games.card --cov-report=term-missing
 
 Test Categories
 ---------------
@@ -335,7 +335,7 @@ Configuration
 Mutation testing settings are in ``pyproject.toml`` under
 ``[tool.mutmut]``:
 
--  Paths to mutate: ``paper_games/``, ``card_games/``
+-  Paths to mutate: ``src/games_collection/games/paper/``, ``src/games_collection/games/card/``
 -  Excludes: GUI files, demos, ``__main__.py``, ``__init__.py``, tests
 -  Uses coverage data to target tested code
 -  Test runner: pytest with specific flags
@@ -349,7 +349,7 @@ Test Structure
 .. code:: python
 
    import pytest
-   from paper_games.nim import NimGame
+   from games_collection.games.paper.nim import NimGame
 
    def test_nim_basic_functionality():
        """Test basic Nim game functionality."""
@@ -418,7 +418,7 @@ CI Workflow (``.github/workflows/ci.yml``)
 -  Uploads: Coverage reports to Codecov
 -  Runs on: All pushes and pull requests
 -  Test command:
-   ``pytest -m "not performance" --cov=paper_games --cov=card_games``
+   ``pytest -m "not performance" --cov=games_collection.games.paper --cov=games_collection.games.card``
 
 Running CI Locally
 ~~~~~~~~~~~~~~~~~~
@@ -436,7 +436,7 @@ Simulate CI environment:
    mdformat --check .
 
    # Run tests with coverage (matches CI configuration)
-   pytest -m "not performance" --cov=paper_games --cov=card_games --cov-report=term-missing
+   pytest -m "not performance" --cov=games_collection.games.paper --cov=games_collection.games.card --cov-report=term-missing
 
 Best Practices
 --------------

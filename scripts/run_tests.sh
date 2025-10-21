@@ -21,7 +21,7 @@ case "$TEST_TYPE" in
   "all")
     echo -e "${GREEN}Running all tests...${NC}"
     if [ "$COVERAGE" = "coverage" ]; then
-      python -m pytest tests/ -v --cov=paper_games --cov=card_games --cov-report=html --cov-report=term-missing
+      python -m pytest tests/ -v --cov=games_collection.games.paper --cov=games_collection.games.card --cov-report=html --cov-report=term-missing
     else
       python -m pytest tests/ -v
     fi
@@ -55,8 +55,8 @@ case "$TEST_TYPE" in
   "coverage")
     echo -e "${GREEN}Running tests with coverage report...${NC}"
     python -m pytest tests/ -v \
-      --cov=paper_games \
-      --cov=card_games \
+      --cov=games_collection.games.paper \
+      --cov=games_collection.games.card \
       --cov-report=html \
       --cov-report=term-missing \
       -m "not slow"

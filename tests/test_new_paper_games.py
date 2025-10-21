@@ -5,18 +5,18 @@ from __future__ import annotations
 import random
 
 # Ensure deterministic SudokuGenerator seeding
-from common.game_engine import GameState
-from paper_games.boggle import BoggleGame, BoggleMove
-from paper_games.checkers import CheckersAI, CheckersGame, CheckersMove, CheckersPiece
-from paper_games.chess import ChessGame
-from paper_games.connect_four import ConnectFourGame, ConnectFourMove
-from paper_games.mancala import MancalaAI, MancalaGame, MancalaMove
-from paper_games.mastermind import MastermindGame, MastermindMove
-from paper_games.othello import OthelloAI, OthelloGame, OthelloMove
-from paper_games.snakes_and_ladders import SnakesAndLaddersGame, SnakesAndLaddersMove
-from paper_games.sudoku import SudokuGenerator
-from paper_games.twenty_questions import TwentyQuestionsGame
-from paper_games.yahtzee import YahtzeeCategory, YahtzeeGame
+from games_collection.core.game_engine import GameState
+from games_collection.games.paper.boggle import BoggleGame, BoggleMove
+from games_collection.games.paper.checkers import CheckersAI, CheckersGame, CheckersMove, CheckersPiece
+from games_collection.games.paper.chess import ChessGame
+from games_collection.games.paper.connect_four import ConnectFourGame, ConnectFourMove
+from games_collection.games.paper.mancala import MancalaAI, MancalaGame, MancalaMove
+from games_collection.games.paper.mastermind import MastermindGame, MastermindMove
+from games_collection.games.paper.othello import OthelloAI, OthelloGame, OthelloMove
+from games_collection.games.paper.snakes_and_ladders import SnakesAndLaddersGame, SnakesAndLaddersMove
+from games_collection.games.paper.sudoku import SudokuGenerator
+from games_collection.games.paper.twenty_questions import TwentyQuestionsGame
+from games_collection.games.paper.yahtzee import YahtzeeCategory, YahtzeeGame
 
 
 def test_connect_four_vertical_win() -> None:

@@ -35,7 +35,7 @@ def demo_poker_tutorial():
     print("POKER TUTORIAL DEMONSTRATION")
     print("=" * 70)
 
-    from card_games.poker.educational import PokerTutorialMode
+    from games_collection.games.card.poker.educational import PokerTutorialMode
 
     tutorial = PokerTutorialMode()
     print("\nInitializing the Poker tutorial...")
@@ -58,7 +58,7 @@ def demo_blackjack_tutorial():
     print("BLACKJACK TUTORIAL DEMONSTRATION")
     print("=" * 70)
 
-    from card_games.blackjack.educational import BlackjackTutorialMode
+    from games_collection.games.card.blackjack.educational import BlackjackTutorialMode
 
     tutorial = BlackjackTutorialMode()
     print("\nInitializing the Blackjack tutorial...")
@@ -81,8 +81,8 @@ def demo_probability_calculators():
     print("PROBABILITY CALCULATOR DEMONSTRATION")
     print("=" * 70)
 
-    from card_games.blackjack.educational import BlackjackProbabilityCalculator
-    from card_games.poker.educational import PokerProbabilityCalculator
+    from games_collection.games.card.blackjack.educational import BlackjackProbabilityCalculator
+    from games_collection.games.card.poker.educational import PokerProbabilityCalculator
 
     # --- Poker Probability Calculator ---
     print("\n🃏 POKER PROBABILITY CALCULATOR")
@@ -127,7 +127,7 @@ def demo_game_theory_explanations():
     print("GAME THEORY EXPLANATIONS DEMONSTRATION")
     print("=" * 70)
 
-    from common import GameTheoryExplainer
+    from games_collection.core import GameTheoryExplainer
 
     explainer = GameTheoryExplainer()
 
@@ -153,7 +153,7 @@ def demo_strategy_tips():
     print("STRATEGY TIPS DEMONSTRATION")
     print("=" * 70)
 
-    from common import StrategyTip, StrategyTipProvider
+    from games_collection.core import StrategyTip, StrategyTipProvider
 
     provider = StrategyTipProvider()
 
@@ -200,7 +200,7 @@ def demo_challenges():
     print("CHALLENGE PACKS DEMONSTRATION")
     print("=" * 70)
 
-    from common import get_default_challenge_manager
+    from games_collection.core import get_default_challenge_manager
 
     manager = get_default_challenge_manager()
 
@@ -233,7 +233,7 @@ def demo_nim_explanations():
     print("=" * 70)
 
     try:
-        from paper_games.nim import NimGame
+        from games_collection.games.paper.nim import NimGame
 
         game = NimGame(initial_heaps=[3, 5, 7])
         print("\n🎮 Initial Game State:")

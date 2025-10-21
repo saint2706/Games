@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from word_games import (
+from games_collection.games.word import (
     AnagramsGame,
     AsyncWordPlaySession,
     CrosswordGame,
@@ -14,7 +14,7 @@ from word_games import (
     TriviaGame,
     WordBuilderGame,
 )
-from word_games.trivia.trivia import TriviaCache, TriviaQuestion
+from games_collection.games.word.trivia.trivia import TriviaCache, TriviaQuestion
 
 
 class TestTrivia:

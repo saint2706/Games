@@ -3,7 +3,7 @@
 import tempfile
 from pathlib import Path
 
-from common.architecture import GamePlugin, PluginManager, PluginMetadata
+from games_collection.core.architecture import GamePlugin, PluginManager, PluginMetadata
 
 
 class TestPlugin(GamePlugin):
@@ -124,7 +124,7 @@ def test_plugin_manager_load_plugin_from_file():
         # Create a real plugin file
         plugin_file = plugin_dir / "real_plugin.py"
         plugin_code = """
-from common.architecture import GamePlugin, PluginMetadata
+from games_collection.core.architecture import GamePlugin, PluginMetadata
 
 class RealPlugin(GamePlugin):
     def get_metadata(self):
@@ -165,7 +165,7 @@ plugin = RelativePlugin()
         (package_dir / "__init__.py").write_text(init_code.strip() + "\n")
 
         module_code = """
-from common.architecture import GamePlugin, PluginMetadata
+from games_collection.core.architecture import GamePlugin, PluginMetadata
 
 
 class RelativePlugin(GamePlugin):

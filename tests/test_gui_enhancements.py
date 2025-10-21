@@ -10,10 +10,10 @@ from types import SimpleNamespace
 
 import pytest
 
-import common.sound_manager as sound_manager
+import games_collection.core.sound_manager as sound_manager
 
 # Test theme system
-from common.themes import ThemeColors, ThemeConfig, ThemeManager, get_theme_manager
+from games_collection.core.themes import ThemeColors, ThemeConfig, ThemeManager, get_theme_manager
 
 
 class TestThemes:
@@ -93,7 +93,7 @@ class TestThemes:
 
 
 # Test sound system
-from common.sound_manager import SoundManager, create_sound_manager
+from games_collection.core.sound_manager import SoundManager, create_sound_manager
 
 
 class TestSoundManager:
@@ -186,7 +186,7 @@ class TestSoundManager:
 
 
 # Test accessibility
-from common.accessibility import AccessibilityManager, get_accessibility_manager
+from games_collection.core.accessibility import AccessibilityManager, get_accessibility_manager
 
 
 class TestAccessibility:
@@ -223,7 +223,7 @@ class TestAccessibility:
 
 
 # Test i18n
-from common.i18n import TranslationManager, _, get_translation_manager, set_language
+from games_collection.core.i18n import TranslationManager, _, get_translation_manager, set_language
 
 
 class TestInternationalization:
@@ -285,7 +285,7 @@ class TestInternationalization:
 
 
 # Test keyboard shortcuts
-from common.keyboard_shortcuts import KeyboardShortcut, ShortcutManager, get_shortcut_manager
+from games_collection.core.keyboard_shortcuts import KeyboardShortcut, ShortcutManager, get_shortcut_manager
 
 
 class TestKeyboardShortcuts:
@@ -422,7 +422,7 @@ class TestAnimations:
 
     def test_animation_imports(self):
         """Test that animation module can be imported."""
-        from common.animations import Animation, ColorTransitionAnimation, PulseAnimation, SlideAnimation
+        from games_collection.core.animations import Animation, ColorTransitionAnimation, PulseAnimation, SlideAnimation
 
         assert Animation is not None
         assert PulseAnimation is not None

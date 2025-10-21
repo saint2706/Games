@@ -7,7 +7,7 @@ PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from paper_games.battleship import DEFAULT_FLEET, EXTENDED_FLEET, SMALL_FLEET, BattleshipGame
+from games_collection.games.paper.battleship import DEFAULT_FLEET, EXTENDED_FLEET, SMALL_FLEET, BattleshipGame
 
 
 def test_board_sizes():
@@ -170,7 +170,7 @@ def test_extended_fleet_requires_larger_board():
 def test_gui_import():
     """Test that GUI module can be imported."""
     try:
-        from paper_games.battleship.gui import BattleshipGUI, run_gui
+        from games_collection.games.paper.battleship.gui import BattleshipGUI, run_gui
 
         assert BattleshipGUI is not None
         assert run_gui is not None

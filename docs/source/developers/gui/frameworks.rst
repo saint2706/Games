@@ -33,25 +33,25 @@ PyQt5.
 
 **Paper Games:**
 
--  Battleship (``paper_games/battleship/gui_pyqt.py``)
--  Dots and Boxes (``paper_games/dots_and_boxes/gui_pyqt.py``)
+-  Battleship (``src/games_collection/games/paper/battleship/gui_pyqt.py``)
+-  Dots and Boxes (``src/games_collection/games/paper/dots_and_boxes/gui_pyqt.py``)
 
 **Card Games:**
 
--  Blackjack (``card_games/blackjack/gui_pyqt.py``)
--  Bluff (``card_games/bluff/gui_pyqt.py``)
--  Bridge (``card_games/bridge/gui_pyqt.py``)
--  Canasta (``card_games/canasta/gui_pyqt.py``)
--  Crazy Eights (``card_games/crazy_eights/gui_pyqt.py``)
--  Gin Rummy (``card_games/gin_rummy/gui_pyqt.py``)
--  Go Fish (``card_games/go_fish/gui_pyqt.py``)
--  Hearts (``card_games/hearts/gui_pyqt.py``)
--  Pinochle (``card_games/pinochle/gui_pyqt.py``)
--  Poker (``card_games/poker/gui_pyqt.py``)
--  Solitaire (``card_games/solitaire/gui_pyqt.py``)
--  Spades (``card_games/spades/gui_pyqt.py``)
--  Uno (``card_games/uno/gui_pyqt.py``)
--  War (``card_games/war/gui_pyqt.py``)
+-  Blackjack (``src/games_collection/games/card/blackjack/gui_pyqt.py``)
+-  Bluff (``src/games_collection/games/card/bluff/gui_pyqt.py``)
+-  Bridge (``src/games_collection/games/card/bridge/gui_pyqt.py``)
+-  Canasta (``src/games_collection/games/card/canasta/gui_pyqt.py``)
+-  Crazy Eights (``src/games_collection/games/card/crazy_eights/gui_pyqt.py``)
+-  Gin Rummy (``src/games_collection/games/card/gin_rummy/gui_pyqt.py``)
+-  Go Fish (``src/games_collection/games/card/go_fish/gui_pyqt.py``)
+-  Hearts (``src/games_collection/games/card/hearts/gui_pyqt.py``)
+-  Pinochle (``src/games_collection/games/card/pinochle/gui_pyqt.py``)
+-  Poker (``src/games_collection/games/card/poker/gui_pyqt.py``)
+-  Solitaire (``src/games_collection/games/card/solitaire/gui_pyqt.py``)
+-  Spades (``src/games_collection/games/card/spades/gui_pyqt.py``)
+-  Uno (``src/games_collection/games/card/uno/gui_pyqt.py``)
+-  War (``src/games_collection/games/card/war/gui_pyqt.py``)
 
 Tkinter (Legacy)
 ~~~~~~~~~~~~~~~~
@@ -102,7 +102,7 @@ Running a Game with GUI
 .. code:: bash
 
    # Using module syntax (recommended)
-   python -m paper_games.dots_and_boxes --gui
+   python -m games_collection.games.paper.dots_and_boxes --gui
 
    # Using entry point (if installed via pip)
    games-dots-and-boxes --gui
@@ -121,7 +121,7 @@ Use the provided utility script:
    python scripts/test_gui.py --list
 
    # Check specific game
-   python scripts/test_gui.py --check-game paper_games/dots_and_boxes --framework pyqt5
+   python scripts/test_gui.py --check-game src/games_collection/games/paper/dots_and_boxes --framework pyqt5
 
 For Developers
 --------------
@@ -158,7 +158,7 @@ For consistency, use the BaseGUI class:
 
 .. code:: python
 
-   from common.gui_base_pyqt import BaseGUI, GUIConfig
+   from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 
    class MyGameGUI(BaseGUI):
        def __init__(self):

@@ -8,9 +8,9 @@ from typing import List
 
 import pytest
 
-from common.game_engine import GameEngine, GameState
-from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY
-from common.tutorial_session import TutorialSession
+from games_collection.core.game_engine import GameEngine, GameState
+from games_collection.core.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY
+from games_collection.core.tutorial_session import TutorialSession
 
 CATALOG_PATH = Path(__file__).resolve().parents[1] / "docs" / "source" / "games_catalog.rst"
 

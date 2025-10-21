@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from paper_games.backgammon.backgammon import BAR, BEAR_OFF, BackgammonGame, Move
+from games_collection.games.paper.backgammon.backgammon import BAR, BEAR_OFF, BackgammonGame, Move
 
 
 def _blank_board() -> list[tuple[int | None, int]]:

@@ -17,8 +17,8 @@ import pathlib
 import time
 from typing import Optional
 
-from common.analytics import Dashboard, EloRating, GameStatistics, Heatmap, PerformanceMetrics
-from paper_games.tic_tac_toe.tic_tac_toe import TicTacToe
+from games_collection.core.analytics import Dashboard, EloRating, GameStatistics, Heatmap, PerformanceMetrics
+from games_collection.games.paper.tic_tac_toe.tic_tac_toe import TicTacToe
 
 
 class TicTacToeWithAnalytics:

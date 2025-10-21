@@ -22,7 +22,7 @@ capabilities:
 Changes Made
 ~~~~~~~~~~~~
 
-**File: ``card_games/war/game.py``**
+**File: ``src/games_collection/games/card/war/game.py``**
 
 -  Added ``to_dict()`` method to serialize game state
 -  Added ``from_dict()`` class method to deserialize and restore game
@@ -30,7 +30,7 @@ Changes Made
 -  Serializes all game components: player decks, pile, state, rounds,
    wars, winner
 
-**File: ``card_games/war/gui.py``**
+**File: ``src/games_collection/games/card/war/gui.py``**
 
 -  Integrated ``SaveLoadManager`` from
    ``common.architecture.persistence``
@@ -54,7 +54,7 @@ Testing
 
 .. code:: bash
 
-   python -m card_games.war --gui
+   python -m games_collection.games.card.war --gui
    # Click "Save Game" during gameplay
    # Click "Load Game" to restore a saved game
 
@@ -66,7 +66,7 @@ Testing
 Changes Made
 ~~~~~~~~~~~~
 
-**File: ``paper_games/tic_tac_toe/tic_tac_toe.py``**
+**File: ``src/games_collection/games/paper/tic_tac_toe/tic_tac_toe.py``**
 
 -  Integrated ``ReplayManager`` from ``common.architecture.replay``
 -  Added replay manager initialization in ``__post_init__()``
@@ -74,7 +74,7 @@ Changes Made
 -  Added ``undo_last_move()`` method to undo moves
 -  Added ``can_undo()`` method to check if undo is available
 
-**File: ``paper_games/tic_tac_toe/cli.py``**
+**File: ``src/games_collection/games/paper/tic_tac_toe/cli.py``**
 
 -  Added ‘undo’ command support in the game loop
 -  Undoing reverts both the human’s last move and the computer’s
@@ -100,7 +100,7 @@ Testing
 
 .. code:: bash
 
-   python -m paper_games.tic_tac_toe
+   python -m games_collection.games.paper.tic_tac_toe
    # Make some moves
    # Type "undo" to revert moves
 
@@ -112,7 +112,7 @@ Testing
 Changes Made
 ~~~~~~~~~~~~
 
-**File: ``paper_games/hangman/cli.py``**
+**File: ``src/games_collection/games/paper/hangman/cli.py``**
 
 -  Integrated ``ASCIIArt``, ``InteractiveMenu``, ``RichText``, ``Theme``
    from ``common.cli_utils``
@@ -152,7 +152,7 @@ Testing
 
 .. code:: bash
 
-   python -m paper_games.hangman
+   python -m games_collection.games.paper.hangman
    # Navigate menus with arrow keys
    # See colored feedback during gameplay
 
@@ -164,7 +164,7 @@ Testing
 Changes Made
 ~~~~~~~~~~~~
 
-**File: ``card_games/hearts/gui.py``**
+**File: ``src/games_collection/games/card/hearts/gui.py``**
 
 -  Added persistent preference loading via ``SettingsManager``
 -  Introduced a GUI “Preferences” menu for selecting themes, toggling
@@ -172,21 +172,21 @@ Changes Made
 -  Added helpers to update or reset preferences programmatically (used
    by tests and the menu actions)
 
-**File: ``card_games/spades/gui.py``**
+**File: ``src/games_collection/games/card/spades/gui.py``**
 
 -  Mirrored the Hearts GUI enhancements for preference loading and menu
    controls
 -  Exposed helpers to update/reset preferences and ensured menu state
    stays in sync with stored values
 
-**File: ``card_games/hearts/__main__.py``**
+**File: ``src/games_collection/games/card/hearts/__main__.py``**
 
 -  Surfaced new CLI switches (``--theme``, ``--sounds/--no-sounds``,
    ``--animations/--no-animations``, ``--reset-preferences``)
 -  CLI switches persist the selection so the GUI picks them up on the
    next launch
 
-**File: ``card_games/spades/__main__.py``**
+**File: ``src/games_collection/games/card/spades/__main__.py``**
 
 -  Added the same CLI switches and persistence logic as the Hearts entry
    point (with backend auto-detection retained)
@@ -210,8 +210,8 @@ Usage
 
 .. code:: bash
 
-   python -m card_games.hearts --theme high_contrast --no-sounds
-   python -m card_games.spades --backend tk --animations --sounds
+   python -m games_collection.games.card.hearts --theme high_contrast --no-sounds
+   python -m games_collection.games.card.spades --backend tk --animations --sounds
 
 .. _testing-3:
 
@@ -225,7 +225,7 @@ Testing
 Architecture Systems Demonstrated
 ---------------------------------
 
-1. Persistence System (``common/architecture/persistence.py``)
+1. Persistence System (``src/games_collection/core/architecture/persistence.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  ``SaveLoadManager`` - High-level save/load interface
@@ -233,7 +233,7 @@ Architecture Systems Demonstrated
 -  Automatic metadata handling (timestamps, game type)
 -  Directory management for save files
 
-2. Replay System (``common/architecture/replay.py``)
+2. Replay System (``src/games_collection/core/architecture/replay.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  ``ReplayManager`` - Undo/redo functionality
@@ -241,7 +241,7 @@ Architecture Systems Demonstrated
 -  History management with configurable limits
 -  State restoration from snapshots
 
-3. CLI Utilities (``common/cli_utils.py``)
+3. CLI Utilities (``src/games_collection/core/cli_utils.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  ``InteractiveMenu`` - Arrow key navigation menus
@@ -264,7 +264,7 @@ For Players
 For Developers
 ~~~~~~~~~~~~~~
 
--  **Reusable Infrastructure**: All systems are in ``common/`` and ready
+-  **Reusable Infrastructure**: All systems are in ``src/games_collection/core/`` and ready
    to use
 -  **Minimal Integration**: Just a few imports and method calls
 -  **Type Safety**: Full type hints for all APIs
@@ -316,7 +316,7 @@ Adding Save/Load (5 minutes)
 .. code:: python
 
    # In game engine
-   from common.architecture.persistence import SaveLoadManager
+   from games_collection.core.architecture.persistence import SaveLoadManager
 
    def to_dict(self) -> dict:
        return {"player_state": self.player, "game_state": self.state}
@@ -340,7 +340,7 @@ Adding Replay/Undo (5 minutes)
 .. code:: python
 
    # In game engine
-   from common.architecture.replay import ReplayManager
+   from games_collection.core.architecture.replay import ReplayManager
 
    def __init__(self):
        self.replay_manager = ReplayManager()
@@ -366,7 +366,7 @@ Adding CLI Enhancements (5 minutes)
 
 .. code:: python
 
-   from common.cli_utils import InteractiveMenu, ASCIIArt, RichText, Theme
+   from games_collection.core.cli_utils import InteractiveMenu, ASCIIArt, RichText, Theme
 
    theme = Theme()
    print(ASCIIArt.banner("GAME NAME", theme.primary))
@@ -385,7 +385,7 @@ Adding CLI Enhancements (5 minutes)
 Changes Made
 ~~~~~~~~~~~~
 
-**File: ``card_games/go_fish/game.py``**
+**File: ``src/games_collection/games/card/go_fish/game.py``**
 
 -  Wired ``GoFishGame`` into the shared event bus (``GameEventType``) so
    every turn emits action, score, and lifecycle events
@@ -394,7 +394,7 @@ Changes Made
 -  Provided ``_card_to_dict()``/``_card_from_dict()`` helpers for
    round-tripping immutable ``Card`` objects
 
-**File: ``card_games/go_fish/cli.py``**
+**File: ``src/games_collection/games/card/go_fish/cli.py``**
 
 -  Introduced an autosave slot powered by ``SaveLoadManager``
 -  Prompts players to resume an unfinished match when an autosave exists
@@ -406,7 +406,7 @@ Changes Made
 Usage
 ~~~~~
 
--  Start the CLI with ``python -m card_games.go_fish``
+-  Start the CLI with ``python -m games_collection.games.card.go_fish``
 -  Play a few turns and exit the program; a ``go_fish_autosave.save``
    file is created automatically
 -  Relaunch the CLI and choose to resume when prompted to continue
@@ -419,7 +419,7 @@ Testing
 
 .. code:: bash
 
-   python -m card_games.go_fish
+   python -m games_collection.games.card.go_fish
    # Play a few turns, exit, and relaunch to verify autosave resume
 
 6. Connect Four - Event Bus & Autosave Enhancements
@@ -430,7 +430,7 @@ Testing
 Changes Made
 ~~~~~~~~~~~~
 
-**File: ``paper_games/connect_four/connect_four.py``**
+**File: ``src/games_collection/games/paper/connect_four/connect_four.py``**
 
 -  Updated ``ConnectFourGame`` to emit ``GameEventType`` events for
    initialization, turn progression, and game over states
@@ -444,7 +444,7 @@ Changes Made
 Usage
 ~~~~~
 
--  Launch the CLI via ``python -m paper_games.connect_four``
+-  Launch the CLI via ``python -m games_collection.games.paper.connect_four``
 -  Accept the resume prompt when an autosave exists to recover the
    previous board position instantly
 -  Autosave files live in ``./saves/connect_four_autosave.save``
@@ -456,7 +456,7 @@ Testing
 
 .. code:: bash
 
-   python -m paper_games.connect_four
+   python -m games_collection.games.paper.connect_four
    # Make moves, exit, relaunch, and resume the saved game
 
 Conclusion

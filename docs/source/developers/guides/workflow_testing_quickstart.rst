@@ -205,7 +205,7 @@ Here’s a typical development workflow:
 .. code:: bash
 
    # 1. Make code changes
-   vim card_games/poker/poker.py
+   vim src/games_collection/games/card/poker/poker.py
 
    # 2. Test locally (fast feedback)
    make workflow-ci

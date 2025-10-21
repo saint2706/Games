@@ -6,9 +6,9 @@ import time
 
 import pytest
 
-from common.game_engine import GameState
-from paper_games.boggle.boggle import BoggleGame, BoggleMove
-from paper_games.boggle.dictionary import BoggleDictionary
+from games_collection.core.game_engine import GameState
+from games_collection.games.paper.boggle.boggle import BoggleGame, BoggleMove
+from games_collection.games.paper.boggle.dictionary import BoggleDictionary
 
 
 @pytest.fixture(scope="module")

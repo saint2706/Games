@@ -53,7 +53,7 @@ def validate_base_gui() -> tuple[bool, list[str]]:
     if not success:
         return False, messages
 
-    from common.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
+    from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
     if not PYQT5_AVAILABLE:
         messages.append("✗ PyQt5 not available")
@@ -93,12 +93,12 @@ def validate_dots_and_boxes() -> tuple[bool, list[str]]:
     messages = []
     all_passed = True
 
-    success, msg = check_import("paper_games.dots_and_boxes.gui_pyqt")
+    success, msg = check_import("games_collection.games.paper.dots_and_boxes.gui_pyqt")
     messages.append(msg)
     if not success:
         return False, messages
 
-    from paper_games.dots_and_boxes.gui_pyqt import BoardCanvas, DotsAndBoxesGUI
+    from games_collection.games.paper.dots_and_boxes.gui_pyqt import BoardCanvas, DotsAndBoxesGUI
 
     required_attrs_gui = [
         "__init__",

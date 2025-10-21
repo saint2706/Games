@@ -5,10 +5,10 @@ from __future__ import annotations
 import pathlib
 from typing import List
 
-from common.achievements import AchievementManager, create_common_achievements
-from common.achievements_registry import ACHIEVEMENT_UNLOCKED_EVENT, AchievementRegistry, get_achievement_registry
-from common.architecture.events import FunctionEventHandler, get_global_event_bus
-from common.profile import PlayerProfile
+from games_collection.core.achievements import AchievementManager, create_common_achievements
+from games_collection.core.achievements_registry import ACHIEVEMENT_UNLOCKED_EVENT, AchievementRegistry, get_achievement_registry
+from games_collection.core.architecture.events import FunctionEventHandler, get_global_event_bus
+from games_collection.core.profile import PlayerProfile
 
 
 def test_registry_registers_core_and_game_achievements() -> None:

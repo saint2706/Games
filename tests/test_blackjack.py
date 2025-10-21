@@ -2,7 +2,7 @@
 
 import random
 
-from card_games.blackjack.game import (
+from games_collection.games.card.blackjack.game import (
     TABLE_CONFIGS,
     BlackjackGame,
     BlackjackHand,
@@ -13,7 +13,7 @@ from card_games.blackjack.game import (
     evaluate_perfect_pairs,
     evaluate_twenty_one_plus_three,
 )
-from card_games.common.cards import Card, Suit
+from games_collection.games.card.common.cards import Card, Suit
 
 
 class TestSideBets:

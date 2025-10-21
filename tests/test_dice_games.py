@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import random
 
-from common.game_engine import GameState
-from dice_games import (
+from games_collection.core.game_engine import GameState
+from games_collection.games.dice import (
     BuncoGame,
     BuncoMatchResult,
     BuncoTournament,

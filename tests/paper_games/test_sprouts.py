@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from paper_games.sprouts.sprouts import SproutsGame
+from games_collection.games.paper.sprouts.sprouts import SproutsGame
 
 
 def test_legal_move_updates_degrees() -> None:

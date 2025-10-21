@@ -8,7 +8,7 @@ from datetime import datetime
 
 import pytest
 
-from common.achievements import Achievement, AchievementCategory, AchievementManager, AchievementRarity, UnlockedAchievement, create_common_achievements
+from games_collection.core.achievements import Achievement, AchievementCategory, AchievementManager, AchievementRarity, UnlockedAchievement, create_common_achievements
 
 
 class TestAchievement:

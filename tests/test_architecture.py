@@ -4,7 +4,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from common.architecture import (
+from games_collection.core.architecture import (
     Event,
     EventBus,
     EventHandler,

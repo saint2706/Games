@@ -22,7 +22,7 @@ Poker Tutorial
 
 .. code:: python
 
-   from card_games.poker.educational import PokerTutorialMode
+   from games_collection.games.card.poker.educational import PokerTutorialMode
 
    tutorial = PokerTutorialMode()
 
@@ -41,7 +41,7 @@ Blackjack Tutorial
 
 .. code:: python
 
-   from card_games.blackjack.educational import BlackjackTutorialMode
+   from games_collection.games.card.blackjack.educational import BlackjackTutorialMode
 
    tutorial = BlackjackTutorialMode()
    step = tutorial.get_current_step()
@@ -58,7 +58,7 @@ Poker Pot Odds
 
 .. code:: python
 
-   from card_games.poker.educational import PokerProbabilityCalculator
+   from games_collection.games.card.poker.educational import PokerProbabilityCalculator
 
    calc = PokerProbabilityCalculator()
 
@@ -76,7 +76,7 @@ Blackjack Bust Odds
 
 .. code:: python
 
-   from card_games.blackjack.educational import BlackjackProbabilityCalculator
+   from games_collection.games.card.blackjack.educational import BlackjackProbabilityCalculator
 
    calc = BlackjackProbabilityCalculator()
 
@@ -100,7 +100,7 @@ Learn Game Theory
 
 .. code:: python
 
-   from common import GameTheoryExplainer
+   from games_collection.core import GameTheoryExplainer
 
    explainer = GameTheoryExplainer()
 
@@ -115,7 +115,7 @@ Try Challenges
 
 .. code:: python
 
-   from common import get_default_challenge_manager
+   from games_collection.core import get_default_challenge_manager
 
    manager = get_default_challenge_manager()
 
@@ -142,14 +142,14 @@ Blackjack with Educational Mode
 .. code:: bash
 
    # Enable card counting hints
-   python -m card_games.blackjack.cli --educational
+   python -m games_collection.games.card.blackjack.cli --educational
 
 Nim with Explanations
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
-   from paper_games.nim import NimGame
+   from games_collection.games.paper.nim import NimGame
 
    game = NimGame([3, 5, 7])
 

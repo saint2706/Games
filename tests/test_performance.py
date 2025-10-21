@@ -20,7 +20,7 @@ class TestNimPerformance:
 
     def test_nim_computer_move_performance(self, benchmark_iterations):
         """Test that Nim computer move is calculated quickly."""
-        from paper_games.nim import NimGame
+        from games_collection.games.paper.nim import NimGame
 
         start_time = time.time()
         for _ in range(benchmark_iterations):
@@ -33,7 +33,7 @@ class TestNimPerformance:
 
     def test_nim_large_heaps_performance(self):
         """Test Nim performance with large heap sizes."""
-        from paper_games.nim import NimGame
+        from games_collection.games.paper.nim import NimGame
 
         start_time = time.time()
         game = NimGame([100, 200, 300])
@@ -44,7 +44,7 @@ class TestNimPerformance:
 
     def test_nim_many_heaps_performance(self):
         """Test Nim performance with many heaps."""
-        from paper_games.nim import NimGame
+        from games_collection.games.paper.nim import NimGame
 
         start_time = time.time()
         game = NimGame([5, 10, 15, 20, 25, 30])
@@ -60,7 +60,7 @@ class TestTicTacToePerformance:
 
     def test_tictactoe_computer_move_performance(self, benchmark_iterations):
         """Test that Tic-Tac-Toe computer move is calculated quickly."""
-        from paper_games.tic_tac_toe import TicTacToeGame
+        from games_collection.games.paper.tic_tac_toe import TicTacToeGame
 
         start_time = time.time()
         for _ in range(benchmark_iterations):
@@ -73,7 +73,7 @@ class TestTicTacToePerformance:
 
     def test_tictactoe_full_game_performance(self):
         """Test performance of a complete game."""
-        from paper_games.tic_tac_toe import TicTacToeGame
+        from games_collection.games.paper.tic_tac_toe import TicTacToeGame
 
         start_time = time.time()
         for _ in range(10):
@@ -96,7 +96,7 @@ class TestBattleshipPerformance:
 
     def test_battleship_setup_performance(self, benchmark_iterations):
         """Test that Battleship board setup is fast."""
-        from paper_games.battleship import BattleshipGame
+        from games_collection.games.paper.battleship import BattleshipGame
 
         start_time = time.time()
         for _ in range(benchmark_iterations):
@@ -109,7 +109,7 @@ class TestBattleshipPerformance:
 
     def test_battleship_ai_shot_performance(self):
         """Test that AI shot selection is fast."""
-        from paper_games.battleship import BattleshipGame
+        from games_collection.games.paper.battleship import BattleshipGame
 
         game = BattleshipGame()
         game.setup_random()
@@ -133,7 +133,7 @@ class TestDotsAndBoxesPerformance:
 
     def test_dots_boxes_computer_move_performance(self):
         """Test that Dots and Boxes computer move is calculated quickly."""
-        from paper_games.dots_and_boxes import DotsAndBoxes
+        from games_collection.games.paper.dots_and_boxes import DotsAndBoxes
 
         game = DotsAndBoxes(size=4)
 
@@ -147,7 +147,7 @@ class TestDotsAndBoxesPerformance:
 
     def test_dots_boxes_large_board_performance(self):
         """Test performance with larger board."""
-        from paper_games.dots_and_boxes import DotsAndBoxes
+        from games_collection.games.paper.dots_and_boxes import DotsAndBoxes
 
         start_time = time.time()
         game = DotsAndBoxes(size=6)
@@ -163,7 +163,7 @@ class TestBlackjackPerformance:
 
     def test_blackjack_game_creation_performance(self, benchmark_iterations):
         """Test that Blackjack game creation is fast."""
-        from card_games.blackjack import BlackjackGame
+        from games_collection.games.card.blackjack import BlackjackGame
 
         start_time = time.time()
         for _ in range(benchmark_iterations):
@@ -176,7 +176,7 @@ class TestBlackjackPerformance:
 
     def test_blackjack_dealer_play_performance(self):
         """Test that dealer play logic is fast."""
-        from card_games.blackjack import BlackjackGame
+        from games_collection.games.card.blackjack import BlackjackGame
 
         game = BlackjackGame()
 
@@ -195,7 +195,7 @@ class TestUnoPerformance:
 
     def test_uno_game_creation_performance(self, benchmark_iterations):
         """Test that UNO game creation is fast."""
-        from card_games.uno import UnoGame, build_players
+        from games_collection.games.card.uno import UnoGame, build_players
 
         start_time = time.time()
         for _ in range(benchmark_iterations):
@@ -213,7 +213,7 @@ class TestHangmanPerformance:
 
     def test_hangman_word_loading_performance(self):
         """Test that word list loading is fast."""
-        from paper_games.hangman import HangmanGame
+        from games_collection.games.paper.hangman import HangmanGame
 
         start_time = time.time()
         for _ in range(100):
@@ -229,7 +229,7 @@ class TestUnscramblePerformance:
 
     def test_unscramble_word_scrambling_performance(self, benchmark_iterations):
         """Test that word scrambling is fast."""
-        from paper_games.unscramble import UnscrambleGame
+        from games_collection.games.paper.unscramble import UnscrambleGame
 
         start_time = time.time()
         for _ in range(benchmark_iterations):
@@ -245,10 +245,10 @@ class TestUnscramblePerformance:
 @pytest.mark.slow
 def test_overall_system_performance():
     """Test overall system performance with multiple games."""
-    from card_games.blackjack import BlackjackGame
-    from card_games.uno import UnoGame, build_players
-    from paper_games.nim import NimGame
-    from paper_games.tic_tac_toe import TicTacToeGame
+    from games_collection.games.card.blackjack import BlackjackGame
+    from games_collection.games.card.uno import UnoGame, build_players
+    from games_collection.games.paper.nim import NimGame
+    from games_collection.games.paper.tic_tac_toe import TicTacToeGame
 
     start_time = time.time()
 

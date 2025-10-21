@@ -40,7 +40,7 @@ Usage
 
 .. code:: python
 
-   from card_games.poker.educational import PokerTutorialMode
+   from games_collection.games.card.poker.educational import PokerTutorialMode
 
    # Create tutorial
    tutorial = PokerTutorialMode()
@@ -63,7 +63,7 @@ Creating Custom Tutorials
 
 .. code:: python
 
-   from common import TutorialMode, TutorialStep
+   from games_collection.core import TutorialMode, TutorialStep
 
    class MyGameTutorial(TutorialMode):
        def _create_tutorial_steps(self):
@@ -94,7 +94,7 @@ Usage
 
 .. code:: python
 
-   from common import StrategyTipProvider, StrategyTip
+   from games_collection.core import StrategyTipProvider, StrategyTip
 
    # Create provider and add tips
    provider = StrategyTipProvider()
@@ -122,7 +122,7 @@ Nim (Existing Feature)
 
 .. code:: python
 
-   from paper_games.nim import NimGame
+   from games_collection.games.paper.nim import NimGame
 
    game = NimGame([3, 5, 7])
    heap_idx, count, explanation = game.computer_move(explain=True)
@@ -134,7 +134,7 @@ Extending to Other Games
 
 .. code:: python
 
-   from common import AIExplainer
+   from games_collection.core import AIExplainer
 
    class MyGameAIExplainer(AIExplainer):
        def explain_move(self, state, move):
@@ -154,7 +154,7 @@ Poker Probability Calculator
 
 .. code:: python
 
-   from card_games.poker.educational import PokerProbabilityCalculator
+   from games_collection.games.card.poker.educational import PokerProbabilityCalculator
 
    calc = PokerProbabilityCalculator()
 
@@ -183,7 +183,7 @@ Blackjack Probability Calculator
 
 .. code:: python
 
-   from card_games.blackjack.educational import BlackjackProbabilityCalculator
+   from games_collection.games.card.blackjack.educational import BlackjackProbabilityCalculator
 
    calc = BlackjackProbabilityCalculator()
 
@@ -224,7 +224,7 @@ Usage
 
 .. code:: python
 
-   from common import GameTheoryExplainer
+   from games_collection.core import GameTheoryExplainer
 
    explainer = GameTheoryExplainer()
 
@@ -251,7 +251,7 @@ Adding Custom Explanations
 
 .. code:: python
 
-   from common import GameTheoryExplanation
+   from games_collection.core import GameTheoryExplanation
 
    explanation = GameTheoryExplanation(
        concept="Alpha-Beta Pruning",
@@ -326,7 +326,7 @@ Usage
 
 .. code:: python
 
-   from common import get_default_challenge_manager, DifficultyLevel
+   from games_collection.core import get_default_challenge_manager, DifficultyLevel
 
    # Get challenge manager with default packs
    manager = get_default_challenge_manager()
@@ -360,7 +360,7 @@ Creating Custom Challenges
 
 .. code:: python
 
-   from common import Challenge, ChallengePack, DifficultyLevel
+   from games_collection.core import Challenge, ChallengePack, DifficultyLevel
 
    # Create a custom challenge
    challenge = Challenge(
@@ -391,7 +391,7 @@ Adding Tutorial to a Game
 
 .. code:: python
 
-   from common import TutorialMode, TutorialStep
+   from games_collection.core import TutorialMode, TutorialStep
 
    class MyGameWithTutorial:
        def __init__(self, tutorial_mode=False):
@@ -419,7 +419,7 @@ Adding Probability Display
 
 .. code:: python
 
-   from card_games.poker.educational import PokerProbabilityCalculator
+   from games_collection.games.card.poker.educational import PokerProbabilityCalculator
 
    class PokerGameWithProbabilities:
        def __init__(self, show_probabilities=False):
@@ -492,10 +492,10 @@ Blackjack Educational Mode
 .. code:: bash
 
    # Enable card counting hints
-   python -m card_games.blackjack.cli --educational
+   python -m games_collection.games.card.blackjack.cli --educational
 
    # See available options
-   python -m card_games.blackjack.cli --help
+   python -m games_collection.games.card.blackjack.cli --help
 
 Nim with Explanations
 ~~~~~~~~~~~~~~~~~~~~~
@@ -524,7 +524,7 @@ Example:
 
    from datetime import date
 
-   from common import DailyChallengeScheduler, get_default_challenge_manager
+   from games_collection.core import DailyChallengeScheduler, get_default_challenge_manager
 
    manager = get_default_challenge_manager()
    scheduler = DailyChallengeScheduler(manager)

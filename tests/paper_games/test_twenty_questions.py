@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from paper_games.twenty_questions.twenty_questions import TwentyQuestionsGame, TwentyQuestionsKnowledgeBase
+from games_collection.games.paper.twenty_questions.twenty_questions import TwentyQuestionsGame, TwentyQuestionsKnowledgeBase
 
 
 def build_custom_knowledge_base(path: Path, objects: dict[str, dict[str, bool]]) -> TwentyQuestionsKnowledgeBase:

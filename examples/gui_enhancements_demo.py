@@ -27,9 +27,9 @@ except ImportError:
     print("Error: tkinter is required to run this GUI demonstration.")
     sys.exit(1)
 
-from common.animations import animate_widget_highlight
-from common.gui_base import BaseGUI, GUIConfig
-from common.i18n import _  # The gettext function for internationalization.
+from games_collection.core.animations import animate_widget_highlight
+from games_collection.core.gui_base import BaseGUI, GUIConfig
+from games_collection.core.i18n import _  # The gettext function for internationalization.
 
 
 class GUIEnhancementsDemo(BaseGUI):

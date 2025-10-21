@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from card_games.common.cards import Card, Suit
-from card_games.euchre.ai import BasicEuchreAI
-from card_games.euchre.game import EuchreGame, GamePhase
+from games_collection.games.card.common.cards import Card, Suit
+from games_collection.games.card.euchre.ai import BasicEuchreAI
+from games_collection.games.card.euchre.game import EuchreGame, GamePhase
 
 
 def test_ordering_up_requires_dealer_discard() -> None:

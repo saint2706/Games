@@ -31,7 +31,7 @@ class TestBattleshipGUI:
     def test_battleship_gui_import(self):
         """Test that Battleship GUI can be imported."""
         try:
-            from paper_games.battleship.gui import BattleshipGUI
+            from games_collection.games.paper.battleship.gui import BattleshipGUI
 
             assert BattleshipGUI is not None
         except ImportError as e:
@@ -42,7 +42,7 @@ class TestBattleshipGUI:
     def test_battleship_gui_initialization(self):
         """Test Battleship GUI initialization without display."""
         try:
-            from paper_games.battleship import BattleshipGame
+            from games_collection.games.paper.battleship import BattleshipGame
 
             # This tests that the class can be instantiated
             # In a real GUI test with display, we would create the actual window
@@ -61,7 +61,7 @@ class TestDotsAndBoxesGUI:
     def test_dots_boxes_gui_import(self):
         """Test that Dots and Boxes GUI can be imported."""
         try:
-            from paper_games.dots_and_boxes.gui import DotsAndBoxesGUI
+            from games_collection.games.paper.dots_and_boxes.gui import DotsAndBoxesGUI
 
             assert DotsAndBoxesGUI is not None
         except ImportError as e:
@@ -77,7 +77,7 @@ class TestBlackjackGUI:
     def test_blackjack_gui_import(self):
         """Test that Blackjack GUI can be imported."""
         try:
-            from card_games.blackjack.gui import BlackjackApp
+            from games_collection.games.card.blackjack.gui import BlackjackApp
 
             assert BlackjackApp is not None
         except ImportError as e:
@@ -93,7 +93,7 @@ class TestUnoGUI:
     def test_uno_gui_import(self):
         """Test that UNO GUI can be imported."""
         try:
-            from card_games.uno.gui import TkUnoInterface
+            from games_collection.games.card.uno.gui import TkUnoInterface
 
             assert TkUnoInterface is not None
         except ImportError as e:
@@ -109,7 +109,7 @@ class TestBluffGUI:
     def test_bluff_gui_import(self):
         """Test that Bluff GUI can be imported."""
         try:
-            from card_games.bluff.gui import BluffGUI
+            from games_collection.games.card.bluff.gui import BluffGUI
 
             assert BluffGUI is not None
         except ImportError as e:
@@ -122,11 +122,11 @@ class TestBluffGUI:
 def test_gui_modules_available():
     """Test that all GUI modules can be imported."""
     gui_modules = [
-        "paper_games.battleship.gui",
-        "paper_games.dots_and_boxes.gui",
-        "card_games.blackjack.gui",
-        "card_games.uno.gui",
-        "card_games.bluff.gui",
+        "games_collection.games.paper.battleship.gui",
+        "games_collection.games.paper.dots_and_boxes.gui",
+        "games_collection.games.card.blackjack.gui",
+        "games_collection.games.card.uno.gui",
+        "games_collection.games.card.bluff.gui",
     ]
 
     available_modules = []

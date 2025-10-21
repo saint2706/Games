@@ -12,7 +12,7 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from common.mcp_config_loader import load_default_mcp_config
+from games_collection.core.mcp_config_loader import load_default_mcp_config
 
 
 def main() -> int:

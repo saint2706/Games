@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import pytest
 
-from common import SettingsManager
+from games_collection.core import SettingsManager
 
 _tk = pytest.importorskip("tkinter")
 from tkinter import TclError  # noqa: E402  # Imported after pytest guard
 
-from card_games.hearts.game import HeartsGame, HeartsPlayer  # noqa: E402
-from card_games.hearts.gui import HeartsGUI  # noqa: E402
-from card_games.spades.gui import SpadesGUI  # noqa: E402
+from games_collection.games.card.hearts.game import HeartsGame, HeartsPlayer  # noqa: E402
+from games_collection.games.card.hearts.gui import HeartsGUI  # noqa: E402
+from games_collection.games.card.spades.gui import SpadesGUI  # noqa: E402
 
 
 @pytest.fixture
@@ -47,13 +47,13 @@ class TestSpadesPreferences:
 
         manager = SettingsManager(config_dir=tmp_path)
         settings = manager.load_settings(
-            "card_games.spades.gui",
+            "games_collection.games.card.spades.gui",
             defaults={"theme": "dark", "enable_sounds": True, "enable_animations": True},
         )
         settings.set("theme", "light")
         settings.set("enable_sounds", False)
         settings.set("enable_animations", False)
-        manager.save_settings("card_games.spades.gui", settings)
+        manager.save_settings("games_collection.games.card.spades.gui", settings)
 
         gui = SpadesGUI(tk_root, player_name="Tester", settings_manager=manager)
 
@@ -70,7 +70,7 @@ class TestSpadesPreferences:
         gui.update_user_preferences(theme="high_contrast", enable_sounds=False, enable_animations=False)
 
         stored = manager.load_settings(
-            "card_games.spades.gui",
+            "games_collection.games.card.spades.gui",
             defaults={"theme": "dark", "enable_sounds": True, "enable_animations": True},
         )
         assert stored.get("theme") == "high_contrast"
@@ -86,13 +86,13 @@ class TestHeartsPreferences:
 
         manager = SettingsManager(config_dir=tmp_path)
         settings = manager.load_settings(
-            "card_games.hearts.gui",
+            "games_collection.games.card.hearts.gui",
             defaults={"theme": "midnight", "enable_sounds": True, "enable_animations": True},
         )
         settings.set("theme", "light")
         settings.set("enable_sounds", False)
         settings.set("enable_animations", False)
-        manager.save_settings("card_games.hearts.gui", settings)
+        manager.save_settings("games_collection.games.card.hearts.gui", settings)
 
         gui = HeartsGUI(
             tk_root,
@@ -121,7 +121,7 @@ class TestHeartsPreferences:
         gui.update_user_preferences(theme="high_contrast", enable_sounds=True, enable_animations=False)
 
         stored = manager.load_settings(
-            "card_games.hearts.gui",
+            "games_collection.games.card.hearts.gui",
             defaults={"theme": "midnight", "enable_sounds": True, "enable_animations": True},
         )
         assert stored.get("theme") == "high_contrast"

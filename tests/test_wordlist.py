@@ -1,14 +1,24 @@
 """Tests for the hangman wordlist."""
 
 import json
+import json
 from pathlib import Path
+
+
+HANGMAN_WORDLIST = (
+    Path(__file__).parent.parent
+    / "src"
+    / "games_collection"
+    / "games"
+    / "paper"
+    / "hangman"
+    / "wordlist.json"
+)
 
 
 def test_wordlist_structure():
     """Test that the wordlist has the correct structure."""
-    wordlist_path = Path(__file__).parent.parent / "paper_games" / "hangman" / "wordlist.json"
-
-    with open(wordlist_path, "r", encoding="utf-8") as f:
+    with open(HANGMAN_WORDLIST, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     # Check that all required keys exist
@@ -25,9 +35,7 @@ def test_wordlist_structure():
 
 def test_wordlist_counts():
     """Test that each category has exactly 360 unique words."""
-    wordlist_path = Path(__file__).parent.parent / "paper_games" / "hangman" / "wordlist.json"
-
-    with open(wordlist_path, "r", encoding="utf-8") as f:
+    with open(HANGMAN_WORDLIST, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     # Check word counts
@@ -43,9 +51,7 @@ def test_wordlist_counts():
 
 def test_wordlist_no_cross_category_duplicates():
     """Test that words are unique across all categories."""
-    wordlist_path = Path(__file__).parent.parent / "paper_games" / "hangman" / "wordlist.json"
-
-    with open(wordlist_path, "r", encoding="utf-8") as f:
+    with open(HANGMAN_WORDLIST, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     all_words = data["easy"] + data["medium"] + data["hard"]
@@ -57,9 +63,7 @@ def test_wordlist_no_cross_category_duplicates():
 
 def test_wordlist_word_lengths():
     """Test that words in each category have appropriate lengths."""
-    wordlist_path = Path(__file__).parent.parent / "paper_games" / "hangman" / "wordlist.json"
-
-    with open(wordlist_path, "r", encoding="utf-8") as f:
+    with open(HANGMAN_WORDLIST, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     # Hard: 3-letter words (shortest, easiest to guess)
@@ -77,9 +81,7 @@ def test_wordlist_word_lengths():
 
 def test_wordlist_all_lowercase():
     """Test that all words are lowercase."""
-    wordlist_path = Path(__file__).parent.parent / "paper_games" / "hangman" / "wordlist.json"
-
-    with open(wordlist_path, "r", encoding="utf-8") as f:
+    with open(HANGMAN_WORDLIST, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     for category in ["easy", "medium", "hard"]:
@@ -89,9 +91,7 @@ def test_wordlist_all_lowercase():
 
 def test_wordlist_all_alphabetic():
     """Test that all words contain only alphabetic characters."""
-    wordlist_path = Path(__file__).parent.parent / "paper_games" / "hangman" / "wordlist.json"
-
-    with open(wordlist_path, "r", encoding="utf-8") as f:
+    with open(HANGMAN_WORDLIST, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     for category in ["easy", "medium", "hard"]:

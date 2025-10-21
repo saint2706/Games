@@ -1,136 +1,102 @@
-#!/usr/bin/env python
-"""Script to test GUI applications with different frameworks.
-
-This utility helps developers test GUI applications with both tkinter and PyQt5
-to ensure consistency during the migration process.
-"""
-
 from __future__ import annotations
 
 import argparse
 import importlib
 import importlib.util
-import pkgutil
-import sys
 from typing import Dict, List, Optional
 
+from games_collection.catalog.registry import GameMetadata, iter_genre
+
 FRAMEWORK_SUFFIXES: Dict[str, str] = {"tkinter": "gui", "pyqt5": "gui_pyqt"}
-
-
-PYQT_MODULE_OVERRIDES = {
-    "paper_games/battleship": "paper_games.battleship.gui_pyqt",
-}
-
-TKINTER_MODULE_OVERRIDES = {}
+GENRE_PACKAGES: Dict[str, str] = {genre: f"games_collection.games.{genre}" for genre in ("card", "paper", "dice", "logic", "word")}
+PYQT5_MIGRATED = {("paper", "dots_and_boxes"), ("card", "go_fish"), ("card", "bluff")}
 
 
 def test_tkinter_available() -> bool:
-    """Check if tkinter is available."""
+    """Return ``True`` when Tkinter can be imported."""
+
     try:
         import tkinter  # noqa: F401
-
-        return True
     except ImportError:
         return False
+    return True
 
 
 def test_pyqt5_available() -> bool:
-    """Check if PyQt5 is available."""
+    """Return ``True`` when PyQt5 can be imported."""
+
     try:
         from PyQt5 import QtWidgets  # noqa: F401
-
-        return True
     except ImportError:
         return False
+    return True
 
 
-PYQT5_MIGRATED = {
-    ("paper_games", "dots_and_boxes"),
-    ("card_games", "go_fish"),
-    ("card_games", "bluff"),
-}
+def _frameworks_for_game(metadata: GameMetadata) -> List[str]:
+    """Return the GUI frameworks available for ``metadata``."""
+
+    frameworks: List[str] = []
+    for framework, suffix in FRAMEWORK_SUFFIXES.items():
+        module_name = f"{metadata.package}.{suffix}"
+        if importlib.util.find_spec(module_name) is not None:
+            frameworks.append(framework)
+    return sorted(frameworks)
 
 
-def discover_gui_games(package_name: str) -> dict[str, list[str]]:
-    """Discover GUI implementations for the provided package.
+def discover_gui_games(genre: str) -> dict[str, list[str]]:
+    """Discover GUI implementations for the provided genre."""
 
-    Args:
-        package_name: The top-level package containing game modules (e.g., ``paper_games``).
-
-    Returns:
-        Mapping of game name to the frameworks that provide GUI support.
-    """
-    try:
-        package = importlib.import_module(package_name)
-    except ImportError:
-        return {}
-
-    package_path = getattr(package, "__path__", None)
-    if package_path is None:
-        return {}
-
-    prefix = f"{package.__name__}."
     discovered: dict[str, list[str]] = {}
-
-    for module_info in pkgutil.walk_packages(package_path, prefix=prefix):
-        if not module_info.ispkg:
-            continue
-
-        relative_name = module_info.name[len(prefix) :]
-        if not relative_name or "." in relative_name:
-            continue
-
-        frameworks: List[str] = []
-        for framework, module_suffix in FRAMEWORK_SUFFIXES.items():
-            module_name = f"{module_info.name}.{module_suffix}"
-            if importlib.util.find_spec(module_name) is not None:
-                frameworks.append(framework)
-
+    for metadata in iter_genre(genre):
+        frameworks = _frameworks_for_game(metadata)
         if frameworks:
-            discovered[relative_name] = sorted(frameworks)
-
+            discovered[metadata.slug] = frameworks
     return dict(sorted(discovered.items()))
 
 
 def list_gui_games() -> dict[str, dict[str, list[str]]]:
-    """List all games with GUI implementations grouped by category."""
+    """List all games with GUI implementations grouped by package path."""
 
-    categories = ("paper_games", "card_games")
-    return {category: discover_gui_games(category) for category in categories}
+    catalogue: dict[str, dict[str, list[str]]] = {}
+    for genre, package in GENRE_PACKAGES.items():
+        games = discover_gui_games(genre)
+        if games:
+            catalogue[package] = games
+    return catalogue
+
+
+def _resolve_metadata(category: str, game: str) -> Optional[GameMetadata]:
+    """Return the metadata for the requested category/game pair."""
+
+    genre = category.split(".")[-1].lower()
+    for metadata in iter_genre(genre):
+        if metadata.slug == game:
+            return metadata
+    return None
 
 
 def check_gui_implementation(category: str, game: str, framework: str) -> tuple[bool, Optional[str]]:
-    """Check if a game has a GUI implementation for the given framework.
+    """Check if a game has a GUI implementation for the given framework."""
 
-    Args:
-        category: Game category (paper_games or card_games)
-        game: Game name
-        framework: GUI framework (tkinter or pyqt5)
+    metadata = _resolve_metadata(category, game)
+    if metadata is None:
+        return False, None
 
-    Returns:
-        Tuple of (exists, module_path)
-    """
-    key = f"{category}/{game}"
-    if framework == "tkinter":
-        module_name = TKINTER_MODULE_OVERRIDES.get(key, f"{category}.{game}.gui")
-    else:  # pyqt5
-        module_name = PYQT_MODULE_OVERRIDES.get(key, f"{category}.{game}.gui_pyqt")
     module_suffix = FRAMEWORK_SUFFIXES.get(framework)
     if module_suffix is None:
         raise ValueError(f"Unknown framework '{framework}'")
 
-    module_name = f"{category}.{game}.{module_suffix}"
-
+    module_name = f"{metadata.package}.{module_suffix}"
     try:
-        __import__(module_name)
+        importlib.import_module(module_name)
         return True, module_name
     except (ImportError, RuntimeError):
-        # RuntimeError can occur when a GUI module checks for tkinter availability
         return False, None
 
 
 def main() -> int:
     """Main entry point."""
+
     parser = argparse.ArgumentParser(
         description="Test GUI applications with different frameworks.",
         formatter_class=argparse.RawTextHelpFormatter,
@@ -143,7 +109,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--check-game",
-        help="Check if a specific game has GUI support.\nFormat: category/game (e.g., paper_games/dots_and_boxes)",
+        help="Check if a specific game has GUI support.\nFormat: package/game (e.g., games_collection.games.paper/dots_and_boxes)",
     )
     parser.add_argument(
         "--framework",
@@ -176,18 +142,19 @@ def main() -> int:
         print("=" * 60)
 
         for category, game_map in games.items():
-            print(f"\n{category.upper().replace('_', ' ')}:")
+            print(f"\n{category}:")
             if not game_map:
                 print("  (no GUI implementations found)")
                 continue
 
+            genre = category.split(".")[-1].lower()
             for game, frameworks in game_map.items():
                 status_parts = []
                 for framework, label in ("tkinter", "Tkinter"), ("pyqt5", "PyQt5"):
                     symbol = "✓" if framework in frameworks else "✗"
                     status_parts.append(f"{label}: {symbol}")
 
-                migration_marker = " *" if (category, game) in PYQT5_MIGRATED else ""
+                migration_marker = " *" if (genre, game) in PYQT5_MIGRATED else ""
                 print(f"  {game:20}{migration_marker} [{' | '.join(status_parts)}]")
 
         if PYQT5_MIGRATED:
@@ -199,18 +166,15 @@ def main() -> int:
         try:
             category, game = args.check_game.split("/")
         except ValueError:
-            print("Error: Game must be in format 'category/game' (e.g., 'paper_games/dots_and_boxes')")
+            print("Invalid format for --check-game. Use package/game.")
             return 1
 
-        exists, module_path = check_gui_implementation(category, game, args.framework)
-
+        exists, module_name = check_gui_implementation(category, game, args.framework)
         if exists:
-            print(f"✓ {game} has {args.framework} GUI support")
-            print(f"  Module: {module_path}")
-            return 0
+            print(f"{args.framework} GUI available for {category}.{game} (module: {module_name})")
         else:
-            print(f"✗ {game} does not have {args.framework} GUI support")
-            return 1
+            print(f"{args.framework} GUI not available for {category}.{game}")
+        return 0
 
     parser.print_help()
     return 0

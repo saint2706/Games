@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from card_games.common.cards import Card, Suit
-from card_games.pinochle.game import MeldPhase, PinochleGame, PinochlePlayer
+from games_collection.games.card.common.cards import Card, Suit
+from games_collection.games.card.pinochle.game import MeldPhase, PinochleGame, PinochlePlayer
 
 
 @pytest.fixture

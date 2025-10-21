@@ -8,9 +8,9 @@ PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from paper_games.dots_and_boxes import DotsAndBoxes, Tournament
-from paper_games.dots_and_boxes.network import NetworkClient, NetworkHost
-from paper_games.dots_and_boxes.tournament import TournamentStats
+from games_collection.games.paper.dots_and_boxes import DotsAndBoxes, Tournament
+from games_collection.games.paper.dots_and_boxes.network import NetworkClient, NetworkHost
+from games_collection.games.paper.dots_and_boxes.tournament import TournamentStats
 
 
 def test_larger_board_sizes():

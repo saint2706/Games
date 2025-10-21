@@ -6,7 +6,7 @@ import asyncio
 import random
 from typing import Dict, Mapping
 
-from card_games.uno import (
+from games_collection.games.card.uno import (
     HouseRules,
     NetworkGameInterface,
     UnoCard,

@@ -1,30 +1,27 @@
-"""A collection of interactive dice-based game implementations.
-
-This package provides a suite of classic dice games, each with its own engine,
-bot AI, and user interface. The games include:
-- Craps - Casino dice game with pass/don't pass betting
-- Farkle - Risk-based scoring with push-your-luck mechanics
-- Liar's Dice - Bluffing game with dice bidding mechanics
-- Bunco - Party dice game with rounds and team scoring
-
-Each game can be run as a standalone application from the command line.
-"""
+"""Compatibility shim exposing dice game packages at the legacy import path."""
 
 from __future__ import annotations
 
-# Export the subpackages so ``import dice_games`` presents the available games
-# in a discoverable list.
-__all__ = [
-    "FarkleGame",
-    "CrapsGame",
-    "LiarsDiceGame",
-    "BuncoGame",
-    "BuncoTournament",
-    "BuncoPlayerSummary",
-    "BuncoMatchResult",
-]
+from importlib import import_module
+from types import ModuleType
+from typing import Iterable
 
-from .bunco import BuncoGame, BuncoMatchResult, BuncoPlayerSummary, BuncoTournament
-from .craps import CrapsGame
-from .farkle import FarkleGame
-from .liars_dice import LiarsDiceGame
+import games_collection.games.dice as _dice_package
+
+__all__ = tuple(getattr(_dice_package, "__all__", ()))
+
+
+def __getattr__(name: str) -> ModuleType:
+    """Defer attribute access to :mod:`games_collection.games.dice`."""
+
+    return getattr(_dice_package, name)
+
+
+def __dir__() -> Iterable[str]:
+    """Return the available attributes for the compatibility package."""
+
+    return sorted(set(__all__) | set(globals()) | set(dir(_dice_package)))
+
+
+__path__ = list(getattr(_dice_package, "__path__", ()))
+__spec__ = getattr(_dice_package, "__spec__", None)

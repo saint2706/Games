@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 
-from card_games.uno.uno import HouseRules, PlayerDecision, UnoCard, UnoGame, UnoPlayer
+from games_collection.games.card.uno.uno import HouseRules, PlayerDecision, UnoCard, UnoGame, UnoPlayer
 
 
 class MockInterface:

@@ -1,85 +1,85 @@
 Games Catalogue
 ===============
 
-The collection currently ships with more than forty playable games. The lists
-below group them by package. Each name links to the corresponding Python module.
+This file is generated from :mod:`games_collection.catalog.registry`.
+The lists below group games by their importable package paths.
 
-Card games (16)
+Card games (17)
 ---------------
 
-- :mod:`card_games.blackjack`
-- :mod:`card_games.bluff`
-- :mod:`card_games.bridge`
-- :mod:`card_games.canasta`
-- :mod:`card_games.crazy_eights`
-- :mod:`card_games.cribbage`
-- :mod:`card_games.euchre`
-- :mod:`card_games.gin_rummy`
-- :mod:`card_games.go_fish`
-- :mod:`card_games.hearts`
-- :mod:`card_games.poker`
-- :mod:`card_games.pinochle`
-- :mod:`card_games.rummy500`
-- :mod:`card_games.solitaire`
-- :mod:`card_games.spades`
-- :mod:`card_games.uno`
-- :mod:`card_games.war`
-
-Paper games (21)
-----------------
-
-- :mod:`paper_games.backgammon`
-- :mod:`paper_games.battleship`
-- :mod:`paper_games.boggle`
-- :mod:`paper_games.checkers`
-- :mod:`paper_games.chess`
-- :mod:`paper_games.connect_four`
-- :mod:`paper_games.dots_and_boxes`
-- :mod:`paper_games.four_square_writing`
-- :mod:`paper_games.hangman`
-- :mod:`paper_games.mancala`
-- :mod:`paper_games.mastermind`
-- :mod:`paper_games.nim`
-- :mod:`paper_games.othello`
-- :mod:`paper_games.pentago`
-- :mod:`paper_games.snakes_and_ladders`
-- :mod:`paper_games.sprouts`
-- :mod:`paper_games.sudoku`
-- :mod:`paper_games.tic_tac_toe`
-- :mod:`paper_games.twenty_questions`
-- :mod:`paper_games.unscramble`
-- :mod:`paper_games.yahtzee`
+- :mod:`games_collection.games.card.blackjack`
+- :mod:`games_collection.games.card.bluff`
+- :mod:`games_collection.games.card.bridge`
+- :mod:`games_collection.games.card.canasta`
+- :mod:`games_collection.games.card.crazy_eights`
+- :mod:`games_collection.games.card.cribbage`
+- :mod:`games_collection.games.card.euchre`
+- :mod:`games_collection.games.card.gin_rummy`
+- :mod:`games_collection.games.card.go_fish`
+- :mod:`games_collection.games.card.hearts`
+- :mod:`games_collection.games.card.pinochle`
+- :mod:`games_collection.games.card.poker`
+- :mod:`games_collection.games.card.rummy500`
+- :mod:`games_collection.games.card.solitaire`
+- :mod:`games_collection.games.card.spades`
+- :mod:`games_collection.games.card.uno`
+- :mod:`games_collection.games.card.war`
 
 Dice games (4)
 --------------
 
-- :mod:`dice_games.bunco`
-- :mod:`dice_games.craps`
-- :mod:`dice_games.farkle`
-- :mod:`dice_games.liars_dice`
+- :mod:`games_collection.games.dice.bunco`
+- :mod:`games_collection.games.dice.craps`
+- :mod:`games_collection.games.dice.farkle`
+- :mod:`games_collection.games.dice.liars_dice`
 
 Logic games (5)
 ---------------
 
-- :mod:`logic_games.lights_out`
-- :mod:`logic_games.minesweeper`
-- :mod:`logic_games.picross`
-- :mod:`logic_games.sliding_puzzle`
-- :mod:`logic_games.sokoban`
+- :mod:`games_collection.games.logic.lights_out`
+- :mod:`games_collection.games.logic.minesweeper`
+- :mod:`games_collection.games.logic.picross`
+- :mod:`games_collection.games.logic.sliding_puzzle`
+- :mod:`games_collection.games.logic.sokoban`
+
+Paper games (21)
+----------------
+
+- :mod:`games_collection.games.paper.backgammon`
+- :mod:`games_collection.games.paper.battleship`
+- :mod:`games_collection.games.paper.boggle`
+- :mod:`games_collection.games.paper.checkers`
+- :mod:`games_collection.games.paper.chess`
+- :mod:`games_collection.games.paper.connect_four`
+- :mod:`games_collection.games.paper.dots_and_boxes`
+- :mod:`games_collection.games.paper.four_square_writing`
+- :mod:`games_collection.games.paper.hangman`
+- :mod:`games_collection.games.paper.mancala`
+- :mod:`games_collection.games.paper.mastermind`
+- :mod:`games_collection.games.paper.nim`
+- :mod:`games_collection.games.paper.othello`
+- :mod:`games_collection.games.paper.pentago`
+- :mod:`games_collection.games.paper.snakes_and_ladders`
+- :mod:`games_collection.games.paper.sprouts`
+- :mod:`games_collection.games.paper.sudoku`
+- :mod:`games_collection.games.paper.tic_tac_toe`
+- :mod:`games_collection.games.paper.twenty_questions`
+- :mod:`games_collection.games.paper.unscramble`
+- :mod:`games_collection.games.paper.yahtzee`
 
 Word games (4)
 --------------
 
-- :mod:`word_games.anagrams`
-- :mod:`word_games.crossword`
-- :mod:`word_games.trivia`
-- :mod:`word_games.wordbuilder`
+- :mod:`games_collection.games.word.anagrams`
+- :mod:`games_collection.games.word.crossword`
+- :mod:`games_collection.games.word.trivia`
+- :mod:`games_collection.games.word.wordbuilder`
 
 Where to learn more
 -------------------
 
-Each package ships with its own README and, in many cases, inline docstrings
-that describe rules and command-line switches. For a bird's-eye view across the
+Each package ships with its own README and inline docstrings that
+describe rules and command-line switches. For a bird's-eye view across the
 entire project, read ``overview`` and ``developers/architecture``.
 
 Detailed descriptions

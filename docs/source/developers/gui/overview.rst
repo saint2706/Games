@@ -18,7 +18,7 @@ headless environments.
 Implemented Components
 ~~~~~~~~~~~~~~~~~~~~~~
 
-1. **Base Infrastructure** (``common/gui_base_pyqt.py``)
+1. **Base Infrastructure** (``src/games_collection/core/gui_base_pyqt.py``)
 
    -  Abstract base class for all PyQt5 GUIs
    -  Configuration system with GUIConfig
@@ -27,20 +27,20 @@ Implemented Components
 
 2. **Working Examples**
 
-   -  ``paper_games/dots_and_boxes/gui_pyqt.py`` – Custom board
+   -  ``src/games_collection/games/paper/dots_and_boxes/gui_pyqt.py`` – Custom board
       rendering with QPainter
-   -  ``card_games/go_fish/gui_pyqt.py`` – Scoreboard driven,
+   -  ``src/games_collection/games/card/go_fish/gui_pyqt.py`` – Scoreboard driven,
       card-request workflow
-   -  ``card_games/bluff/gui_pyqt.py`` – Turn-based multiplayer table
+   -  ``src/games_collection/games/card/bluff/gui_pyqt.py`` – Turn-based multiplayer table
       with claim/challenge dialogs
 
-3. **Go Fish GUI** (``card_games/go_fish/gui_pyqt.py``)
+3. **Go Fish GUI** (``src/games_collection/games/card/go_fish/gui_pyqt.py``)
 
    -  Full PyQt5 implementation of a multi-player card game
    -  Scoreboard, request controls, and animated celebrations
    -  Demonstrates integration without relying on ``BaseGUI``
 
-4. **Bridge GUI** (``card_games/bridge/gui_pyqt.py``)
+4. **Bridge GUI** (``src/games_collection/games/card/bridge/gui_pyqt.py``)
 
    -  Subclasses ``BaseGUI`` to reuse shared theming utilities
    -  Custom ``TrickDisplay`` widget replaces the Tkinter canvas
@@ -90,7 +90,7 @@ List Games with GUI Support
 
    python scripts/test_gui.py --list
 
-This command now introspects the ``card_games`` and ``paper_games``
+This command now introspects the ``games_collection.games.card`` and ``games_collection.games.paper``
 packages to detect both Tkinter (``gui.py``) and PyQt5 (``gui_pyqt.py``)
 implementations. Whenever a new GUI module is added, it is automatically
 included in the output without requiring manual updates to
@@ -161,7 +161,7 @@ Creating a New PyQt5 GUI
 .. code:: python
 
    from PyQt5.QtWidgets import QApplication, QWidget
-   from common.gui_base_pyqt import BaseGUI, GUIConfig
+   from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 
    class MyGameGUI(BaseGUI):
        def __init__(self):
@@ -195,7 +195,7 @@ See ``developers/gui/migration_guide`` for:
 Reference Implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Study ``paper_games/dots_and_boxes/gui_pyqt.py`` for:
+Study ``src/games_collection/games/paper/dots_and_boxes/gui_pyqt.py`` for:
 
 -  Custom widget creation (BoardCanvas)
 -  Mouse event handling
@@ -238,8 +238,8 @@ Run GUI Tests
    pytest tests/test_gui_pyqt.py -v
 
    # With coverage
-   pytest tests/test_gui_pyqt.py --cov=common.gui_base_pyqt --cov=paper_games.dots_and_boxes.gui_pyqt \
-       --cov=card_games.go_fish.gui_pyqt --cov=card_games.bridge.gui_pyqt
+   pytest tests/test_gui_pyqt.py --cov=common.gui_base_pyqt --cov=games_collection.games.paper.dots_and_boxes.gui_pyqt \
+       --cov=games_collection.games.card.go_fish.gui_pyqt --cov=games_collection.games.card.bridge.gui_pyqt
 
 Validate Implementation
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -250,7 +250,7 @@ Validate Implementation
    python scripts/validate_pyqt5.py
 
    # Check specific game
-   python scripts/test_gui.py --check-game paper_games/dots_and_boxes --framework pyqt5
+   python scripts/test_gui.py --check-game src/games_collection/games/paper/dots_and_boxes --framework pyqt5
 
 🎯 Key Benefits
 ---------------
@@ -296,8 +296,8 @@ To develop new GUIs or enhance existing ones:
 1. Use PyQt5 as the primary framework
 2. Follow ``developers/gui/migration_guide`` for best practices
 3. Reference existing implementations (e.g.,
-   ``card_games/solitaire/gui_pyqt.py`` for complex GUIs)
-4. Use ``common/gui_base_pyqt.py`` for consistency
+   ``src/games_collection/games/card/solitaire/gui_pyqt.py`` for complex GUIs)
+4. Use ``src/games_collection/core/gui_base_pyqt.py`` for consistency
 5. Add tests in ``tests/test_gui_pyqt.py``
 6. Run validation: ``python scripts/validate_pyqt5.py``
 
@@ -343,7 +343,7 @@ Potential enhancements:
 For help with GUI development:
 
 1. Read the documentation in ``docs/``
-2. Study the example: ``paper_games/dots_and_boxes/gui_pyqt.py``
+2. Study the example: ``src/games_collection/games/paper/dots_and_boxes/gui_pyqt.py``
 3. Use validation tools: ``scripts/validate_pyqt5.py``
 4. Check framework availability: ``scripts/test_gui.py``
 5. Open an issue on GitHub

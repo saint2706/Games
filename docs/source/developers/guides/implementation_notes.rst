@@ -55,7 +55,7 @@ From TODO.md “Technical Improvements > Code Quality”:
 What Was Implemented
 ~~~~~~~~~~~~~~~~~~~~
 
-1. Common Module (``common/``)
+1. Common Module (``src/games_collection/core/``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Created reusable components for all games:
@@ -116,7 +116,7 @@ Created reusable components for all games:
 -  **developers/architecture** (8.5KB) - Patterns and design principles
 -  **developers/guides/code_quality** (expanded) - Standards, guidelines, and
    complexity analysis
--  **common/README.md** (3.7KB) - Module documentation
+-  **src/games_collection/core/README.md** (3.7KB) - Module documentation
 
 4. Examples and Tests
 ^^^^^^^^^^^^^^^^^^^^^
@@ -446,7 +446,7 @@ pattern for GUI synchronization** ✅ **Game engine abstraction layer**
 Implementation Details
 ~~~~~~~~~~~~~~~~~~~~~~
 
-1. Plugin System (``common/architecture/plugin.py``)
+1. Plugin System (``src/games_collection/core/architecture/plugin.py``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Features:**
@@ -466,7 +466,7 @@ Implementation Details
 **Example:** ``plugins/example_plugin.py`` demonstrates complete plugin
 implementation
 
-2. Event-Driven Architecture (``common/architecture/events.py``)
+2. Event-Driven Architecture (``src/games_collection/core/architecture/events.py``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Features:**
@@ -484,7 +484,7 @@ implementation
 -  ``EventBus`` - Central event dispatcher
 -  ``FunctionEventHandler`` - Convenience wrapper
 
-3. Observer Pattern (``common/architecture/observer.py``)
+3. Observer Pattern (``src/games_collection/core/architecture/observer.py``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Features:**
@@ -502,7 +502,7 @@ implementation
 -  State change validation
 -  Multi-view updates
 
-4. Persistence System (``common/architecture/persistence.py``)
+4. Persistence System (``src/games_collection/core/architecture/persistence.py``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Features:**
@@ -520,7 +520,7 @@ implementation
 -  ``PickleSerializer`` - Binary format
 -  ``SaveLoadManager`` - High-level save/load API
 
-5. Replay System (``common/architecture/replay.py``)
+5. Replay System (``src/games_collection/core/architecture/replay.py``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Features:**
@@ -537,7 +537,7 @@ implementation
 -  ``ReplayRecorder`` - Records actions for replay
 -  ``ReplayManager`` - Undo/redo management
 
-6. Settings System (``common/architecture/settings.py``)
+6. Settings System (``src/games_collection/core/architecture/settings.py``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Features:**
@@ -553,7 +553,7 @@ implementation
 -  ``Settings`` - Settings container
 -  ``SettingsManager`` - Settings persistence
 
-7. Game Engine Abstraction (``common/architecture/engine.py``)
+7. Game Engine Abstraction (``src/games_collection/core/architecture/engine.py``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Features:**
@@ -575,7 +575,7 @@ File Structure
 
 ::
 
-   common/
+   src/games_collection/core/
    ├── __init__.py
    └── architecture/
        ├── __init__.py
@@ -643,7 +643,7 @@ Code Quality
 
 -  **developers/architecture** - Design patterns and usage
 -  **developers/guides/code_quality** - Standards, guidelines, and complexity analysis
--  **common/README.md** - Module documentation
+-  **src/games_collection/core/README.md** - Module documentation
 -  **examples/** - Working implementations
 -  **.pre-commit-config.yaml** - Tool configuration
 -  **pyproject.toml** - Project configuration
@@ -737,7 +737,7 @@ Files Created
 Core Implementation
 ^^^^^^^^^^^^^^^^^^^
 
--  **common/cli_utils.py** (670 lines)
+-  **src/games_collection/core/cli_utils.py** (670 lines)
 
    -  Complete CLI utilities library
    -  9 classes/utilities covering all requirements
@@ -859,8 +859,8 @@ Integration
 
 .. code:: python
 
-   # Import from common module
-   from common import (
+   # Import from games_collection.core module
+   from games_collection.core import (
        ASCIIArt,
        Color,
        CommandHistory,
@@ -1016,7 +1016,7 @@ Bridge
 Testing Coverage
 ~~~~~~~~~~~~~~~~
 
-Created ``tests/test_new_card_games.py`` with 18 tests covering
+Created ``tests/test_new_games_collection.games.card.py`` with 18 tests covering
 initialization, dealing, game logic, and win conditions for all five
 games.
 
@@ -1044,12 +1044,12 @@ All games run efficiently with initialization < 1ms and move validation
 Files Created
 ~~~~~~~~~~~~~
 
--  ``card_games/solitaire/`` (5 files)
--  ``card_games/hearts/`` (5 files)
--  ``card_games/spades/`` (5 files)
--  ``card_games/gin_rummy/`` (5 files)
--  ``card_games/bridge/`` (5 files)
--  ``tests/test_new_card_games.py`` (1 file)
+-  ``src/games_collection/games/card/solitaire/`` (5 files)
+-  ``src/games_collection/games/card/hearts/`` (5 files)
+-  ``src/games_collection/games/card/spades/`` (5 files)
+-  ``src/games_collection/games/card/gin_rummy/`` (5 files)
+-  ``src/games_collection/games/card/bridge/`` (5 files)
+-  ``tests/test_new_games_collection.games.card.py`` (1 file)
 
 **Total Lines Added**: ~2,500 lines
 
@@ -1080,37 +1080,37 @@ Implemented Games (10/10)
 Fully Featured Games (6)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. **Snakes and Ladders** (``paper_games/snakes_and_ladders/``)
+1. **Snakes and Ladders** (``src/games_collection/games/paper/snakes_and_ladders/``)
 
    -  Configurable 100-square board with default snakes/ladders
    -  2-4 player support with dice rolling mechanics
    -  Win detection and game state management
 
-2. **Yahtzee** (``paper_games/yahtzee/``)
+2. **Yahtzee** (``src/games_collection/games/paper/yahtzee/``)
 
    -  All 13 scoring categories implemented
    -  1-4 player support with dice re-rolling (up to 3 times)
    -  Upper section bonus (63+ points = 35 bonus)
    -  Complete scorecard display
 
-3. **Mastermind** (``paper_games/mastermind/``)
+3. **Mastermind** (``src/games_collection/games/paper/mastermind/``)
 
    -  Code-breaking with 6 colors
    -  Configurable code length (2-8)
    -  Black/white peg feedback system with 10 guess limit
 
-4. **20 Questions** (``paper_games/twenty_questions/``)
+4. **20 Questions** (``src/games_collection/games/paper/twenty_questions/``)
 
    -  AI guessing game with yes/no question system
    -  Multiple object categories with 20 question limit
 
-5. **Boggle** (``paper_games/boggle/``)
+5. **Boggle** (``src/games_collection/games/paper/boggle/``)
 
    -  Random 4x4 letter grid generation
    -  Adjacent letter word formation with dictionary validation
    -  Word length scoring
 
-6. **Four Square Writing** (``paper_games/four_square_writing/``)
+6. **Four Square Writing** (``src/games_collection/games/paper/four_square_writing/``)
 
    -  Educational essay structure template
    -  Four quadrant system (main idea, 3 reasons, conclusion)
@@ -1118,23 +1118,23 @@ Fully Featured Games (6)
 Basic/Foundation Games (4)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-7.  **Pentago** (``paper_games/pentago/``)
+7.  **Pentago** (``src/games_collection/games/paper/pentago/``)
 
     -  6x6 board with four 3x3 quadrants
     -  Basic placement mechanics with 5-in-a-row win condition
     -  *Enhancement opportunity*: Full quadrant rotation mechanics
 
-8.  **Backgammon** (``paper_games/backgammon/``)
+8.  **Backgammon** (``src/games_collection/games/paper/backgammon/``)
 
     -  Traditional board layout (24 positions) with dice rolling
     -  *Enhancement opportunity*: Full rules, bearing off, doubling cube
 
-9.  **Sprouts** (``paper_games/sprouts/``)
+9.  **Sprouts** (``src/games_collection/games/paper/sprouts/``)
 
     -  Dot and line graph structure with basic connections
     -  *Enhancement opportunity*: Full topological constraints
 
-10. **Chess** (``paper_games/chess/``)
+10. **Chess** (``src/games_collection/games/paper/chess/``)
 
     -  8x8 board setup with basic piece placement
     -  *Enhancement opportunity*: All pieces, castling, en passant,
@@ -1156,7 +1156,7 @@ Code Quality
 Testing
 ~~~~~~~
 
--  6 new test cases added to ``tests/test_new_paper_games.py``
+-  6 new test cases added to ``tests/test_new_games_collection.games.paper.py``
 -  All 13 tests passing (7 existing + 6 new)
 -  Test coverage includes movement, scoring, validation, AI, and state
    management
@@ -1198,7 +1198,7 @@ Implemented Games
 1. War - Simple Comparison Game
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Location**: ``card_games/war/``
+**Location**: ``src/games_collection/games/card/war/``
 
 **Features**:
 
@@ -1214,7 +1214,7 @@ Implemented Games
 2. Go Fish - Set Collection Game
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Location**: ``card_games/go_fish/``
+**Location**: ``src/games_collection/games/card/go_fish/``
 
 **Features**:
 
@@ -1230,7 +1230,7 @@ Implemented Games
 3. Crazy Eights - Shedding Game
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**Location**: ``card_games/crazy_eights/``
+**Location**: ``src/games_collection/games/card/crazy_eights/``
 
 **Features**:
 
@@ -1246,10 +1246,10 @@ Implemented Games
 Universal Statistics System
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Location**: ``card_games/common/stats.py`` (232 lines)
+**Location**: ``src/games_collection/games/card/src/games_collection/core/stats.py`` (232 lines)
 
 A reusable wrapper around the existing
-``common/analytics/game_stats.py`` system for card games.
+``src/games_collection/core/analytics/game_stats.py`` system for card games.
 
 **Features**:
 
@@ -1309,7 +1309,7 @@ New Card Games (3)
 1. Cribbage (~600 LOC)
 ^^^^^^^^^^^^^^^^^^^^^^
 
-**Location**: ``card_games/cribbage/``
+**Location**: ``src/games_collection/games/card/cribbage/``
 
 **Features**:
 
@@ -1327,7 +1327,7 @@ New Card Games (3)
 2. Euchre (~450 LOC)
 ^^^^^^^^^^^^^^^^^^^^
 
-**Location**: ``card_games/euchre/``
+**Location**: ``src/games_collection/games/card/euchre/``
 
 **Features**:
 
@@ -1341,7 +1341,7 @@ New Card Games (3)
 3. Rummy 500 (~400 LOC)
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-**Location**: ``card_games/rummy500/``
+**Location**: ``src/games_collection/games/card/rummy500/``
 
 **Features**:
 
@@ -1413,7 +1413,7 @@ Universal Launcher
 Crash Reporting & Error Analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Location**: ``common/analytics/crash_reporter.py``
+**Location**: ``src/games_collection/core/analytics/crash_reporter.py``
 
 **Features**:
 

@@ -7,8 +7,8 @@ import tempfile
 
 import pytest
 
-from common.analytics import Dashboard, EloRating, GameStatistics, GlickoRating, Heatmap, PerformanceMetrics, PlayerStats, ReplayAnalyzer
-from common.analytics.rating_systems import calculate_ai_difficulty_rating
+from games_collection.core.analytics import Dashboard, EloRating, GameStatistics, GlickoRating, Heatmap, PerformanceMetrics, PlayerStats, ReplayAnalyzer
+from games_collection.core.analytics.rating_systems import calculate_ai_difficulty_rating
 
 
 class TestPlayerStats:

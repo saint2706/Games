@@ -25,7 +25,7 @@ operations/status/gui_migration_status (operations/status/gui_migration_status).
 Infrastructure (✅ Complete)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--  PyQt5 base infrastructure (``common/gui_base_pyqt.py``)
+-  PyQt5 base infrastructure (``src/games_collection/core/gui_base_pyqt.py``)
 -  Headless-friendly test framework for PyQt5 GUIs
 -  Documentation, tooling, and developer quickstarts
 
@@ -250,10 +250,10 @@ Create a new file ``gui_pyqt.py`` alongside the existing ``gui.py``:
 .. code:: bash
 
    # For card games
-   card_games/<game_name>/gui_pyqt.py
+   src/games_collection/games/card/<game_name>/gui_pyqt.py
 
    # For paper games
-   paper_games/<game_name>/gui_pyqt.py
+   src/games_collection/games/paper/<game_name>/gui_pyqt.py
 
 2. Update Imports
 ~~~~~~~~~~~~~~~~~
@@ -310,7 +310,7 @@ Create tests in ``tests/test_gui_pyqt.py``:
    @pytest.mark.gui
    class TestGamePyQt:
        def test_game_gui_import(self):
-           from card_games.game_name.gui_pyqt import GameGUI
+           from games_collection.games.card.game_name.gui_pyqt import GameGUI
            assert GameGUI is not None
 
 7. Update Entry Points
@@ -320,7 +320,7 @@ Update the game’s ``__main__.py`` or CLI to use PyQt5 version:
 
 .. code:: python
 
-   from common.gui_frameworks import launch_preferred_gui
+   from games_collection.core.gui_frameworks import launch_preferred_gui
    from .gui import run_app as run_tk_gui
    from .gui_pyqt import run_gui as run_pyqt_gui
 
@@ -401,12 +401,12 @@ to layouts:
 Using BaseGUI
 -------------
 
-The repository provides ``common/gui_base_pyqt.py`` with common
+The repository provides ``src/games_collection/core/gui_base_pyqt.py`` with common
 utilities:
 
 .. code:: python
 
-   from common.gui_base_pyqt import BaseGUI, GUIConfig
+   from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 
    class MyGameGUI(BaseGUI):
        def __init__(self):
@@ -463,12 +463,12 @@ If you encounter issues during migration:
 
 1. Check this guide for common patterns
 2. Review completed migrations such as
-   ``paper_games/dots_and_boxes/gui_pyqt.py``,
-   ``card_games/go_fish/gui_pyqt.py``, and
-   ``card_games/spades/gui_pyqt.py``
+   ``src/games_collection/games/paper/dots_and_boxes/gui_pyqt.py``,
+   ``src/games_collection/games/card/go_fish/gui_pyqt.py``, and
+   ``src/games_collection/games/card/spades/gui_pyqt.py``
 3. Look at completed migrations:
-   ``paper_games/dots_and_boxes/gui_pyqt.py``,
-   ``card_games/go_fish/gui_pyqt.py``, ``card_games/bridge/gui_pyqt.py``
+   ``src/games_collection/games/paper/dots_and_boxes/gui_pyqt.py``,
+   ``src/games_collection/games/card/go_fish/gui_pyqt.py``, ``src/games_collection/games/card/bridge/gui_pyqt.py``
 4. Consult PyQt5 documentation
 5. Ask in the repository issues
 

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from paper_games.hangman import HANGMAN_ART_STYLES, HangmanGame, load_default_words, load_themed_words, load_words_by_difficulty
+from games_collection.games.paper.hangman import HANGMAN_ART_STYLES, HangmanGame, load_default_words, load_themed_words, load_words_by_difficulty
 
 
 def test_load_words_by_difficulty_easy():
@@ -80,7 +80,7 @@ def test_load_themed_words_invalid():
 
 def test_themed_words_file_structure():
     """Test that themed_words.json has the correct structure."""
-    themed_path = Path(__file__).parent.parent / "paper_games" / "hangman" / "themed_words.json"
+    themed_path = Path(__file__).parent.parent / "src" / "games_collection" / "games" / "paper" / "hangman" / "themed_words.json"
 
     if not themed_path.exists():
         pytest.skip("themed_words.json not found")

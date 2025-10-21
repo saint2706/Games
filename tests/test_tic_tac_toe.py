@@ -8,11 +8,11 @@ PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from paper_games.tic_tac_toe.network import NetworkConfig, NetworkTicTacToeClient, NetworkTicTacToeServer
-from paper_games.tic_tac_toe.stats import GameStats
-from paper_games.tic_tac_toe.themes import THEMES, get_theme, list_themes, validate_symbols
-from paper_games.tic_tac_toe.tic_tac_toe import TicTacToeGame
-from paper_games.tic_tac_toe.ultimate import UltimateTicTacToeGame
+from games_collection.games.paper.tic_tac_toe.network import NetworkConfig, NetworkTicTacToeClient, NetworkTicTacToeServer
+from games_collection.games.paper.tic_tac_toe.stats import GameStats
+from games_collection.games.paper.tic_tac_toe.themes import THEMES, get_theme, list_themes, validate_symbols
+from games_collection.games.paper.tic_tac_toe.tic_tac_toe import TicTacToeGame
+from games_collection.games.paper.tic_tac_toe.ultimate import UltimateTicTacToeGame
 
 
 def test_standard_3x3_board():

@@ -12,14 +12,17 @@ import sys
 import textwrap
 from typing import Callable, Dict, List, Optional
 
-from common.challenges import get_default_challenge_manager
-from common.daily_challenges import DailyChallengeScheduler, DailyChallengeSelection
-from common.game_catalog import get_default_game_catalogue
-from common.leaderboard_service import CrossGameLeaderboardEntry, CrossGameLeaderboardService
-from common.profile_service import ProfileService, ProfileServiceError, get_profile_service
-from common.recommendation_service import RecommendationResult, RecommendationService
-from common.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata
-from common.tutorial_session import TutorialSession
+from importlib import import_module
+
+from games_collection.catalog.registry import GameMetadata, get_all_games
+from games_collection.core.challenges import get_default_challenge_manager
+from games_collection.core.daily_challenges import DailyChallengeScheduler, DailyChallengeSelection
+from games_collection.core.game_catalog import get_default_game_catalogue
+from games_collection.core.leaderboard_service import CrossGameLeaderboardEntry, CrossGameLeaderboardService
+from games_collection.core.profile_service import ProfileService, ProfileServiceError, get_profile_service
+from games_collection.core.recommendation_service import RecommendationResult, RecommendationService
+from games_collection.core.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata
+from games_collection.core.tutorial_session import TutorialSession
 
 # Try to use colorama if available, fall back to plain text
 try:
@@ -46,43 +49,42 @@ except ImportError:
         RESET_ALL = ""
 
 
+GENRE_ORDER = {"card": 0, "paper": 1, "dice": 2, "word": 3, "logic": 4}
+
+
+def _launcher_from_entry_point(entry_point: str) -> Callable[[], None]:
+    """Return a callable that imports and executes ``entry_point`` lazily."""
+
+    module_path, _, attribute = entry_point.partition(":")
+
+    if not module_path or not attribute:
+        raise ValueError(f"Invalid entry point '{entry_point}'")
+
+    def _launcher() -> None:
+        module = import_module(module_path)
+        getattr(module, attribute)()
+
+    return _launcher
+
+
+_ORDERED_METADATA: tuple[GameMetadata, ...] = tuple(
+    sorted(
+        get_all_games(),
+        key=lambda metadata: (GENRE_ORDER.get(metadata.genre, 100), metadata.name.lower()),
+    )
+)
+
+_MENU_ENTRIES: list[tuple[GameMetadata, Callable[[], None]]] = [
+    (metadata, _launcher_from_entry_point(metadata.entry_point)) for metadata in _ORDERED_METADATA
+]
+
 GAME_MAP: dict[str, tuple[str, Callable[[], None]]] = {
-    "1": ("poker", lambda: __import__("card_games.poker.__main__", fromlist=["main"]).main()),
-    "2": ("blackjack", lambda: __import__("card_games.blackjack.__main__", fromlist=["main"]).main()),
-    "3": ("uno", lambda: __import__("card_games.uno.__main__", fromlist=["main"]).main()),
-    "4": ("hearts", lambda: __import__("card_games.hearts.__main__", fromlist=["main"]).main()),
-    "5": ("spades", lambda: __import__("card_games.spades.__main__", fromlist=["main"]).main()),
-    "6": ("bridge", lambda: __import__("card_games.bridge.__main__", fromlist=["main"]).main()),
-    "7": ("gin_rummy", lambda: __import__("card_games.gin_rummy.__main__", fromlist=["main"]).main()),
-    "8": ("solitaire", lambda: __import__("card_games.solitaire.__main__", fromlist=["main"]).main()),
-    "9": ("bluff", lambda: __import__("card_games.bluff.__main__", fromlist=["main"]).main()),
-    "10": ("war", lambda: __import__("card_games.war.__main__", fromlist=["main"]).main()),
-    "11": ("go_fish", lambda: __import__("card_games.go_fish.__main__", fromlist=["main"]).main()),
-    "12": ("crazy_eights", lambda: __import__("card_games.crazy_eights.__main__", fromlist=["main"]).main()),
-    "13": ("cribbage", lambda: __import__("card_games.cribbage.__main__", fromlist=["main"]).main()),
-    "14": ("euchre", lambda: __import__("card_games.euchre.__main__", fromlist=["main"]).main()),
-    "15": ("rummy500", lambda: __import__("card_games.rummy500.__main__", fromlist=["main"]).main()),
-    "16": ("tic_tac_toe", lambda: __import__("paper_games.tic_tac_toe.__main__", fromlist=["main"]).main()),
-    "17": ("battleship", lambda: __import__("paper_games.battleship.__main__", fromlist=["main"]).main()),
-    "18": ("checkers", lambda: __import__("paper_games.checkers.__main__", fromlist=["main"]).main()),
-    "19": ("connect_four", lambda: __import__("paper_games.connect_four.__main__", fromlist=["main"]).main()),
-    "20": ("othello", lambda: __import__("paper_games.othello.__main__", fromlist=["main"]).main()),
-    "21": ("dots_and_boxes", lambda: __import__("paper_games.dots_and_boxes.__main__", fromlist=["main"]).main()),
-    "22": ("hangman", lambda: __import__("paper_games.hangman.__main__", fromlist=["main"]).main()),
-    "23": ("nim", lambda: __import__("paper_games.nim.__main__", fromlist=["main"]).main()),
-    "24": ("sudoku", lambda: __import__("paper_games.sudoku.__main__", fromlist=["main"]).main()),
-    "25": ("mancala", lambda: __import__("paper_games.mancala.__main__", fromlist=["main"]).main()),
-    "26": ("craps", lambda: __import__("dice_games.craps.__main__", fromlist=["main"]).main()),
-    "27": ("bunco", lambda: __import__("dice_games.bunco.__main__", fromlist=["main"]).main()),
-    "28": ("liars_dice", lambda: __import__("dice_games.liars_dice.__main__", fromlist=["main"]).main()),
-    "29": ("unscramble", lambda: __import__("word_games.unscramble.__main__", fromlist=["main"]).main()),
-    "30": ("wordle", lambda: __import__("word_games.wordle.__main__", fromlist=["main"]).main()),
-    "31": ("mastermind", lambda: __import__("logic_games.mastermind.__main__", fromlist=["main"]).main()),
-    "32": ("codebreaker", lambda: __import__("logic_games.codebreaker.__main__", fromlist=["main"]).main()),
-    "33": ("pinochle", lambda: __import__("card_games.pinochle.__main__", fromlist=["main"]).main()),
+    str(index): (metadata.slug, launcher)
+    for index, (metadata, launcher) in enumerate(_MENU_ENTRIES, start=1)
 }
 
-SLUG_TO_ENTRY = {value[0]: value for value in GAME_MAP.values()}
+SLUG_TO_ENTRY = {metadata.slug: (metadata.slug, launcher) for metadata, launcher in _MENU_ENTRIES}
+SLUG_TO_METADATA = {metadata.slug: metadata for metadata in _ORDERED_METADATA}
 
 
 RECOMMENDATION_SERVICE = RecommendationService(get_default_game_catalogue())
@@ -137,12 +139,12 @@ def run_pyqt_smoke_test(game_slug: str) -> int:
     app = QApplication.instance() or QApplication([])
 
     if game_slug == "dots_and_boxes":
-        from paper_games.dots_and_boxes.gui_pyqt import DotsAndBoxesGUI
+        from games_collection.games.paper.dots_and_boxes.gui_pyqt import DotsAndBoxesGUI
 
         window = DotsAndBoxesGUI(size=2, show_hints=False)
     elif game_slug == "go_fish":
-        from card_games.go_fish.game import GoFishGame
-        from card_games.go_fish.gui_pyqt import GoFishGUI
+        from games_collection.games.card.go_fish.game import GoFishGame
+        from games_collection.games.card.go_fish.gui_pyqt import GoFishGUI
 
         window = GoFishGUI(GoFishGame(num_players=2))
     else:  # pragma: no cover - only called with supported games
@@ -264,53 +266,18 @@ def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) ->
 
 def print_menu(service: ProfileService) -> None:
     """Print the main menu."""
-    categories = {
-        "Card Games": [
-            ("1", "Poker (Texas Hold'em)"),
-            ("2", "Blackjack"),
-            ("3", "Uno"),
-            ("4", "Hearts"),
-            ("5", "Spades"),
-            ("6", "Bridge"),
-            ("7", "Gin Rummy"),
-            ("8", "Solitaire"),
-            ("9", "Bluff"),
-            ("10", "War"),
-            ("11", "Go Fish"),
-            ("12", "Crazy Eights"),
-            ("13", "Cribbage"),
-            ("14", "Euchre"),
-            ("15", "Rummy 500"),
-        ],
-        "Paper Games": [
-            ("16", "Tic-Tac-Toe"),
-            ("17", "Battleship"),
-            ("18", "Checkers"),
-            ("19", "Connect Four"),
-            ("20", "Othello"),
-            ("21", "Dots and Boxes"),
-            ("22", "Hangman"),
-            ("23", "Nim"),
-            ("24", "Sudoku"),
-            ("25", "Mancala"),
-        ],
-        "Dice Games": [
-            ("26", "Craps"),
-            ("27", "Bunco"),
-            ("28", "Liar's Dice"),
-        ],
-        "Word Games": [
-            ("29", "Unscramble"),
-            ("30", "Wordle"),
-        ],
-        "Logic Games": [
-            ("31", "Mastermind"),
-            ("32", "Codebreaker"),
-        ],
-        "Educational Tools": [
-            ("T", "Tutorial catalogue"),
-        ],
-    }
+    categories: dict[str, list[tuple[str, str]]] = {}
+    for index, (metadata, _launcher) in enumerate(_MENU_ENTRIES, start=1):
+        label = {
+            "card": "Card Games",
+            "paper": "Paper Games",
+            "dice": "Dice Games",
+            "logic": "Logic Games",
+            "word": "Word Games",
+        }.get(metadata.genre, metadata.genre.title())
+        categories.setdefault(label, []).append((str(index), metadata.name))
+
+    categories.setdefault("Educational Tools", []).append(("T", "Tutorial catalogue"))
 
     if HAS_COLORAMA:
         print(f"{Fore.CYAN}Daily Activities:{Style.RESET_ALL}")
@@ -730,7 +697,7 @@ def _run_sudoku_daily_challenge(
 
     puzzle = builder()
     try:
-        from paper_games.sudoku.sudoku import SudokuCLI, SudokuPuzzle
+        from games_collection.games.paper.sudoku.sudoku import SudokuCLI, SudokuPuzzle
     except ImportError as exc:  # pragma: no cover - optional dependency guard
         print(f"Unable to load Sudoku CLI: {exc}")
         return
@@ -844,7 +811,9 @@ def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeS
         return True
 
     if normalized in GAME_MAP:
-        game_name, launcher = GAME_MAP[normalized]
+        slug, launcher = GAME_MAP[normalized]
+        metadata = SLUG_TO_METADATA.get(slug)
+        game_name = metadata.name if metadata else slug
         if HAS_COLORAMA:
             print(f"\n{Fore.GREEN}Launching {game_name}...{Style.RESET_ALL}\n")
         else:

@@ -17,7 +17,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from common.architecture import Event, EventHandler, Observer, PluginManager, ReplayManager, SaveLoadManager, SettingsManager
+from games_collection.core.architecture import Event, EventHandler, Observer, PluginManager, ReplayManager, SaveLoadManager, SettingsManager
 
 
 class GameEventLogger(EventHandler):

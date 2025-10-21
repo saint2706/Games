@@ -208,7 +208,7 @@ After recreating v1.1.1 (or creating v1.1.2):
 
    # Test it works
    games-collection --help
-   python -m card_games.poker --help
+   python -m games_collection.games.card.poker --help
 
    # Clean up
    deactivate
