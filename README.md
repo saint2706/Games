@@ -12,7 +12,7 @@ algorithms.
 ## Highlights
 
 - **Broad catalogue** – 49 playable games spanning card, paper, dice, logic, and
-  word genres. See the [Games Catalogue](docs/source/games_catalog.rst) for the
+  word genres. See the [Games Catalogue](docs/source/players/games_catalog.rst) for the
   full list.
 - **Multiple interfaces** – Launch titles from the command line, via the
   `games-collection` menu, or with Tkinter/PyQt graphical front ends where
@@ -97,8 +97,14 @@ tests/           Automated test suite mirroring the package structure
 
 ## Documentation
 
-This README provides a high-level summary. Detailed user and developer guides
-live in the [Sphinx documentation](docs/README.md). Build the HTML site with:
+This README provides a high-level summary. The canonical guides now live in the Sphinx project, grouped by audience so everybody reads from the same source of truth:
+
+- [Player resources](docs/source/players/index.rst) cover installation, launch options, and the [games catalog](docs/source/players/games_catalog.rst) detail pages.
+- [Developer documentation](docs/source/developers/index.rst) contains coding standards, implementation guides, and GUI references.
+- [Operations playbooks](docs/source/operations/index.rst) track workflow validation, release status, and archival reports.
+- [Contributor policies](docs/source/contributors/index.rst) replace the standalone CONTRIBUTING.md file.
+
+Build the HTML site with:
 
 ```bash
 cd docs
@@ -111,7 +117,7 @@ Generated pages will be available in `docs/build/html/index.html`.
 ## Contributing
 
 Contributions are welcome! Please open an issue or discussion to propose new
-ideas, then follow the steps in [CONTRIBUTING.md](CONTRIBUTING.md). Remember to
+ideas, then follow the steps in [Contributor Guide](docs/source/contributors/contributing.rst). Remember to
 include tests and documentation updates alongside code changes.
 
 ## License
