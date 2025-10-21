@@ -25,7 +25,7 @@ exclude = [
 
 [tool.setuptools.package-data]
 "*" = ["*.md", "*.txt", "*.rst"]
-games_collection.catalog = ["*.json"]
+"games_collection.catalog" = ["*.json"]
 
 [project]
 name = "games-collection"
