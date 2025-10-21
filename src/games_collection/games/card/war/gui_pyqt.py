@@ -24,10 +24,10 @@ from PyQt5.QtCore import QRect, Qt, QTimer
 from PyQt5.QtGui import QColor, QFont, QPainter, QPen
 from PyQt5.QtWidgets import QApplication, QFileDialog, QGroupBox, QHBoxLayout, QLabel, QMessageBox, QPushButton, QSlider, QTextEdit, QVBoxLayout, QWidget
 
-from games_collection.games.card.common.soundscapes import initialize_game_soundscape
-from games_collection.games.card.war.game import WarGame
 from games_collection.core.architecture.persistence import SaveLoadManager
 from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
+from games_collection.games.card.common.soundscapes import initialize_game_soundscape
+from games_collection.games.card.war.game import WarGame
 
 try:  # pragma: no cover - optional dependency for stats tracking
     from games_collection.games.card.common.stats import CardGameStats

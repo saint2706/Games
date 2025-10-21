@@ -1,19 +1,9 @@
 """Tests for the hangman wordlist."""
 
 import json
-import json
 from pathlib import Path
 
-
-HANGMAN_WORDLIST = (
-    Path(__file__).parent.parent
-    / "src"
-    / "games_collection"
-    / "games"
-    / "paper"
-    / "hangman"
-    / "wordlist.json"
-)
+HANGMAN_WORDLIST = Path(__file__).parent.parent / "src" / "games_collection" / "games" / "paper" / "hangman" / "wordlist.json"
 
 
 def test_wordlist_structure():

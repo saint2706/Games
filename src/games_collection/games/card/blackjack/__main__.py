@@ -21,9 +21,9 @@ from __future__ import annotations
 import argparse
 from typing import Iterable, Optional
 
+from games_collection.core.gui_frameworks import Framework, frameworks_available, launch_preferred_gui
 from games_collection.games.card.blackjack.cli import game_loop
 from games_collection.games.card.blackjack.game import BlackjackGame
-from games_collection.core.gui_frameworks import Framework, frameworks_available, launch_preferred_gui
 
 # Optional GUI launchers are imported with graceful error handling.
 try:  # pragma: no cover - optional GUI dependency

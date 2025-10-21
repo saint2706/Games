@@ -5,10 +5,10 @@ from __future__ import annotations
 import argparse
 from typing import Optional
 
-from games_collection.games.card.bridge.cli import game_loop
-from games_collection.games.card.bridge.gui import run_app
 from games_collection.core.gui_base import TKINTER_AVAILABLE
 from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE
+from games_collection.games.card.bridge.cli import game_loop
+from games_collection.games.card.bridge.gui import run_app
 
 
 def main(args: Optional[list[str]] = None) -> None:
@@ -36,8 +36,8 @@ def main(args: Optional[list[str]] = None) -> None:
             game_loop()
             return
         try:
-            from games_collection.games.card.bridge.gui_pyqt import run_gui as run_pyqt_gui
             from games_collection.core.gui_base_pyqt import GUIConfig
+            from games_collection.games.card.bridge.gui_pyqt import run_gui as run_pyqt_gui
         except ImportError as exc:  # pragma: no cover - PyQt missing at runtime
             print(f"Unable to import the PyQt Bridge GUI: {exc}")
             game_loop()

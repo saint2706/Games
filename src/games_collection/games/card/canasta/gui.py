@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Optional
 
+from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 from games_collection.games.card.canasta.game import CanastaGame, CanastaPlayer, DrawSource, MeldError, card_point_value
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
-from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 
 if TKINTER_AVAILABLE:  # pragma: no cover - UI specific branch
     import tkinter as tk

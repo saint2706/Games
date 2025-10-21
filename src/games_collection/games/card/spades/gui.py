@@ -12,11 +12,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Optional
 
+from games_collection.core import Settings, SettingsManager
+from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 from games_collection.games.card.common.cards import Card
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.games.card.spades.game import SpadesGame, SpadesPlayer
-from games_collection.core import Settings, SettingsManager
-from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 
 
 @dataclass

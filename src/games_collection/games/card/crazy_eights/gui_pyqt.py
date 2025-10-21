@@ -26,10 +26,10 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QDialog, QGridLayout, QHBoxLayout, QLabel, QLayout, QMainWindow, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
+from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 from games_collection.games.card.common.cards import Card, Suit
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.games.card.crazy_eights.game import CrazyEightsGame, Player
-from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 
 
 class CrazyEightsGUI(QMainWindow, BaseGUI):

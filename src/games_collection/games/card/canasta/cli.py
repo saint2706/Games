@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import Iterable
 
+from games_collection.core.cli_utils import THEMES, ASCIIArt
 from games_collection.games.card.canasta.game import (
     CanastaGame,
     CanastaPlayer,
@@ -17,7 +18,6 @@ from games_collection.games.card.canasta.game import (
     MeldError,
 )
 from games_collection.games.card.common.cards import Card
-from games_collection.core.cli_utils import THEMES, ASCIIArt
 
 THEME = THEMES["forest"]
 

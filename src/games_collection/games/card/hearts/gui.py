@@ -30,10 +30,10 @@ try:
 except ImportError as exc:  # pragma: no cover - Tkinter availability is environment specific
     raise RuntimeError("Tkinter is required to use the Hearts GUI") from exc
 
-from games_collection.games.card.common.cards import Card, Suit, format_cards
-from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.core import Settings, SettingsManager
 from games_collection.core.gui_base import BaseGUI, GUIConfig
+from games_collection.games.card.common.cards import Card, Suit, format_cards
+from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 
 from .game import QUEEN_OF_SPADES, HeartsGame, HeartsPlayer, PassDirection
 

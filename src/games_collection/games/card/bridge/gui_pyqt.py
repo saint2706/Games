@@ -14,10 +14,10 @@ import random
 import sys
 from typing import Iterable, Optional
 
+from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 from games_collection.games.card.bridge.game import BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
 from games_collection.games.card.common.cards import Card, Suit
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
-from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 if not PYQT5_AVAILABLE:  # pragma: no cover - module should not import without PyQt5
     raise ImportError("PyQt5 is required for the Bridge PyQt GUI")

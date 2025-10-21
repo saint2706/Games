@@ -23,8 +23,8 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from games_collection.games.card.pinochle.game import PinochleGame, PinochlePlayer
 from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
+from games_collection.games.card.pinochle.game import PinochleGame, PinochlePlayer
 
 
 class PinochlePyQtGUI(QMainWindow, BaseGUI):

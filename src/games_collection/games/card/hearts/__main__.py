@@ -11,9 +11,9 @@ from __future__ import annotations
 import argparse
 from typing import Optional, Sequence
 
-from games_collection.games.card.hearts.cli import game_loop
 from games_collection.core import SettingsManager
 from games_collection.core.themes import ThemeManager
+from games_collection.games.card.hearts.cli import game_loop
 
 PREFERENCES_NAMESPACE = "games_collection.games.card.hearts.gui"
 

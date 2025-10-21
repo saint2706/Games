@@ -12,10 +12,10 @@ from __future__ import annotations
 import sys
 from typing import Dict, List, Optional
 
+from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 from games_collection.games.card.common.cards import Card, format_cards
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.games.card.gin_rummy.game import GinRummyGame, GinRummyPlayer, HandAnalysis, Meld, MeldType
-from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 if PYQT5_AVAILABLE:  # pragma: no cover - import guarded by availability
     from PyQt5.QtCore import Qt

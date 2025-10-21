@@ -18,10 +18,10 @@ from __future__ import annotations
 import tkinter as tk
 from typing import Optional
 
+from games_collection.core.gui_base import BaseGUI, GUIConfig
 from games_collection.games.card.blackjack.game import BlackjackGame, BlackjackHand, Outcome
 from games_collection.games.card.common.cards import Card, Suit
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
-from games_collection.core.gui_base import BaseGUI, GUIConfig
 
 # Color palette for the UI
 _TABLE_GREEN = "#0b5d1e"

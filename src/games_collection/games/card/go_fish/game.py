@@ -21,8 +21,8 @@ from enum import Enum, auto
 from random import Random
 from typing import Any, Dict, Optional
 
-from games_collection.games.card.common.cards import RANKS, Card, Deck
 from games_collection.core.architecture.events import EventBus, GameEventType, get_global_event_bus
+from games_collection.games.card.common.cards import RANKS, Card, Deck
 
 
 class GameState(Enum):

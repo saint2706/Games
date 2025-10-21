@@ -5,9 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
+from games_collection.core.architecture.persistence import SaveLoadManager
 from games_collection.games.card.common.cards import RANKS
 from games_collection.games.card.go_fish.game import GoFishGame, Player
-from games_collection.core.architecture.persistence import SaveLoadManager
 
 _AUTOSAVE_NAME = "go_fish_autosave"
 _AUTOSAVE_PATH = Path("./saves") / f"{_AUTOSAVE_NAME}.save"

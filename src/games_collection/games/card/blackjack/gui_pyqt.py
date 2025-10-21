@@ -14,10 +14,10 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QColor, QFont, QPen
 from PyQt5.QtWidgets import QApplication, QFrame, QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton, QSpinBox, QVBoxLayout, QWidget
 
+from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 from games_collection.games.card.blackjack.game import BlackjackGame, BlackjackHand, Outcome
 from games_collection.games.card.common.cards import Card, Suit
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
-from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 
 _TABLE_GREEN = "#0b5d1e"
 _TABLE_ACCENT = "#145c2a"
