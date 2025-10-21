@@ -56,7 +56,7 @@ What Was Implemented
 ~~~~~~~~~~~~~~~~~~~~
 
 1. Common Module (``src/games_collection/core/``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Created reusable components for all games:
 
@@ -447,7 +447,7 @@ Implementation Details
 ~~~~~~~~~~~~~~~~~~~~~~
 
 1. Plugin System (``src/games_collection/core/architecture/plugin.py``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Features:**
 
@@ -467,7 +467,7 @@ Implementation Details
 implementation
 
 2. Event-Driven Architecture (``src/games_collection/core/architecture/events.py``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Features:**
 
@@ -485,7 +485,7 @@ implementation
 -  ``FunctionEventHandler`` - Convenience wrapper
 
 3. Observer Pattern (``src/games_collection/core/architecture/observer.py``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Features:**
 
@@ -503,7 +503,7 @@ implementation
 -  Multi-view updates
 
 4. Persistence System (``src/games_collection/core/architecture/persistence.py``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Features:**
 
@@ -521,7 +521,7 @@ implementation
 -  ``SaveLoadManager`` - High-level save/load API
 
 5. Replay System (``src/games_collection/core/architecture/replay.py``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Features:**
 
@@ -538,7 +538,7 @@ implementation
 -  ``ReplayManager`` - Undo/redo management
 
 6. Settings System (``src/games_collection/core/architecture/settings.py``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Features:**
 
@@ -554,7 +554,7 @@ implementation
 -  ``SettingsManager`` - Settings persistence
 
 7. Game Engine Abstraction (``src/games_collection/core/architecture/engine.py``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Features:**
 
@@ -657,7 +657,7 @@ Documentation
 -  **contributors/contributing** - Contribution guidelines
 -  **docs/QUICK_START.md** - Quick start guide
 
-.. _testing-1:
+.. _implementation-notes-testing-1:
 
 Testing
 ~~~~~~~
@@ -744,7 +744,7 @@ Core Implementation
    -  Platform-specific code for Windows/Unix
    -  Graceful fallbacks for limited terminals
 
-.. _testing-2:
+.. _implementation-notes-testing-2:
 
 Testing
 ^^^^^^^
@@ -1151,7 +1151,7 @@ Code Quality
 -  ✅ Formatted with black (160 char line length)
 -  ✅ Linted with ruff (all issues resolved)
 
-.. _testing-3:
+.. _implementation-notes-testing-3:
 
 Testing
 ~~~~~~~

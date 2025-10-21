@@ -42,7 +42,7 @@ Solution Implemented
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 src/games_collection/games/card/euchre/game.py (line 246)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Before:**
 
@@ -64,7 +64,7 @@ in the logic. The comment suggested it was planned to be used, but the
 current implementation doesn’t need it.
 
 src/games_collection/games/card/euchre/game.py (line 268)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 **Before:**
 

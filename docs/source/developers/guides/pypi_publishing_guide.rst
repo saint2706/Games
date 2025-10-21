@@ -141,7 +141,7 @@ Workflow Details
 Jobs Overview
 ~~~~~~~~~~~~~
 
-.. code:: mermaid
+.. code:: text
 
    graph LR
        A[bump-and-release] -->|creates release| B[validate-version]

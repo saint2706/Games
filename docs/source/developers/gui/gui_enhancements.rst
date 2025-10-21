@@ -26,7 +26,7 @@ Features
 --------
 
 1. Theme System (``src/games_collection/core/themes.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Provides a unified theming system with predefined themes and custom
 theme support.
@@ -88,7 +88,7 @@ Each theme has the following color properties:
 -  ``canvas_bg`` - Canvas/game board background
 
 2. Sound Manager (``src/games_collection/core/sound_manager.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Cross-platform sound effects system using pygame.mixer (optional
 dependency).
@@ -104,7 +104,7 @@ Features
 -  Graceful fallback when pygame not available
 -  Support for WAV and MP3 formats
 
-.. _usage-1:
+.. _gui-enhancements-usage-1:
 
 Usage
 ^^^^^
@@ -152,7 +152,7 @@ Place sound files in a dedicated directory:
    └── error.wav
 
 3. Animation Framework (``src/games_collection/core/animations.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Provides smooth animations and transitions for GUI elements.
 
@@ -164,7 +164,7 @@ Available Animations
 -  ``SlideAnimation`` - Slide widgets to new positions
 -  ``FadeAnimation`` - Fade in/out effects
 
-.. _usage-2:
+.. _gui-enhancements-usage-2:
 
 Usage
 ^^^^^
@@ -193,7 +193,7 @@ Usage
    pulse.start()
 
 4. Accessibility Features (``src/games_collection/core/accessibility.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Provides accessibility support for users with disabilities.
 
@@ -208,7 +208,7 @@ Features
 -  Keyboard navigation
 -  Tooltips for screen readers
 
-.. _usage-3:
+.. _gui-enhancements-usage-3:
 
 Usage
 ^^^^^
@@ -248,7 +248,7 @@ Usage
    )
 
 5. Internationalization (i18n) (``src/games_collection/core/i18n.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Multi-language support with translation system.
 
@@ -263,7 +263,7 @@ Features
 -  Fallback to default language
 -  Translation file persistence
 
-.. _usage-4:
+.. _gui-enhancements-usage-4:
 
 Usage
 ^^^^^
@@ -311,7 +311,7 @@ The system includes default English translations for common UI elements:
 -  And many more…
 
 6. Keyboard Shortcuts (``src/games_collection/core/keyboard_shortcuts.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Centralized keyboard shortcut management.
 
@@ -326,7 +326,7 @@ Features
 -  Formatted help text
 -  Category-based organization
 
-.. _usage-5:
+.. _gui-enhancements-usage-5:
 
 Usage
 ^^^^^
@@ -385,7 +385,7 @@ The system registers these default shortcuts:
 -  ``Ctrl+,`` - Open Settings
 
 7. Enhanced BaseGUI (``src/games_collection/core/gui_base.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``BaseGUI`` class has been enhanced to integrate all these features.
 

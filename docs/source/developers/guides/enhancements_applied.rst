@@ -81,7 +81,7 @@ Changes Made
    previous move
 -  Automatically switches turn back after undo
 
-.. _usage-1:
+.. _enhancements-applied-usage-1:
 
 Usage
 ~~~~~
@@ -93,7 +93,7 @@ During gameplay:
 -  The board state is fully restored from the snapshot
 -  Continue playing from the restored position
 
-.. _testing-1:
+.. _enhancements-applied-testing-1:
 
 Testing
 ~~~~~~~
@@ -131,7 +131,7 @@ Changes Made
 
 -  Added ``clear_screen()`` for better UX
 
-.. _usage-2:
+.. _enhancements-applied-usage-2:
 
 Usage
 ~~~~~
@@ -145,7 +145,7 @@ Enhanced user experience:
 -  **ASCII Art**: Welcome banner and section headers
 -  **Clear Screen**: Better visual organization between screens
 
-.. _testing-2:
+.. _enhancements-applied-testing-2:
 
 Testing
 ~~~~~~~
@@ -197,7 +197,7 @@ Changes Made
    correctly and that helper methods persist new settings without
    raising errors
 
-.. _usage-3:
+.. _enhancements-applied-usage-3:
 
 Usage
 ~~~~~
@@ -213,7 +213,7 @@ Usage
    python -m games_collection.games.card.hearts --theme high_contrast --no-sounds
    python -m games_collection.games.card.spades --backend tk --animations --sounds
 
-.. _testing-3:
+.. _enhancements-applied-testing-3:
 
 Testing
 ~~~~~~~
@@ -226,7 +226,7 @@ Architecture Systems Demonstrated
 ---------------------------------
 
 1. Persistence System (``src/games_collection/core/architecture/persistence.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  ``SaveLoadManager`` - High-level save/load interface
 -  ``JSONSerializer`` - JSON-based serialization (used by default)
@@ -234,7 +234,7 @@ Architecture Systems Demonstrated
 -  Directory management for save files
 
 2. Replay System (``src/games_collection/core/architecture/replay.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  ``ReplayManager`` - Undo/redo functionality
 -  ``ReplayAction`` - Action recording with state snapshots
@@ -242,7 +242,7 @@ Architecture Systems Demonstrated
 -  State restoration from snapshots
 
 3. CLI Utilities (``src/games_collection/core/cli_utils.py``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  ``InteractiveMenu`` - Arrow key navigation menus
 -  ``ASCIIArt`` - Banner and box creation
@@ -401,7 +401,7 @@ Changes Made
 -  Persists rich metadata (next player, deck size, last action)
    alongside the serialized state after every valid action
 
-.. _usage-4:
+.. _enhancements-applied-usage-4:
 
 Usage
 ~~~~~
@@ -412,7 +412,7 @@ Usage
 -  Relaunch the CLI and choose to resume when prompted to continue
    exactly where you left off
 
-.. _testing-4:
+.. _enhancements-applied-testing-4:
 
 Testing
 ~~~~~~~
@@ -439,7 +439,7 @@ Changes Made
 -  Extended the CLI wrapper to leverage ``SaveLoadManager`` for
    automatic persistence between sessions
 
-.. _usage-5:
+.. _enhancements-applied-usage-5:
 
 Usage
 ~~~~~
@@ -449,7 +449,7 @@ Usage
    previous board position instantly
 -  Autosave files live in ``./saves/connect_four_autosave.save``
 
-.. _testing-5:
+.. _enhancements-applied-testing-5:
 
 Testing
 ~~~~~~~

@@ -87,7 +87,7 @@ Strategy Tips
 
 Strategy tips provide context-aware advice during gameplay.
 
-.. _usage-1:
+.. _educational-features-usage-1:
 
 Usage
 ~~~~~
@@ -217,7 +217,7 @@ Game Theory Explanations
 
 Learn about the algorithms and concepts used in games.
 
-.. _usage-2:
+.. _educational-features-usage-2:
 
 Usage
 ~~~~~
@@ -319,7 +319,7 @@ Available Challenge Packs
    situations
 3. **Nim Puzzles** - Solve Nim positions using game theory
 
-.. _usage-3:
+.. _educational-features-usage-3:
 
 Usage
 ~~~~~
