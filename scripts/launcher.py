@@ -10,9 +10,8 @@ from __future__ import annotations
 import argparse
 import sys
 import textwrap
-from typing import Callable, Dict, List, Optional
-
 from importlib import import_module
+from typing import Callable, Dict, List, Optional
 
 from games_collection.catalog.registry import GameMetadata, get_all_games
 from games_collection.core.challenges import get_default_challenge_manager
@@ -74,13 +73,10 @@ _ORDERED_METADATA: tuple[GameMetadata, ...] = tuple(
     )
 )
 
-_MENU_ENTRIES: list[tuple[GameMetadata, Callable[[], None]]] = [
-    (metadata, _launcher_from_entry_point(metadata.entry_point)) for metadata in _ORDERED_METADATA
-]
+_MENU_ENTRIES: list[tuple[GameMetadata, Callable[[], None]]] = [(metadata, _launcher_from_entry_point(metadata.entry_point)) for metadata in _ORDERED_METADATA]
 
 GAME_MAP: dict[str, tuple[str, Callable[[], None]]] = {
-    str(index): (metadata.slug, launcher)
-    for index, (metadata, launcher) in enumerate(_MENU_ENTRIES, start=1)
+    str(index): (metadata.slug, launcher) for index, (metadata, launcher) in enumerate(_MENU_ENTRIES, start=1)
 }
 
 SLUG_TO_ENTRY = {metadata.slug: (metadata.slug, launcher) for metadata, launcher in _MENU_ENTRIES}

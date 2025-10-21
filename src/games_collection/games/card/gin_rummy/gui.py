@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Optional
 
+from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 from games_collection.games.card.common.cards import Card, format_cards
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.games.card.gin_rummy.game import GinRummyGame, GinRummyPlayer, HandAnalysis, Meld, MeldType
-from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
 
 if TKINTER_AVAILABLE:  # pragma: no cover - UI specific branch
     import tkinter as tk

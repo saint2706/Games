@@ -29,9 +29,7 @@ def _descriptor_from_metadata(metadata: GameMetadata) -> GameDescriptor:
     )
 
 
-_DEFAULT_GAME_CATALOGUE: Dict[str, GameDescriptor] = {
-    metadata.slug: _descriptor_from_metadata(metadata) for metadata in get_all_games()
-}
+_DEFAULT_GAME_CATALOGUE: Dict[str, GameDescriptor] = {metadata.slug: _descriptor_from_metadata(metadata) for metadata in get_all_games()}
 
 
 def get_default_game_catalogue() -> Dict[str, GameDescriptor]:

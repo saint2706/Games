@@ -15,10 +15,10 @@ from __future__ import annotations
 import argparse
 import random
 
-from games_collection.games.card.crazy_eights.cli import game_loop
-from games_collection.games.card.crazy_eights.game import CrazyEightsGame
 from games_collection.core.gui_base import TKINTER_AVAILABLE
 from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE
+from games_collection.games.card.crazy_eights.cli import game_loop
+from games_collection.games.card.crazy_eights.game import CrazyEightsGame
 
 
 def main() -> None:

@@ -14,10 +14,10 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from games_collection.games.card.common.soundscapes import initialize_game_soundscape
-from games_collection.games.card.war.game import WarGame
 from games_collection.core.architecture.persistence import SaveLoadManager
 from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig
+from games_collection.games.card.common.soundscapes import initialize_game_soundscape
+from games_collection.games.card.war.game import WarGame
 
 try:  # pragma: no cover - optional dependency
     from games_collection.games.card.common.stats import CardGameStats

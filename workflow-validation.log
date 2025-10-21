@@ -38,7 +38,7 @@
 🔌 Validating Actions Usage...
   ✓ actions/cache: v4
   ✓ actions/checkout: v5
-  ✓ actions/download-artifact: v4, v5
+  ✓ actions/download-artifact: v5
   ✓ actions/setup-python: v6
   ✓ actions/upload-artifact: v4
   ✓ codecov/codecov-action: v5

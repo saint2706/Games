@@ -13,10 +13,10 @@ except Exception:  # pragma: no cover - Tkinter may be unavailable in some envir
 else:
     _GUI_ERRORS = (RuntimeError, TclError)
 
-from games_collection.games.card.spades.cli import game_loop
-from games_collection.games.card.spades.gui import run_app as run_tk_app
 from games_collection.core import SettingsManager
 from games_collection.core.themes import ThemeManager
+from games_collection.games.card.spades.cli import game_loop
+from games_collection.games.card.spades.gui import run_app as run_tk_app
 
 PREFERENCES_NAMESPACE = "games_collection.games.card.spades.gui"
 

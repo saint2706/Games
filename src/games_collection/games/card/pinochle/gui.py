@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from games_collection.games.card.pinochle.game import PinochleGame, PinochlePlayer
 from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
+from games_collection.games.card.pinochle.game import PinochleGame, PinochlePlayer
 
 
 class PinochleGUI(BaseGUI):

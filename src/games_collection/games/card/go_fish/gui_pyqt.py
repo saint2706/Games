@@ -38,10 +38,10 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 from games_collection.games.card.common.cards import RANKS
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.games.card.go_fish.game import GoFishGame, Player
-from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
 
 
 @dataclass

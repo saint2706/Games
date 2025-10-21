@@ -13,10 +13,10 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any, Optional
 
+from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, tk, ttk
 from games_collection.games.card.common.cards import Card, Suit
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.games.card.crazy_eights.game import CrazyEightsGame, Player
-from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, tk, ttk
 
 if not TKINTER_AVAILABLE:  # pragma: no cover - Tkinter unavailable environments
     raise ImportError("Tkinter is required to use the Crazy Eights GUI")

@@ -16,8 +16,8 @@ from typing import Dict, Optional
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QApplication, QFrame, QGridLayout, QGroupBox, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
-from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig
+from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 
 from ..common.cards import format_cards
 from .poker import Action, ActionType, PokerMatch

@@ -24,10 +24,10 @@ from typing import Dict, List, Optional
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QApplication, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QTextEdit, QVBoxLayout, QWidget
 
+from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 from games_collection.games.card.common.cards import Card
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.games.card.spades.game import SpadesGame, SpadesPlayer
-from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 
 @dataclass

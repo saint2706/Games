@@ -20,10 +20,10 @@ from __future__ import annotations
 import random
 from typing import Callable, Optional, Tuple
 
+from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 from games_collection.games.card.common.cards import Card
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.games.card.solitaire.game import Pile, SolitaireGame
-from games_collection.core.gui_base_pyqt import PYQT5_AVAILABLE, BaseGUI, GUIConfig
 
 if PYQT5_AVAILABLE:  # pragma: no cover - Import guarded by availability checks
     from PyQt5.QtCore import QRectF, Qt, QTimer, pyqtSignal

@@ -11,10 +11,10 @@ from __future__ import annotations
 import random
 from typing import Optional
 
+from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 from games_collection.games.card.bridge.game import AuctionState, BidSuit, BridgeGame, BridgePlayer, Call, CallType, Contract, Vulnerability
 from games_collection.games.card.common.cards import Card, Suit
 from games_collection.games.card.common.soundscapes import initialize_game_soundscape
-from games_collection.core.gui_base import TKINTER_AVAILABLE, BaseGUI, GUIConfig, scrolledtext, tk, ttk
 
 if TKINTER_AVAILABLE:
     from tkinter import messagebox, simpledialog

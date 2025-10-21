@@ -20,8 +20,8 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Optional
 
-from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 from games_collection.core.gui_base import BaseGUI, GUIConfig
+from games_collection.games.card.common.soundscapes import initialize_game_soundscape
 
 from .bluff import BluffGame, DeckType, DifficultyLevel, Phase
 

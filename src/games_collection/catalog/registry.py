@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from functools import lru_cache
 from importlib import resources
 from typing import Dict, Iterable, Tuple
-
-import json
 
 REGISTRY_RESOURCE = "registry.json"
 
