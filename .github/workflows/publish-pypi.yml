@@ -83,6 +83,7 @@ jobs:
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "${{ steps.bump.outputs.tag }}" \
             --title "${{ steps.bump.outputs.tag }}" \
@@ -93,6 +94,7 @@ jobs:
       - name: Trigger Build Executables Workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Triggering build-executables workflow for tag ${{ steps.bump.outputs.tag }}"
           gh workflow run build-executables.yml --ref "${{ steps.bump.outputs.tag }}"
@@ -176,7 +178,7 @@ jobs:
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install build
+          python -m pip install build
 
       - name: Build distribution packages
         run: python -m build
@@ -188,7 +190,7 @@ jobs:
           python -m venv .venv-smoke
           source .venv-smoke/bin/activate
           python -m pip install --upgrade pip
-          pip install dist/*.whl
+          python -m pip install dist/*.whl
 
           SMOKE_LOG=smoke-test.log
           {
@@ -272,6 +274,7 @@ jobs:
         id: check_assets
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           # Determine release tag based on event type
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -310,6 +313,7 @@ jobs:
       - name: Upload signed packages to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Upload all files from dist/ with clobber flag to overwrite existing files
           gh release upload "${{ steps.check_assets.outputs.release_tag }}" \
