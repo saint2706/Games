@@ -214,10 +214,6 @@ def main() -> int:
         update_scripts_init(scripts_init_path, new_version)
         print(f"✓ Updated {scripts_init_path}")
 
-        # Output new version for GitHub Actions to capture
-        print(f"\n::set-output name=version::{new_version}")
-        print(f"::set-output name=tag::v{new_version}")
-
         return 0
 
     except Exception as e:

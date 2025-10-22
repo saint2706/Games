@@ -195,8 +195,8 @@ jobs:
             echo '### games-collection --help'
             games-collection --help
             echo
-            echo '### python -m card_games.go_fish --gui-framework pyqt5 --help'
-            python -m card_games.go_fish --gui-framework pyqt5 --help
+            echo '### python -m card_games.go_fish --help'
+            python -m card_games.go_fish --help
           } 2>&1 | tee "$SMOKE_LOG"
 
           {
@@ -207,7 +207,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload distribution packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: python-package-distributions
           path: dist/
