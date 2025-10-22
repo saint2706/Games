@@ -116,7 +116,7 @@ gui = [
 
 [project.scripts]
 # Main launcher
-games-collection = "scripts.launcher:main"
+games-collection = "games_collection.launcher:main"
 
 # Card Games
 games-uno = "games_collection.games.card.uno.uno:main"
