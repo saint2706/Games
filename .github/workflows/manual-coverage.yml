@@ -49,8 +49,11 @@ jobs:
 
       - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-tk libgl1 libxkbcommon-x11-0
+          set -o pipefail
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-tk libgl1 libxkbcommon-x11-0
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /tmp/qt-runtime
           mkdir -p /tmp/qt-runtime
           chmod 700 /tmp/qt-runtime
@@ -59,7 +62,7 @@ jobs:
         run: python -m pip install --upgrade pip
 
       - name: Install package with development dependencies
-        run: pip install -e ".[dev]"
+        run: python -m pip install -e '.[dev]'
 
       - name: Run tests with coverage
         env:
@@ -89,7 +92,7 @@ jobs:
         if: always() && inputs.upload-to-codecov == true
         uses: codecov/codecov-action@v5
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
           fail_ci_if_error: false
           verbose: true
 

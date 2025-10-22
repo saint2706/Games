@@ -49,11 +49,11 @@ jobs:
             echo "::warning::pip upgrade failed, continuing with current version";
             python -m pip --version;
           }
-          pip install -e ".[gui]" --retries 3 --timeout 60 || {
+          python -m pip install -e '.[gui]' --retries 3 --timeout 60 || {
             echo "::error::Failed to install package dependencies";
             exit 1;
           }
-          pip install pyinstaller --retries 3 --timeout 30 || {
+          python -m pip install pyinstaller --retries 3 --timeout 30 || {
             echo "::error::Failed to install pyinstaller";
             exit 1;
           }
@@ -142,7 +142,7 @@ jobs:
             echo "::warning::pip upgrade failed, continuing with current version";
             python -m pip --version;
           }
-          pip install -e . --retries 3 --timeout 60 || {
+          python -m pip install -e . --retries 3 --timeout 60 || {
             echo "::error::Failed to install package dependencies";
             exit 1;
           }

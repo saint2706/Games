@@ -48,19 +48,36 @@ jobs:
 
       - name: Install workflow validation dependencies
         if: steps.workflow-cache.outputs.cache-hit != 'true'
-        run: pip install PyYAML
+        run: python -m pip install PyYAML
 
       - name: Run workflow validator
         id: run-workflow-validator
         if: steps.workflow-cache.outputs.cache-hit != 'true'
-        continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
-          python scripts/validate_workflows.py | tee workflow-validation.log || {
-            echo "::warning::Workflow validation encountered issues but continuing CI";
-            exit 0;
-          }
+          python scripts/validate_workflows.py | tee workflow-validation.log
+
+      - name: Install actionlint
+        if: steps.workflow-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTIONLINT_VERSION="1.7.8"
+          mkdir -p "$HOME/.local/bin"
+          curl -sSLo actionlint.tar.gz "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          tar -xzf actionlint.tar.gz actionlint
+          install -m 755 actionlint "$HOME/.local/bin/actionlint"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          actionlint --version
+          rm -f actionlint.tar.gz actionlint
+
+      - name: Run actionlint
+        if: steps.workflow-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -o pipefail
+          actionlint -color | tee actionlint.log
 
       - name: Publish workflow validation summary
         if: steps.workflow-cache.outputs.cache-hit != 'true' && (success() || failure())
@@ -72,6 +89,11 @@ jobs:
               cat workflow-validation.log;
             else
               echo "Workflow validation log not found. The validator step may have been skipped or failed before producing output.";
+            fi;
+            if [ -f actionlint.log ]; then
+              echo;
+              echo "#### actionlint";
+              cat actionlint.log;
             fi;
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -109,7 +131,7 @@ jobs:
 
       - name: Install package with development dependencies
         run: |
-          pip install -e ".[dev]" --retries 3 --timeout 60 || {
+          python -m pip install -e '.[dev]' --retries 3 --timeout 60 || {
             echo "::error::Failed to install dependencies";
             exit 1;
           }
@@ -140,8 +162,11 @@ jobs:
       - name: Install system dependencies
         continue-on-error: true
         run: |
-          sudo apt-get update || echo "Warning: apt-get update failed, continuing..."
-          sudo apt-get install -y python3-tk libgl1 libxkbcommon-x11-0 || echo "Warning: Some system packages may not be available"
+          set -o pipefail
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update || echo "::warning::apt-get update failed, continuing without system packages"
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-tk libgl1 libxkbcommon-x11-0 || echo "::warning::Some system packages may not be available"
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /tmp/qt-runtime || true
           mkdir -p /tmp/qt-runtime
           chmod 700 /tmp/qt-runtime
@@ -155,7 +180,7 @@ jobs:
 
       - name: Install package with development dependencies
         run: |
-          pip install -e ".[dev]" --retries 3 --timeout 60 || {
+          python -m pip install -e '.[dev]' --retries 3 --timeout 60 || {
             echo "::error::Failed to install dependencies";
             exit 1;
           }
@@ -176,5 +201,5 @@ jobs:
         uses: codecov/codecov-action@v5
         if: matrix.python-version == '3.12'
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
           fail_ci_if_error: false
