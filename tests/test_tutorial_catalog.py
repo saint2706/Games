@@ -12,7 +12,7 @@ from games_collection.core.game_engine import GameEngine, GameState
 from games_collection.core.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY
 from games_collection.core.tutorial_session import TutorialSession
 
-CATALOG_PATH = Path(__file__).resolve().parents[1] / "docs" / "source" / "games_catalog.rst"
+CATALOG_PATH = Path(__file__).resolve().parents[1] / "docs" / "source" / "players" / "games_catalog.rst"
 
 
 def _parse_catalog_modules() -> List[str]:

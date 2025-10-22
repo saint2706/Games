@@ -192,7 +192,7 @@ def _guess_doc_path(module_name: str) -> str:
     absolute_path = ProjectPath / relative_path
     if absolute_path.exists():
         return str(relative_path)
-    return "docs/source/games_catalog.rst"
+    return "docs/source/players/games_catalog.rst"
 
 
 def _category_objectives(category: str, display_name: str) -> List[str]:
