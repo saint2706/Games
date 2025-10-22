@@ -12,6 +12,7 @@ include = [
     "logic_games",
     "word_games",
     "common",
+    "scripts",
 ]
 exclude = [
     "tests*",
