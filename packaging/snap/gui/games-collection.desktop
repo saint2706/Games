@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Games Collection
+Comment=Play classic card, dice, logic, paper, and word games with AI opponents
+Exec=games-collection
+Icon=games-collection
+Terminal=false
+Type=Application
+Categories=Game;Entertainment;
+Keywords=games;cards;board;logic;puzzle;
+StartupWMClass=games-collection

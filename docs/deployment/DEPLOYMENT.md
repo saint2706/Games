@@ -7,6 +7,9 @@ This guide covers different deployment methods for the Games Collection.
 - [Prerequisites](#prerequisites)
 - [Installation from PyPI](#installation-from-pypi)
 - [Standalone Executables](#standalone-executables)
+- [Linux Packages](#linux-packages)
+  - [Snap](#snap)
+  - [Flatpak](#flatpak)
 - [Docker Deployment](#docker-deployment)
 - [Building from Source](#building-from-source)
 - [Cross-Platform Compatibility](#cross-platform-compatibility)
@@ -154,6 +157,50 @@ python build_configs/nuitka/build.py
 # Or build with Nuitka
 ./scripts/build_executable.sh nuitka
 ```
+
+## Linux Packages
+
+Official Linux packages are produced automatically for tagged releases. Both packaging formats bundle the Python runtime, the Games Collection entry points, and GUI dependencies so you can launch the suite without a system-wide Python installation.
+
+### Snap
+
+The strict-mode snap exposes the CLI and GUI launchers and bundles PyQt/Pygame runtimes.
+
+```bash
+# Install from the Snap Store
+sudo snap install games-collection
+
+# Launch the main hub
+games-collection
+```
+
+Strict confinement restricts access to specific hardware interfaces. Snap automatically connects the audio and display plugs, but joystick support must be granted manually:
+
+```bash
+sudo snap connect games-collection:joystick
+```
+
+The snap also declares `network`, `network-bind`, `opengl`, `x11`, and `wayland` plugs so the application can reach online leaderboards and render accelerated graphics in modern desktop environments.
+
+### Flatpak
+
+Tagged releases attach a Flatpak bundle that mirrors the snap payload. Install the bundle locally or add it to your Flatpak repo:
+
+```bash
+# Install the bundle in the current directory
+flatpak install --user ./games-collection.flatpak
+
+# Launch the application
+flatpak run com.gamescollection.GamesCollection
+```
+
+The manifest grants access to X11, Wayland, PulseAudio/PipeWire, and the user's home directory for saving progress. Controller and joystick access is enabled via `--device=all` in the finish args. You can further relax or tighten the sandbox at runtime with overrides, for example:
+
+```bash
+flatpak override --user com.gamescollection.GamesCollection --filesystem=~/GamesCollectionSaves
+```
+
+If you only need CLI access, you can launch subcommands (such as Blackjack) directly by appending their names to the Flatpak run command (`flatpak run com.gamescollection.GamesCollection --game blackjack`).
 
 ## Docker Deployment
 
