@@ -113,6 +113,7 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._scheduler = scheduler
             self._catalogue = _sorted_catalogue()
             self._catalogue_index = {metadata.slug: metadata for metadata in self._catalogue}
+            self._favorite_slugs: set[str] = set()
 
             QMainWindow.__init__(self)
             config = GUIConfig(
@@ -157,6 +158,9 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
 
             self._daily_group = self._build_daily_group()
             container_layout.addWidget(self._daily_group)
+
+            self._favorites_group = self._build_favorites_group()
+            container_layout.addWidget(self._favorites_group)
 
             self._recently_played_group = self._build_recently_played_group()
             container_layout.addWidget(self._recently_played_group)
@@ -208,6 +212,19 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
 
             self._daily_streak_label = QLabel()
             layout.addWidget(self._daily_streak_label)
+
+            return group
+
+        def _build_favorites_group(self) -> QGroupBox:
+            """Create the favorites list widgets."""
+
+            group = QGroupBox("Favorite games")
+            layout = QVBoxLayout()
+            group.setLayout(layout)
+
+            self._favorites_list = QListWidget()
+            self._favorites_list.setAlternatingRowColors(True)
+            layout.addWidget(self._favorites_list)
 
             return group
 
@@ -310,6 +327,11 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._detail_mechanics_label.setStyleSheet("color: #cccccc;")
             detail_layout.addWidget(self._detail_mechanics_label)
 
+            self._favorite_button = QPushButton("Add to favorites")
+            self._favorite_button.setEnabled(False)
+            self._favorite_button.clicked.connect(self._on_toggle_favorite)  # type: ignore[arg-type]
+            detail_layout.addWidget(self._favorite_button)
+
             detail_layout.addStretch(1)
             self._set_detail_placeholder()
 
@@ -320,6 +342,9 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
 
             self._catalogue = _sorted_catalogue()
             self._catalogue_index = {metadata.slug: metadata for metadata in self._catalogue}
+            current_item = self._catalogue_tree.currentItem()
+            selected_slug = current_item.data(0, Qt.UserRole) if current_item else None
+            selected_slug_str = selected_slug if isinstance(selected_slug, str) else None
             snapshot = build_launcher_snapshot(self._profile_service, self._scheduler)
             self._profile_identifier_label.setText(
                 f"{snapshot.profile_name} ({snapshot.profile_identifier})"
@@ -342,10 +367,13 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
                 f"Streak: {snapshot.daily_streak} (Best {snapshot.best_daily_streak}) · Total completed: {snapshot.total_daily_completed}"
             )
 
+            favorites = list(snapshot.favorite_games)
+            self._favorite_slugs = set(favorites)
+            self._populate_favorites(favorites)
             self._populate_recently_played(snapshot.recently_played)
             self._populate_leaderboard(snapshot.leaderboard)
             self._populate_recommendations(snapshot.recommendations)
-            self._populate_catalogue()
+            self._populate_catalogue(selected_slug=selected_slug_str)
 
         def _set_detail_placeholder(self) -> None:
             """Display guidance when no game is selected."""
@@ -357,6 +385,8 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._detail_mechanics_label.clear()
             self._detail_image_label.setPixmap(QPixmap())
             self._detail_image_label.setText("Screenshot preview unavailable")
+            self._favorite_button.setEnabled(False)
+            self._favorite_button.setText("Select a game to manage favorites")
 
         def _load_catalogue_pixmap(self, path: str | None) -> QPixmap | None:
             """Return a pixmap for ``path`` if the asset can be loaded."""
@@ -418,6 +448,37 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
                 self._detail_image_label.setText("")
                 self._detail_image_label.setPixmap(scaled)
 
+            if metadata.slug in self._favorite_slugs:
+                self._favorite_button.setText("Remove from favorites")
+            else:
+                self._favorite_button.setText("Add to favorites")
+            self._favorite_button.setEnabled(True)
+
+        def _on_toggle_favorite(self) -> None:
+            """Toggle the favorite status for the currently selected game."""
+
+            current = self._catalogue_tree.currentItem()
+            if current is None:
+                return
+            slug = current.data(0, Qt.UserRole)
+            if not isinstance(slug, str):
+                return
+
+            if slug in self._favorite_slugs:
+                changed = self._profile_service.unmark_favorite(slug)
+            else:
+                changed = self._profile_service.mark_favorite(slug)
+            if not changed:
+                return
+
+            favorites = self._profile_service.get_favorites()
+            self._favorite_slugs = set(favorites)
+            self._populate_favorites(favorites)
+            self._populate_catalogue(selected_slug=slug)
+            metadata = self._catalogue_index.get(slug)
+            if metadata is not None:
+                self._update_detail_panel(metadata)
+
         def _populate_recently_played(self, entries: Sequence[RecentlyPlayedEntry]) -> None:
             """Populate the recently played list."""
 
@@ -434,6 +495,22 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
                     game_name = metadata.name
                 timestamp = format_recent_timestamp(entry.last_played)
                 self._recently_played_list.addItem(QListWidgetItem(f"{game_name} — {timestamp}"))
+
+        def _populate_favorites(self, favorite_slugs: Sequence[str]) -> None:
+            """Populate the favorites list."""
+
+            self._favorites_list.clear()
+            if not favorite_slugs:
+                self._favorites_list.addItem("Use the catalogue to star games you love.")
+                return
+
+            for slug in favorite_slugs:
+                metadata = self._catalogue_index.get(slug)
+                if metadata is None:
+                    name = slug.replace("_", " ").title()
+                else:
+                    name = metadata.name
+                self._favorites_list.addItem(QListWidgetItem(name))
 
         def _populate_leaderboard(self, entries: Sequence[CrossGameLeaderboardEntry]) -> None:
             """Populate the leaderboard table."""
@@ -483,27 +560,32 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
                     text += f" ({', '.join(recommendation.reasons)})"
                 self._recommendations_list.addItem(QListWidgetItem(text))
 
-        def _populate_catalogue(self) -> None:
+        def _populate_catalogue(self, selected_slug: Optional[str] = None) -> None:
             """Populate the catalogue tree with grouped entries."""
 
             self._catalogue_tree.clear()
             groups = _group_catalogue(self._catalogue)
-            first_detail_item: Optional[QTreeWidgetItem] = None
+            target_item: Optional[QTreeWidgetItem] = None
             for group in groups:
                 parent = QTreeWidgetItem([group.title, ""])
                 parent.setFlags(parent.flags() & ~Qt.ItemIsEditable)
                 self._catalogue_tree.addTopLevelItem(parent)
                 for metadata in group.entries:
-                    child = QTreeWidgetItem([metadata.name, metadata.genre.title()])
+                    label = metadata.name
+                    if metadata.slug in self._favorite_slugs:
+                        label = f"★ {metadata.name}"
+                    child = QTreeWidgetItem([label, metadata.genre.title()])
                     child.setData(0, Qt.UserRole, metadata.slug)
                     child.setFlags(child.flags() & ~Qt.ItemIsEditable)
                     parent.addChild(child)
-                    if first_detail_item is None:
-                        first_detail_item = child
+                    if selected_slug is not None and metadata.slug == selected_slug:
+                        target_item = child
+                    elif target_item is None:
+                        target_item = child
 
             self._catalogue_tree.expandAll()
-            if first_detail_item is not None:
-                self._catalogue_tree.setCurrentItem(first_detail_item)
+            if target_item is not None:
+                self._catalogue_tree.setCurrentItem(target_item)
             else:
                 self._set_detail_placeholder()
 

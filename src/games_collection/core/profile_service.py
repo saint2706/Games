@@ -129,6 +129,41 @@ class ProfileService:
 
         self._active_profile.save(self._profile_path(self._active_profile_id))
 
+    def get_favorites(self) -> List[str]:
+        """Return the active profile's favorite game identifiers."""
+
+        return list(self._active_profile.favorite_games)
+
+    def is_favorite(self, game_id: str) -> bool:
+        """Return ``True`` if ``game_id`` is currently pinned as a favorite."""
+
+        return self._active_profile.is_favorite(game_id)
+
+    def mark_favorite(self, game_id: str) -> bool:
+        """Mark ``game_id`` as a favorite for the active profile."""
+
+        changed = self._active_profile.add_favorite(game_id)
+        if changed:
+            self.save_active_profile()
+        return changed
+
+    def unmark_favorite(self, game_id: str) -> bool:
+        """Remove ``game_id`` from the active profile's favorites list."""
+
+        changed = self._active_profile.remove_favorite(game_id)
+        if changed:
+            self.save_active_profile()
+        return changed
+
+    def toggle_favorite(self, game_id: str) -> bool:
+        """Toggle ``game_id`` in the favorites list returning the new state."""
+
+        was_favorite = self._active_profile.is_favorite(game_id)
+        new_state = self._active_profile.toggle_favorite(game_id)
+        if was_favorite != new_state:
+            self.save_active_profile()
+        return new_state
+
     def list_profiles(self) -> List[str]:
         """Return sorted profile identifiers stored in ``profile_dir``."""
 

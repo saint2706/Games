@@ -51,6 +51,22 @@ Pytest drives the automated test suite. Run all tests with::
 The ``tests`` directory is configured as the default `testpaths` in `pyproject.toml`, so the command is simple. Add regression tests whenever you introduce new behaviour or fix
 bugs.
 
+Profile favorites
+-----------------
+
+Player profiles now persist an explicit ``favorite_games`` list alongside the
+existing statistics. Use the helpers in :mod:`games_collection.core.profile_service`
+to keep launchers and games consistent:
+
+* ``get_favorites`` – return the current favorites in display order.
+* ``mark_favorite`` / ``unmark_favorite`` – add or remove a slug while saving the
+  profile automatically.
+* ``toggle_favorite`` – convenience wrapper used by the launcher CLI.
+
+When serialising or deserialising a :class:`~games_collection.core.profile.PlayerProfile`
+the new field is handled automatically, but unit tests should assert that
+favorite selections round-trip through ``save`` and ``load``.
+
 Documentation workflow
 ----------------------
 

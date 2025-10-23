@@ -289,6 +289,7 @@ class PlayerProfile:
         experience: Total experience points.
         preferences: Player preferences (e.g., theme, difficulty).
         daily_challenge_progress: Completion history for daily challenges.
+        favorite_games: List of game identifiers the player marked as favorites.
     """
 
     player_id: str
@@ -302,6 +303,7 @@ class PlayerProfile:
     preferences: Dict = field(default_factory=dict)
     daily_challenge_progress: DailyChallengeProgress = field(default_factory=DailyChallengeProgress)
     recommendation_cache: RecommendationCache = field(default_factory=RecommendationCache)
+    favorite_games: List[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """Register all known achievements and enable notifications."""
@@ -539,6 +541,43 @@ class PlayerProfile:
             return 0.0
         return (total_wins / total_games) * 100
 
+    @staticmethod
+    def _normalise_game_id(game_id: str) -> str:
+        """Return a normalised identifier for ``game_id``."""
+
+        return game_id.strip().lower().replace("-", "_")
+
+    def is_favorite(self, game_id: str) -> bool:
+        """Return ``True`` if ``game_id`` is marked as a favorite."""
+
+        normalised = self._normalise_game_id(game_id)
+        return normalised in self.favorite_games
+
+    def add_favorite(self, game_id: str) -> bool:
+        """Add ``game_id`` to the favorites list if it is not already tracked."""
+
+        normalised = self._normalise_game_id(game_id)
+        if not normalised or normalised in self.favorite_games:
+            return False
+        self.favorite_games.append(normalised)
+        return True
+
+    def remove_favorite(self, game_id: str) -> bool:
+        """Remove ``game_id`` from favorites if present."""
+
+        normalised = self._normalise_game_id(game_id)
+        if normalised not in self.favorite_games:
+            return False
+        self.favorite_games = [slug for slug in self.favorite_games if slug != normalised]
+        return True
+
+    def toggle_favorite(self, game_id: str) -> bool:
+        """Toggle favorite status for ``game_id`` returning the new state."""
+
+        if self.remove_favorite(game_id):
+            return False
+        return self.add_favorite(game_id)
+
     def favorite_game(self) -> Optional[str]:
         """Determine the player's favorite game based on playtime.
 
@@ -564,6 +603,7 @@ class PlayerProfile:
             "level": self.level,
             "experience": self.experience,
             "preferences": self.preferences,
+            "favorite_games": self.favorite_games,
             "game_profiles": {gid: profile.to_dict() for gid, profile in self.game_profiles.items()},
             "daily_challenges": self.daily_challenge_progress.to_dict(),
             "recommendations": self.recommendation_cache.to_dict(),
@@ -610,6 +650,19 @@ class PlayerProfile:
             experience=data.get("experience", 0),
             preferences=data.get("preferences", {}),
         )
+
+        favorites_data = data.get("favorite_games", [])
+        if isinstance(favorites_data, list):
+            seen: set[str] = set()
+            normalised: List[str] = []
+            for entry in favorites_data:
+                if not isinstance(entry, str):
+                    continue
+                slug = cls._normalise_game_id(entry)
+                if slug and slug not in seen:
+                    seen.add(slug)
+                    normalised.append(slug)
+            profile.favorite_games = normalised
 
         # Load game profiles
         for gid, gdata in data.get("game_profiles", {}).items():
@@ -661,6 +714,12 @@ class PlayerProfile:
         favorite = self.favorite_game()
         if favorite:
             lines.append(f"Favorite Game: {favorite}")
+
+        if self.favorite_games:
+            lines.append("\nFavorite Games:")
+            for slug in self.favorite_games:
+                label = slug.replace("_", " ").title()
+                lines.append(f"  ★ {label}")
 
         lines.append(f"\nAchievements: {self.achievement_manager.get_unlocked_count()}/{self.achievement_manager.get_total_count()}")
         lines.append(f"Achievement Points: {self.achievement_manager.get_total_points()}")

@@ -123,3 +123,27 @@ def test_get_recently_played_handles_missing_timestamps(tmp_path: Path) -> None:
     assert result[1].last_played is None
     assert result[2].game_id == "bridge"
     assert result[2].last_played == "not-a-valid-timestamp"
+
+
+def test_favorite_helpers_toggle_and_persist(tmp_path: Path) -> None:
+    """Favorite helper methods toggle states and persist to disk."""
+
+    service = ProfileService(profile_dir=tmp_path)
+
+    assert service.get_favorites() == []
+    assert service.is_favorite("dots_and_boxes") is False
+
+    assert service.mark_favorite("dots_and_boxes") is True
+    assert service.is_favorite("dots_and_boxes") is True
+    assert service.get_favorites() == ["dots_and_boxes"]
+
+    profile_path = tmp_path / "default.json"
+    reloaded = _load_profile(profile_path, "default")
+    assert reloaded.favorite_games == ["dots_and_boxes"]
+
+    assert service.toggle_favorite("dots_and_boxes") is False
+    assert service.get_favorites() == []
+    assert service.is_favorite("dots_and_boxes") is False
+
+    reloaded = _load_profile(profile_path, "default")
+    assert reloaded.favorite_games == []
