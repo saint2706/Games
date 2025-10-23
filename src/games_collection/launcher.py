@@ -146,6 +146,10 @@ def parse_args() -> argparse.Namespace:
         default="cli",
         help="Choose between the interactive CLI (default) or the desktop GUI launcher.",
     )
+    parser.add_argument(
+        "--quick",
+        help="Launch a game by its quick-launch alias (configured per profile).",
+    )
     return parser.parse_args()
 
 
@@ -158,6 +162,32 @@ def get_game_entry(identifier: str) -> tuple[str, Callable[[], None]] | None:
 
     normalized_key = key.replace("-", "_")
     return SLUG_TO_ENTRY.get(normalized_key)
+
+
+def _format_game_name(slug: str) -> str:
+    """Return a display name for ``slug`` falling back to a formatted slug."""
+
+    metadata = SLUG_TO_METADATA.get(slug)
+    if metadata:
+        return metadata.name
+    return slug.replace("_", " ").title()
+
+
+def _launch_game_entry(slug: str, launcher: Callable[[], None]) -> None:
+    """Launch ``slug`` using ``launcher`` with consistent messaging."""
+
+    game_name = _format_game_name(slug)
+    prefix = f"\nLaunching {game_name}...\n"
+    if HAS_COLORAMA:
+        prefix = f"\n{Fore.GREEN}Launching {game_name}...{Style.RESET_ALL}\n"
+    print(prefix)
+    try:
+        launcher()
+    except Exception as exc:  # pragma: no cover - defensive runtime guard
+        if HAS_COLORAMA:
+            print(f"\n{Fore.RED}Error launching game: {exc}{Style.RESET_ALL}")
+        else:
+            print(f"\nError launching game: {exc}")
 
 
 def run_pyqt_smoke_test(game_slug: str) -> int:
@@ -357,6 +387,7 @@ def print_menu(service: ProfileService) -> None:
 
     favorites = service.get_favorites()
     favorite_set = set(favorites)
+    quick_aliases = service.get_quick_launch_aliases()
     categories: dict[str, list[tuple[str, Optional[str], str]]] = {}
     for index, (metadata, _launcher) in enumerate(_MENU_ENTRIES, start=1):
         label = {
@@ -384,7 +415,20 @@ def print_menu(service: ProfileService) -> None:
     print("  L. List available profiles")
     print("  S. Switch profile")
     print("  R. Rename active profile")
-    print("  X. Reset active profile\n")
+    print("  X. Reset active profile")
+
+    if HAS_COLORAMA:
+        print(f"\n{Fore.BLUE}Quick Launch Shortcuts:{Style.RESET_ALL}")
+    else:
+        print("\nQuick Launch Shortcuts:")
+    if quick_aliases:
+        for alias, slug in quick_aliases.items():
+            name = _format_game_name(slug)
+            suffix = f" (#{SLUG_TO_NUMBER[slug]})" if slug in SLUG_TO_NUMBER else ""
+            print(f"  !{alias} → {name}{suffix}")
+    else:
+        print("  Configure shortcuts to launch your favourite games instantly.")
+    print("  Q. Manage quick-launch aliases\n")
 
     favorites_heading = "Favorite Games"
     if HAS_COLORAMA:
@@ -527,6 +571,188 @@ def _handle_profile_reset(service: ProfileService) -> None:
     else:
         print(message)
     input("Press Enter to return to the menu…")
+
+
+def _print_quick_launch_aliases(service: ProfileService) -> None:
+    """Display currently configured quick-launch aliases."""
+
+    aliases = service.get_quick_launch_aliases()
+    if not aliases:
+        print("No quick-launch aliases configured.")
+        return
+    print("Configured shortcuts:")
+    for alias, slug in aliases.items():
+        name = _format_game_name(slug)
+        print(f"  !{alias} → {name} [{slug}]")
+
+
+def _prompt_quick_launch_target() -> Optional[str]:
+    """Prompt the user for a game identifier and return its slug."""
+
+    selection = input("Enter game number or slug (blank to cancel): ").strip()
+    if not selection:
+        return None
+    entry = get_game_entry(selection)
+    if entry is None:
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}Unknown game '{selection}'.{Style.RESET_ALL}")
+        else:
+            print(f"Unknown game '{selection}'.")
+        return None
+    slug, _ = entry
+    return slug
+
+
+def _handle_quick_launch_add(service: ProfileService) -> None:
+    """Create a new quick-launch alias for the active profile."""
+
+    alias = input("Alias name (letters, numbers, - or _). Leave blank to cancel: ").strip()
+    if not alias:
+        return
+    slug = _prompt_quick_launch_target()
+    if slug is None:
+        return
+    try:
+        service.add_quick_launch_alias(alias, slug)
+    except ProfileServiceError as exc:
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}{exc}{Style.RESET_ALL}")
+        else:
+            print(str(exc))
+    else:
+        name = _format_game_name(slug)
+        message = f"Alias !{alias.strip().lower()} now launches {name}."
+        if HAS_COLORAMA:
+            print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+    input("\nPress Enter to continue…")
+
+
+def _handle_quick_launch_update(service: ProfileService) -> None:
+    """Update the target game for an existing alias."""
+
+    aliases = service.get_quick_launch_aliases()
+    if not aliases:
+        print("No aliases available to update.")
+        input("\nPress Enter to continue…")
+        return
+    alias = input("Alias to update (blank to cancel): ").strip()
+    if not alias:
+        return
+    slug = _prompt_quick_launch_target()
+    if slug is None:
+        return
+    try:
+        service.update_quick_launch_alias(alias, slug)
+    except ProfileServiceError as exc:
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}{exc}{Style.RESET_ALL}")
+        else:
+            print(str(exc))
+    else:
+        name = _format_game_name(slug)
+        message = f"Alias !{alias.strip().lower()} now launches {name}."
+        if HAS_COLORAMA:
+            print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+    input("\nPress Enter to continue…")
+
+
+def _handle_quick_launch_rename(service: ProfileService) -> None:
+    """Rename an existing alias while keeping its target game."""
+
+    aliases = service.get_quick_launch_aliases()
+    if not aliases:
+        print("No aliases available to rename.")
+        input("\nPress Enter to continue…")
+        return
+    current = input("Current alias (blank to cancel): ").strip()
+    if not current:
+        return
+    new_alias = input("New alias (blank to cancel): ").strip()
+    if not new_alias:
+        return
+    try:
+        service.rename_quick_launch_alias(current, new_alias)
+    except ProfileServiceError as exc:
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}{exc}{Style.RESET_ALL}")
+        else:
+            print(str(exc))
+    else:
+        message = f"Alias renamed to !{new_alias.strip().lower()}."
+        if HAS_COLORAMA:
+            print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+    input("\nPress Enter to continue…")
+
+
+def _handle_quick_launch_delete(service: ProfileService) -> None:
+    """Delete an existing quick-launch alias."""
+
+    aliases = service.get_quick_launch_aliases()
+    if not aliases:
+        print("No aliases available to delete.")
+        input("\nPress Enter to continue…")
+        return
+    alias = input("Alias to delete (blank to cancel): ").strip()
+    if not alias:
+        return
+    try:
+        removed = service.delete_quick_launch_alias(alias)
+    except ProfileServiceError as exc:
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}{exc}{Style.RESET_ALL}")
+        else:
+            print(str(exc))
+        input("\nPress Enter to continue…")
+        return
+
+    if removed:
+        message = f"Removed quick-launch alias !{alias.strip().lower()}."
+        if HAS_COLORAMA:
+            print(f"{Fore.CYAN}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+    else:
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}Alias '{alias}' was not found.{Style.RESET_ALL}")
+        else:
+            print(f"Alias '{alias}' was not found.")
+    input("\nPress Enter to continue…")
+
+
+def _handle_quick_launch_manager(service: ProfileService) -> None:
+    """Interactive manager for quick-launch aliases."""
+
+    while True:
+        print("\nQuick-launch aliases:")
+        _print_quick_launch_aliases(service)
+        print(
+            "\nOptions: [A]dd, [U]pdate target, [R]ename, [D]elete, [B]ack to menu"
+        )
+        choice = input("Select an option: ").strip().lower()
+        if choice in {"b", "back", ""}:
+            return
+        if choice == "a":
+            _handle_quick_launch_add(service)
+            continue
+        if choice == "u":
+            _handle_quick_launch_update(service)
+            continue
+        if choice == "r":
+            _handle_quick_launch_rename(service)
+            continue
+        if choice == "d":
+            _handle_quick_launch_delete(service)
+            continue
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}Unknown option '{choice}'.{Style.RESET_ALL}")
+        else:
+            print(f"Unknown option '{choice}'.")
 
 
 def _resolve_metadata(identifier: str) -> GameMetadata | None:
@@ -948,6 +1174,28 @@ def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeS
     tokens = stripped.split(maxsplit=1)
     command = tokens[0].lower() if tokens else ""
 
+    if stripped.startswith("!") and len(stripped) > 1:
+        alias = stripped[1:]
+        slug = service.resolve_quick_launch_alias(alias)
+        if slug is None:
+            message = f"Unknown quick-launch alias '!{alias}'."
+            if HAS_COLORAMA:
+                print(f"{Fore.RED}{message}{Style.RESET_ALL}")
+            else:
+                print(message)
+            return True
+        entry = get_game_entry(slug)
+        if entry is None:
+            message = f"Alias '!{alias}' points to an unavailable game ({slug})."
+            if HAS_COLORAMA:
+                print(f"{Fore.RED}{message}{Style.RESET_ALL}")
+            else:
+                print(message)
+            return True
+        _, launcher_callable = entry
+        _launch_game_entry(slug, launcher_callable)
+        return True
+
     if normalized in {"0", "exit"}:
         return False
 
@@ -974,6 +1222,9 @@ def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeS
         return True
     if command == "m":
         _handle_recommendations_view(service)
+        return True
+    if command == "q":
+        _handle_quick_launch_manager(service)
         return True
     if command == "t":
         launch_tutorial_browser(service)
@@ -1040,19 +1291,7 @@ def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeS
 
     if normalized in GAME_MAP:
         slug, launcher = GAME_MAP[normalized]
-        metadata = SLUG_TO_METADATA.get(slug)
-        game_name = metadata.name if metadata else slug
-        if HAS_COLORAMA:
-            print(f"\n{Fore.GREEN}Launching {game_name}...{Style.RESET_ALL}\n")
-        else:
-            print(f"\nLaunching {game_name}...\n")
-        try:
-            launcher()
-        except Exception as e:
-            if HAS_COLORAMA:
-                print(f"\n{Fore.RED}Error launching game: {e}{Style.RESET_ALL}")
-            else:
-                print(f"\nError launching game: {e}")
+        _launch_game_entry(slug, launcher)
         return True
     else:
         if HAS_COLORAMA:
@@ -1082,20 +1321,34 @@ def main() -> None:
         print(f"Profile error: {exc}", file=sys.stderr)
         sys.exit(1)
 
+    if args.quick and args.game:
+        print("--game and --quick cannot be combined.", file=sys.stderr)
+        profile_service.save_active_profile()
+        sys.exit(1)
+
+    game_identifier = args.game
+    if args.quick:
+        resolved_slug = profile_service.resolve_quick_launch_alias(args.quick)
+        if resolved_slug is None:
+            print(f"Unknown quick-launch alias '{args.quick}'.", file=sys.stderr)
+            profile_service.save_active_profile()
+            sys.exit(1)
+        game_identifier = resolved_slug
+
     if args.smoke_test:
-        if args.game is None:
+        if game_identifier is None:
             print("Smoke tests require --game to be specified.", file=sys.stderr)
             profile_service.save_active_profile()
             sys.exit(1)
 
-        exit_code = run_smoke_test(args.game, args.gui_framework)
+        exit_code = run_smoke_test(game_identifier, args.gui_framework)
         profile_service.save_active_profile()
         sys.exit(exit_code)
 
-    if args.game:
-        entry = get_game_entry(args.game)
+    if game_identifier:
+        entry = get_game_entry(game_identifier)
         if entry is None:
-            print(f"Unknown game identifier '{args.game}'.", file=sys.stderr)
+            print(f"Unknown game identifier '{game_identifier}'.", file=sys.stderr)
             profile_service.save_active_profile()
             sys.exit(1)
 
@@ -1134,7 +1387,7 @@ def main() -> None:
 
     if args.profile_summary:
         print(profile_service.summary())
-        if not args.game:
+        if not game_identifier:
             profile_service.save_active_profile()
             return
 

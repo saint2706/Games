@@ -6,8 +6,16 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import List
 
+import sys
+
+PROJECT_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(PROJECT_SRC) not in sys.path:
+    sys.path.insert(0, str(PROJECT_SRC))
+
+import pytest
+
 from games_collection.core.profile import PlayerProfile
-from games_collection.core.profile_service import ProfileService
+from games_collection.core.profile_service import ProfileService, ProfileServiceError
 
 
 def _load_profile(path: Path, player_id: str) -> PlayerProfile:
@@ -147,3 +155,42 @@ def test_favorite_helpers_toggle_and_persist(tmp_path: Path) -> None:
 
     reloaded = _load_profile(profile_path, "default")
     assert reloaded.favorite_games == []
+
+
+def test_quick_launch_aliases_persist(tmp_path: Path) -> None:
+    """Quick-launch aliases should persist across saves and reloads."""
+
+    service = ProfileService(profile_dir=tmp_path)
+
+    service.add_quick_launch_alias("speed", "tic_tac_toe")
+    service.update_quick_launch_alias("speed", "hangman")
+    service.rename_quick_launch_alias("speed", "rapid")
+
+    assert service.resolve_quick_launch_alias("RAPID") == "hangman"
+
+    profile_path = tmp_path / "default.json"
+    reloaded = _load_profile(profile_path, "default")
+    stored = reloaded.preferences.get("quick_launch", {})
+    assert stored["rapid"] == "hangman"
+
+    assert service.delete_quick_launch_alias("rapid") is True
+    assert service.get_quick_launch_aliases() == {}
+
+
+def test_quick_launch_alias_validation(tmp_path: Path) -> None:
+    """Alias helpers enforce validation and raise descriptive errors."""
+
+    service = ProfileService(profile_dir=tmp_path)
+
+    service.add_quick_launch_alias("alpha", "tic_tac_toe")
+
+    with pytest.raises(ProfileServiceError):
+        service.add_quick_launch_alias("alpha", "hangman")
+
+    with pytest.raises(ProfileServiceError):
+        service.update_quick_launch_alias("missing", "hangman")
+
+    with pytest.raises(ProfileServiceError):
+        service.rename_quick_launch_alias("alpha", "invalid alias")
+
+    assert service.resolve_quick_launch_alias("unknown") is None

@@ -9,10 +9,10 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 from games_collection.catalog.registry import GameMetadata, get_all_games
 from games_collection.core.daily_challenges import DailyChallengeScheduler
 from games_collection.core.gui_frameworks import Framework, launch_preferred_gui
-from games_collection.core.profile_service import ProfileService, RecentlyPlayedEntry
+from games_collection.core.profile_service import ProfileService, ProfileServiceError, RecentlyPlayedEntry
 from games_collection.core.leaderboard_service import CrossGameLeaderboardEntry
 from games_collection.core.recommendation_service import RecommendationResult
-from games_collection.launcher import GENRE_ORDER, build_launcher_snapshot, format_recent_timestamp
+from games_collection.launcher import GENRE_ORDER, build_launcher_snapshot, format_recent_timestamp, get_game_entry
 
 from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILABLE
 
@@ -22,6 +22,8 @@ if PYQT5_AVAILABLE:  # pragma: no cover - exercised via smoke tests
     from PyQt5.QtWidgets import (
         QAbstractItemView,
         QApplication,
+        QHeaderView,
+        QInputDialog,
         QFormLayout,
         QGroupBox,
         QHBoxLayout,
@@ -29,6 +31,7 @@ if PYQT5_AVAILABLE:  # pragma: no cover - exercised via smoke tests
         QListWidget,
         QListWidgetItem,
         QMainWindow,
+        QMessageBox,
         QPushButton,
         QScrollArea,
         QTableWidget,
@@ -40,6 +43,8 @@ if PYQT5_AVAILABLE:  # pragma: no cover - exercised via smoke tests
     )
 else:  # pragma: no cover - exercised when GUI extras missing
     QApplication = None  # type: ignore[assignment]
+    QHeaderView = None  # type: ignore[assignment]
+    QInputDialog = None  # type: ignore[assignment]
     QFormLayout = None  # type: ignore[assignment]
     QGroupBox = None  # type: ignore[assignment]
     QHBoxLayout = None  # type: ignore[assignment]
@@ -47,6 +52,7 @@ else:  # pragma: no cover - exercised when GUI extras missing
     QListWidget = None  # type: ignore[assignment]
     QListWidgetItem = None  # type: ignore[assignment]
     QMainWindow = None  # type: ignore[assignment]
+    QMessageBox = None  # type: ignore[assignment]
     QPushButton = None  # type: ignore[assignment]
     QScrollArea = None  # type: ignore[assignment]
     QTableWidget = None  # type: ignore[assignment]
@@ -114,6 +120,8 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._catalogue = _sorted_catalogue()
             self._catalogue_index = {metadata.slug: metadata for metadata in self._catalogue}
             self._favorite_slugs: set[str] = set()
+            self._quick_alias_map: Dict[str, str] = {}
+            self._quick_alias_rows: List[str] = []
 
             QMainWindow.__init__(self)
             config = GUIConfig(
@@ -161,6 +169,9 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
 
             self._favorites_group = self._build_favorites_group()
             container_layout.addWidget(self._favorites_group)
+
+            self._quick_launch_group = self._build_quick_launch_group()
+            container_layout.addWidget(self._quick_launch_group)
 
             self._recently_played_group = self._build_recently_played_group()
             container_layout.addWidget(self._recently_played_group)
@@ -225,6 +236,57 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._favorites_list = QListWidget()
             self._favorites_list.setAlternatingRowColors(True)
             layout.addWidget(self._favorites_list)
+
+            return group
+
+        def _build_quick_launch_group(self) -> QGroupBox:
+            """Create the quick-launch alias management widgets."""
+
+            group = QGroupBox("Quick-launch aliases")
+            layout = QVBoxLayout()
+            group.setLayout(layout)
+
+            self._quick_alias_hint = QLabel("Create shortcuts to launch games instantly.")
+            self._quick_alias_hint.setWordWrap(True)
+            layout.addWidget(self._quick_alias_hint)
+
+            self._quick_alias_table = QTableWidget(0, 2)
+            self._quick_alias_table.setHorizontalHeaderLabels(["Alias", "Game"])
+            self._quick_alias_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            self._quick_alias_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+            self._quick_alias_table.setSelectionMode(QAbstractItemView.SingleSelection)
+            self._quick_alias_table.setAlternatingRowColors(True)
+            self._quick_alias_table.verticalHeader().setVisible(False)
+            header = self._quick_alias_table.horizontalHeader()
+            header.setStretchLastSection(True)
+            header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+            self._quick_alias_table.itemSelectionChanged.connect(self._on_quick_alias_selection_changed)
+            self._quick_alias_table.doubleClicked.connect(self._on_quick_alias_double_clicked)  # type: ignore[arg-type]
+            layout.addWidget(self._quick_alias_table)
+
+            button_layout = QHBoxLayout()
+            self._quick_alias_add_button = QPushButton("Add alias")
+            self._quick_alias_add_button.clicked.connect(self._on_add_quick_alias)  # type: ignore[arg-type]
+            button_layout.addWidget(self._quick_alias_add_button)
+
+            self._quick_alias_update_button = QPushButton("Update game")
+            self._quick_alias_update_button.clicked.connect(self._on_update_quick_alias)  # type: ignore[arg-type]
+            button_layout.addWidget(self._quick_alias_update_button)
+
+            self._quick_alias_rename_button = QPushButton("Rename")
+            self._quick_alias_rename_button.clicked.connect(self._on_rename_quick_alias)  # type: ignore[arg-type]
+            button_layout.addWidget(self._quick_alias_rename_button)
+
+            self._quick_alias_delete_button = QPushButton("Delete")
+            self._quick_alias_delete_button.clicked.connect(self._on_delete_quick_alias)  # type: ignore[arg-type]
+            button_layout.addWidget(self._quick_alias_delete_button)
+
+            self._quick_alias_launch_button = QPushButton("Launch")
+            self._quick_alias_launch_button.clicked.connect(self._on_launch_quick_alias)  # type: ignore[arg-type]
+            button_layout.addWidget(self._quick_alias_launch_button)
+
+            layout.addLayout(button_layout)
+            self._update_quick_alias_buttons()
 
             return group
 
@@ -370,6 +432,7 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             favorites = list(snapshot.favorite_games)
             self._favorite_slugs = set(favorites)
             self._populate_favorites(favorites)
+            self._populate_quick_launch_aliases(self._profile_service.get_quick_launch_aliases())
             self._populate_recently_played(snapshot.recently_played)
             self._populate_leaderboard(snapshot.leaderboard)
             self._populate_recommendations(snapshot.recommendations)
@@ -511,6 +574,212 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
                 else:
                     name = metadata.name
                 self._favorites_list.addItem(QListWidgetItem(name))
+
+        def _populate_quick_launch_aliases(self, aliases: Dict[str, str]) -> None:
+            """Populate the quick-launch aliases table."""
+
+            self._quick_alias_table.setRowCount(0)
+            self._quick_alias_table.clearContents()
+            self._quick_alias_table.clearSelection()
+            self._quick_alias_map = dict(sorted(aliases.items()))
+            self._quick_alias_rows = list(self._quick_alias_map.keys())
+            if not self._quick_alias_map:
+                self._quick_alias_hint.setText("No quick-launch aliases configured. Use 'Add alias' to create one.")
+                self._update_quick_alias_buttons()
+                return
+
+            self._quick_alias_hint.setText("Select an alias to update, delete, launch, or rename it.")
+            self._quick_alias_table.setRowCount(len(self._quick_alias_rows))
+            for row, alias in enumerate(self._quick_alias_rows):
+                slug = self._quick_alias_map[alias]
+                alias_item = QTableWidgetItem(f"!{alias}")
+                alias_item.setFlags(alias_item.flags() & ~Qt.ItemIsEditable)
+                metadata = self._catalogue_index.get(slug)
+                name = metadata.name if metadata is not None else slug.replace("_", " ").title()
+                game_item = QTableWidgetItem(name)
+                game_item.setFlags(game_item.flags() & ~Qt.ItemIsEditable)
+                self._quick_alias_table.setItem(row, 0, alias_item)
+                self._quick_alias_table.setItem(row, 1, game_item)
+            self._update_quick_alias_buttons()
+
+        def _get_selected_alias(self) -> tuple[Optional[str], Optional[str]]:
+            """Return the currently selected alias and slug, if available."""
+
+            selection = self._quick_alias_table.selectionModel()
+            if selection is None:
+                return None, None
+            rows = selection.selectedRows()
+            if not rows:
+                return None, None
+            row = rows[0].row()
+            if row < 0 or row >= len(self._quick_alias_rows):
+                return None, None
+            alias = self._quick_alias_rows[row]
+            return alias, self._quick_alias_map.get(alias)
+
+        def _update_quick_alias_buttons(self) -> None:
+            """Enable or disable alias management buttons based on selection."""
+
+            alias, slug = self._get_selected_alias()
+            has_selection = alias is not None and slug is not None
+            for button in (
+                self._quick_alias_update_button,
+                self._quick_alias_rename_button,
+                self._quick_alias_delete_button,
+                self._quick_alias_launch_button,
+            ):
+                button.setEnabled(has_selection)
+
+        def _on_quick_alias_selection_changed(self) -> None:
+            """Refresh button states when the selection changes."""
+
+            self._update_quick_alias_buttons()
+
+        def _on_quick_alias_double_clicked(self, _index) -> None:  # noqa: ANN001 - Qt callback signature
+            """Launch the selected alias when the row is double-clicked."""
+
+            self._on_launch_quick_alias()
+
+        def _prompt_alias_name(self, title: str, *, default: str = "") -> Optional[str]:
+            """Prompt the user for an alias name."""
+
+            text, accepted = QInputDialog.getText(self, title, "Alias name:", text=default)
+            alias = text.strip()
+            if not accepted or not alias:
+                return None
+            return alias
+
+        def _choose_game_slug(self, title: str, *, current_slug: Optional[str] = None) -> Optional[str]:
+            """Prompt the user to choose a game slug from the catalogue."""
+
+            if not self._catalogue:
+                QMessageBox.warning(self, title, "No games are available to associate with an alias.")
+                return None
+            entries = [f"{metadata.name} ({metadata.slug})" for metadata in self._catalogue]
+            mapping = {label: metadata.slug for label, metadata in zip(entries, self._catalogue)}
+            default_index = 0
+            if current_slug:
+                for idx, metadata in enumerate(self._catalogue):
+                    if metadata.slug == current_slug:
+                        default_index = idx
+                        break
+            selection, accepted = QInputDialog.getItem(
+                self,
+                title,
+                "Select a game to associate with the alias:",
+                entries,
+                default_index,
+                False,
+            )
+            if not accepted:
+                return None
+            return mapping.get(selection)
+
+        def _show_quick_alias_error(self, message: str) -> None:
+            """Display an error related to quick-launch management."""
+
+            QMessageBox.warning(self, "Quick-launch aliases", message)
+
+        def _show_quick_alias_info(self, message: str) -> None:
+            """Display an informational message for quick-launch operations."""
+
+            QMessageBox.information(self, "Quick-launch aliases", message)
+
+        def _on_add_quick_alias(self) -> None:
+            """Handle the Add alias button click."""
+
+            alias = self._prompt_alias_name("Add quick-launch alias")
+            if alias is None:
+                return
+            slug = self._choose_game_slug("Select game for alias")
+            if slug is None:
+                return
+            try:
+                self._profile_service.add_quick_launch_alias(alias, slug)
+            except ProfileServiceError as exc:
+                self._show_quick_alias_error(str(exc))
+                return
+            self._populate_quick_launch_aliases(self._profile_service.get_quick_launch_aliases())
+            name = self._catalogue_index.get(slug)
+            display = name.name if name is not None else slug.replace("_", " ").title()
+            self._show_quick_alias_info(f"Alias !{alias.strip().lower()} now launches {display}.")
+
+        def _on_update_quick_alias(self) -> None:
+            """Handle updating the game associated with an alias."""
+
+            alias, slug = self._get_selected_alias()
+            if alias is None or slug is None:
+                return
+            new_slug = self._choose_game_slug("Update alias target", current_slug=slug)
+            if new_slug is None:
+                return
+            try:
+                self._profile_service.update_quick_launch_alias(alias, new_slug)
+            except ProfileServiceError as exc:
+                self._show_quick_alias_error(str(exc))
+                return
+            self._populate_quick_launch_aliases(self._profile_service.get_quick_launch_aliases())
+            metadata = self._catalogue_index.get(new_slug)
+            display = metadata.name if metadata is not None else new_slug.replace("_", " ").title()
+            self._show_quick_alias_info(f"Alias !{alias} now launches {display}.")
+
+        def _on_rename_quick_alias(self) -> None:
+            """Handle renaming an existing alias."""
+
+            alias, slug = self._get_selected_alias()
+            if alias is None or slug is None:
+                return
+            new_alias = self._prompt_alias_name("Rename quick-launch alias", default=alias)
+            if new_alias is None or new_alias == alias:
+                return
+            try:
+                self._profile_service.rename_quick_launch_alias(alias, new_alias)
+            except ProfileServiceError as exc:
+                self._show_quick_alias_error(str(exc))
+                return
+            self._populate_quick_launch_aliases(self._profile_service.get_quick_launch_aliases())
+            self._show_quick_alias_info(f"Alias renamed to !{new_alias.strip().lower()}.")
+
+        def _on_delete_quick_alias(self) -> None:
+            """Handle deleting the selected alias."""
+
+            alias, _ = self._get_selected_alias()
+            if alias is None:
+                return
+            confirmation = QMessageBox.question(
+                self,
+                "Delete quick-launch alias",
+                f"Are you sure you want to remove !{alias}?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if confirmation != QMessageBox.Yes:
+                return
+            removed = self._profile_service.delete_quick_launch_alias(alias)
+            if not removed:
+                self._show_quick_alias_error("Alias could not be removed; it may have already been deleted.")
+                return
+            self._populate_quick_launch_aliases(self._profile_service.get_quick_launch_aliases())
+            self._show_quick_alias_info(f"Removed quick-launch alias !{alias}.")
+
+        def _on_launch_quick_alias(self) -> None:
+            """Launch the game associated with the selected alias."""
+
+            alias, slug = self._get_selected_alias()
+            if alias is None or slug is None:
+                return
+            entry = get_game_entry(slug)
+            if entry is None:
+                self._show_quick_alias_error("The associated game could not be found.")
+                return
+            _, launcher_callable = entry
+            try:
+                launcher_callable()
+            except Exception as exc:  # pragma: no cover - runtime guard
+                self._show_quick_alias_error(f"Failed to launch the game: {exc}")
+                return
+            self._show_quick_alias_info(f"Launched quick alias !{alias}.")
+            self.refresh_contents()
 
         def _populate_leaderboard(self, entries: Sequence[CrossGameLeaderboardEntry]) -> None:
             """Populate the leaderboard table."""
