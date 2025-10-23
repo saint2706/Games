@@ -17,7 +17,10 @@ from __future__ import annotations
 
 import argparse
 import itertools
+import math
+import os
 import random
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
 from enum import Enum
 from itertools import combinations
@@ -156,7 +159,8 @@ class BotSkill:
 
     These parameters control the bot's decision-making process, such as how
     often it bluffs, how aggressively it bets, and how accurately it assesses
-    its hand strength.
+    its hand strength. The ``max_workers`` attribute configures how many
+    parallel workers may be used when estimating hand equity.
     """
 
     name: str
@@ -165,6 +169,7 @@ class BotSkill:
     bluff: float
     mistake_rate: float
     simulations: int
+    max_workers: Optional[int] = None
 
 
 @dataclass
@@ -229,6 +234,28 @@ class HandHistory:
 FULL_DECK: tuple[Card, ...] = tuple(Deck().cards)
 
 
+def _simulate_win_rate_batch(
+    hero_cards: tuple[Card, ...],
+    community_cards: tuple[Card, ...],
+    assignments: Sequence[tuple[tuple[tuple[Card, ...], ...], tuple[Card, ...]]],
+) -> tuple[int, int]:
+    """Evaluate a batch of simulations for the hero's win and tie counts."""
+
+    hero_hand = list(hero_cards)
+    base_board = list(community_cards)
+    wins = 0
+    ties = 0
+    for opponent_holes, board_extension in assignments:
+        board = base_board + list(board_extension)
+        hero_rank = best_hand(hero_hand + board)
+        best_opponent_rank = max(best_hand(list(hole) + board) for hole in opponent_holes)
+        if hero_rank > best_opponent_rank:
+            wins += 1
+        elif hero_rank == best_opponent_rank:
+            ties += 1
+    return wins, ties
+
+
 def fresh_deck(rng: random.Random | None = None) -> Deck:
     """Creates and shuffles a new deck of cards."""
     deck = Deck()
@@ -245,6 +272,7 @@ DIFFICULTIES: dict[str, BotSkill] = {
         bluff=0.30,
         mistake_rate=0.25,
         simulations=80,
+        max_workers=1,
     ),
     "Easy": BotSkill(
         "Easy",
@@ -253,6 +281,7 @@ DIFFICULTIES: dict[str, BotSkill] = {
         bluff=0.26,
         mistake_rate=0.18,
         simulations=120,
+        max_workers=1,
     ),
     "Medium": BotSkill(
         "Medium",
@@ -261,6 +290,7 @@ DIFFICULTIES: dict[str, BotSkill] = {
         bluff=0.22,
         mistake_rate=0.12,
         simulations=160,
+        max_workers=2,
     ),
     "Hard": BotSkill(
         "Hard",
@@ -269,6 +299,7 @@ DIFFICULTIES: dict[str, BotSkill] = {
         bluff=0.18,
         mistake_rate=0.07,
         simulations=220,
+        max_workers=3,
     ),
     "Insane": BotSkill(
         "Insane",
@@ -277,6 +308,7 @@ DIFFICULTIES: dict[str, BotSkill] = {
         bluff=0.14,
         mistake_rate=0.03,
         simulations=320,
+        max_workers=4,
     ),
 }
 
@@ -307,6 +339,7 @@ class PokerBot:
             community_cards=table.community_cards,
             simulations=self.skill.simulations,
             rng=self.rng,
+            max_workers=self.skill.max_workers,
         )
 
         if self.rng.random() < self.skill.mistake_rate:
@@ -609,11 +642,14 @@ def estimate_win_rate(
     community_cards: Sequence[Card],
     simulations: int,
     rng: random.Random,
+    max_workers: Optional[int] = None,
 ) -> float:
     """Estimate a player's win rate using Monte Carlo simulation.
 
     This function simulates the remainder of the hand multiple times to estimate
-    the hero's equity against their opponents.
+    the hero's equity against their opponents. When multiple workers are
+    available, the simulation load is divided across processes to accelerate the
+    calculation while preserving deterministic behaviour for seeded RNGs.
 
     Args:
         hero: The player whose win rate is being estimated.
@@ -621,34 +657,62 @@ def estimate_win_rate(
         community_cards: The cards currently on the board.
         simulations: The number of simulations to run.
         rng: The random number generator to use.
+        max_workers: Optional cap on the number of parallel workers. ``None``
+            selects an appropriate value based on CPU availability.
 
     Returns:
         The estimated win rate as a float between 0.0 and 1.0.
     """
+
+    if simulations <= 0:
+        raise ValueError("Number of simulations must be a positive integer.")
+
     active_opponents = [p for p in players if p is not hero and not p.folded]
     if not active_opponents:
         return 1.0
 
     known_cards = set(hero.hole_cards) | set(community_cards)
     deck_pool = [c for c in FULL_DECK if c not in known_cards]
+    needed_board = max(0, 5 - len(community_cards))
+
+    hero_cards = tuple(hero.hole_cards)
+    board_prefix = tuple(community_cards)
+    opponent_count = len(active_opponents)
+
+    assignments: list[tuple[tuple[tuple[Card, ...], ...], tuple[Card, ...]]] = []
+    for _ in range(simulations):
+        rng.shuffle(deck_pool)
+        deck_iter = iter(deck_pool)
+        opponent_holes = tuple(tuple(itertools.islice(deck_iter, 2)) for _ in range(opponent_count))
+        board_extension = tuple(itertools.islice(deck_iter, needed_board))
+        assignments.append((opponent_holes, board_extension))
+
+    available_cpus = os.cpu_count() or 1
+    if max_workers is None:
+        worker_cap = available_cpus
+    else:
+        worker_cap = max(1, max_workers)
+    worker_count = min(worker_cap, available_cpus, len(assignments))
 
     wins = 0
     ties = 0
-    needed_board = 5 - len(community_cards)
 
-    for _ in range(simulations):
-        rng.shuffle(deck_pool)
-        it = iter(deck_pool)
-        opponent_holes = [list(itertools.islice(it, 2)) for _ in active_opponents]
-        board = list(community_cards) + list(itertools.islice(it, needed_board))
-
-        hero_rank = best_hand(hero.hole_cards + board)
-        best_opponent_rank = max(best_hand(h + board) for h in opponent_holes)
-
-        if hero_rank > best_opponent_rank:
-            wins += 1
-        elif hero_rank == best_opponent_rank:
-            ties += 1
+    if worker_count <= 1:
+        wins, ties = _simulate_win_rate_batch(hero_cards, board_prefix, assignments)
+    else:
+        chunk_size = math.ceil(len(assignments) / worker_count)
+        chunks = [assignments[i : i + chunk_size] for i in range(0, len(assignments), chunk_size)]
+        try:
+            with ProcessPoolExecutor(max_workers=worker_count) as executor:
+                futures = [executor.submit(_simulate_win_rate_batch, hero_cards, board_prefix, chunk) for chunk in chunks]
+                for future in futures:
+                    chunk_wins, chunk_ties = future.result()
+                    wins += chunk_wins
+                    ties += chunk_ties
+        except KeyboardInterrupt:  # pragma: no cover - propagate interrupts
+            raise
+        except Exception:
+            wins, ties = _simulate_win_rate_batch(hero_cards, board_prefix, assignments)
 
     return (wins + ties / 2) / simulations
 

@@ -158,6 +158,32 @@ You:
 
 ## Command-Line Options
 
+### 7. Parallel Monte Carlo Equity Estimation ✅
+
+**Implementation Details:**
+
+- Extracted the Monte Carlo loop into a worker-friendly helper so batches can be dispatched to `ProcessPoolExecutor` workers.
+- Added a `max_workers` setting to each `BotSkill` profile to control parallelism without new configuration surfaces.
+- The estimator automatically falls back to serial execution when only a single CPU core is available or when process pools are unavailable.
+
+**Usage:**
+
+- Configure the AI profile you launch with to tune simulation volume **and** worker count:
+
+  ```python
+  from games_collection.games.card.poker import DIFFICULTIES
+
+  hard_skill = DIFFICULTIES["Hard"]
+  print(hard_skill.simulations, hard_skill.max_workers)
+  ```
+
+- Override `max_workers` at runtime when constructing a custom `BotSkill` if you need different concurrency characteristics.
+
+**Testing & Benchmarks:**
+
+- Regression tests compare serial and parallel equity results to guarantee deterministic outcomes with seeded RNGs.
+- Benchmark tests assert a measurable speed-up when multiple CPU cores are present; they are skipped automatically on single-core systems.
+
 All new features are accessible via CLI arguments:
 
 ```bash
