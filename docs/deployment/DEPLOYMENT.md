@@ -7,6 +7,7 @@ This guide covers different deployment methods for the Games Collection.
 - [Prerequisites](#prerequisites)
 - [Installation from PyPI](#installation-from-pypi)
 - [Standalone Executables](#standalone-executables)
+- [Mobile Deployments](#mobile-deployments)
 - [Docker Deployment](#docker-deployment)
 - [Building from Source](#building-from-source)
 - [Cross-Platform Compatibility](#cross-platform-compatibility)
@@ -154,6 +155,126 @@ python build_configs/nuitka/build.py
 # Or build with Nuitka
 ./scripts/build_executable.sh nuitka
 ```
+
+## Mobile Deployments
+
+The mobile toolchain is optional and gated behind the `mobile` extras group. Install the
+dependencies locally before building:
+
+```bash
+pip install .[mobile]
+```
+
+### Local Tooling
+
+- **Android:** Use the official Buildozer container or install the Android SDK/NDK locally.
+- **Apple:** Install Xcode 15 or later and enable command line tools. BeeWare's Briefcase
+  CLI orchestrates the signing and packaging flow.
+- **Shared assets:** Mobile builds reuse `src/games_collection/assets`. Update the assets
+  before packaging to ensure brand consistency.
+
+### Android Builds with Buildozer
+
+```bash
+export ANDROID_KEYSTORE_PATH=$PWD/build/mobile/signing/release.keystore
+export ANDROID_KEYSTORE_PASSWORD=...  # Keystore password
+export ANDROID_KEY_PASSWORD=...       # Key alias password
+
+# Decode the keystore supplied as base64
+mkdir -p build/mobile/signing
+base64 -d < release.keystore.b64 > "$ANDROID_KEYSTORE_PATH"
+
+# Run Buildozer using the curated spec
+docker run --rm \
+  -e ANDROID_KEYSTORE_PATH \
+  -e ANDROID_KEYSTORE_PASSWORD \
+  -e ANDROID_KEY_PASSWORD \
+  -v "$PWD":/workspace \
+  -w /workspace \
+  ghcr.io/kivy/buildozer:stable \
+  bash -lc "python3 -m pip install .[mobile] && buildozer -v android release"
+
+# Signed APKs land in build/mobile/android/bin/
+ls build/mobile/android/bin
+```
+
+### Apple Builds with Briefcase
+
+```bash
+export MACOS_CODESIGN_IDENTITY="Developer ID Application: Example (ABCD123456)"
+export MACOS_NOTARIZATION_PROFILE="GamesCollectionNotarization"
+export IOS_SIGNING_PROFILE="GamesCollection-iOS"
+export IOS_TEAM_ID="ABCD123456"
+
+# Package macOS DMG
+docker run --rm \
+  -e MACOS_CODESIGN_IDENTITY \
+  -e MACOS_NOTARIZATION_PROFILE \
+  -v "$PWD":/workspace \
+  -w /workspace \
+  ghcr.io/beeware/briefcase:latest \
+  bash -lc "python3 -m pip install .[mobile] && briefcase package macOS -r"
+
+# Package iOS IPA
+docker run --rm \
+  -e IOS_SIGNING_PROFILE \
+  -e IOS_TEAM_ID \
+  -v "$PWD":/workspace \
+  -w /workspace \
+  ghcr.io/beeware/briefcase:latest \
+  bash -lc "python3 -m pip install .[mobile] && briefcase package iOS -r"
+
+ls dist/macOS
+ls dist/iOS
+```
+
+Briefcase automatically discovers the `games_collection.mobile.kivy_launcher:main` entry
+point and bundles the shared assets directory for both platforms.
+
+### Emulator Smoke Tests
+
+- **Android:** Use `adb install build/mobile/android/bin/*.apk` to sideload the release
+  build. The Pixel 6 API level 34 emulator is the default target used by QA.
+- **iOS:** Target the `iPhone 15` simulator with `xcrun simctl install booted dist/iOS/*.ipa`.
+  Launch with `xcrun simctl launch booted org.gamescollection` to verify touch navigation.
+- **macOS:** Open the generated DMG, drag the app bundle to `/Applications`, and run the
+  launcher to exercise game selection and favourites.
+
+### GitHub Actions Pipeline
+
+The `Mobile Packages` workflow (`.github/workflows/mobile-build.yml`) is available via the
+**Run workflow** button. It runs a three-target matrix:
+
+| Target  | Container Image                    | Command                          | Artifact   |
+|---------|------------------------------------|----------------------------------|------------|
+| Android | `ghcr.io/kivy/buildozer:stable`    | `buildozer -v android release`   | Signed APK |
+| macOS   | `ghcr.io/beeware/briefcase:latest` | `briefcase package macOS -r`     | Signed DMG |
+| iOS     | `ghcr.io/beeware/briefcase:latest` | `briefcase package iOS -r`       | Signed IPA |
+
+Workflow inputs:
+
+- `release_tag`: Used as an artifact suffix (e.g., `android-2.0.1`).
+- `smoke_test_game` (optional): Launches the provided slug via the desktop launcher to
+  validate metadata before publishing mobile builds.
+
+### Artifact Locations
+
+- **Android:** `build/mobile/android/bin/*.apk`
+- **macOS:** `dist/macOS/*.dmg`
+- **iOS:** `dist/iOS/*.ipa`
+- **GitHub Actions:** Uploaded as `<target>-<release_tag>` artifacts.
+
+### Required Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `ANDROID_KEYSTORE_B64` | Base64-encoded keystore injected into CI and decoded before the Buildozer run. |
+| `ANDROID_KEYSTORE_PASSWORD` | Password used to unlock the Android keystore. |
+| `ANDROID_KEY_PASSWORD` | Password for the `gamescollection` signing key alias. |
+| `MACOS_CODESIGN_IDENTITY` | Identity passed to Briefcase for DMG signing. |
+| `MACOS_NOTARIZATION_PROFILE` | App Store Connect notarization profile used post-signature. |
+| `IOS_SIGNING_PROFILE` | Provisioning profile UUID for Briefcase iOS packaging. |
+| `IOS_TEAM_ID` | Apple Developer team identifier required for iOS signing. |
 
 ## Docker Deployment
 
