@@ -32,6 +32,52 @@ code.
 
 --------------
 
+Launcher Experience
+-------------------
+
+Implementation Date
+~~~~~~~~~~~~~~~~~~~
+
+April 2026
+
+Requirements Addressed
+~~~~~~~~~~~~~~~~~~~~~~
+
+-  ✅ Provide a desktop launcher that surfaces analytics and catalogue data
+-  ✅ Preserve CLI launcher support when GUI dependencies are unavailable
+
+What Was Implemented
+~~~~~~~~~~~~~~~~~~~~
+
+1. Unified launcher data snapshot (``games_collection.launcher``)
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   Added the :class:`~games_collection.launcher.LauncherSnapshot` helper and
+   ``build_launcher_snapshot`` utility. Both the CLI and GUI launchers reuse
+   this snapshot to display consistent profile statistics, daily challenge
+   status, leaderboards, and recommendation summaries.
+
+2. PyQt5 launcher window (``games_collection.launcher_gui``)
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   Implemented a desktop launcher powered by
+   :class:`games_collection.core.gui_base_pyqt.BaseGUI`. The window presents
+   refreshable tiles for profile stats, daily challenges, cross-game
+   leaderboards, personalised recommendations, and the game catalogue.
+   ``launcher_gui.run_launcher_gui`` relies on
+   :func:`games_collection.core.gui_frameworks.launch_preferred_gui` to pick
+   PyQt5 when available and report failure gracefully otherwise.
+
+3. CLI routing improvements
+   ^^^^^^^^^^^^^^^^^^^^^^^^
+
+   The CLI launcher now accepts ``--ui {cli,gui}`` so automated tests and
+   desktop builds can trigger the PyQt5 interface directly. When no GUI
+   frameworks are installed the launcher falls back to the original CLI
+   experience and records the reason on ``stderr``.
+
+--------------
+
 AI Profiling and Tuning
 -----------------------
 
