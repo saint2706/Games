@@ -211,12 +211,12 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 
 ### Main Launcher
 
-- [ ] Create unified game launcher application
-- [ ] Implement game browsing with screenshots/descriptions
-- [ ] Add recently played games list
-- [ ] Create favorites/bookmarks system
-- [ ] Implement quick-launch commands
-- [ ] Add game configuration management interface
+- [x] Create unified game launcher application
+- [x] Implement game browsing with screenshots/descriptions
+- [x] Add recently played games list
+- [x] Create favorites/bookmarks system
+- [x] Implement quick-launch commands
+- [x] Add game configuration management interface
 
 ### Advanced GUI Features
 
