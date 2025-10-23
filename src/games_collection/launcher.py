@@ -367,6 +367,12 @@ def print_menu(service: ProfileService) -> None:
     print("  A. View achievement progress")
     print("  M. View personalised recommendations\n")
 
+    if HAS_COLORAMA:
+        print(f"{Fore.MAGENTA}Catalogue Shortcuts:{Style.RESET_ALL}")
+    else:
+        print("Catalogue Shortcuts:")
+    print("  INFO <number|slug>. Preview a game's details without launching\n")
+
     for category, games in categories.items():
         if HAS_COLORAMA:
             print(f"{Fore.YELLOW}{Style.BRIGHT}{category}:{Style.RESET_ALL}")
@@ -453,6 +459,37 @@ def _handle_profile_reset(service: ProfileService) -> None:
     else:
         print(message)
     input("Press Enter to return to the menu…")
+
+
+def _resolve_metadata(identifier: str) -> GameMetadata | None:
+    """Return metadata for a menu entry or slug."""
+
+    entry = get_game_entry(identifier)
+    if entry is None:
+        normalized = identifier.strip().lower().replace("-", "_")
+        return SLUG_TO_METADATA.get(normalized)
+    slug, _ = entry
+    return SLUG_TO_METADATA.get(slug)
+
+
+def _print_game_detail(metadata: GameMetadata) -> None:
+    """Pretty-print metadata details for CLI browsing."""
+
+    header = f"{metadata.name} ({metadata.genre.title()})"
+    divider = "-" * len(header)
+    print(f"\n{header}\n{divider}")
+    print(f"Description: {metadata.description}")
+    synopsis = metadata.synopsis or metadata.description
+    if synopsis and synopsis != metadata.description:
+        print(f"Synopsis: {synopsis}")
+    tags = ", ".join(metadata.tags) if metadata.tags else "None"
+    print(f"Tags: {tags}")
+    mechanics = ", ".join(metadata.mechanics) if metadata.mechanics else "Varied mechanics"
+    print(f"Mechanics: {mechanics}")
+    if metadata.screenshot_path:
+        print(f"Screenshot asset: {metadata.screenshot_path}")
+    if metadata.thumbnail_path and metadata.thumbnail_path != metadata.screenshot_path:
+        print(f"Thumbnail asset: {metadata.thumbnail_path}")
 
 
 def _handle_leaderboard_view(service: ProfileService) -> None:
@@ -872,6 +909,24 @@ def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeS
         return True
     if normalized == "d":
         _handle_daily_challenge(service, scheduler)
+        return True
+
+    if normalized.startswith("info"):
+        parts = choice.strip().split(maxsplit=1)
+        if len(parts) == 1:
+            print("Provide a menu number or slug after INFO to preview details.")
+            input("\nPress Enter to return to the menu…")
+            return True
+        target = parts[1]
+        metadata = _resolve_metadata(target)
+        if metadata is None:
+            if HAS_COLORAMA:
+                print(f"{Fore.RED}Unknown game '{target}'.{Style.RESET_ALL}")
+            else:
+                print(f"Unknown game '{target}'.")
+        else:
+            _print_game_detail(metadata)
+        input("\nPress Enter to return to the menu…")
         return True
 
     if normalized in GAME_MAP:

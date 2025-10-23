@@ -41,6 +41,9 @@ recursive-include src/games_collection/games/dice *.md
 recursive-include src/games_collection/games/word *.md
 recursive-include src/games_collection/games/logic *.md
 
+# Include launcher assets
+recursive-include src/games_collection/assets/launcher *
+
 # Include sound file documentation (but not the actual sound files)
 recursive-include src/games_collection/games/card/uno/sounds *.md
 
