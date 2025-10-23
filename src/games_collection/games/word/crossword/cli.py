@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import Sequence
 
 from .crossword import CrosswordGame, CrosswordPackManager
 
@@ -22,18 +23,32 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> None:
+def main(argv: Sequence[str] | None = None, *, settings: dict[str, object] | None = None) -> None:
     """Run Crossword game."""
 
     parser = build_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(list(argv) if argv is not None else None)
 
     print("CROSSWORD".center(50, "="))
     print("\nSolve the crossword puzzle or manage packs!")
 
-    if args.pack is not None:
-        clues = CrosswordPackManager.load(args.pack)
-        print(f"\nLoaded crossword pack from {args.pack}")
+    pack_path = args.pack
+    allow_hints = True
+    if settings:
+        if pack_path is None:
+            pack_setting = settings.get("pack")
+            if pack_setting:
+                candidate = Path(str(pack_setting)).expanduser()
+                if candidate.exists():
+                    pack_path = candidate
+                else:
+                    print(f"Configured pack '{pack_setting}' was not found. Using defaults.")
+        if "allow_hints" in settings:
+            allow_hints = bool(settings["allow_hints"])
+
+    if pack_path is not None:
+        clues = CrosswordPackManager.load(pack_path)
+        print(f"\nLoaded crossword pack from {pack_path}")
     else:
         clues = None
 
@@ -50,14 +65,29 @@ def main() -> None:
             location = f"(r{clue.row}, c{clue.column})"
             print(f"  [{status}] {cid}. {direction} {location}: {clue.clue}")
 
+        prompt = input("\nClue number (or 'hint'): ").strip()
+        if allow_hints and prompt.lower() == "hint":
+            unsolved = next((cid for cid in game.get_clues() if cid not in game.solved), None)
+            if unsolved is None:
+                print("All clues are solved!")
+            else:
+                answer = game.get_clues()[unsolved].answer
+                print(f"Try looking at clue {unsolved}: {answer[:1]}…")
+            continue
+        if not prompt:
+            print("Please enter a clue number.")
+            continue
         try:
-            cid = int(input("\nClue number: "))
-            guess = input("Answer: ").strip()
-
-            if not game.make_move((cid, guess)):
-                print("Incorrect or already solved!")
+            cid = int(prompt)
         except ValueError:
             print("Invalid input!")
+            continue
+
+        guess = input("Answer: ").strip()
+        if not game.make_move((cid, guess)):
+            print("Incorrect or already solved!")
+        elif cid in game.solved:
+            print("Nice work!")
 
     print("\nPuzzle complete!")
 

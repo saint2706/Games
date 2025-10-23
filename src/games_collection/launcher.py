@@ -8,6 +8,7 @@ It's used as the entry point for standalone executables.
 from __future__ import annotations
 
 import argparse
+import inspect
 import sys
 import textwrap
 from dataclasses import dataclass
@@ -17,6 +18,12 @@ from typing import Callable, Dict, List, Optional
 
 from games_collection.catalog.registry import GameMetadata, get_all_games
 from games_collection.core.challenges import get_default_challenge_manager
+from games_collection.configuration_cli import run_configuration_cli
+from games_collection.core.configuration import (
+    get_configuration_profiles,
+    get_settings_manager,
+    prepare_launcher_settings,
+)
 from games_collection.core.daily_challenges import DailyChallengeScheduler, DailyChallengeSelection
 from games_collection.core.game_catalog import get_default_game_catalogue
 from games_collection.core.leaderboard_service import CrossGameLeaderboardEntry, CrossGameLeaderboardService
@@ -58,6 +65,9 @@ except ImportError:
 GENRE_ORDER = {"card": 0, "paper": 1, "dice": 2, "word": 3, "logic": 4}
 
 
+SETTINGS_MANAGER = get_settings_manager()
+
+
 def _launcher_from_entry_point(entry_point: str) -> Callable[[], None]:
     """Return a callable that imports and executes ``entry_point`` lazily."""
 
@@ -66,11 +76,51 @@ def _launcher_from_entry_point(entry_point: str) -> Callable[[], None]:
     if not module_path or not attribute:
         raise ValueError(f"Invalid entry point '{entry_point}'")
 
-    def _launcher() -> None:
-        module = import_module(module_path)
-        getattr(module, attribute)()
+    signature: inspect.Signature | None = None
+    accepts_kwargs = False
+    accepts_settings_kw = False
+    accepts_config_kw = False
+    try:
+        initial_target = getattr(import_module(module_path), attribute)
+    except Exception:  # pragma: no cover - optional dependencies may be missing during import
+        initial_target = None
+    else:
+        signature = inspect.signature(initial_target)
+        accepts_kwargs = any(param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values())
+        accepts_settings_kw = "settings" in signature.parameters
+        accepts_config_kw = "config" in signature.parameters
 
-    return _launcher
+    def _launcher_with_settings(settings: Optional[dict[str, object]] = None) -> None:
+        nonlocal signature, accepts_kwargs, accepts_settings_kw, accepts_config_kw
+        module = import_module(module_path)
+        target = getattr(module, attribute)
+        if signature is None:
+            try:
+                signature = inspect.signature(target)
+            except (TypeError, ValueError):  # pragma: no cover - fallback for builtins
+                signature = inspect.Signature()  # type: ignore[assignment]
+            else:
+                accepts_kwargs = any(
+                    param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()
+                )
+                accepts_settings_kw = "settings" in signature.parameters
+                accepts_config_kw = "config" in signature.parameters
+        if settings:
+            if accepts_settings_kw or accepts_kwargs:
+                try:
+                    target(settings=settings)
+                    return
+                except TypeError:
+                    pass
+            if accepts_config_kw or accepts_kwargs:
+                try:
+                    target(config=settings)
+                    return
+                except TypeError:
+                    pass
+        target()
+
+    return _launcher_with_settings
 
 
 _ORDERED_METADATA: tuple[GameMetadata, ...] = tuple(
@@ -80,7 +130,9 @@ _ORDERED_METADATA: tuple[GameMetadata, ...] = tuple(
     )
 )
 
-_MENU_ENTRIES: list[tuple[GameMetadata, Callable[[], None]]] = [(metadata, _launcher_from_entry_point(metadata.entry_point)) for metadata in _ORDERED_METADATA]
+_MENU_ENTRIES: list[tuple[GameMetadata, Callable[[Optional[dict[str, object]]], None]]] = [
+    (metadata, _launcher_from_entry_point(metadata.entry_point)) for metadata in _ORDERED_METADATA
+]
 
 GAME_MAP: dict[str, tuple[str, Callable[[], None]]] = {
     str(index): (metadata.slug, launcher) for index, (metadata, launcher) in enumerate(_MENU_ENTRIES, start=1)
@@ -173,7 +225,7 @@ def _format_game_name(slug: str) -> str:
     return slug.replace("_", " ").title()
 
 
-def _launch_game_entry(slug: str, launcher: Callable[[], None]) -> None:
+def _launch_game_entry(slug: str, launcher: Callable[[Optional[dict[str, object]]], None]) -> None:
     """Launch ``slug`` using ``launcher`` with consistent messaging."""
 
     game_name = _format_game_name(slug)
@@ -182,7 +234,8 @@ def _launch_game_entry(slug: str, launcher: Callable[[], None]) -> None:
         prefix = f"\n{Fore.GREEN}Launching {game_name}...{Style.RESET_ALL}\n"
     print(prefix)
     try:
-        launcher()
+        settings_payload = prepare_launcher_settings(slug, SETTINGS_MANAGER)
+        launcher(settings_payload if settings_payload else None)
     except Exception as exc:  # pragma: no cover - defensive runtime guard
         if HAS_COLORAMA:
             print(f"\n{Fore.RED}Error launching game: {exc}{Style.RESET_ALL}")
@@ -388,6 +441,7 @@ def print_menu(service: ProfileService) -> None:
     favorites = service.get_favorites()
     favorite_set = set(favorites)
     quick_aliases = service.get_quick_launch_aliases()
+    profiles = get_configuration_profiles()
     categories: dict[str, list[tuple[str, Optional[str], str]]] = {}
     for index, (metadata, _launcher) in enumerate(_MENU_ENTRIES, start=1):
         label = {
@@ -416,6 +470,19 @@ def print_menu(service: ProfileService) -> None:
     print("  S. Switch profile")
     print("  R. Rename active profile")
     print("  X. Reset active profile")
+
+    if HAS_COLORAMA:
+        print(f"\n{Fore.CYAN}Configuration:{Style.RESET_ALL}")
+    else:
+        print("\nConfiguration:")
+    print("  G. Manage game settings")
+    if profiles:
+        preview = ", ".join(profile.title for profile in profiles[:3])
+        if len(profiles) > 3:
+            preview = preview + ", …"
+        print(f"    Available: {preview}")
+    else:
+        print("    No games have published configuration profiles yet.")
 
     if HAS_COLORAMA:
         print(f"\n{Fore.BLUE}Quick Launch Shortcuts:{Style.RESET_ALL}")
@@ -1232,6 +1299,9 @@ def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeS
     if command == "d":
         _handle_daily_challenge(service, scheduler)
         return True
+    if command in {"g", "cfg", "config", "settings"}:
+        run_configuration_cli(SETTINGS_MANAGER)
+        return True
 
     if command in {"fav", "favorite", "favourite"}:
         if len(tokens) == 1:
@@ -1358,7 +1428,7 @@ def main() -> None:
             profile_service.save_active_profile()
             sys.exit(exit_code)
 
-        launcher()
+        _launch_game_entry(game_slug, launcher)
         if args.profile_summary:
             print(profile_service.summary())
         profile_service.save_active_profile()

@@ -84,7 +84,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Iterable[str] | None = None) -> None:
+def main(argv: Iterable[str] | None = None, *, settings: dict[str, object] | None = None) -> None:
     """The main function for the Blackjack application.
 
     This function parses command-line arguments and launches the appropriate
@@ -97,6 +97,24 @@ def main(argv: Iterable[str] | None = None) -> None:
     """
     parser = build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
+    defaults = {
+        "bankroll": parser.get_default("bankroll"),
+        "min_bet": parser.get_default("min_bet"),
+        "decks": parser.get_default("decks"),
+        "gui_framework": parser.get_default("gui_framework"),
+    }
+
+    if settings:
+        if "bankroll" in settings and args.bankroll == defaults["bankroll"]:
+            args.bankroll = int(settings["bankroll"])
+        if "min_bet" in settings and args.min_bet == defaults["min_bet"]:
+            args.min_bet = int(settings["min_bet"])
+        if "decks" in settings and args.decks == defaults["decks"]:
+            args.decks = int(settings["decks"])
+        if "gui_framework" in settings and args.gui_framework == defaults["gui_framework"]:
+            args.gui_framework = str(settings["gui_framework"])
+        if settings.get("cli_mode"):
+            args.cli = True
 
     # Initialize a random number generator if a seed is provided.
     rng = None

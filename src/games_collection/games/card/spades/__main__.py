@@ -21,7 +21,7 @@ from games_collection.games.card.spades.gui import run_app as run_tk_app
 PREFERENCES_NAMESPACE = "games_collection.games.card.spades.gui"
 
 
-def main(argv: Sequence[str] | None = None) -> None:
+def main(argv: Sequence[str] | None = None, *, settings: dict[str, object] | None = None) -> None:
     """Launch the GUI by default, falling back to the CLI when requested."""
 
     parser = argparse.ArgumentParser(description="Play Spades against AI opponents.")
@@ -69,6 +69,20 @@ def main(argv: Sequence[str] | None = None) -> None:
         help="Reset stored Spades GUI preferences before launching.",
     )
     args = parser.parse_args(list(argv) if argv is not None else None)
+    defaults = {
+        "backend": parser.get_default("backend"),
+    }
+
+    if settings:
+        backend_setting = settings.get("backend")
+        if backend_setting and args.backend == defaults["backend"]:
+            args.backend = str(backend_setting)
+        if settings.get("theme") and args.theme is None:
+            args.theme = str(settings["theme"])
+        if "enable_sounds" in settings and args.sounds is None:
+            args.sounds = bool(settings["enable_sounds"])
+        if "enable_animations" in settings and args.animations is None:
+            args.animations = bool(settings["enable_animations"])
 
     if args.cli:
         game_loop()
