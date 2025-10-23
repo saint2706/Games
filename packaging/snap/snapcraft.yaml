@@ -1,0 +1,63 @@
+name: games-collection
+base: core22
+version: 2.0.1
+summary: Collection of classic card, dice, logic, paper, and word games
+description: |
+  Games Collection bundles dozens of classic experiences with AI opponents, CLI tooling, and optional graphical frontends built on PyQt and Pygame.
+  Launch favourites such as Blackjack, Sudoku, Mastermind, and Hangman from one unified hub.
+license: MIT
+grade: stable
+confinement: strict
+
+apps:
+  games-collection:
+    command: bin/games-collection
+    extensions: [gnome]
+    plugs:
+      - audio-playback
+      - joystick
+      - network
+      - network-bind
+      - opengl
+      - wayland
+      - x11
+      - desktop
+      - desktop-legacy
+      - pulseaudio
+    environment:
+      QT_QPA_PLATFORM: wayland;xcb
+      SDL_AUDIODRIVER: pulse
+    common-id: com.gamescollection.GamesCollection
+    desktop: snap/gui/games-collection.desktop
+
+parts:
+  games-collection:
+    plugin: python
+    source: ../..
+    source-type: local
+    stage-packages:
+      - libgl1
+      - libglu1-mesa
+      - libasound2
+      - libpulse0
+      - libgtk-3-0
+      - libsdl2-2.0-0
+    build-packages:
+      - libglib2.0-dev
+      - build-essential
+      - python3-dev
+    override-build: |
+      set -e
+      craftctl default
+      python3 -m pip install --no-deps --prefix="$CRAFT_PART_INSTALL" \
+        --no-build-isolation "$CRAFT_PROJECT_DIR"[gui]
+  desktop-assets:
+    plugin: dump
+    source: .
+    organize:
+      gui/: snap/gui/
+  shared-icon:
+    plugin: dump
+    source: ../shared-assets
+    organize:
+      games-collection.svg: snap/gui/games-collection.svg
