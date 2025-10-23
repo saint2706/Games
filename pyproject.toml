@@ -113,6 +113,16 @@ gui = [
     "pyqt5>=5.15",
     "pygame>=2.0",
 ]
+mobile = [
+    "kivy>=2.2.1",
+    "kivy-garden>=0.1.5",
+    "buildozer>=1.5.0",
+    "python-for-android>=2024.6",
+    "briefcase>=0.3.18",
+    "toga>=0.3.1",
+    "toga-ios>=0.3.1; platform_system == 'Darwin'",
+    "toga-macOS>=0.3.1; platform_system == 'Darwin'",
+]
 
 [project.scripts]
 # Main launcher
