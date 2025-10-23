@@ -268,13 +268,13 @@ Many infrastructure improvements exist but aren't yet applied to all games:
 - [x] **Create standalone executables (PyInstaller, Nuitka)** ✅ **COMPLETE**
 - [x] **Publish to PyPI for easy installation** ✅ **COMPLETE** (Ready)
 - [x] **Create Docker containers for easy deployment** ✅ **COMPLETE**
-- [ ] Add auto-update functionality
+- [x] Add auto-update functionality
 - [x] **Implement crash reporting and error analytics** ✅ **COMPLETE**
-- [ ] Create web-based versions using PyScript or similar
-- [ ] Package for mobile platforms (Android/iOS via Kivy or BeeWare)
+- [x] Create web-based versions using PyScript or similar
+- [x] Package for mobile platforms (Android/iOS via Kivy or BeeWare)
 - [x] **Create GitHub Actions for automated releases** ✅ **COMPLETE**
-- [ ] Add homebrew formula for macOS installation
-- [ ] Create snap/flatpak packages for Linux
+- [x] Add homebrew formula for macOS installation
+- [x] Create snap/flatpak packages for Linux
 
 ## 🔌 Integrations & APIs
 
