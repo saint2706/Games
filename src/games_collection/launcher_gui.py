@@ -9,10 +9,10 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 from games_collection.catalog.registry import GameMetadata, get_all_games
 from games_collection.core.daily_challenges import DailyChallengeScheduler
 from games_collection.core.gui_frameworks import Framework, launch_preferred_gui
-from games_collection.core.profile_service import ProfileService
+from games_collection.core.profile_service import ProfileService, RecentlyPlayedEntry
 from games_collection.core.leaderboard_service import CrossGameLeaderboardEntry
 from games_collection.core.recommendation_service import RecommendationResult
-from games_collection.launcher import GENRE_ORDER, build_launcher_snapshot
+from games_collection.launcher import GENRE_ORDER, build_launcher_snapshot, format_recent_timestamp
 
 from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILABLE
 
@@ -158,6 +158,9 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._daily_group = self._build_daily_group()
             container_layout.addWidget(self._daily_group)
 
+            self._recently_played_group = self._build_recently_played_group()
+            container_layout.addWidget(self._recently_played_group)
+
             self._leaderboard_group = self._build_leaderboard_group()
             container_layout.addWidget(self._leaderboard_group)
 
@@ -205,6 +208,19 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
 
             self._daily_streak_label = QLabel()
             layout.addWidget(self._daily_streak_label)
+
+            return group
+
+        def _build_recently_played_group(self) -> QGroupBox:
+            """Create the recently played games list."""
+
+            group = QGroupBox("Recently played")
+            layout = QVBoxLayout()
+            group.setLayout(layout)
+
+            self._recently_played_list = QListWidget()
+            self._recently_played_list.setAlternatingRowColors(True)
+            layout.addWidget(self._recently_played_list)
 
             return group
 
@@ -326,6 +342,7 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
                 f"Streak: {snapshot.daily_streak} (Best {snapshot.best_daily_streak}) · Total completed: {snapshot.total_daily_completed}"
             )
 
+            self._populate_recently_played(snapshot.recently_played)
             self._populate_leaderboard(snapshot.leaderboard)
             self._populate_recommendations(snapshot.recommendations)
             self._populate_catalogue()
@@ -400,6 +417,23 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
                 scaled = pixmap.scaled(420, 236, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 self._detail_image_label.setText("")
                 self._detail_image_label.setPixmap(scaled)
+
+        def _populate_recently_played(self, entries: Sequence[RecentlyPlayedEntry]) -> None:
+            """Populate the recently played list."""
+
+            self._recently_played_list.clear()
+            if not entries:
+                self._recently_played_list.addItem("Play a game to populate this list.")
+                return
+
+            for entry in entries:
+                metadata = self._catalogue_index.get(entry.game_id)
+                if metadata is None:
+                    game_name = entry.game_id.replace("_", " ").title()
+                else:
+                    game_name = metadata.name
+                timestamp = format_recent_timestamp(entry.last_played)
+                self._recently_played_list.addItem(QListWidgetItem(f"{game_name} — {timestamp}"))
 
         def _populate_leaderboard(self, entries: Sequence[CrossGameLeaderboardEntry]) -> None:
             """Populate the leaderboard table."""

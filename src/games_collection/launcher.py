@@ -11,6 +11,7 @@ import argparse
 import sys
 import textwrap
 from dataclasses import dataclass
+from datetime import datetime
 from importlib import import_module
 from typing import Callable, Dict, List, Optional
 
@@ -19,7 +20,12 @@ from games_collection.core.challenges import get_default_challenge_manager
 from games_collection.core.daily_challenges import DailyChallengeScheduler, DailyChallengeSelection
 from games_collection.core.game_catalog import get_default_game_catalogue
 from games_collection.core.leaderboard_service import CrossGameLeaderboardEntry, CrossGameLeaderboardService
-from games_collection.core.profile_service import ProfileService, ProfileServiceError, get_profile_service
+from games_collection.core.profile_service import (
+    ProfileService,
+    ProfileServiceError,
+    RecentlyPlayedEntry,
+    get_profile_service,
+)
 from games_collection.core.recommendation_service import RecommendationResult, RecommendationService
 from games_collection.core.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata
 from games_collection.core.tutorial_session import TutorialSession
@@ -106,6 +112,7 @@ class LauncherSnapshot:
     total_daily_completed: int
     leaderboard: tuple[CrossGameLeaderboardEntry, ...]
     recommendations: tuple[RecommendationResult, ...]
+    recently_played: tuple[RecentlyPlayedEntry, ...]
 
 
 def parse_args() -> argparse.Namespace:
@@ -230,6 +237,7 @@ def build_launcher_snapshot(
         leaderboard_limit=leaderboard_limit,
         recommendation_limit=recommendation_limit,
     )
+    recently_played = tuple(service.get_recently_played())
     return LauncherSnapshot(
         profile_name=profile.display_name,
         profile_identifier=profile.player_id,
@@ -246,6 +254,7 @@ def build_launcher_snapshot(
         total_daily_completed=progress.total_completed,
         leaderboard=tuple(leaderboard),
         recommendations=tuple(recommendations),
+        recently_played=recently_played,
     )
 
 
@@ -257,6 +266,18 @@ def _format_recommendation(result: RecommendationResult) -> str:
     if reasons:
         summary += f" ({reasons})"
     return textwrap.fill(summary, width=70, subsequent_indent="      ")
+
+
+def format_recent_timestamp(timestamp: Optional[str]) -> str:
+    """Return a friendly label describing the ``timestamp`` or a fallback."""
+
+    if not timestamp:
+        return "No recent activity recorded"
+    try:
+        moment = datetime.fromisoformat(timestamp)
+    except ValueError:
+        return "No recent activity recorded"
+    return moment.strftime("%Y-%m-%d %H:%M")
 
 
 def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) -> None:
@@ -358,6 +379,22 @@ def print_menu(service: ProfileService) -> None:
     print("  S. Switch profile")
     print("  R. Rename active profile")
     print("  X. Reset active profile\n")
+
+    recently_played = service.get_recently_played()
+    heading = "Recently Played"
+    if HAS_COLORAMA:
+        print(f"{Fore.YELLOW}{heading}:{Style.RESET_ALL}")
+    else:
+        print(f"{heading}:")
+    if recently_played:
+        for entry in recently_played:
+            metadata = SLUG_TO_METADATA.get(entry.game_id)
+            game_name = metadata.name if metadata else entry.game_id.replace("_", " ").title()
+            timestamp = format_recent_timestamp(entry.last_played)
+            print(f"  - {game_name} ({timestamp})")
+    else:
+        print("  - Play any game to start building your history")
+    print()
 
     if HAS_COLORAMA:
         print(f"{Fore.BLUE}Insights:{Style.RESET_ALL}")
