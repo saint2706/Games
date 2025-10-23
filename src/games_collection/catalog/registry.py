@@ -25,6 +25,9 @@ class GameMetadata:
     mechanics: Tuple[str, ...] = ()
     average_duration: int | None = None
     difficulty: int | None = None
+    synopsis: str | None = None
+    screenshot_path: str | None = None
+    thumbnail_path: str | None = None
 
 
 @lru_cache(maxsize=1)
@@ -41,10 +44,13 @@ def _load_registry() -> Tuple[GameMetadata, ...]:
             package=item["package"],
             entry_point=item["entry_point"],
             description=item["description"],
+            synopsis=item.get("synopsis", item["description"]),
             tags=tuple(item.get("tags", ())),
             mechanics=tuple(item.get("mechanics", ())),
             average_duration=item.get("average_duration"),
             difficulty=item.get("difficulty"),
+            screenshot_path=item.get("screenshot_path"),
+            thumbnail_path=item.get("thumbnail_path"),
         )
         for item in payload.get("games", [])
     )

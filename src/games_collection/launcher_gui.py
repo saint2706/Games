@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from importlib import resources
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from games_collection.catalog.registry import GameMetadata, get_all_games
@@ -17,6 +18,7 @@ from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILA
 
 if PYQT5_AVAILABLE:  # pragma: no cover - exercised via smoke tests
     from PyQt5.QtCore import Qt
+    from PyQt5.QtGui import QPixmap
     from PyQt5.QtWidgets import (
         QAbstractItemView,
         QApplication,
@@ -28,6 +30,7 @@ if PYQT5_AVAILABLE:  # pragma: no cover - exercised via smoke tests
         QListWidgetItem,
         QMainWindow,
         QPushButton,
+        QScrollArea,
         QTableWidget,
         QTableWidgetItem,
         QTreeWidget,
@@ -45,6 +48,7 @@ else:  # pragma: no cover - exercised when GUI extras missing
     QListWidgetItem = None  # type: ignore[assignment]
     QMainWindow = None  # type: ignore[assignment]
     QPushButton = None  # type: ignore[assignment]
+    QScrollArea = None  # type: ignore[assignment]
     QTableWidget = None  # type: ignore[assignment]
     QTableWidgetItem = None  # type: ignore[assignment]
     QTreeWidget = None  # type: ignore[assignment]
@@ -108,6 +112,7 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._profile_service = profile_service
             self._scheduler = scheduler
             self._catalogue = _sorted_catalogue()
+            self._catalogue_index = {metadata.slug: metadata for metadata in self._catalogue}
 
             QMainWindow.__init__(self)
             config = GUIConfig(
@@ -236,21 +241,69 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             """Create the catalogue tree widget."""
 
             group = QGroupBox("Games catalogue")
-            layout = QVBoxLayout()
+            layout = QHBoxLayout()
             group.setLayout(layout)
 
             self._catalogue_tree = QTreeWidget()
-            self._catalogue_tree.setColumnCount(3)
-            self._catalogue_tree.setHeaderLabels(["Game", "Genre", "Description"])
+            self._catalogue_tree.setColumnCount(2)
+            self._catalogue_tree.setHeaderLabels(["Game", "Genre"])
             self._catalogue_tree.setAlternatingRowColors(True)
             self._catalogue_tree.setRootIsDecorated(True)
-            layout.addWidget(self._catalogue_tree)
+            self._catalogue_tree.setSelectionBehavior(QAbstractItemView.SelectRows)
+            self._catalogue_tree.setUniformRowHeights(True)
+            self._catalogue_tree.currentItemChanged.connect(self._on_catalogue_selection_changed)
+            layout.addWidget(self._catalogue_tree, stretch=1)
+
+            detail_container = QScrollArea()
+            detail_container.setWidgetResizable(True)
+            layout.addWidget(detail_container, stretch=1)
+
+            detail_widget = QWidget()
+            detail_container.setWidget(detail_widget)
+            detail_layout = QVBoxLayout()
+            detail_layout.setContentsMargins(12, 12, 12, 12)
+            detail_layout.setSpacing(8)
+            detail_widget.setLayout(detail_layout)
+
+            self._detail_title_label = QLabel("Select a game to view details")
+            self._detail_title_label.setObjectName("catalogueDetailTitle")
+            self._detail_title_label.setStyleSheet("font-size: 16px; font-weight: 600;")
+            detail_layout.addWidget(self._detail_title_label)
+
+            self._detail_image_label = QLabel()
+            self._detail_image_label.setAlignment(Qt.AlignCenter)
+            self._detail_image_label.setMinimumHeight(180)
+            self._detail_image_label.setStyleSheet("background-color: #1e1e1e; border: 1px solid #444; border-radius: 4px;")
+            detail_layout.addWidget(self._detail_image_label)
+
+            self._detail_description_label = QLabel()
+            self._detail_description_label.setWordWrap(True)
+            detail_layout.addWidget(self._detail_description_label)
+
+            self._detail_synopsis_label = QLabel()
+            self._detail_synopsis_label.setWordWrap(True)
+            detail_layout.addWidget(self._detail_synopsis_label)
+
+            self._detail_tags_label = QLabel()
+            self._detail_tags_label.setWordWrap(True)
+            self._detail_tags_label.setStyleSheet("color: #cccccc;")
+            detail_layout.addWidget(self._detail_tags_label)
+
+            self._detail_mechanics_label = QLabel()
+            self._detail_mechanics_label.setWordWrap(True)
+            self._detail_mechanics_label.setStyleSheet("color: #cccccc;")
+            detail_layout.addWidget(self._detail_mechanics_label)
+
+            detail_layout.addStretch(1)
+            self._set_detail_placeholder()
 
             return group
 
         def refresh_contents(self) -> None:
             """Refresh all sections with the latest profile insights."""
 
+            self._catalogue = _sorted_catalogue()
+            self._catalogue_index = {metadata.slug: metadata for metadata in self._catalogue}
             snapshot = build_launcher_snapshot(self._profile_service, self._scheduler)
             self._profile_identifier_label.setText(
                 f"{snapshot.profile_name} ({snapshot.profile_identifier})"
@@ -276,6 +329,77 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._populate_leaderboard(snapshot.leaderboard)
             self._populate_recommendations(snapshot.recommendations)
             self._populate_catalogue()
+
+        def _set_detail_placeholder(self) -> None:
+            """Display guidance when no game is selected."""
+
+            self._detail_title_label.setText("Select a game to view details")
+            self._detail_description_label.setText("Browse the catalogue to preview descriptions, tags, and mechanics.")
+            self._detail_synopsis_label.clear()
+            self._detail_tags_label.clear()
+            self._detail_mechanics_label.clear()
+            self._detail_image_label.setPixmap(QPixmap())
+            self._detail_image_label.setText("Screenshot preview unavailable")
+
+        def _load_catalogue_pixmap(self, path: str | None) -> QPixmap | None:
+            """Return a pixmap for ``path`` if the asset can be loaded."""
+
+            if not path:
+                return None
+            try:
+                resource = resources.files("games_collection").joinpath(path)
+                data = resource.read_bytes()
+            except (FileNotFoundError, OSError):
+                return None
+
+            pixmap = QPixmap()
+            if pixmap.loadFromData(data):
+                return pixmap
+            return None
+
+        def _on_catalogue_selection_changed(
+            self, current: Optional[QTreeWidgetItem], _: Optional[QTreeWidgetItem]
+        ) -> None:
+            """Update the detail pane when the selection changes."""
+
+            if current is None:
+                self._set_detail_placeholder()
+                return
+
+            slug = current.data(0, Qt.UserRole)
+            metadata = self._catalogue_index.get(slug) if isinstance(slug, str) else None
+            if metadata is None:
+                self._set_detail_placeholder()
+                return
+
+            self._update_detail_panel(metadata)
+
+        def _update_detail_panel(self, metadata: GameMetadata) -> None:
+            """Populate the detail pane with metadata information."""
+
+            self._detail_title_label.setText(metadata.name)
+            self._detail_description_label.setText(metadata.description)
+            synopsis = metadata.synopsis or metadata.description
+            self._detail_synopsis_label.setText(synopsis)
+
+            if metadata.tags:
+                self._detail_tags_label.setText(f"Tags: {', '.join(metadata.tags)}")
+            else:
+                self._detail_tags_label.setText("Tags: none specified")
+
+            if metadata.mechanics:
+                self._detail_mechanics_label.setText(f"Mechanics: {', '.join(metadata.mechanics)}")
+            else:
+                self._detail_mechanics_label.setText("Mechanics: flexible play")
+
+            pixmap = self._load_catalogue_pixmap(metadata.screenshot_path)
+            if pixmap is None or pixmap.isNull():
+                self._detail_image_label.setPixmap(QPixmap())
+                self._detail_image_label.setText("Screenshot preview unavailable")
+            else:
+                scaled = pixmap.scaled(420, 236, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                self._detail_image_label.setText("")
+                self._detail_image_label.setPixmap(scaled)
 
         def _populate_leaderboard(self, entries: Sequence[CrossGameLeaderboardEntry]) -> None:
             """Populate the leaderboard table."""
@@ -330,18 +454,24 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
 
             self._catalogue_tree.clear()
             groups = _group_catalogue(self._catalogue)
+            first_detail_item: Optional[QTreeWidgetItem] = None
             for group in groups:
-                parent = QTreeWidgetItem([group.title, "", ""])
+                parent = QTreeWidgetItem([group.title, ""])
                 parent.setFlags(parent.flags() & ~Qt.ItemIsEditable)
                 self._catalogue_tree.addTopLevelItem(parent)
                 for metadata in group.entries:
-                    description = metadata.description if metadata.description else ""
-                    child = QTreeWidgetItem([metadata.name, metadata.genre.title(), description])
+                    child = QTreeWidgetItem([metadata.name, metadata.genre.title()])
                     child.setData(0, Qt.UserRole, metadata.slug)
                     child.setFlags(child.flags() & ~Qt.ItemIsEditable)
                     parent.addChild(child)
+                    if first_detail_item is None:
+                        first_detail_item = child
 
             self._catalogue_tree.expandAll()
+            if first_detail_item is not None:
+                self._catalogue_tree.setCurrentItem(first_detail_item)
+            else:
+                self._set_detail_placeholder()
 
 
 else:

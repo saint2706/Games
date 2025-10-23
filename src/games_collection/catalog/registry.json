@@ -16,7 +16,10 @@
       "mechanics": [
         "betting",
         "hand-management"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Blackjack from the card games collection. Blackjack is a polished card experience that highlights card, casino themes and features betting, hand-management mechanics."
     },
     {
       "slug": "bluff",
@@ -27,7 +30,10 @@
       "description": "Bluff from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Bluff from the card games collection. Bluff is a polished card experience that highlights card themes."
     },
     {
       "slug": "bridge",
@@ -45,7 +51,10 @@
       "mechanics": [
         "trick-taking",
         "bidding"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Bridge from the card games collection. Bridge is a polished card experience that highlights card, partnership themes and features trick-taking, bidding mechanics."
     },
     {
       "slug": "canasta",
@@ -56,7 +65,10 @@
       "description": "Canasta from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Canasta from the card games collection. Canasta is a polished card experience that highlights card themes."
     },
     {
       "slug": "crazy_eights",
@@ -67,7 +79,10 @@
       "description": "Crazy Eights from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Crazy Eights from the card games collection. Crazy Eights is a polished card experience that highlights card themes."
     },
     {
       "slug": "cribbage",
@@ -78,7 +93,10 @@
       "description": "Cribbage from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Cribbage from the card games collection. Cribbage is a polished card experience that highlights card themes."
     },
     {
       "slug": "euchre",
@@ -89,7 +107,10 @@
       "description": "Euchre from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Euchre from the card games collection. Euchre is a polished card experience that highlights card themes."
     },
     {
       "slug": "gin_rummy",
@@ -100,7 +121,10 @@
       "description": "Gin Rummy from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Gin Rummy from the card games collection. Gin Rummy is a polished card experience that highlights card themes."
     },
     {
       "slug": "go_fish",
@@ -118,7 +142,10 @@
       "mechanics": [
         "set-collection",
         "memory"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Go Fish from the card games collection. Go Fish is a polished card experience that highlights card, family themes and features set-collection, memory mechanics."
     },
     {
       "slug": "hearts",
@@ -129,7 +156,10 @@
       "description": "Hearts from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Hearts from the card games collection. Hearts is a polished card experience that highlights card themes."
     },
     {
       "slug": "pinochle",
@@ -140,7 +170,10 @@
       "description": "Pinochle from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Pinochle from the card games collection. Pinochle is a polished card experience that highlights card themes."
     },
     {
       "slug": "poker",
@@ -159,7 +192,10 @@
         "betting",
         "hand-evaluation",
         "bluffing"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Poker from the card games collection. Poker is a polished card experience that highlights card, multiplayer themes and features betting, hand-evaluation, bluffing mechanics."
     },
     {
       "slug": "rummy500",
@@ -170,7 +206,10 @@
       "description": "Rummy500 from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Rummy500 from the card games collection. Rummy 500 is a polished card experience that highlights card themes."
     },
     {
       "slug": "solitaire",
@@ -181,7 +220,10 @@
       "description": "Solitaire from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Solitaire from the card games collection. Solitaire is a polished card experience that highlights card themes."
     },
     {
       "slug": "spades",
@@ -192,7 +234,10 @@
       "description": "Spades from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Spades from the card games collection. Spades is a polished card experience that highlights card themes."
     },
     {
       "slug": "uno",
@@ -210,7 +255,10 @@
       "mechanics": [
         "shedding",
         "take-that"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Uno from the card games collection. Uno is a polished card experience that highlights card, family themes and features shedding, take-that mechanics."
     },
     {
       "slug": "war",
@@ -221,7 +269,10 @@
       "description": "War from the card games collection.",
       "tags": [
         "card"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "War from the card games collection. War is a polished card experience that highlights card themes."
     },
     {
       "slug": "bunco",
@@ -232,7 +283,10 @@
       "description": "Bunco from the dice games collection.",
       "tags": [
         "dice"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Bunco from the dice games collection. Bunco is a polished dice experience that highlights dice themes."
     },
     {
       "slug": "craps",
@@ -243,7 +297,10 @@
       "description": "Craps from the dice games collection.",
       "tags": [
         "dice"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Craps from the dice games collection. Craps is a polished dice experience that highlights dice themes."
     },
     {
       "slug": "farkle",
@@ -254,7 +311,10 @@
       "description": "Farkle from the dice games collection.",
       "tags": [
         "dice"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Farkle from the dice games collection. Farkle is a polished dice experience that highlights dice themes."
     },
     {
       "slug": "liars_dice",
@@ -265,7 +325,10 @@
       "description": "Liars Dice from the dice games collection.",
       "tags": [
         "dice"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Liars Dice from the dice games collection. Liar's Dice is a polished dice experience that highlights dice themes."
     },
     {
       "slug": "lights_out",
@@ -276,7 +339,10 @@
       "description": "Lights Out from the logic games collection.",
       "tags": [
         "logic"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Lights Out from the logic games collection. Lights Out is a polished logic experience that highlights logic themes."
     },
     {
       "slug": "minesweeper",
@@ -287,7 +353,10 @@
       "description": "Minesweeper from the logic games collection.",
       "tags": [
         "logic"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Minesweeper from the logic games collection. Minesweeper is a polished logic experience that highlights logic themes."
     },
     {
       "slug": "picross",
@@ -298,7 +367,10 @@
       "description": "Picross from the logic games collection.",
       "tags": [
         "logic"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Picross from the logic games collection. Picross is a polished logic experience that highlights logic themes."
     },
     {
       "slug": "sliding_puzzle",
@@ -309,7 +381,10 @@
       "description": "Sliding Puzzle from the logic games collection.",
       "tags": [
         "logic"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Sliding Puzzle from the logic games collection. Sliding Puzzle is a polished logic experience that highlights logic themes."
     },
     {
       "slug": "sokoban",
@@ -320,7 +395,10 @@
       "description": "Sokoban from the logic games collection.",
       "tags": [
         "logic"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Sokoban from the logic games collection. Sokoban is a polished logic experience that highlights logic themes."
     },
     {
       "slug": "backgammon",
@@ -331,7 +409,10 @@
       "description": "Backgammon from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Backgammon from the paper games collection. Backgammon is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "battleship",
@@ -349,7 +430,10 @@
       "mechanics": [
         "deduction",
         "hidden-information"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Battleship from the paper games collection. Battleship is a polished paper experience that highlights board, head-to-head themes and features deduction, hidden-information mechanics."
     },
     {
       "slug": "boggle",
@@ -360,7 +444,10 @@
       "description": "Boggle from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Boggle from the paper games collection. Boggle is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "checkers",
@@ -371,7 +458,10 @@
       "description": "Checkers from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Checkers from the paper games collection. Checkers is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "chess",
@@ -382,7 +472,10 @@
       "description": "Chess from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Chess from the paper games collection. Chess is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "connect_four",
@@ -400,7 +493,10 @@
       "mechanics": [
         "abstract",
         "pattern-building"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Connect Four from the paper games collection. Connect Four is a polished paper experience that highlights board, family themes and features abstract, pattern-building mechanics."
     },
     {
       "slug": "dots_and_boxes",
@@ -411,7 +507,10 @@
       "description": "Dots And Boxes from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Dots And Boxes from the paper games collection. Dots and Boxes is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "four_square_writing",
@@ -422,7 +521,10 @@
       "description": "Four Square Writing from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Four Square Writing from the paper games collection. Four Square Writing is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "hangman",
@@ -440,7 +542,10 @@
       "mechanics": [
         "word",
         "guessing"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Hangman from the paper games collection. Hangman is a polished paper experience that highlights paper, party themes and features word, guessing mechanics."
     },
     {
       "slug": "mancala",
@@ -451,7 +556,10 @@
       "description": "Mancala from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Mancala from the paper games collection. Mancala is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "mastermind",
@@ -462,7 +570,10 @@
       "description": "Mastermind from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Mastermind from the paper games collection. Mastermind is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "nim",
@@ -473,7 +584,10 @@
       "description": "Nim from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Nim from the paper games collection. Nim is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "othello",
@@ -484,7 +598,10 @@
       "description": "Othello from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Othello from the paper games collection. Othello is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "pentago",
@@ -495,7 +612,10 @@
       "description": "Pentago from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Pentago from the paper games collection. Pentago is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "snakes_and_ladders",
@@ -506,7 +626,10 @@
       "description": "Snakes And Ladders from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Snakes And Ladders from the paper games collection. Snakes And Ladders is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "sprouts",
@@ -517,7 +640,10 @@
       "description": "Sprouts from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Sprouts from the paper games collection. Sprouts is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "sudoku",
@@ -535,7 +661,10 @@
       "mechanics": [
         "logic",
         "deduction"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Sudoku from the paper games collection. Sudoku is a polished paper experience that highlights logic, solo themes and features logic, deduction mechanics."
     },
     {
       "slug": "tic_tac_toe",
@@ -553,7 +682,10 @@
       "mechanics": [
         "abstract",
         "pattern-building"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Tic Tac Toe from the paper games collection. Tic-Tac-Toe is a polished paper experience that highlights paper, classic themes and features abstract, pattern-building mechanics."
     },
     {
       "slug": "twenty_questions",
@@ -564,7 +696,10 @@
       "description": "Twenty Questions from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Twenty Questions from the paper games collection. Twenty Questions is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "unscramble",
@@ -575,7 +710,10 @@
       "description": "Unscramble from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Unscramble from the paper games collection. Unscramble is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "yahtzee",
@@ -586,7 +724,10 @@
       "description": "Yahtzee from the paper games collection.",
       "tags": [
         "paper"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Yahtzee from the paper games collection. Yahtzee is a polished paper experience that highlights paper themes."
     },
     {
       "slug": "anagrams",
@@ -597,7 +738,10 @@
       "description": "Anagrams from the word games collection.",
       "tags": [
         "word"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Anagrams from the word games collection. Anagrams is a polished word experience that highlights word themes."
     },
     {
       "slug": "crossword",
@@ -608,7 +752,10 @@
       "description": "Crossword from the word games collection.",
       "tags": [
         "word"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Crossword from the word games collection. Crossword is a polished word experience that highlights word themes."
     },
     {
       "slug": "trivia",
@@ -619,7 +766,10 @@
       "description": "Trivia from the word games collection.",
       "tags": [
         "word"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Trivia from the word games collection. Trivia is a polished word experience that highlights word themes."
     },
     {
       "slug": "wordbuilder",
@@ -630,7 +780,10 @@
       "description": "Wordbuilder from the word games collection.",
       "tags": [
         "word"
-      ]
+      ],
+      "screenshot_path": "assets/launcher/default_screenshot.png",
+      "thumbnail_path": "assets/launcher/default_thumbnail.png",
+      "synopsis": "Wordbuilder from the word games collection. Wordbuilder is a polished word experience that highlights word themes."
     }
   ]
 }
