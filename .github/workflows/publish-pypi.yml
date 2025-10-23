@@ -324,3 +324,56 @@ jobs:
           echo "## Release Assets Uploaded ✅" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "All distribution packages and signatures uploaded to release ${{ steps.check_assets.outputs.release_tag }}" >> "$GITHUB_STEP_SUMMARY"
+
+  update-homebrew:
+    name: Update Homebrew tap
+    needs: [bump-and-release, github-release]
+    if: |
+      always() &&
+      needs.github-release.result == 'success' &&
+      ((github.event_name == 'release' && github.event.action == 'published') ||
+       (github.event_name == 'workflow_dispatch' && needs.bump-and-release.result == 'success'))
+    runs-on: macos-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update Homebrew formula
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ github.event_name == 'workflow_dispatch' && needs.bump-and-release.outputs.tag || github.ref_name }}
+          python scripts/update_homebrew_formula.py --tag "$TAG" --tap-root packaging/homebrew --formula packaging/homebrew/games-collection.rb
+
+      - name: Run Homebrew audit
+        run: |
+          brew update-reset
+          brew audit --new-formula packaging/homebrew/games-collection.rb
+
+      - name: Push formula update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git status --short | grep packaging/homebrew; then
+            git push origin HEAD:${{ github.event.repository.default_branch }}
+          else
+            echo "No formula updates to push"
+          fi

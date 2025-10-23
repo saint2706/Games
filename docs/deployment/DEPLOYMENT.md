@@ -6,6 +6,7 @@ This guide covers different deployment methods for the Games Collection.
 
 - [Prerequisites](#prerequisites)
 - [Installation from PyPI](#installation-from-pypi)
+- [Homebrew Tap](#homebrew-tap)
 - [Standalone Executables](#standalone-executables)
 - [Linux Packages](#linux-packages)
   - [Snap](#snap)
@@ -91,6 +92,39 @@ games-bunco
 # See all available games
 pip show games-collection
 ```
+
+## Homebrew Tap
+
+The Homebrew tap provides a fully managed macOS installation backed by the GitHub release artifacts.
+
+### Adding the Tap
+
+```bash
+brew tap saint2706/games-collection https://github.com/saint2706/Games
+```
+
+This command registers the tap and enables automatic updates whenever new versions are published.
+
+### Installing the CLI
+
+```bash
+brew install games-collection
+```
+
+Homebrew installs the Python 3.11 runtime declared in the formula and wires the `games-collection` command into your `$PATH`.
+
+### Updating to the Latest Release
+
+```bash
+brew update
+brew upgrade games-collection
+```
+
+### macOS Troubleshooting
+
+- **Missing Command Line Tools:** Run `xcode-select --install` if Homebrew reports missing developer tools.
+- **Python Linking Issues:** If `/usr/local/opt/python@3.11` is not found, run `brew doctor` and reinstall `python@3.11`.
+- **Stale Tap Cache:** Execute `brew update-reset` before `brew upgrade` when the tap URL changes or if audits fail.
 
 ## Standalone Executables
 
