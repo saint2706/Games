@@ -82,7 +82,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
 
         self._build_complete_layout()
         self.apply_theme()
-        self.update_display()
+        self.request_update_display(immediate=True)
         self._log("Game ready. You go first!")
         QTimer.singleShot(400, self._advance_ai_turns)
 
@@ -409,7 +409,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
 
         self._log(result["message"])
         self._draws_this_turn = 0
-        self.update_display()
+        self.request_update_display()
 
         if result.get("game_over"):
             self._handle_game_over()
@@ -468,7 +468,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
         else:
             self._log(result["message"])
             self.status_label.setText(result["message"])
-        self.update_display()
+        self.request_update_display()
 
     def _on_pass_turn(self) -> None:
         """Pass the turn after drawing the maximum allowed cards."""
@@ -478,7 +478,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
         if result["success"]:
             self._log(result["message"])
             self._draws_this_turn = 0
-            self.update_display()
+            self.request_update_display()
             QTimer.singleShot(450, self._advance_ai_turns)
         else:
             self.status_label.setText(result["message"])
@@ -489,7 +489,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
         if self._game_over:
             return
         if self._is_human_turn():
-            self.update_display()
+            self.request_update_display()
             return
 
         current_player = self.game.get_current_player()
@@ -503,7 +503,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
 
         player = self.game.get_current_player()
         if player == self.game.players[0]:
-            self.update_display()
+            self.request_update_display()
             return
 
         playable = player.get_playable_cards(self.game.active_suit, self.game.active_rank)
@@ -512,7 +512,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
             suit = self._select_ai_suit(player) if card.rank == "8" else None
             result = self.game.play_card(card, suit)
             self._log(result["message"])
-            self.update_display()
+            self.request_update_display()
             if result.get("game_over"):
                 self._handle_game_over()
                 return
@@ -542,7 +542,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
         if result["success"]:
             self._log(result["message"])
 
-        self.update_display()
+        self.request_update_display()
         if self._game_over:
             return
         QTimer.singleShot(450, self._advance_ai_turns)
@@ -571,7 +571,7 @@ class CrazyEightsGUI(QMainWindow, BaseGUI):
         self._log(message)
         self.draw_button.setEnabled(False)
         self.pass_button.setEnabled(False)
-        self.update_display()
+        self.request_update_display()
 
     def _log(self, message: str) -> None:
         """Append a message to the game log widget."""

@@ -230,7 +230,7 @@ class PinochlePyQtGUI(QMainWindow, BaseGUI):
         if self.trump_label:
             self.trump_label.setText("Undeclared")
         self._append_trick_log("New round started. Deck shuffled and cards dealt.")
-        self.update_display()
+        self.request_update_display(immediate=True)
 
     def _append_trick_log(self, message: str) -> None:
         if self.trick_text:
@@ -253,7 +253,7 @@ class PinochlePyQtGUI(QMainWindow, BaseGUI):
                 self.phase_label.setText("Trump selection")
             if self.game.bidding_phase.high_bidder and self.current_player_label:
                 self.current_player_label.setText(self.game.bidding_phase.high_bidder.name)
-        self.update_display()
+        self.request_update_display()
 
     def _pass_bid(self) -> None:
         if not self.game.bidding_phase:
@@ -267,7 +267,7 @@ class PinochlePyQtGUI(QMainWindow, BaseGUI):
                 self.phase_label.setText("Trump selection")
             if self.game.bidding_phase.high_bidder and self.current_player_label:
                 self.current_player_label.setText(self.game.bidding_phase.high_bidder.name)
-        self.update_display()
+        self.request_update_display()
 
     def _confirm_trump(self) -> None:
         if not self.game.bidding_phase or not self.game.bidding_phase.finished:
@@ -295,7 +295,7 @@ class PinochlePyQtGUI(QMainWindow, BaseGUI):
             self.phase_label.setText("Meld & play")
         self.phase = "tricks"
         self._append_trick_log(f"Trump suit set to {selection.title()}.")
-        self.update_display()
+        self.request_update_display()
 
     def _play_card(self) -> None:
         if self.phase != "tricks" or self.game.current_player_index is None:
@@ -327,7 +327,7 @@ class PinochlePyQtGUI(QMainWindow, BaseGUI):
                 if self.phase_label:
                     self.phase_label.setText("Scoring")
                 self.phase = "scoring"
-        self.update_display()
+        self.request_update_display()
 
 
 def run_app(player_names: Optional[list[str]] = None) -> None:

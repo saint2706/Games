@@ -9,10 +9,10 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, FrozenSet, Iterable, List, Optional, Set, Union
 
 try:
-    from PyQt5.QtCore import Qt
+    from PyQt5.QtCore import Qt, QTimer
     from PyQt5.QtGui import QFont, QKeySequence
     from PyQt5.QtWidgets import QFrame, QLabel, QMainWindow, QMessageBox, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
@@ -98,6 +98,18 @@ class BaseGUI(metaclass=CombinedMeta):
         self.root = root
         self.config = config or GUIConfig()
 
+        # Update throttling/dirty region tracking
+        self._update_interval_ms: int = 16  # ~60 FPS
+        self._update_timer: Optional[QTimer] = None
+        self._pending_update: bool = False
+        self._FULL_REDRAW_TOKEN = "__full__"
+        self._dirty_regions: Set[str] = set()
+        self._dirty_metadata: Dict[str, Dict[str, Any]] = {}
+        self._current_dirty_regions: FrozenSet[str] = frozenset()
+        self._current_dirty_metadata: Dict[str, Dict[str, Any]] = {}
+
+        self._install_update_timer()
+
         # Initialize enhancement managers
         self.theme_manager = get_theme_manager()
         self.sound_manager: Optional[SoundManager] = None
@@ -146,6 +158,107 @@ class BaseGUI(metaclass=CombinedMeta):
         """Set up default keyboard shortcuts."""
         # Subclasses can override this to add custom shortcuts
         pass
+
+    # ------------------------------------------------------------------
+    # Display update throttling helpers
+    # ------------------------------------------------------------------
+    def _install_update_timer(self) -> None:
+        """Initialise the coalescing timer used to throttle refreshes."""
+
+        if not PYQT5_AVAILABLE:
+            return
+
+        self._update_timer = QTimer()
+        self._update_timer.setSingleShot(True)
+        self._update_timer.timeout.connect(self._flush_pending_update)  # type: ignore[arg-type]
+
+    def request_update_display(
+        self,
+        dirty_region: Optional[Union[str, Iterable[str]]] = None,
+        *,
+        metadata: Optional[Dict[str, Any]] = None,
+        immediate: bool = False,
+    ) -> None:
+        """Queue a display update, optionally scoping it to a region."""
+
+        regions: Iterable[str]
+        if dirty_region is None:
+            regions = (self._FULL_REDRAW_TOKEN,)
+        elif isinstance(dirty_region, str):
+            regions = (dirty_region,)
+        else:
+            regions = tuple(dirty_region)
+
+        for region in regions:
+            token = region or self._FULL_REDRAW_TOKEN
+            self._dirty_regions.add(token)
+
+            if metadata:
+                existing = self._dirty_metadata.setdefault(token, {})
+                existing.update(metadata)
+
+        if immediate or not PYQT5_AVAILABLE or self._update_timer is None:
+            self._flush_pending_update()
+            return
+
+        if not self._pending_update:
+            self._pending_update = True
+            self._update_timer.start(self._update_interval_ms)
+
+    def force_update_display(self) -> None:
+        """Immediately repaint the GUI regardless of throttle state."""
+
+        self.request_update_display(immediate=True)
+
+    def mark_dirty(self, region: str, **metadata: Any) -> None:
+        """Mark a logical ``region`` as needing refresh with optional metadata."""
+
+        self.request_update_display(region, metadata=metadata)
+
+    def should_update_region(self, region: str) -> bool:
+        """Return ``True`` if ``region`` should be repainted this frame."""
+
+        if not self._current_dirty_regions:
+            return True
+        return self._FULL_REDRAW_TOKEN in self._current_dirty_regions or region in self._current_dirty_regions
+
+    @property
+    def current_dirty_regions(self) -> FrozenSet[str]:
+        """Frozen set describing the regions queued for the current repaint."""
+
+        return self._current_dirty_regions
+
+    @property
+    def current_dirty_metadata(self) -> Dict[str, Dict[str, Any]]:
+        """Metadata for the regions in :meth:`current_dirty_regions`."""
+
+        return self._current_dirty_metadata
+
+    def _flush_pending_update(self) -> None:
+        """Execute the queued update, aggregating dirty regions."""
+
+        if not self._dirty_regions:
+            self._pending_update = False
+            return
+
+        dirty_regions = frozenset(self._dirty_regions)
+        dirty_metadata = {region: self._dirty_metadata.get(region, {}) for region in dirty_regions}
+
+        self._dirty_regions.clear()
+        self._dirty_metadata.clear()
+        self._pending_update = False
+
+        previous_regions = self._current_dirty_regions
+        previous_metadata = self._current_dirty_metadata
+
+        self._current_dirty_regions = dirty_regions
+        self._current_dirty_metadata = dirty_metadata
+
+        try:
+            self.update_display()
+        finally:
+            self._current_dirty_regions = previous_regions
+            self._current_dirty_metadata = previous_metadata
 
     def animate_highlight(self, widget: Any, *, highlight_color: Optional[str] = None, duration: int = 600) -> None:
         """Apply a highlight animation to ``widget`` when animations are enabled.
