@@ -7,6 +7,14 @@ from importlib import resources
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from games_collection.catalog.registry import GameMetadata, get_all_games
+from games_collection.core.configuration import (
+    get_configuration_profile,
+    get_settings_manager,
+    load_settings,
+    prepare_launcher_settings,
+    reset_settings,
+    update_settings_from_mapping,
+)
 from games_collection.core.daily_challenges import DailyChallengeScheduler
 from games_collection.core.gui_frameworks import Framework, launch_preferred_gui
 from games_collection.core.profile_service import ProfileService, ProfileServiceError, RecentlyPlayedEntry
@@ -24,12 +32,18 @@ if PYQT5_AVAILABLE:  # pragma: no cover - exercised via smoke tests
         QApplication,
         QHeaderView,
         QInputDialog,
+        QCheckBox,
+        QComboBox,
+        QDialog,
+        QDialogButtonBox,
+        QDoubleSpinBox,
         QFormLayout,
         QGroupBox,
         QHBoxLayout,
         QLabel,
         QListWidget,
         QListWidgetItem,
+        QLineEdit,
         QMainWindow,
         QMessageBox,
         QPushButton,
@@ -40,17 +54,24 @@ if PYQT5_AVAILABLE:  # pragma: no cover - exercised via smoke tests
         QTreeWidgetItem,
         QVBoxLayout,
         QWidget,
+        QSpinBox,
     )
 else:  # pragma: no cover - exercised when GUI extras missing
     QApplication = None  # type: ignore[assignment]
     QHeaderView = None  # type: ignore[assignment]
     QInputDialog = None  # type: ignore[assignment]
+    QCheckBox = None  # type: ignore[assignment]
+    QComboBox = None  # type: ignore[assignment]
+    QDialog = None  # type: ignore[assignment]
+    QDialogButtonBox = None  # type: ignore[assignment]
+    QDoubleSpinBox = None  # type: ignore[assignment]
     QFormLayout = None  # type: ignore[assignment]
     QGroupBox = None  # type: ignore[assignment]
     QHBoxLayout = None  # type: ignore[assignment]
     QLabel = None  # type: ignore[assignment]
     QListWidget = None  # type: ignore[assignment]
     QListWidgetItem = None  # type: ignore[assignment]
+    QLineEdit = None  # type: ignore[assignment]
     QMainWindow = None  # type: ignore[assignment]
     QMessageBox = None  # type: ignore[assignment]
     QPushButton = None  # type: ignore[assignment]
@@ -61,6 +82,7 @@ else:  # pragma: no cover - exercised when GUI extras missing
     QTreeWidgetItem = None  # type: ignore[assignment]
     QVBoxLayout = None  # type: ignore[assignment]
     QWidget = None  # type: ignore[assignment]
+    QSpinBox = None  # type: ignore[assignment]
 
 
 _CATEGORY_LABELS: Dict[str, str] = {
@@ -111,6 +133,158 @@ def _group_catalogue(metadata: Sequence[GameMetadata]) -> Tuple[CatalogueGroup, 
 
 if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfaces
 
+    class ConfigurationDialog(QDialog):
+        """Dialog that exposes editable settings for a single game."""
+
+        def __init__(self, parent: QWidget, slug: str) -> None:
+            profile = get_configuration_profile(slug)
+            if profile is None:
+                raise ValueError(f"No configuration profile is registered for {slug}.")
+            super().__init__(parent)
+            self._slug = slug
+            self._profile = profile
+            self._manager = get_settings_manager()
+            self._settings = load_settings(slug, self._manager)
+            self._widgets: dict[str, QWidget] = {}
+            self.setWindowTitle(f"{profile.title} settings")
+            self._build_layout()
+            self._apply_settings()
+
+        def _build_layout(self) -> None:
+            layout = QVBoxLayout()
+            self.setLayout(layout)
+
+            description = QLabel(self._profile.description)
+            description.setWordWrap(True)
+            layout.addWidget(description)
+
+            form = QFormLayout()
+            merged = self._profile.current_settings(self._settings.to_dict())
+            for field in self._profile.fields:
+                widget = self._create_widget(field, merged.get(field.key))
+                widget.setToolTip(field.description)
+                self._widgets[field.key] = widget
+                form.addRow(f"{field.label}:", widget)
+            layout.addLayout(form)
+
+            self._button_box = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+            reset_button = self._button_box.addButton("Reset to defaults", QDialogButtonBox.ResetRole)
+            self._button_box.accepted.connect(self._on_accept)  # type: ignore[arg-type]
+            self._button_box.rejected.connect(self.reject)  # type: ignore[arg-type]
+            reset_button.clicked.connect(self._on_reset)  # type: ignore[arg-type]
+            layout.addWidget(self._button_box)
+
+        def _create_widget(self, field, value):  # noqa: ANN001 - Qt widget factory
+            if field.field_type == "boolean":
+                checkbox = QCheckBox()
+                checkbox.setChecked(bool(value))
+                return checkbox
+            if field.field_type == "choice":
+                combo = QComboBox()
+                for choice in field.choices:
+                    combo.addItem(str(choice), choice)
+                if value is not None:
+                    index = combo.findData(value)
+                    if index < 0:
+                        index = combo.findText(str(value))
+                    if index >= 0:
+                        combo.setCurrentIndex(index)
+                return combo
+            if field.field_type == "integer":
+                spin = QSpinBox()
+                spin.setRange(-1_000_000, 1_000_000)
+                spin.setValue(int(value) if value is not None else 0)
+                return spin
+            if field.field_type == "float":
+                spin = QDoubleSpinBox()
+                spin.setDecimals(2)
+                spin.setRange(-1_000_000.0, 1_000_000.0)
+                spin.setValue(float(value) if value is not None else 0.0)
+                return spin
+            line_edit = QLineEdit(str(value) if value is not None else "")
+            return line_edit
+
+        def _apply_settings(self) -> None:
+            merged = self._profile.current_settings(self._settings.to_dict())
+            for field in self._profile.fields:
+                value = merged.get(field.key)
+                widget = self._widgets.get(field.key)
+                if widget is None:
+                    continue
+                if isinstance(widget, QCheckBox):
+                    widget.setChecked(bool(value))
+                    continue
+                if isinstance(widget, QComboBox):
+                    if value is None:
+                        widget.setCurrentIndex(0 if widget.count() else -1)
+                    else:
+                        index = widget.findData(value)
+                        if index < 0:
+                            index = widget.findText(str(value))
+                        if index >= 0:
+                            widget.setCurrentIndex(index)
+                    continue
+                if isinstance(widget, QSpinBox):
+                    widget.setValue(int(value) if value is not None else 0)
+                    continue
+                if isinstance(widget, QDoubleSpinBox):
+                    widget.setValue(float(value) if value is not None else 0.0)
+                    continue
+                if isinstance(widget, QLineEdit):
+                    widget.setText(str(value) if value is not None else "")
+
+        def _collect_values(self) -> dict[str, object]:
+            collected: dict[str, object] = {}
+            for field in self._profile.fields:
+                widget = self._widgets[field.key]
+                if isinstance(widget, QCheckBox):
+                    raw_value = widget.isChecked()
+                elif isinstance(widget, QComboBox):
+                    data = widget.currentData()
+                    raw_value = data if data is not None else widget.currentText()
+                elif isinstance(widget, QSpinBox):
+                    raw_value = widget.value()
+                elif isinstance(widget, QDoubleSpinBox):
+                    raw_value = widget.value()
+                elif isinstance(widget, QLineEdit):
+                    raw_value = widget.text()
+                else:  # pragma: no cover - defensive for unexpected widget
+                    raw_value = None
+                try:
+                    collected[field.key] = field.normalise_value(raw_value)
+                except ValueError as exc:
+                    raise ValueError(f"{field.label}: {exc}") from exc
+            return collected
+
+        def _on_accept(self) -> None:
+            try:
+                payload = self._collect_values()
+            except ValueError as exc:
+                QMessageBox.warning(self, "Game settings", str(exc))
+                return
+            if not update_settings_from_mapping(self._slug, payload, manager=self._manager):
+                QMessageBox.warning(
+                    self,
+                    "Game settings",
+                    "Settings could not be saved. Check file permissions and try again.",
+                )
+                return
+            QMessageBox.information(self, "Game settings", "Settings saved.")
+            self.accept()
+
+        def _on_reset(self) -> None:
+            if not reset_settings(self._slug, self._manager):
+                QMessageBox.warning(
+                    self,
+                    "Game settings",
+                    "Settings could not be reset. Check file permissions and try again.",
+                )
+                return
+            self._settings = load_settings(self._slug, self._manager)
+            self._apply_settings()
+            QMessageBox.information(self, "Game settings", "Settings restored to defaults.")
+
+
     class LauncherWindow(QMainWindow, BaseGUI):
         """PyQt5 window presenting launcher insights and catalogue browsing."""
 
@@ -122,6 +296,8 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._favorite_slugs: set[str] = set()
             self._quick_alias_map: Dict[str, str] = {}
             self._quick_alias_rows: List[str] = []
+            self._settings_manager = get_settings_manager()
+            self._selected_slug: Optional[str] = None
 
             QMainWindow.__init__(self)
             config = GUIConfig(
@@ -394,6 +570,11 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._favorite_button.clicked.connect(self._on_toggle_favorite)  # type: ignore[arg-type]
             detail_layout.addWidget(self._favorite_button)
 
+            self._configure_button = QPushButton("Configure settings")
+            self._configure_button.setEnabled(False)
+            self._configure_button.clicked.connect(self._on_configure_game)  # type: ignore[arg-type]
+            detail_layout.addWidget(self._configure_button)
+
             detail_layout.addStretch(1)
             self._set_detail_placeholder()
 
@@ -441,6 +622,7 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
         def _set_detail_placeholder(self) -> None:
             """Display guidance when no game is selected."""
 
+            self._selected_slug = None
             self._detail_title_label.setText("Select a game to view details")
             self._detail_description_label.setText("Browse the catalogue to preview descriptions, tags, and mechanics.")
             self._detail_synopsis_label.clear()
@@ -450,6 +632,8 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._detail_image_label.setText("Screenshot preview unavailable")
             self._favorite_button.setEnabled(False)
             self._favorite_button.setText("Select a game to manage favorites")
+            self._configure_button.setEnabled(False)
+            self._configure_button.setText("Select a game to edit settings")
 
         def _load_catalogue_pixmap(self, path: str | None) -> QPixmap | None:
             """Return a pixmap for ``path`` if the asset can be loaded."""
@@ -516,6 +700,14 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             else:
                 self._favorite_button.setText("Add to favorites")
             self._favorite_button.setEnabled(True)
+            self._selected_slug = metadata.slug
+            profile = get_configuration_profile(metadata.slug)
+            if profile is None:
+                self._configure_button.setEnabled(False)
+                self._configure_button.setText("No configurable settings")
+            else:
+                self._configure_button.setEnabled(True)
+                self._configure_button.setText("Configure settings")
 
         def _on_toggle_favorite(self) -> None:
             """Toggle the favorite status for the currently selected game."""
@@ -541,6 +733,22 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             metadata = self._catalogue_index.get(slug)
             if metadata is not None:
                 self._update_detail_panel(metadata)
+
+        def _on_configure_game(self) -> None:
+            """Open the configuration dialog for the selected game."""
+
+            if self._selected_slug is None:
+                return
+            profile = get_configuration_profile(self._selected_slug)
+            if profile is None:
+                QMessageBox.information(
+                    self,
+                    "Game settings",
+                    "This game does not expose configurable settings yet.",
+                )
+                return
+            dialog = ConfigurationDialog(self, self._selected_slug)
+            dialog.exec_()
 
         def _populate_recently_played(self, entries: Sequence[RecentlyPlayedEntry]) -> None:
             """Populate the recently played list."""
@@ -774,7 +982,8 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
                 return
             _, launcher_callable = entry
             try:
-                launcher_callable()
+                payload = prepare_launcher_settings(slug, self._settings_manager)
+                launcher_callable(payload if payload else None)
             except Exception as exc:  # pragma: no cover - runtime guard
                 self._show_quick_alias_error(f"Failed to launch the game: {exc}")
                 return

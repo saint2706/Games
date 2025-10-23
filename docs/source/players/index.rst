@@ -9,3 +9,4 @@ across ``README.md`` and ``players/games_catalog`` at the repository root; they 
 
    user_guide
    games_catalog
+   configuration_panel

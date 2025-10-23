@@ -298,6 +298,8 @@ def test_print_menu_renders_favorites_and_recently_played(monkeypatch, capsys):
     assert "Recently Played:" in output
     assert "Tic-Tac-Toe" in output
     assert "2024-05-01 12:30" in output
+    assert "Configuration:" in output
+    assert "Manage game settings" in output
     assert "Quick Launch Shortcuts:" in output
     assert "!speed" in output
 
@@ -338,13 +340,14 @@ def test_launch_game_supports_quick_alias(monkeypatch, capsys):
 
     monkeypatch.setattr(launcher, "HAS_COLORAMA", False)
 
-    calls: list[str] = []
+    calls: list[dict[str, object] | None] = []
 
     def fake_get_game_entry(identifier):  # noqa: ANN001
         assert identifier == "tic_tac_toe"
-        return ("tic_tac_toe", lambda: calls.append("launched"))
+        return ("tic_tac_toe", lambda payload=None: calls.append(payload))
 
     monkeypatch.setattr(launcher, "get_game_entry", fake_get_game_entry)
+    monkeypatch.setattr(launcher, "prepare_launcher_settings", lambda slug, manager: {})
 
     class StubService:
         def resolve_quick_launch_alias(self, alias: str) -> str | None:
@@ -357,7 +360,35 @@ def test_launch_game_supports_quick_alias(monkeypatch, capsys):
 
     result = launcher.launch_game("!speed", StubService(), object())
     assert result is True
-    assert calls == ["launched"]
+    assert calls == [None]
+
+
+def test_launch_game_configuration_command(monkeypatch):
+    """The configuration command opens the settings manager."""
+
+    triggered: list[bool] = []
+    monkeypatch.setattr(launcher, "run_configuration_cli", lambda _manager: triggered.append(True))
+
+    class StubService:
+        def get_quick_launch_aliases(self):  # noqa: D401 - minimal stub
+            """Return no aliases."""
+
+            return {}
+
+    result = launcher.launch_game("g", StubService(), object())
+    assert result is True
+    assert triggered == [True]
+
+
+def test_launch_game_passes_settings_payload(monkeypatch, capsys):
+    """Launching a game forwards the prepared settings payload to the entry point."""
+
+    payloads: list[dict[str, object] | None] = []
+    monkeypatch.setattr(launcher, "prepare_launcher_settings", lambda slug, manager: {"bankroll": 900})
+    monkeypatch.setitem(launcher.GAME_MAP, "blackjack", ("blackjack", lambda payload=None: payloads.append(payload)))
+
+    assert launcher.launch_game("blackjack", object(), object()) is True
+    assert payloads == [{"bankroll": 900}]
     assert "Launching" in capsys.readouterr().out
 
 
@@ -408,7 +439,7 @@ def test_main_supports_quick_alias(monkeypatch, tmp_path):
 
     def fake_get_game_entry(identifier):  # noqa: ANN001
         assert identifier == "tic_tac_toe"
-        return (identifier, lambda: launched.append(identifier))
+        return (identifier, lambda payload=None: launched.append(identifier))
 
     monkeypatch.setattr(launcher, "get_game_entry", fake_get_game_entry)
 

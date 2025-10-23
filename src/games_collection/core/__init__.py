@@ -34,6 +34,18 @@ from .architecture.persistence import GameStateSerializer, JSONSerializer, Pickl
 from .architecture.plugin import GamePlugin, PluginManager, PluginMetadata
 from .architecture.replay import ReplayAction, ReplayManager, ReplayRecorder
 from .architecture.settings import Settings, SettingsManager
+from .configuration import (
+    GameConfigurationProfile,
+    SettingField,
+    get_configuration_profile,
+    get_configuration_profiles,
+    get_settings_manager,
+    merge_defaults,
+    prepare_launcher_settings,
+    reset_settings,
+    save_settings,
+    update_settings_from_mapping,
+)
 from .challenges import Challenge, ChallengeManager, ChallengePack, DifficultyLevel, get_default_challenge_manager
 from .cli_utils import (
     THEMES,
@@ -126,6 +138,16 @@ __all__ = [
     # Settings
     "Settings",
     "SettingsManager",
+    "SettingField",
+    "GameConfigurationProfile",
+    "get_configuration_profiles",
+    "get_configuration_profile",
+    "get_settings_manager",
+    "merge_defaults",
+    "prepare_launcher_settings",
+    "save_settings",
+    "reset_settings",
+    "update_settings_from_mapping",
     # Educational
     "TutorialMode",
     "DocumentationTutorialMode",
