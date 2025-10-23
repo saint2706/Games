@@ -20,11 +20,22 @@ different difficulty levels for computer-controlled opponents.
 
 from __future__ import annotations
 
+import os
 import random
+import time
 from abc import ABC, abstractmethod
 from collections import OrderedDict
+from contextlib import contextmanager
+from datetime import datetime
+from pathlib import Path
 from threading import Lock
-from typing import Callable, Generic, Hashable, List, Optional, TypeVar
+from typing import Callable, Generator, Generic, Hashable, Iterable, List, Optional, Tuple, TypeVar
+
+import cProfile
+import pstats
+
+PROFILE_ENV_FLAG = "GAMES_PROFILE_AI"
+PROFILE_DIR_ENV = "GAMES_PROFILE_AI_DIR"
 
 # Type variable for move representation, allowing for flexibility in how
 # different games define a "move."
@@ -33,6 +44,39 @@ MoveType = TypeVar("MoveType")
 # Type variable for game state representation, allowing strategies to work
 # with various forms of game state information.
 StateType = TypeVar("StateType")
+
+
+def _profile_directory() -> Path:
+    """Return the directory where profiling artefacts should be stored."""
+
+    location = os.getenv(PROFILE_DIR_ENV, "profiling")
+    path = Path(location).expanduser().resolve()
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+@contextmanager
+def _profiling_session(label: str) -> Generator[None, None, None]:
+    """Profile a block of code when profiling is enabled."""
+
+    if not os.getenv(PROFILE_ENV_FLAG):
+        yield
+        return
+    profiler = cProfile.Profile()
+    profiler.enable()
+    start = time.perf_counter()
+    try:
+        yield
+    finally:
+        profiler.disable()
+        duration_ms = (time.perf_counter() - start) * 1000
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S%f")
+        output_file = _profile_directory() / f"{label}_{timestamp}.prof"
+        stream = output_file.open("w", encoding="utf-8")
+        with stream:
+            stream.write(f"# Profiling stats for {label} ({duration_ms:.2f} ms)\n")
+            stats = pstats.Stats(profiler, stream=stream).sort_stats("tottime")
+            stats.print_stats(25)
 
 
 class AIStrategy(ABC, Generic[MoveType, StateType]):
@@ -57,6 +101,13 @@ class AIStrategy(ABC, Generic[MoveType, StateType]):
                  behavior, which is especially valuable for testing.
         """
         self.rng = rng or random.Random()
+
+    @contextmanager
+    def profile_move(self, label: str) -> Generator[None, None, None]:
+        """Profile a decision-making block when profiling is enabled."""
+
+        with _profiling_session(label):
+            yield
 
     @abstractmethod
     def select_move(
@@ -134,7 +185,8 @@ class RandomStrategy(AIStrategy[MoveType, StateType]):
         """
         if not valid_moves:
             raise ValueError("No valid moves available")
-        return self.rng.choice(valid_moves)
+        with self.profile_move("RandomStrategy.select_move"):
+            return self.rng.choice(valid_moves)
 
 
 class MinimaxStrategy(AIStrategy[MoveType, StateType]):
@@ -153,6 +205,11 @@ class MinimaxStrategy(AIStrategy[MoveType, StateType]):
         max_depth: int = 10,
         alpha_beta: bool = True,
         evaluation_fn: Optional[Callable[[StateType], float]] = None,
+        *,
+        transition_fn: Optional[Callable[[StateType, MoveType], StateType]] = None,
+        move_generator: Optional[Callable[[StateType], Iterable[MoveType]]] = None,
+        is_terminal_fn: Optional[Callable[[StateType], bool]] = None,
+        state_key_fn: Optional[Callable[[StateType], Hashable]] = None,
         rng: Optional[random.Random] = None,
     ) -> None:
         """Initialize the minimax strategy.
@@ -169,6 +226,11 @@ class MinimaxStrategy(AIStrategy[MoveType, StateType]):
         self.max_depth = max_depth
         self.alpha_beta = alpha_beta
         self.evaluation_fn = evaluation_fn
+        self.transition_fn = transition_fn
+        self.move_generator = move_generator
+        self.is_terminal_fn = is_terminal_fn
+        self.state_key_fn = state_key_fn
+        self._memo: dict[Tuple[Hashable, int, bool], float] = {}
 
     def select_move(
         self,
@@ -190,9 +252,108 @@ class MinimaxStrategy(AIStrategy[MoveType, StateType]):
         if not valid_moves:
             raise ValueError("No valid moves available")
 
-        # Placeholder: This should be replaced with the actual minimax
-        # implementation. For now, it selects a move randomly.
-        return self.rng.choice(valid_moves)
+        self._memo.clear()
+        scored_moves: List[Tuple[MoveType, float]] = []
+        with self.profile_move("MinimaxStrategy.select_move"):
+            for move in valid_moves:
+                score = self._evaluate_branch(game_state, move)
+                scored_moves.append((move, score))
+        best_score = max(score for _, score in scored_moves)
+        best_moves = [move for move, score in scored_moves if score == best_score]
+        return self.rng.choice(best_moves)
+
+    def _evaluate_branch(self, state: StateType, move: MoveType) -> float:
+        next_state = self._transition(state, move)
+        depth = max(self.max_depth - 1, 0)
+        if depth == 0:
+            return self._evaluate_state(next_state)
+        return self._minimax(next_state, depth, float("-inf"), float("inf"), False)
+
+    def _minimax(
+        self,
+        state: StateType,
+        depth: int,
+        alpha: float,
+        beta: float,
+        maximizing: bool,
+    ) -> float:
+        cache_key = self._cache_key(state, depth, maximizing)
+        if cache_key is not None and cache_key in self._memo:
+            return self._memo[cache_key]
+        if depth == 0 or self._is_terminal(state):
+            score = self._evaluate_state(state)
+        elif maximizing:
+            score = self._maximize(state, depth, alpha, beta)
+        else:
+            score = self._minimize(state, depth, alpha, beta)
+        if cache_key is not None:
+            self._memo[cache_key] = score
+        return score
+
+    def _maximize(self, state: StateType, depth: int, alpha: float, beta: float) -> float:
+        moves = list(self._moves(state))
+        if not moves:
+            return self._evaluate_state(state)
+        best = float("-inf")
+        for move in moves:
+            child = self._transition(state, move)
+            score = self._minimax(child, depth - 1, alpha, beta, False)
+            best = max(best, score)
+            if self.alpha_beta:
+                alpha = max(alpha, best)
+                if beta <= alpha:
+                    break
+        return best
+
+    def _minimize(self, state: StateType, depth: int, alpha: float, beta: float) -> float:
+        moves = list(self._moves(state))
+        if not moves:
+            return self._evaluate_state(state)
+        best = float("inf")
+        for move in moves:
+            child = self._transition(state, move)
+            score = self._minimax(child, depth - 1, alpha, beta, True)
+            best = min(best, score)
+            if self.alpha_beta:
+                beta = min(beta, best)
+                if beta <= alpha:
+                    break
+        return best
+
+    def _transition(self, state: StateType, move: MoveType) -> StateType:
+        if self.transition_fn is not None:
+            return self.transition_fn(state, move)
+        if hasattr(state, "apply_move"):
+            return getattr(state, "apply_move")(move)
+        raise ValueError("MinimaxStrategy requires a transition_fn or state.apply_move")
+
+    def _moves(self, state: StateType) -> Iterable[MoveType]:
+        if self.move_generator is not None:
+            return self.move_generator(state)
+        if hasattr(state, "get_valid_moves"):
+            return getattr(state, "get_valid_moves")()
+        raise ValueError("MinimaxStrategy requires a move_generator or state.get_valid_moves")
+
+    def _is_terminal(self, state: StateType) -> bool:
+        if self.is_terminal_fn is not None:
+            return self.is_terminal_fn(state)
+        if hasattr(state, "is_terminal"):
+            return bool(getattr(state, "is_terminal")())
+        if hasattr(state, "is_game_over"):
+            return bool(getattr(state, "is_game_over")())
+        return False
+
+    def _evaluate_state(self, state: StateType) -> float:
+        if self.evaluation_fn is not None:
+            return self.evaluation_fn(state)
+        if hasattr(state, "evaluate"):
+            return float(getattr(state, "evaluate")())
+        return 0.0
+
+    def _cache_key(self, state: StateType, depth: int, maximizing: bool) -> Optional[Tuple[Hashable, int, bool]]:
+        if self.state_key_fn is None:
+            return None
+        return self.state_key_fn(state), depth, maximizing
 
     def evaluate_move(
         self,
@@ -284,17 +445,10 @@ class HeuristicStrategy(AIStrategy[MoveType, StateType]):
         if not valid_moves:
             raise ValueError("No valid moves available")
 
-        # Score each valid move using the heuristic function
-        scored_moves = [(move, self._score_move(move, game_state)) for move in valid_moves]
-
-        # Find the maximum score among all moves
+        with self.profile_move("HeuristicStrategy.select_move"):
+            scored_moves = [(move, self._score_move(move, game_state)) for move in valid_moves]
         max_score = max(score for _, score in scored_moves)
-
-        # Get all moves that have the maximum score
         best_moves = [move for move, score in scored_moves if score == max_score]
-
-        # If there are multiple moves with the same highest score, choose one
-        # randomly as a tie-breaker.
         return self.rng.choice(best_moves)
 
     def evaluate_move(
