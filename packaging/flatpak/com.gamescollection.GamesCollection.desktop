@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Games Collection
+Comment=Play dozens of classic games with AI opponents and GUI frontends
+Exec=games-collection
+Icon=com.gamescollection.GamesCollection
+Terminal=false
+Type=Application
+Categories=Game;Entertainment;
+Keywords=games;cards;board;logic;puzzle;
+StartupNotify=true

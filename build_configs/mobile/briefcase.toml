@@ -1,0 +1,35 @@
+[tool.briefcase]
+project_name = "Games Collection"
+bundle = "org.gamescollection"
+version = "2.0.1"
+author = "Games Collection Maintainers"
+url = "https://github.com/saint2706/Games"
+license = "MIT"
+description = "Touch-first mobile launcher for the Games Collection."
+
+[tool.briefcase.app.games_collection]
+formal_name = "Games Collection"
+app_name = "games_collection"
+requires = ["games-collection[mobile]"]
+sources = ["../../src"]
+icon = "../../src/games_collection/assets/launcher/default_thumbnail.png"
+splash_screen = "../../src/games_collection/assets/launcher/default_screenshot.png"
+main_module = "games_collection.mobile.kivy_launcher"
+
+[tool.briefcase.app.games_collection.macOS]
+requires = ["toga-macOS>=0.3.1"]
+installer_background = "../../src/games_collection/assets/launcher/default_screenshot.png"
+codesign_identity = "${{ env.MACOS_CODESIGN_IDENTITY }}"
+notarization_profile = "${{ env.MACOS_NOTARIZATION_PROFILE }}"
+
+[tool.briefcase.app.games_collection.iOS]
+requires = ["toga-iOS>=0.3.1"]
+profile = "${{ env.IOS_SIGNING_PROFILE }}"
+team_id = "${{ env.IOS_TEAM_ID }}"
+icon = "../../src/games_collection/assets/launcher/default_thumbnail.png"
+
+[tool.briefcase.app.games_collection.macOS.app]
+resources = ["../../src/games_collection/assets"]
+
+[tool.briefcase.app.games_collection.iOS.app]
+resources = ["../../src/games_collection/assets"]
