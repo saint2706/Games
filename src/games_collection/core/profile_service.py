@@ -14,7 +14,7 @@ from __future__ import annotations
 import pathlib
 import time
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, datetime
 from typing import Dict, List, Optional
 
 from games_collection.core.leaderboard_service import CrossGameLeaderboardEntry, CrossGameLeaderboardService
@@ -80,6 +80,14 @@ class GameSession:
         # If the session exits because of an exception we simply leave it unrecorded.
         # Callers explicitly decide when to persist a result via ``complete``.
         return None
+
+
+@dataclass(frozen=True)
+class RecentlyPlayedEntry:
+    """Container describing a recently played game entry."""
+
+    game_id: str
+    last_played: Optional[str]
 
 
 class ProfileService:
@@ -246,6 +254,33 @@ class ProfileService:
         unlocked = self._active_profile.record_daily_challenge(challenge_id, completion_date)
         self.save_active_profile()
         return unlocked
+
+    def get_recently_played(self, limit: int = 5) -> List[RecentlyPlayedEntry]:
+        """Return up to ``limit`` games sorted by their ``last_played`` timestamp.
+
+        Args:
+            limit: Maximum number of entries to return. Negative values are treated as ``0``.
+
+        Returns:
+            A list of :class:`RecentlyPlayedEntry` instances ordered from most recent to oldest.
+            Entries lacking a valid timestamp appear at the end of the collection.
+        """
+
+        decorated: List[tuple[tuple[int, float], RecentlyPlayedEntry]] = []
+        for profile in self._active_profile.game_profiles.values():
+            timestamp = profile.last_played
+            parsed: Optional[datetime] = None
+            if timestamp:
+                try:
+                    parsed = datetime.fromisoformat(timestamp)
+                except ValueError:
+                    parsed = None
+            sort_key = (0, -parsed.timestamp()) if parsed else (1, 0.0)
+            decorated.append((sort_key, RecentlyPlayedEntry(game_id=profile.game_id, last_played=timestamp)))
+
+        decorated.sort(key=lambda item: item[0])
+        limited = decorated[: max(limit, 0)]
+        return [entry for _key, entry in limited]
 
 
 _GLOBAL_PROFILE_SERVICE: Optional[ProfileService] = None

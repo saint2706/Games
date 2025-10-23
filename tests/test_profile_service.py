@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import List
 
@@ -82,3 +82,44 @@ def test_profile_service_supports_multiple_profiles(tmp_path: Path) -> None:
     summary = service.summary()
     assert "Second Player" not in summary
     assert service.active_profile.player_id == "default"
+
+
+def test_get_recently_played_orders_entries(tmp_path: Path) -> None:
+    service = ProfileService(profile_dir=tmp_path)
+    profile = service.active_profile
+
+    newer = profile.get_game_profile("dots_and_boxes")
+    newer.last_played = datetime(2024, 5, 1, 18, 45).isoformat()
+
+    older = profile.get_game_profile("tic_tac_toe")
+    older.last_played = datetime(2024, 4, 28, 9, 15).isoformat()
+
+    earliest = profile.get_game_profile("nim")
+    earliest.last_played = datetime(2024, 4, 20, 12, 0).isoformat()
+
+    result = service.get_recently_played()
+    assert [entry.game_id for entry in result] == ["dots_and_boxes", "tic_tac_toe", "nim"]
+
+    limited = service.get_recently_played(limit=2)
+    assert [entry.game_id for entry in limited] == ["dots_and_boxes", "tic_tac_toe"]
+
+
+def test_get_recently_played_handles_missing_timestamps(tmp_path: Path) -> None:
+    service = ProfileService(profile_dir=tmp_path)
+    profile = service.active_profile
+
+    recorded = profile.get_game_profile("hangman")
+    recorded.last_played = datetime(2024, 5, 2, 10, 0).isoformat()
+
+    missing = profile.get_game_profile("sudoku")
+    missing.last_played = None
+
+    invalid = profile.get_game_profile("bridge")
+    invalid.last_played = "not-a-valid-timestamp"
+
+    result = service.get_recently_played()
+    assert result[0].game_id == "hangman"
+    assert result[1].game_id == "sudoku"
+    assert result[1].last_played is None
+    assert result[2].game_id == "bridge"
+    assert result[2].last_played == "not-a-valid-timestamp"

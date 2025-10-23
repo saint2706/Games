@@ -5,11 +5,13 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from games_collection import launcher
 from games_collection import launcher_gui
+from games_collection.core.profile_service import RecentlyPlayedEntry
 
 
 class DummyAchievementManager:
@@ -98,6 +100,7 @@ class DummyProfileService:
         self.profile_dir = profile_dir
         self.active_profile = DummyProfile()
         self._saved = 0
+        self._recently_played_limit: Optional[int] = None
 
     def save_active_profile(self) -> None:
         """Record that the profile would be saved."""
@@ -108,6 +111,12 @@ class DummyProfileService:
         """Return a lightweight profile summary."""
 
         return "Profile summary"
+
+    def get_recently_played(self, limit: int = 5):  # noqa: D401 - simple stub
+        """Return an empty recently played list while capturing the requested limit."""
+
+        self._recently_played_limit = limit
+        return []
 
 
 def test_run_launcher_gui_invokes_preferred_framework(monkeypatch):
@@ -200,3 +209,29 @@ def test_build_pyqt_launcher_handles_missing_dependencies(monkeypatch):
     result = launcher_gui._build_pyqt_launcher(object(), object())
 
     assert result is None
+
+
+def test_print_menu_renders_recently_played_section(monkeypatch, capsys):
+    """The CLI menu includes the recently played section with formatted timestamps."""
+
+    monkeypatch.setattr(launcher, "HAS_COLORAMA", False)
+
+    class StubService:
+        def __init__(self) -> None:
+            self.requested_limit: Optional[int] = None
+
+        def get_recently_played(self, limit: int = 5):  # noqa: D401 - simple stub
+            """Return a deterministic recently played entry."""
+
+            self.requested_limit = limit
+            return [RecentlyPlayedEntry(game_id="tic_tac_toe", last_played="2024-05-01T12:30:00")]
+
+    service = StubService()
+
+    launcher.print_menu(service)  # type: ignore[arg-type]
+    output = capsys.readouterr().out
+
+    assert service.requested_limit == 5
+    assert "Recently Played:" in output
+    assert "Tic-Tac-Toe" in output
+    assert "2024-05-01 12:30" in output
