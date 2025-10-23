@@ -8,6 +8,7 @@ This guide covers different deployment methods for the Games Collection.
 - [Installation from PyPI](#installation-from-pypi)
 - [Homebrew Tap](#homebrew-tap)
 - [Standalone Executables](#standalone-executables)
+- [Web (PyScript)](#web-pyscript)
 - [Mobile Deployments](#mobile-deployments)
 - [Linux Packages](#linux-packages)
   - [Snap](#snap)
@@ -193,6 +194,39 @@ python build_configs/nuitka/build.py
 ./scripts/build_executable.sh nuitka
 ```
 
+## Web (PyScript)
+
+The PyScript bundle allows the launcher to run directly in the browser. It packages the Python wheel, static assets, and a PyScript front-end that communicates with the cooperative game runners.
+
+### Building the bundle
+
+```bash
+python scripts/build_pyscript_bundle.py
+```
+
+The script creates a `dist/web/` directory containing the HTML, CSS, JavaScript, and packaged wheel. The generated `bundle.json` file records which wheel was embedded.
+
+### Local preview
+
+```bash
+cd dist/web
+python -m http.server 8000
+# Visit http://localhost:8000 in your browser
+```
+
+PyScript runs entirely in the browser, so no additional backend process is required for testing.
+
+### Publishing to GitHub Pages
+
+1. Commit the contents of `dist/web/` to a branch (for example, `gh-pages`).
+1. Enable GitHub Pages for that branch via the repository settings.
+1. Subsequent runs of the builder can overwrite the branch contents and push updates.
+
+### Current limitations
+
+- Games rely on their text-based interfaces; GUI launchers are not exposed yet.
+- Network multiplayer modes are unavailable because the PyScript runtime runs in an isolated browser sandbox.
+- Larger games may require additional browser memory compared to native execution.
 ## Mobile Deployments
 
 The mobile toolchain is optional and gated behind the `mobile` extras group. Install the
