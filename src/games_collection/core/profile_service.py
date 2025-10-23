@@ -12,6 +12,7 @@ games finish.
 from __future__ import annotations
 
 import pathlib
+import re
 import time
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -93,6 +94,8 @@ class RecentlyPlayedEntry:
 class ProfileService:
     """Manage player profiles and expose convenience helpers for games."""
 
+    _QUICK_LAUNCH_KEY = "quick_launch"
+
     def __init__(
         self,
         *,
@@ -171,6 +174,69 @@ class ProfileService:
         available.add(self._active_profile_id)
         return sorted(available)
 
+    def get_quick_launch_aliases(self) -> Dict[str, str]:
+        """Return the quick-launch alias mapping for the active profile."""
+
+        mapping = self._ensure_quick_launch_mapping()
+        return dict(sorted(mapping.items()))
+
+    def resolve_quick_launch_alias(self, alias: str) -> Optional[str]:
+        """Resolve ``alias`` to the configured game identifier if present."""
+
+        try:
+            normalized = self._normalize_alias(alias, allow_empty=True)
+        except ProfileServiceError:
+            return None
+        if not normalized:
+            return None
+        mapping = self._ensure_quick_launch_mapping()
+        return mapping.get(normalized)
+
+    def add_quick_launch_alias(self, alias: str, game_slug: str) -> None:
+        """Create a new quick-launch alias mapping to ``game_slug``."""
+
+        normalized_alias = self._normalize_alias(alias)
+        normalized_slug = self._normalize_slug(game_slug)
+        mapping = self._ensure_quick_launch_mapping()
+        if normalized_alias in mapping:
+            raise ProfileServiceError(f"Alias '{alias}' already exists.")
+        mapping[normalized_alias] = normalized_slug
+        self._store_quick_launch_mapping(mapping)
+
+    def update_quick_launch_alias(self, alias: str, game_slug: str) -> None:
+        """Update an existing alias to point to ``game_slug``."""
+
+        normalized_alias = self._normalize_alias(alias)
+        mapping = self._ensure_quick_launch_mapping()
+        if normalized_alias not in mapping:
+            raise ProfileServiceError(f"Alias '{alias}' is not defined.")
+        mapping[normalized_alias] = self._normalize_slug(game_slug)
+        self._store_quick_launch_mapping(mapping)
+
+    def rename_quick_launch_alias(self, alias: str, new_alias: str) -> None:
+        """Rename ``alias`` to ``new_alias`` preserving its mapped game."""
+
+        current_alias = self._normalize_alias(alias)
+        mapping = self._ensure_quick_launch_mapping()
+        if current_alias not in mapping:
+            raise ProfileServiceError(f"Alias '{alias}' is not defined.")
+        new_normalized = self._normalize_alias(new_alias)
+        if new_normalized != current_alias and new_normalized in mapping:
+            raise ProfileServiceError(f"Alias '{new_alias}' already exists.")
+        mapping[new_normalized] = mapping.pop(current_alias)
+        self._store_quick_launch_mapping(mapping)
+
+    def delete_quick_launch_alias(self, alias: str) -> bool:
+        """Remove ``alias`` from the quick-launch mapping."""
+
+        normalized_alias = self._normalize_alias(alias)
+        mapping = self._ensure_quick_launch_mapping()
+        if normalized_alias not in mapping:
+            return False
+        mapping.pop(normalized_alias, None)
+        self._store_quick_launch_mapping(mapping)
+        return True
+
     def leaderboard(self, *, sort_by: str = "achievement_points", limit: int = 10) -> List[CrossGameLeaderboardEntry]:
         """Return the cross-game leaderboard built from all known profiles."""
 
@@ -232,6 +298,59 @@ class ProfileService:
         self._active_profile = profile
         self.save_active_profile()
         return profile
+
+    def _ensure_quick_launch_mapping(self) -> Dict[str, str]:
+        """Return a mutable alias mapping ensuring preferences are initialised."""
+
+        stored = self._active_profile.preferences.get(self._QUICK_LAUNCH_KEY)
+        if isinstance(stored, dict):
+            sanitized: Dict[str, str] = {}
+            for raw_alias, raw_slug in stored.items():
+                if isinstance(raw_alias, str) and isinstance(raw_slug, str):
+                    try:
+                        normalized_alias = self._normalize_alias(raw_alias, allow_empty=True)
+                        normalized_slug = self._normalize_slug(raw_slug, allow_empty=True)
+                    except ProfileServiceError:
+                        continue
+                    if normalized_alias and normalized_slug:
+                        sanitized[normalized_alias] = normalized_slug
+            if sanitized != stored:
+                self._active_profile.preferences[self._QUICK_LAUNCH_KEY] = sanitized
+            return sanitized
+
+        mapping: Dict[str, str] = {}
+        self._active_profile.preferences[self._QUICK_LAUNCH_KEY] = mapping
+        return mapping
+
+    def _store_quick_launch_mapping(self, mapping: Dict[str, str]) -> None:
+        """Persist ``mapping`` to the active profile preferences."""
+
+        self._active_profile.preferences[self._QUICK_LAUNCH_KEY] = dict(sorted(mapping.items()))
+        self.save_active_profile()
+
+    @staticmethod
+    def _normalize_alias(alias: str, *, allow_empty: bool = False) -> str:
+        """Return a canonical alias value, optionally allowing empties."""
+
+        text = alias.strip().lower()
+        if not text:
+            if allow_empty:
+                return ""
+            raise ProfileServiceError("Alias cannot be empty.")
+        if not re.fullmatch(r"[a-z0-9_-]+", text):
+            raise ProfileServiceError("Aliases may only contain letters, numbers, hyphen, and underscore.")
+        return text
+
+    @staticmethod
+    def _normalize_slug(slug: str, *, allow_empty: bool = False) -> str:
+        """Return a canonical slug identifier."""
+
+        text = slug.strip().lower()
+        if not text:
+            if allow_empty:
+                return ""
+            raise ProfileServiceError("Game identifier cannot be empty.")
+        return text.replace("-", "_")
 
     def reset_active_profile(self, *, keep_display_name: bool = True) -> PlayerProfile:
         """Replace the active profile with a fresh instance."""
@@ -346,3 +465,4 @@ def build_cross_game_leaderboard(
     """Convenience wrapper mirroring :meth:`ProfileService.leaderboard`."""
 
     return service.leaderboard(sort_by=sort_by, limit=limit)
+

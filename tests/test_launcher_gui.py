@@ -102,6 +102,7 @@ class DummyProfileService:
         self._saved = 0
         self._recently_played_limit: Optional[int] = None
         self._favorites: list[str] = []
+        self._quick_launches: dict[str, str] = {}
 
     def save_active_profile(self) -> None:
         """Record that the profile would be saved."""
@@ -153,6 +154,16 @@ class DummyProfileService:
         self.mark_favorite(slug)
         return True
 
+    def get_quick_launch_aliases(self) -> dict[str, str]:
+        """Return configured quick-launch aliases."""
+
+        return dict(self._quick_launches)
+
+    def resolve_quick_launch_alias(self, alias: str) -> Optional[str]:
+        """Resolve ``alias`` to a configured slug."""
+
+        return self._quick_launches.get(alias)
+
 
 def test_run_launcher_gui_invokes_preferred_framework(monkeypatch):
     """``run_launcher_gui`` delegates to ``launch_preferred_gui`` with PyQt."""
@@ -198,6 +209,7 @@ def test_main_launches_gui_when_requested(monkeypatch, tmp_path):
         profile_reset=False,
         profile_summary=False,
         ui="gui",
+        quick=None,
     )
 
     monkeypatch.setattr(launcher, "parse_args", lambda: args)
@@ -255,6 +267,7 @@ def test_print_menu_renders_favorites_and_recently_played(monkeypatch, capsys):
         def __init__(self) -> None:
             self.requested_limit: Optional[int] = None
             self.favorites_requested = False
+            self.quick_aliases = {"speed": "tic_tac_toe"}
 
         def get_favorites(self):  # noqa: D401 - simple stub
             """Return a deterministic favorites list."""
@@ -268,6 +281,11 @@ def test_print_menu_renders_favorites_and_recently_played(monkeypatch, capsys):
             self.requested_limit = limit
             return [RecentlyPlayedEntry(game_id="tic_tac_toe", last_played="2024-05-01T12:30:00")]
 
+        def get_quick_launch_aliases(self):  # noqa: D401 - simple stub
+            """Return a deterministic quick-launch alias mapping."""
+
+            return dict(self.quick_aliases)
+
     service = StubService()
 
     launcher.print_menu(service)  # type: ignore[arg-type]
@@ -280,6 +298,8 @@ def test_print_menu_renders_favorites_and_recently_played(monkeypatch, capsys):
     assert "Recently Played:" in output
     assert "Tic-Tac-Toe" in output
     assert "2024-05-01 12:30" in output
+    assert "Quick Launch Shortcuts:" in output
+    assert "!speed" in output
 
 
 def test_launch_game_supports_favorite_toggle(monkeypatch, capsys):
@@ -311,3 +331,88 @@ def test_launch_game_supports_favorite_toggle(monkeypatch, capsys):
     assert launcher.launch_game("fav tic_tac_toe", service, object()) is True
     remove_output = capsys.readouterr().out
     assert "Removed Tic-Tac-Toe from favorites." in remove_output
+
+
+def test_launch_game_supports_quick_alias(monkeypatch, capsys):
+    """The CLI dispatcher resolves quick-launch aliases prefixed with !."""
+
+    monkeypatch.setattr(launcher, "HAS_COLORAMA", False)
+
+    calls: list[str] = []
+
+    def fake_get_game_entry(identifier):  # noqa: ANN001
+        assert identifier == "tic_tac_toe"
+        return ("tic_tac_toe", lambda: calls.append("launched"))
+
+    monkeypatch.setattr(launcher, "get_game_entry", fake_get_game_entry)
+
+    class StubService:
+        def resolve_quick_launch_alias(self, alias: str) -> str | None:
+            return {"speed": "tic_tac_toe"}.get(alias)
+
+        def get_quick_launch_aliases(self):  # noqa: D401 - simple stub
+            """Return no aliases for menu rendering."""
+
+            return {}
+
+    result = launcher.launch_game("!speed", StubService(), object())
+    assert result is True
+    assert calls == ["launched"]
+    assert "Launching" in capsys.readouterr().out
+
+
+def test_main_supports_quick_alias(monkeypatch, tmp_path):
+    """The launcher entry point resolves and launches quick aliases."""
+
+    args = SimpleNamespace(
+        game=None,
+        gui_framework=None,
+        smoke_test=False,
+        profile=None,
+        profile_display_name=None,
+        profile_rename=None,
+        profile_reset=False,
+        profile_summary=False,
+        ui="cli",
+        quick="speed",
+    )
+
+    monkeypatch.setattr(launcher, "parse_args", lambda: args)
+
+    class QuickAliasService:
+        def __init__(self, root: Path) -> None:
+            self.profile_dir = root
+            self.profile_dir.mkdir(parents=True, exist_ok=True)
+            self.active_profile = DummyProfile()
+            self._aliases = {"speed": "tic_tac_toe"}
+            self.saved = 0
+
+        def resolve_quick_launch_alias(self, alias: str) -> str | None:
+            return self._aliases.get(alias)
+
+        def save_active_profile(self) -> None:
+            self.saved += 1
+
+        def summary(self) -> str:  # noqa: D401 - simple stub
+            """Return a deterministic summary."""
+
+            return "summary"
+
+    service = QuickAliasService(tmp_path / "profiles")
+
+    monkeypatch.setattr(launcher, "get_profile_service", lambda: service)
+    monkeypatch.setattr(launcher, "get_default_challenge_manager", lambda: object())
+    monkeypatch.setattr(launcher, "DailyChallengeScheduler", lambda *_, **__: object())
+
+    launched: list[str] = []
+
+    def fake_get_game_entry(identifier):  # noqa: ANN001
+        assert identifier == "tic_tac_toe"
+        return (identifier, lambda: launched.append(identifier))
+
+    monkeypatch.setattr(launcher, "get_game_entry", fake_get_game_entry)
+
+    launcher.main()
+
+    assert launched == ["tic_tac_toe"]
+    assert service.saved == 1

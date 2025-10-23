@@ -87,6 +87,21 @@ favorite management:
   button and the sidebar displays a dedicated favorites list. Favorite games are
   also marked with a star in the catalogue tree so you can scan for them quickly.
 
+Quick-launch aliases
+--------------------
+
+Create mnemonic shortcuts for games you revisit constantly. The launcher stores
+aliases in your active profile so they follow you across sessions and machines.
+
+* **CLI:** Type ``Q`` from the main menu to open the alias manager. You can add,
+  rename, retarget, or delete entries from that screen. Once defined launch a
+  game instantly by entering ``!alias`` at the prompt or use ``--quick alias``
+  when invoking ``python -m games_collection.launcher`` from automation scripts.
+* **GUI:** The Quick-launch panel lists your aliases in a dedicated table with
+  buttons to add new shortcuts, change their target game, rename them, delete
+  them, or launch the associated title directly. The catalogue picker ensures
+  you never mistype a slug.
+
 Personalised recommendations
 ----------------------------
 
