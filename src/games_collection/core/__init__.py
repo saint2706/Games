@@ -77,6 +77,21 @@ from .mcp_config_loader import MCPConfig, MCPServerConfig, load_default_mcp_conf
 from .recommendation_service import GameDescriptor, RecommendationResult, RecommendationService, RecommendationWeights
 from .tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata, TutorialRegistration
 from .tutorial_session import TutorialFeedback, TutorialSession
+from .update_service import (
+    DEFAULT_PACKAGE_NAME,
+    DEFAULT_REPOSITORY,
+    ReleaseAsset,
+    ReleaseInfo,
+    UpdateCheckResult,
+    check_for_updates,
+    detect_bundle,
+    download_release_asset,
+    fetch_latest_release,
+    get_auto_update_preference,
+    get_installed_version,
+    is_update_available,
+    set_auto_update_preference,
+)
 
 # GUI enhancement imports (optional, only if tkinter available)
 try:
@@ -194,6 +209,19 @@ __all__ = [
     "RecommendationWeights",
     "RecommendationResult",
     "GameDescriptor",
+    "ReleaseAsset",
+    "ReleaseInfo",
+    "UpdateCheckResult",
+    "DEFAULT_PACKAGE_NAME",
+    "DEFAULT_REPOSITORY",
+    "get_installed_version",
+    "fetch_latest_release",
+    "check_for_updates",
+    "is_update_available",
+    "download_release_asset",
+    "detect_bundle",
+    "get_auto_update_preference",
+    "set_auto_update_preference",
 ]
 
 # Add GUI enhancements to __all__ if available

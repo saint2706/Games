@@ -8,6 +8,7 @@ This guide covers different deployment methods for the Games Collection.
 - [Installation from PyPI](#installation-from-pypi)
 - [Homebrew Tap](#homebrew-tap)
 - [Standalone Executables](#standalone-executables)
+- [Auto-Update Workflow](#auto-update-workflow)
 - [Web (PyScript)](#web-pyscript)
 - [Mobile Deployments](#mobile-deployments)
 - [Linux Packages](#linux-packages)
@@ -194,6 +195,29 @@ python build_configs/nuitka/build.py
 ./scripts/build_executable.sh nuitka
 ```
 
+## Auto-Update Workflow
+
+Automatic update checks are available in both the CLI launcher and the PyQt launcher. The launcher contacts two services:
+
+- **PyPI** to determine the installed version of the `games-collection` package.
+- **GitHub Releases** to retrieve metadata and download URLs for bundled executables. Allow outbound HTTPS access to `api.github.com` and the GitHub release CDN; SSL interception appliances must trust the GitHub certificate chain.
+
+### CLI usage
+
+- Run `games-collection --check-updates` to perform a one-off check and report the result.
+- Run `games-collection --update` to download the latest PyInstaller/Nuitka bundle for your platform and print the saved location.
+- Press **U** inside the interactive launcher to open an update workflow that can download the bundle and relaunch into the downloaded binary when it is executable.
+- Persistently enable or disable automatic checks with `--enable-auto-update-check` or `--disable-auto-update-check`. The preference is stored in `config/game__launcher_settings.json`.
+
+Pip-based deployments should continue to rely on `pip install --upgrade games-collection`; the automatic downloader primarily serves standalone bundles.
+
+### GUI notifications
+
+- On startup the PyQt launcher displays a banner when a newer release is detected. The banner includes a download button and a checkbox to opt out of future automatic checks.
+- The header button labelled “Check for updates” performs a manual check and surfaces the outcome in a message box.
+- Downloaded executables are saved to the system temporary directory. After a successful download, the GUI offers to relaunch into the new bundle when possible.
+
+If your environment performs SSL inspection, install the corporate root certificate so Python can validate HTTPS connections. Without a trusted certificate the update check gracefully falls back to offline mode.
 ## Web (PyScript)
 
 The PyScript bundle allows the launcher to run directly in the browser. It packages the Python wheel, static assets, and a PyScript front-end that communicates with the cooperative game runners.

@@ -9,6 +9,14 @@ from games_collection.core.architecture.settings import Settings, SettingsManage
 
 SettingType = str
 
+APPLICATION_SLUG = "launcher"
+APPLICATION_DEFAULTS: Mapping[str, Any] = {
+    "auto_check_updates": True,
+    "detected_version": "",
+    "latest_release_version": "",
+    "latest_release_tag": "",
+}
+
 
 @dataclass(frozen=True)
 class SettingField:
@@ -115,12 +123,47 @@ def get_settings_manager() -> SettingsManager:
     return _GLOBAL_SETTINGS_MANAGER
 
 
+def get_launcher_settings(manager: Optional[SettingsManager] = None) -> Settings:
+    """Return the launcher-level settings used to persist global preferences."""
+
+    return load_settings(APPLICATION_SLUG, manager)
+
+
+def get_auto_update_preference(manager: Optional[SettingsManager] = None) -> bool:
+    """Return whether update checks should run automatically on startup."""
+
+    settings = load_settings(APPLICATION_SLUG, manager)
+    return bool(settings.get("auto_check_updates", True))
+
+
+def set_auto_update_preference(enabled: bool, manager: Optional[SettingsManager] = None) -> bool:
+    """Persist the automatic update checking preference."""
+
+    settings = load_settings(APPLICATION_SLUG, manager)
+    settings.set("auto_check_updates", bool(enabled))
+    return save_settings(APPLICATION_SLUG, settings, manager)
+
+
 def _profiles() -> dict[str, GameConfigurationProfile]:
     """Return the lazily constructed configuration profile mapping."""
 
     # Defaults capture commonly tweaked options for popular games. Additional
     # games can be added here without touching the launcher code.
     profiles: dict[str, GameConfigurationProfile] = {
+        APPLICATION_SLUG: GameConfigurationProfile(
+            slug=APPLICATION_SLUG,
+            title="Launcher",
+            description="Global launcher preferences including update behaviour and cached metadata.",
+            defaults=dict(APPLICATION_DEFAULTS),
+            fields=(
+                SettingField(
+                    "auto_check_updates",
+                    "Automatically check for updates",
+                    "boolean",
+                    description="Run an update check on startup and show a banner when new releases are available.",
+                ),
+            ),
+        ),
         "blackjack": GameConfigurationProfile(
             slug="blackjack",
             title="Blackjack",
@@ -249,7 +292,11 @@ def update_settings_from_mapping(
 __all__ = [
     "GameConfigurationProfile",
     "SettingField",
+    "APPLICATION_SLUG",
     "get_settings_manager",
+    "get_launcher_settings",
+    "get_auto_update_preference",
+    "set_auto_update_preference",
     "get_configuration_profile",
     "get_configuration_profiles",
     "load_settings",

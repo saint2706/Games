@@ -9,11 +9,13 @@ from __future__ import annotations
 
 import argparse
 import inspect
+import os
 import sys
 import textwrap
 from dataclasses import dataclass
 from datetime import datetime
 from importlib import import_module
+from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
 from games_collection.catalog.registry import GameMetadata, get_all_games
@@ -36,6 +38,16 @@ from games_collection.core.profile_service import (
 from games_collection.core.recommendation_service import RecommendationResult, RecommendationService
 from games_collection.core.tutorial_registry import GLOBAL_TUTORIAL_REGISTRY, TutorialMetadata
 from games_collection.core.tutorial_session import TutorialSession
+from games_collection.core.update_service import (
+    ReleaseInfo,
+    UpdateCheckResult,
+    check_for_updates,
+    detect_bundle,
+    download_release_asset,
+    get_installed_version,
+    get_auto_update_preference,
+    set_auto_update_preference,
+)
 
 # Try to use colorama if available, fall back to plain text
 try:
@@ -66,6 +78,163 @@ GENRE_ORDER = {"card": 0, "paper": 1, "dice": 2, "word": 3, "logic": 4}
 
 
 SETTINGS_MANAGER = get_settings_manager()
+
+
+BUNDLE_HINT = detect_bundle()
+ACTIVE_BUNDLE_HINT: str | None = BUNDLE_HINT
+
+
+def _check_updates() -> UpdateCheckResult:
+    """Run the update check and return the result."""
+
+    result = check_for_updates(manager=SETTINGS_MANAGER)
+    return result
+
+
+def _format_version_label(version: Optional[str]) -> str:
+    """Return a human-friendly label for ``version``."""
+
+    return version or "unknown"
+
+
+def _print_update_message(result: UpdateCheckResult) -> None:
+    """Print a summary of ``result``."""
+
+    if result.release is None:
+        message = "Unable to contact the update service."
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+        return
+
+    installed_label = _format_version_label(result.installed_version)
+    latest_label = _format_version_label(result.release.version or result.release.tag_name)
+    if result.update_available:
+        message = f"Update available: {latest_label} (installed {installed_label})."
+        if HAS_COLORAMA:
+            print(f"{Fore.YELLOW}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+        if result.release.html_url:
+            print(f"Release notes: {result.release.html_url}")
+    else:
+        message = f"Games Collection is up to date (installed {installed_label}, latest {latest_label})."
+        if HAS_COLORAMA:
+            print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+
+
+def _download_update_asset(release: ReleaseInfo, bundle_hint: str | None) -> Path | None:
+    """Download the preferred release asset and report the location."""
+
+    try:
+        path = download_release_asset(release, bundle_hint=bundle_hint)
+    except RuntimeError as exc:
+        message = f"Download failed: {exc}"
+        if HAS_COLORAMA:
+            print(f"{Fore.RED}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+        return None
+
+    message = f"Downloaded update to {path}" if release.version else f"Downloaded update asset to {path}"
+    if HAS_COLORAMA:
+        print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+    else:
+        print(message)
+    return path
+
+
+def _maybe_toggle_auto_check() -> None:
+    """Offer the user a chance to toggle automatic update checks."""
+
+    current = get_auto_update_preference(SETTINGS_MANAGER)
+    prompt = "Disable automatic update checks? [y/N]: " if current else "Enable automatic update checks? [y/N]: "
+    choice = input(prompt).strip().lower()
+    if choice in {"y", "yes"}:
+        set_auto_update_preference(not current, SETTINGS_MANAGER)
+        message = "Automatic update checks enabled." if not current else "Automatic update checks disabled."
+        if HAS_COLORAMA:
+            print(f"{Fore.CYAN}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+
+
+def _relaunch_launcher(service: ProfileService, executable: Optional[Path] = None) -> None:
+    """Persist profile data and re-launch the application binary."""
+
+    service.save_active_profile()
+    target = executable
+    if target is not None and target.exists():
+        os.execv(str(target), [str(target)])
+    os.execv(sys.executable, [sys.executable, *sys.argv])
+
+
+def _handle_update_interactive(service: ProfileService, bundle_hint: str | None) -> None:
+    """Interactive update flow triggered from the launcher menu."""
+
+    result = _check_updates()
+    _print_update_message(result)
+
+    release = result.release
+    if release is None:
+        input("\nPress Enter to continue…")
+        return
+
+    if not result.update_available:
+        _maybe_toggle_auto_check()
+        input("\nPress Enter to continue…")
+        return
+
+    confirm = input("Download this update now? [Y/n]: ").strip().lower()
+    if confirm not in {"", "y", "yes"}:
+        _maybe_toggle_auto_check()
+        input("\nPress Enter to continue…")
+        return
+
+    asset_path = _download_update_asset(release, bundle_hint)
+    if asset_path and os.access(asset_path, os.X_OK):
+        relaunch = input("Relaunch the downloaded build now? [y/N]: ").strip().lower()
+        if relaunch in {"y", "yes"}:
+            message = "Relaunching with the downloaded build…"
+            if HAS_COLORAMA:
+                print(f"{Fore.CYAN}{message}{Style.RESET_ALL}")
+            else:
+                print(message)
+            _relaunch_launcher(service, asset_path)
+
+    _maybe_toggle_auto_check()
+    input("\nPress Enter to continue…")
+
+
+def _run_cli_update(bundle_hint: str | None, *, download: bool) -> UpdateCheckResult:
+    """Run a CLI update check optionally downloading an update."""
+
+    result = _check_updates()
+    _print_update_message(result)
+    if download and result.update_available and result.release is not None:
+        _download_update_asset(result.release, bundle_hint)
+    return result
+
+
+def _notify_update_if_available() -> None:
+    """Print a succinct notification when an update is available."""
+
+    result = _check_updates()
+    release = result.release
+    if release is None or not result.update_available:
+        return
+
+    latest_label = _format_version_label(release.version or release.tag_name)
+    message = (
+        f"Update available: {latest_label}. Run with --update or choose 'U' from the menu to download it."
+    )
+    if HAS_COLORAMA:
+        print(f"{Fore.YELLOW}{message}{Style.RESET_ALL}")
+    else:
+        print(message)
 
 
 def _launcher_from_entry_point(entry_point: str) -> Callable[[], None]:
@@ -201,6 +370,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--quick",
         help="Launch a game by its quick-launch alias (configured per profile).",
+    )
+    parser.add_argument("--check-updates", action="store_true", help="Check for launcher updates and exit.")
+    parser.add_argument("--update", action="store_true", help="Download the latest launcher update for this platform.")
+    parser.add_argument(
+        "--update-bundle",
+        choices=["pyinstaller", "nuitka"],
+        help="Override the bundle type when downloading updates (auto-detected by default).",
+    )
+    parser.add_argument(
+        "--enable-auto-update-check",
+        dest="auto_update",
+        action="store_const",
+        const=True,
+        help="Persistently enable automatic update checks on startup.",
+    )
+    parser.add_argument(
+        "--disable-auto-update-check",
+        dest="auto_update",
+        action="store_const",
+        const=False,
+        help="Persistently disable automatic update checks on startup.",
     )
     return parser.parse_args()
 
@@ -476,6 +666,7 @@ def print_menu(service: ProfileService) -> None:
     else:
         print("\nConfiguration:")
     print("  G. Manage game settings")
+    print("  U. Check for updates")
     if profiles:
         preview = ", ".join(profile.title for profile in profiles[:3])
         if len(profiles) > 3:
@@ -1293,6 +1484,9 @@ def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeS
     if command == "q":
         _handle_quick_launch_manager(service)
         return True
+    if command == "u":
+        _handle_update_interactive(service, ACTIVE_BUNDLE_HINT)
+        return True
     if command == "t":
         launch_tutorial_browser(service)
         return True
@@ -1375,6 +1569,12 @@ def main() -> None:
     """Main launcher loop."""
     args = parse_args()
 
+    global ACTIVE_BUNDLE_HINT
+    ACTIVE_BUNDLE_HINT = args.update_bundle or BUNDLE_HINT
+
+    # Persist the detected version so the GUI can display it even without a network check.
+    get_installed_version(manager=SETTINGS_MANAGER)
+
     profile_service = get_profile_service()
     challenge_manager = get_default_challenge_manager()
     schedule_path = profile_service.profile_dir.parent / "daily_challenges.json"
@@ -1391,6 +1591,15 @@ def main() -> None:
         print(f"Profile error: {exc}", file=sys.stderr)
         sys.exit(1)
 
+    if args.auto_update is not None:
+        set_auto_update_preference(args.auto_update, SETTINGS_MANAGER)
+        state = "enabled" if args.auto_update else "disabled"
+        message = f"Automatic update checks {state}."
+        if HAS_COLORAMA:
+            print(f"{Fore.CYAN}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+
     if args.quick and args.game:
         print("--game and --quick cannot be combined.", file=sys.stderr)
         profile_service.save_active_profile()
@@ -1404,6 +1613,11 @@ def main() -> None:
             profile_service.save_active_profile()
             sys.exit(1)
         game_identifier = resolved_slug
+
+    if args.check_updates or args.update:
+        _run_cli_update(ACTIVE_BUNDLE_HINT, download=args.update)
+        profile_service.save_active_profile()
+        return
 
     if args.smoke_test:
         if game_identifier is None:
@@ -1460,6 +1674,9 @@ def main() -> None:
         if not game_identifier:
             profile_service.save_active_profile()
             return
+
+    if args.ui == "cli" and not game_identifier and get_auto_update_preference(SETTINGS_MANAGER):
+        _notify_update_if_available()
 
     while True:
         print_header(profile_service, scheduler)
