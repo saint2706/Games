@@ -62,6 +62,18 @@ selected explicitly::
 Not every game features a GUI yet; consult the ``players/games_catalog`` for the
 latest status.
 
+Launcher
+--------
+
+Prefer a dashboard overview before picking a game? Launch the desktop hub::
+
+    python -m games_collection.launcher --ui gui
+
+The PyQt5 window summarises your active profile, daily challenge status, cross-game
+leaderboards, personalised recommendations, and the full catalogue. If PyQt5 is
+not installed the launcher falls back to the classic CLI menu automatically, or
+you can force it explicitly with ``--ui cli``.
+
 Personalised recommendations
 ----------------------------
 

@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import sys
 import textwrap
+from dataclasses import dataclass
 from importlib import import_module
 from typing import Callable, Dict, List, Optional
 
@@ -86,6 +87,27 @@ SLUG_TO_METADATA = {metadata.slug: metadata for metadata in _ORDERED_METADATA}
 RECOMMENDATION_SERVICE = RecommendationService(get_default_game_catalogue())
 
 
+@dataclass(frozen=True)
+class LauncherSnapshot:
+    """Immutable container summarising data rendered by launchers."""
+
+    profile_name: str
+    profile_identifier: str
+    profile_level: int
+    experience: int
+    experience_to_next: int
+    achievements_unlocked: int
+    achievements_total: int
+    achievement_points: int
+    daily_selection: DailyChallengeSelection
+    daily_completed: bool
+    daily_streak: int
+    best_daily_streak: int
+    total_daily_completed: int
+    leaderboard: tuple[CrossGameLeaderboardEntry, ...]
+    recommendations: tuple[RecommendationResult, ...]
+
+
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments for automation and smoke tests."""
 
@@ -109,6 +131,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--profile-summary", action="store_true", help="Print the active profile summary.")
     parser.add_argument("--profile-reset", action="store_true", help="Reset the active profile before launching.")
     parser.add_argument("--profile-rename", help="Rename the active profile to the provided identifier.")
+    parser.add_argument(
+        "--ui",
+        choices=["cli", "gui"],
+        default="cli",
+        help="Choose between the interactive CLI (default) or the desktop GUI launcher.",
+    )
     return parser.parse_args()
 
 
@@ -184,6 +212,43 @@ def _gather_launcher_insights(
     return leaderboard, recommendations
 
 
+def build_launcher_snapshot(
+    service: ProfileService,
+    scheduler: DailyChallengeScheduler,
+    *,
+    leaderboard_limit: int = 3,
+    recommendation_limit: int = 3,
+) -> LauncherSnapshot:
+    """Return a :class:`LauncherSnapshot` with aggregated launcher data."""
+
+    profile = service.active_profile
+    selection = scheduler.get_challenge_for_date()
+    progress = profile.daily_challenge_progress
+    achievements = profile.achievement_manager
+    leaderboard, recommendations = _gather_launcher_insights(
+        service,
+        leaderboard_limit=leaderboard_limit,
+        recommendation_limit=recommendation_limit,
+    )
+    return LauncherSnapshot(
+        profile_name=profile.display_name,
+        profile_identifier=profile.player_id,
+        profile_level=profile.level,
+        experience=profile.experience,
+        experience_to_next=profile.experience_to_next_level(),
+        achievements_unlocked=achievements.get_unlocked_count(),
+        achievements_total=achievements.get_total_count(),
+        achievement_points=achievements.get_total_points(),
+        daily_selection=selection,
+        daily_completed=progress.is_completed(selection.target_date),
+        daily_streak=progress.current_streak,
+        best_daily_streak=progress.best_streak,
+        total_daily_completed=progress.total_completed,
+        leaderboard=tuple(leaderboard),
+        recommendations=tuple(recommendations),
+    )
+
+
 def _format_recommendation(result: RecommendationResult) -> str:
     """Return a wrapped description of ``result`` for terminal display."""
 
@@ -196,22 +261,25 @@ def _format_recommendation(result: RecommendationResult) -> str:
 
 def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) -> None:
     """Print the launcher header."""
-    profile = service.active_profile
-    profile_line = f"Active Profile: {profile.display_name} (Level {profile.level})"
-    xp_line = f"XP: {profile.experience} | Next Level: {profile.experience_to_next_level()} XP"
-    selection = scheduler.get_challenge_for_date()
-    progress = profile.daily_challenge_progress
-    completed = progress.is_completed(selection.target_date)
-    status_label = "Completed" if completed else "Available"
-    streak_line = f"Streak: {progress.current_streak} (Best {progress.best_streak})" f" | Total Completed: {progress.total_completed}"
-    summary_line = f"Daily Challenge: {selection.summary()} [{status_label}]"
+    snapshot = build_launcher_snapshot(service, scheduler)
+    profile_line = f"Active Profile: {snapshot.profile_name} (Level {snapshot.profile_level})"
+    xp_line = f"XP: {snapshot.experience} | Next Level: {snapshot.experience_to_next} XP"
+    status_label = "Completed" if snapshot.daily_completed else "Available"
+    streak_line = (
+        f"Streak: {snapshot.daily_streak} (Best {snapshot.best_daily_streak})"
+        f" | Total Completed: {snapshot.total_daily_completed}"
+    )
+    summary_line = f"Daily Challenge: {snapshot.daily_selection.summary()} [{status_label}]"
     if HAS_COLORAMA:
-        status_color = Fore.GREEN if completed else Fore.YELLOW
+        status_color = Fore.GREEN if snapshot.daily_completed else Fore.YELLOW
     else:
         status_color = ""
-    achievements = profile.achievement_manager
-    achievements_line = f"Achievements: {achievements.get_unlocked_count()}/{achievements.get_total_count()} " f"({achievements.get_total_points()} pts)"
-    leaderboard, recommendations = _gather_launcher_insights(service)
+    achievements_line = (
+        f"Achievements: {snapshot.achievements_unlocked}/{snapshot.achievements_total} "
+        f"({snapshot.achievement_points} pts)"
+    )
+    leaderboard = snapshot.leaderboard
+    recommendations = snapshot.recommendations
     if HAS_COLORAMA:
         print(f"\n{Fore.CYAN}{Style.BRIGHT}{'=' * 60}")
         print(f"{Fore.CYAN}{Style.BRIGHT}{'GAMES COLLECTION':^60}")
@@ -878,6 +946,27 @@ def main() -> None:
             print(profile_service.summary())
         profile_service.save_active_profile()
         return
+
+    if args.ui == "gui":
+        try:
+            from games_collection import launcher_gui as launcher_gui_module
+        except ImportError as exc:  # pragma: no cover - packaging/runtime guard
+            print(f"Unable to load GUI launcher: {exc}", file=sys.stderr)
+        else:
+            launched = launcher_gui_module.run_launcher_gui(
+                profile_service,
+                scheduler,
+                preferred_framework=args.gui_framework,
+            )
+            if launched:
+                if args.profile_summary:
+                    print(profile_service.summary())
+                profile_service.save_active_profile()
+                return
+            print(
+                "GUI requested but no supported frameworks were detected. Falling back to the CLI interface.",
+                file=sys.stderr,
+            )
 
     if args.profile_summary:
         print(profile_service.summary())
