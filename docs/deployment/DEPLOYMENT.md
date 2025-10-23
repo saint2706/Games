@@ -6,8 +6,12 @@ This guide covers different deployment methods for the Games Collection.
 
 - [Prerequisites](#prerequisites)
 - [Installation from PyPI](#installation-from-pypi)
+- [Homebrew Tap](#homebrew-tap)
 - [Standalone Executables](#standalone-executables)
 - [Mobile Deployments](#mobile-deployments)
+- [Linux Packages](#linux-packages)
+  - [Snap](#snap)
+  - [Flatpak](#flatpak)
 - [Docker Deployment](#docker-deployment)
 - [Building from Source](#building-from-source)
 - [Cross-Platform Compatibility](#cross-platform-compatibility)
@@ -89,6 +93,39 @@ games-bunco
 # See all available games
 pip show games-collection
 ```
+
+## Homebrew Tap
+
+The Homebrew tap provides a fully managed macOS installation backed by the GitHub release artifacts.
+
+### Adding the Tap
+
+```bash
+brew tap saint2706/games-collection https://github.com/saint2706/Games
+```
+
+This command registers the tap and enables automatic updates whenever new versions are published.
+
+### Installing the CLI
+
+```bash
+brew install games-collection
+```
+
+Homebrew installs the Python 3.11 runtime declared in the formula and wires the `games-collection` command into your `$PATH`.
+
+### Updating to the Latest Release
+
+```bash
+brew update
+brew upgrade games-collection
+```
+
+### macOS Troubleshooting
+
+- **Missing Command Line Tools:** Run `xcode-select --install` if Homebrew reports missing developer tools.
+- **Python Linking Issues:** If `/usr/local/opt/python@3.11` is not found, run `brew doctor` and reinstall `python@3.11`.
+- **Stale Tap Cache:** Execute `brew update-reset` before `brew upgrade` when the tap URL changes or if audits fail.
 
 ## Standalone Executables
 
@@ -275,6 +312,49 @@ Workflow inputs:
 | `MACOS_NOTARIZATION_PROFILE` | App Store Connect notarization profile used post-signature. |
 | `IOS_SIGNING_PROFILE` | Provisioning profile UUID for Briefcase iOS packaging. |
 | `IOS_TEAM_ID` | Apple Developer team identifier required for iOS signing. |
+## Linux Packages
+
+Official Linux packages are produced automatically for tagged releases. Both packaging formats bundle the Python runtime, the Games Collection entry points, and GUI dependencies so you can launch the suite without a system-wide Python installation.
+
+### Snap
+
+The strict-mode snap exposes the CLI and GUI launchers and bundles PyQt/Pygame runtimes.
+
+```bash
+# Install from the Snap Store
+sudo snap install games-collection
+
+# Launch the main hub
+games-collection
+```
+
+Strict confinement restricts access to specific hardware interfaces. Snap automatically connects the audio and display plugs, but joystick support must be granted manually:
+
+```bash
+sudo snap connect games-collection:joystick
+```
+
+The snap also declares `network`, `network-bind`, `opengl`, `x11`, and `wayland` plugs so the application can reach online leaderboards and render accelerated graphics in modern desktop environments.
+
+### Flatpak
+
+Tagged releases attach a Flatpak bundle that mirrors the snap payload. Install the bundle locally or add it to your Flatpak repo:
+
+```bash
+# Install the bundle in the current directory
+flatpak install --user ./games-collection.flatpak
+
+# Launch the application
+flatpak run com.gamescollection.GamesCollection
+```
+
+The manifest grants access to X11, Wayland, PulseAudio/PipeWire, and the user's home directory for saving progress. Controller and joystick access is enabled via `--device=all` in the finish args. You can further relax or tighten the sandbox at runtime with overrides, for example:
+
+```bash
+flatpak override --user com.gamescollection.GamesCollection --filesystem=~/GamesCollectionSaves
+```
+
+If you only need CLI access, you can launch subcommands (such as Blackjack) directly by appending their names to the Flatpak run command (`flatpak run com.gamescollection.GamesCollection --game blackjack`).
 
 ## Docker Deployment
 

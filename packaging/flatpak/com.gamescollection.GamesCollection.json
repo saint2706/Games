@@ -1,0 +1,51 @@
+{
+  "app-id": "com.gamescollection.GamesCollection",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "23.08",
+  "sdk": "org.freedesktop.Sdk",
+  "command": "games-collection",
+  "finish-args": [
+    "--share=network",
+    "--socket=x11",
+    "--socket=wayland",
+    "--socket=pulseaudio",
+    "--socket=pipewire-0",
+    "--device=all",
+    "--filesystem=home",
+    "--talk-name=org.freedesktop.Notifications",
+    "--env=QT_QPA_PLATFORM=wayland;xcb",
+    "--env=SDL_AUDIODRIVER=pulse"
+  ],
+  "modules": [
+    {
+      "name": "games-collection",
+      "buildsystem": "simple",
+      "build-options": {
+        "env": {
+          "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+          "PIP_NO_CACHE_DIR": "1"
+        }
+      },
+      "build-commands": [
+        "python3 -m pip install --no-deps --prefix=/app --no-build-isolation .[gui]",
+        "install -Dm644 com.gamescollection.GamesCollection.desktop /app/share/applications/com.gamescollection.GamesCollection.desktop",
+        "install -Dm644 assets/games-collection.svg /app/share/icons/hicolor/scalable/apps/com.gamescollection.GamesCollection.svg"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "../.."
+        },
+        {
+          "type": "file",
+          "path": "com.gamescollection.GamesCollection.desktop"
+        },
+        {
+          "type": "file",
+          "path": "../shared-assets/games-collection.svg",
+          "dest": "assets"
+        }
+      ]
+    }
+  ]
+}

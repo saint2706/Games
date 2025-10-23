@@ -193,9 +193,65 @@ jobs:
         run: |
           docker run --rm games-collection:test python -c "import sys; print(f'Python {sys.version}')"
 
+  linux-packaging:
+    name: Build Linux Packages
+    needs: build-pyinstaller
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Determine release tag
+        id: package_meta
+        run: |
+          tag="${GITHUB_REF##*/}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Install packaging toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y snapcraft flatpak flatpak-builder
+
+      - name: Prepare Flatpak remotes
+        run: |
+          sudo flatpak --noninteractive remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+      - name: Build snap package
+        run: |
+          cd packaging/snap
+          snapcraft --destructive-mode
+          SNAP_FILE="$(ls -1t *.snap | head -n1)"
+          if [ -z "$SNAP_FILE" ]; then
+            echo "::error::snapcraft did not produce a .snap file"
+            exit 1
+          fi
+          mv "$SNAP_FILE" "games-collection_${{ steps.package_meta.outputs.tag }}.snap"
+
+      - name: Build Flatpak bundle
+        run: |
+          cd packaging/flatpak
+          flatpak-builder --force-clean --install-deps-from=flathub --repo=repo build-dir com.gamescollection.GamesCollection.json
+          flatpak build-bundle repo "games-collection_${{ steps.package_meta.outputs.version }}.flatpak" com.gamescollection.GamesCollection stable --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo
+
+      - name: Upload snap artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: games-collection-snap
+          path: packaging/snap/games-collection_${{ steps.package_meta.outputs.tag }}.snap
+
+      - name: Upload flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: games-collection-flatpak
+          path: packaging/flatpak/games-collection_${{ steps.package_meta.outputs.version }}.flatpak
+
   create-release:
     name: Create Release
-    needs: [build-pyinstaller, cross-platform-tests, docker-build]
+    needs: [build-pyinstaller, cross-platform-tests, docker-build, linux-packaging]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     timeout-minutes: 20
@@ -230,7 +286,17 @@ jobs:
               echo "✓ Found artifact directory: $artifact_dir"
             fi
           done
-          
+
+          for packaging_artifact in games-collection-snap games-collection-flatpak; do
+            artifact_dir="artifacts/${packaging_artifact}"
+            if [ ! -d "$artifact_dir" ]; then
+              echo "::warning::Missing artifact directory: $artifact_dir"
+              missing_artifacts=$((missing_artifacts + 1))
+            else
+              echo "✓ Found packaging artifact: $artifact_dir"
+            fi
+          done
+
           if [ $missing_artifacts -gt 0 ]; then
             echo "::error::$missing_artifacts artifact(s) missing. Release cannot proceed."
             echo "Available artifacts:"
