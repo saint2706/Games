@@ -8,6 +8,7 @@ Table of Contents
 -----------------
 
 -  `Overview <#overview>`__
+-  `AI Profiling and Tuning <#ai-profiling-and-tuning>`__
 -  `Code Quality Improvements <#code-quality-improvements>`__
 -  `Documentation <#documentation>`__
 -  `Testing Infrastructure <#testing-infrastructure>`__
@@ -28,6 +29,28 @@ improvements across the Games repository, including:
 
 All implementations maintain 100% backward compatibility with existing
 code.
+
+--------------
+
+AI Profiling and Tuning
+-----------------------
+
+The AI strategies now include opt-in profiling hooks that collect per-move
+``cProfile`` traces when ``GAMES_PROFILE_AI`` is set. Results are written to
+``$GAMES_PROFILE_AI_DIR`` (default ``./profiling``) using timestamped files
+named after the strategy method (for example,
+``MinimaxStrategy.select_move``).
+
+Tuning tips discovered while analysing the traces:
+
+-  Keep Connect Four minimax searches at even ``max_depth`` values and use
+   the supplied ``state_key_fn`` to unlock subtree memoization.
+-  Prefer immutable board representations when exploring successors to
+   avoid redundant cloning overhead; tuples make hashing inexpensive.
+-  Sudoku heuristics benefit from caching candidate counts keyed by the
+   board signature, significantly reducing repeated legality scans.
+-  Adjust pruning thresholds and heuristics iteratively—profiling files
+   record wall-clock duration for each decision to guide changes.
 
 --------------
 
