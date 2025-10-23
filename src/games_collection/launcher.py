@@ -88,6 +88,7 @@ GAME_MAP: dict[str, tuple[str, Callable[[], None]]] = {
 
 SLUG_TO_ENTRY = {metadata.slug: (metadata.slug, launcher) for metadata, launcher in _MENU_ENTRIES}
 SLUG_TO_METADATA = {metadata.slug: metadata for metadata in _ORDERED_METADATA}
+SLUG_TO_NUMBER = {metadata.slug: str(index) for index, (metadata, _launcher) in enumerate(_MENU_ENTRIES, start=1)}
 
 
 RECOMMENDATION_SERVICE = RecommendationService(get_default_game_catalogue())
@@ -113,6 +114,7 @@ class LauncherSnapshot:
     leaderboard: tuple[CrossGameLeaderboardEntry, ...]
     recommendations: tuple[RecommendationResult, ...]
     recently_played: tuple[RecentlyPlayedEntry, ...]
+    favorite_games: tuple[str, ...]
 
 
 def parse_args() -> argparse.Namespace:
@@ -255,6 +257,7 @@ def build_launcher_snapshot(
         leaderboard=tuple(leaderboard),
         recommendations=tuple(recommendations),
         recently_played=recently_played,
+        favorite_games=tuple(service.get_favorites()),
     )
 
 
@@ -351,7 +354,10 @@ def print_header(service: ProfileService, scheduler: DailyChallengeScheduler) ->
 
 def print_menu(service: ProfileService) -> None:
     """Print the main menu."""
-    categories: dict[str, list[tuple[str, str]]] = {}
+
+    favorites = service.get_favorites()
+    favorite_set = set(favorites)
+    categories: dict[str, list[tuple[str, Optional[str], str]]] = {}
     for index, (metadata, _launcher) in enumerate(_MENU_ENTRIES, start=1):
         label = {
             "card": "Card Games",
@@ -360,9 +366,9 @@ def print_menu(service: ProfileService) -> None:
             "logic": "Logic Games",
             "word": "Word Games",
         }.get(metadata.genre, metadata.genre.title())
-        categories.setdefault(label, []).append((str(index), metadata.name))
+        categories.setdefault(label, []).append((str(index), metadata.slug, metadata.name))
 
-    categories.setdefault("Educational Tools", []).append(("T", "Tutorial catalogue"))
+    categories.setdefault("Educational Tools", []).append(("T", None, "Tutorial catalogue"))
 
     if HAS_COLORAMA:
         print(f"{Fore.CYAN}Daily Activities:{Style.RESET_ALL}")
@@ -379,6 +385,23 @@ def print_menu(service: ProfileService) -> None:
     print("  S. Switch profile")
     print("  R. Rename active profile")
     print("  X. Reset active profile\n")
+
+    favorites_heading = "Favorite Games"
+    if HAS_COLORAMA:
+        print(f"{Fore.MAGENTA}{favorites_heading}:{Style.RESET_ALL}")
+    else:
+        print(f"{favorites_heading}:")
+    if favorites:
+        for slug in favorites:
+            metadata = SLUG_TO_METADATA.get(slug)
+            number = SLUG_TO_NUMBER.get(slug)
+            game_name = metadata.name if metadata else slug.replace("_", " ").title()
+            suffix = f" (#{number})" if number else ""
+            marker = "★" if not HAS_COLORAMA else f"{Fore.YELLOW}★{Style.RESET_ALL}"
+            print(f"  {marker} {game_name}{suffix}")
+    else:
+        print("  - Mark games as favorites to pin them here")
+    print()
 
     recently_played = service.get_recently_played()
     heading = "Recently Played"
@@ -408,15 +431,23 @@ def print_menu(service: ProfileService) -> None:
         print(f"{Fore.MAGENTA}Catalogue Shortcuts:{Style.RESET_ALL}")
     else:
         print("Catalogue Shortcuts:")
-    print("  INFO <number|slug>. Preview a game's details without launching\n")
+    print("  INFO <number|slug>. Preview a game's details without launching")
+    print("  FAV <number|slug>. Toggle a game's favorite status\n")
 
     for category, games in categories.items():
         if HAS_COLORAMA:
             print(f"{Fore.YELLOW}{Style.BRIGHT}{category}:{Style.RESET_ALL}")
         else:
             print(f"\n{category}:")
-        for num, name in games:
-            print(f"  {num}. {name}")
+        for num, slug, name in games:
+            if slug is not None and slug in favorite_set:
+                if HAS_COLORAMA:
+                    line = f"  {Fore.YELLOW}★ {num}. {name}{Style.RESET_ALL}"
+                else:
+                    line = f"  ★ {num}. {name}"
+            else:
+                line = f"  {num}. {name}"
+            print(line)
         print()
 
     if HAS_COLORAMA:
@@ -912,40 +943,81 @@ def launch_game(choice: str, service: ProfileService, scheduler: DailyChallengeS
     Returns:
         True to continue, False to exit
     """
-    normalized = choice.strip().lower()
+    stripped = choice.strip()
+    normalized = stripped.lower()
+    tokens = stripped.split(maxsplit=1)
+    command = tokens[0].lower() if tokens else ""
 
     if normalized in {"0", "exit"}:
         return False
 
-    if normalized == "p":
+    if command == "p":
         _handle_profile_summary(service)
         return True
-    if normalized == "l":
+    if command == "l":
         _handle_profile_list(service)
         return True
-    if normalized == "s":
+    if command == "s":
         _handle_profile_switch(service)
         return True
-    if normalized == "r":
+    if command == "r":
         _handle_profile_rename(service)
         return True
-    if normalized == "x":
+    if command == "x":
         _handle_profile_reset(service)
         return True
-    if normalized == "c":
+    if command == "c":
         _handle_leaderboard_view(service)
         return True
-    if normalized == "a":
+    if command == "a":
         _handle_achievement_overview(service)
         return True
-    if normalized == "m":
+    if command == "m":
         _handle_recommendations_view(service)
         return True
-    if normalized == "t":
+    if command == "t":
         launch_tutorial_browser(service)
         return True
-    if normalized == "d":
+    if command == "d":
         _handle_daily_challenge(service, scheduler)
+        return True
+
+    if command in {"fav", "favorite", "favourite"}:
+        if len(tokens) == 1:
+            print("Provide a menu number or slug after FAV to toggle a favorite.")
+            input("\nPress Enter to return to the menu…")
+            return True
+        target = tokens[1]
+        entry = get_game_entry(target)
+        if entry is None:
+            message = f"Unknown game '{target}'."
+            if HAS_COLORAMA:
+                print(f"{Fore.RED}{message}{Style.RESET_ALL}")
+            else:
+                print(message)
+            input("\nPress Enter to return to the menu…")
+            return True
+
+        slug, _ = entry
+        metadata = SLUG_TO_METADATA.get(slug)
+        game_name = metadata.name if metadata else slug.replace("_", " ").title()
+        was_favorite = service.is_favorite(slug)
+        new_state = service.toggle_favorite(slug)
+        if was_favorite == new_state:
+            message = f"Could not update favorite status for {game_name}."
+            color = Fore.YELLOW if HAS_COLORAMA else None
+        elif new_state:
+            message = f"Marked {game_name} as a favorite."
+            color = Fore.GREEN if HAS_COLORAMA else None
+        else:
+            message = f"Removed {game_name} from favorites."
+            color = Fore.CYAN if HAS_COLORAMA else None
+
+        if HAS_COLORAMA and color is not None:
+            print(f"{color}{message}{Style.RESET_ALL}")
+        else:
+            print(message)
+        input("\nPress Enter to return to the menu…")
         return True
 
     if normalized.startswith("info"):

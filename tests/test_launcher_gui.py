@@ -101,6 +101,7 @@ class DummyProfileService:
         self.active_profile = DummyProfile()
         self._saved = 0
         self._recently_played_limit: Optional[int] = None
+        self._favorites: list[str] = []
 
     def save_active_profile(self) -> None:
         """Record that the profile would be saved."""
@@ -117,6 +118,40 @@ class DummyProfileService:
 
         self._recently_played_limit = limit
         return []
+
+    def get_favorites(self):  # noqa: D401 - simple stub
+        """Return the stubbed favorites list."""
+
+        return list(self._favorites)
+
+    def is_favorite(self, slug: str) -> bool:
+        """Return whether ``slug`` is in the favorites list."""
+
+        return slug in self._favorites
+
+    def mark_favorite(self, slug: str) -> bool:
+        """Append ``slug`` to the favorites list when absent."""
+
+        if slug in self._favorites:
+            return False
+        self._favorites.append(slug)
+        return True
+
+    def unmark_favorite(self, slug: str) -> bool:
+        """Remove ``slug`` from the favorites list when present."""
+
+        if slug not in self._favorites:
+            return False
+        self._favorites = [entry for entry in self._favorites if entry != slug]
+        return True
+
+    def toggle_favorite(self, slug: str) -> bool:
+        """Toggle membership of ``slug`` returning the new state."""
+
+        if self.unmark_favorite(slug):
+            return False
+        self.mark_favorite(slug)
+        return True
 
 
 def test_run_launcher_gui_invokes_preferred_framework(monkeypatch):
@@ -211,14 +246,21 @@ def test_build_pyqt_launcher_handles_missing_dependencies(monkeypatch):
     assert result is None
 
 
-def test_print_menu_renders_recently_played_section(monkeypatch, capsys):
-    """The CLI menu includes the recently played section with formatted timestamps."""
+def test_print_menu_renders_favorites_and_recently_played(monkeypatch, capsys):
+    """The CLI menu highlights favorites and the recently played section."""
 
     monkeypatch.setattr(launcher, "HAS_COLORAMA", False)
 
     class StubService:
         def __init__(self) -> None:
             self.requested_limit: Optional[int] = None
+            self.favorites_requested = False
+
+        def get_favorites(self):  # noqa: D401 - simple stub
+            """Return a deterministic favorites list."""
+
+            self.favorites_requested = True
+            return ["tic_tac_toe"]
 
         def get_recently_played(self, limit: int = 5):  # noqa: D401 - simple stub
             """Return a deterministic recently played entry."""
@@ -232,6 +274,40 @@ def test_print_menu_renders_recently_played_section(monkeypatch, capsys):
     output = capsys.readouterr().out
 
     assert service.requested_limit == 5
+    assert service.favorites_requested is True
+    assert "Favorite Games:" in output
+    assert "★ Tic-Tac-Toe" in output
     assert "Recently Played:" in output
     assert "Tic-Tac-Toe" in output
     assert "2024-05-01 12:30" in output
+
+
+def test_launch_game_supports_favorite_toggle(monkeypatch, capsys):
+    """The CLI dispatcher supports toggling favorites via the FAV command."""
+
+    monkeypatch.setattr(launcher, "HAS_COLORAMA", False)
+
+    class StubService:
+        def __init__(self) -> None:
+            self.favorites: set[str] = set()
+
+        def is_favorite(self, slug: str) -> bool:
+            return slug in self.favorites
+
+        def toggle_favorite(self, slug: str) -> bool:
+            if slug in self.favorites:
+                self.favorites.remove(slug)
+                return False
+            self.favorites.add(slug)
+            return True
+
+    service = StubService()
+    monkeypatch.setattr("builtins.input", lambda *_args, **_kwargs: "")
+
+    assert launcher.launch_game("fav tic_tac_toe", service, object()) is True
+    add_output = capsys.readouterr().out
+    assert "Marked Tic-Tac-Toe as a favorite." in add_output
+
+    assert launcher.launch_game("fav tic_tac_toe", service, object()) is True
+    remove_output = capsys.readouterr().out
+    assert "Removed Tic-Tac-Toe from favorites." in remove_output

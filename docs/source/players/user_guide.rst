@@ -74,6 +74,19 @@ leaderboards, personalised recommendations, and the full catalogue. If PyQt5 is
 not installed the launcher falls back to the classic CLI menu automatically, or
 you can force it explicitly with ``--ui cli``.
 
+Favorite games
+--------------
+
+Pin go-to titles so they are always within reach. Both launcher flavours expose
+favorite management:
+
+* **CLI:** Type ``FAV <number|slug>`` from the main menu to toggle the star for
+  the selected game. A new "Favorite Games" section appears near the top of the
+  menu and starred entries receive a ``★`` marker inside their genre listing.
+* **GUI:** The detail pane adds an *Add to favorites* / *Remove from favorites*
+  button and the sidebar displays a dedicated favorites list. Favorite games are
+  also marked with a star in the catalogue tree so you can scan for them quickly.
+
 Personalised recommendations
 ----------------------------
 

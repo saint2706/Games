@@ -245,6 +245,26 @@ class TestPlayerProfile:
 
         assert profile.favorite_game() == "uno"
 
+    def test_favorite_toggle_and_persistence(self, tmp_path: pathlib.Path) -> None:
+        """Favorite selections should toggle cleanly and persist to disk."""
+
+        profile = PlayerProfile(player_id="tester", display_name="Tester")
+        assert profile.add_favorite("Dots-And-Boxes") is True
+        assert profile.favorite_games == ["dots_and_boxes"]
+        assert profile.add_favorite("dots_and_boxes") is False
+        assert profile.toggle_favorite("dots_and_boxes") is False
+        assert profile.favorite_games == []
+        assert profile.toggle_favorite(" ") is False
+
+        assert profile.toggle_favorite("hangman") is True
+        assert profile.favorite_games == ["hangman"]
+
+        profile_path = tmp_path / "profile.json"
+        profile.save(profile_path)
+
+        reloaded = PlayerProfile.load(profile_path, "tester")
+        assert reloaded.favorite_games == ["hangman"]
+
     def test_save_and_load(self):
         """Test saving and loading profile."""
         with tempfile.TemporaryDirectory() as tmpdir:
