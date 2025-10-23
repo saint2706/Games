@@ -294,7 +294,7 @@ if PYQT5_AVAILABLE:
             self.tableau_canvases: list[PileCanvas] = []
 
             self.build_layout()
-            self.update_display()
+            self.request_update_display(immediate=True)
 
         # ------------------------------------------------------------------
         # BaseGUI overrides
@@ -689,7 +689,7 @@ if PYQT5_AVAILABLE:
                 else:
                     self._set_status("No cards left to draw.")
             self.clear_selection()
-            self.update_display()
+            self.request_update_display()
 
         def handle_reset(self) -> None:
             """Handle the action of recycling the waste back into the stock."""
@@ -698,7 +698,7 @@ if PYQT5_AVAILABLE:
             else:
                 self._set_status("Cannot reset the stock right now.")
             self.clear_selection()
-            self.update_display()
+            self.request_update_display()
 
         def handle_auto(self) -> None:
             """Handle the action of automatically moving cards to foundations."""
@@ -707,7 +707,7 @@ if PYQT5_AVAILABLE:
             else:
                 self._set_status("No automatic foundation moves available.")
             self.clear_selection()
-            self.update_display()
+            self.request_update_display()
 
         def handle_new_game(self) -> None:
             """Handle the action of starting a new game."""
@@ -719,7 +719,7 @@ if PYQT5_AVAILABLE:
             self.game = self._new_game_factory()
             self.clear_selection()
             self._set_status("Dealt a new game. Good luck!")
-            self.update_display()
+            self.request_update_display()
 
         def _on_pile_clicked(self, pile_type: str, index: int, y: float) -> None:
             """Master handler for all pile click events."""
@@ -739,12 +739,12 @@ if PYQT5_AVAILABLE:
             """Handle a click on the waste pile."""
             if self.selected_source and self.selected_source[0] == "waste":
                 self.clear_selection()
-                self.update_display()
+                self.request_update_display()
                 return
             if not self.game.waste.cards:
                 self._set_status("Waste pile is empty.")
                 self.clear_selection()
-                self.update_display()
+                self.request_update_display()
                 return
             self._set_selection(("waste", 0, 1))
 
@@ -789,7 +789,7 @@ if PYQT5_AVAILABLE:
             if clicked_index < face_up_start:
                 self._set_status("You can only move face-up cards.")
                 self.clear_selection()
-                self.update_display()
+                self.request_update_display()
                 return
 
             num_cards = len(pile.cards) - clicked_index
@@ -818,10 +818,10 @@ if PYQT5_AVAILABLE:
 
             if moved:
                 self.clear_selection()
-                self.update_display()
+                self.request_update_display()
             else:
                 self._set_status("That move isn't allowed.")
-                self.update_display()
+                self.request_update_display()
             return moved
 
         def _get_pile(self, source_type: str, index: int) -> Optional[Pile]:
@@ -838,11 +838,11 @@ if PYQT5_AVAILABLE:
             """Set the current card selection and compute legal targets."""
             if self.selected_source == selection:
                 self.clear_selection()
-                self.update_display()
+                self.request_update_display()
                 return
             self.selected_source = selection
             self.legal_targets = self._compute_legal_targets(selection)
-            self.update_display()
+            self.request_update_display()
 
         def clear_selection(self) -> None:
             """Clear the current selection and target highlights."""

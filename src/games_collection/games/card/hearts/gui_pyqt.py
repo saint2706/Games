@@ -135,7 +135,7 @@ class HeartsGUI(QMainWindow, BaseGUI):
 
         self._build_reference_fonts()
         self.build_layout()
-        self.update_display()
+        self.request_update_display(immediate=True)
         self._start_new_round()
 
     # ------------------------------------------------------------------
@@ -219,9 +219,12 @@ class HeartsGUI(QMainWindow, BaseGUI):
     def update_display(self) -> None:
         """Refresh scoreboard, trick view, and header text."""
 
-        self._refresh_scoreboard()
-        self._update_trick_cards()
-        self._update_status_banner()
+        if self.should_update_region("scoreboard"):
+            self._refresh_scoreboard()
+        if self.should_update_region("trick"):
+            self._update_trick_cards()
+        if self.should_update_region("status"):
+            self._update_status_banner()
 
     def _setup_shortcuts(self) -> None:
         """Register keyboard shortcuts supported by the GUI."""
@@ -437,7 +440,7 @@ class HeartsGUI(QMainWindow, BaseGUI):
             if self.status_label:
                 self.status_label.setText("Select exactly three cards to pass.")
 
-        self.update_display()
+        self.request_update_display({"status", "trick"})
 
     def _prepare_play_phase(self) -> None:
         """Switch from passing controls to trick-taking controls."""
@@ -502,7 +505,7 @@ class HeartsGUI(QMainWindow, BaseGUI):
             self.pass_list.clearSelection()
         self.current_player_index = self.game.players.index(self.game.find_starting_player())
         self._prepare_play_phase()
-        self.update_display()
+        self.request_update_display({"status", "trick"})
 
     # ------------------------------------------------------------------
     # Playing logic
@@ -577,7 +580,7 @@ class HeartsGUI(QMainWindow, BaseGUI):
         assert self.current_player_index is not None
         self.current_player_index = (self.current_player_index + 1) % 4
         QTimer.singleShot(max(200, delay_ms), self._continue_turn_sequence)
-        self.update_display()
+        self.request_update_display({"status", "trick"})
 
     def _resolve_trick(self) -> None:
         """Award the trick to the winner and continue play."""
@@ -589,7 +592,7 @@ class HeartsGUI(QMainWindow, BaseGUI):
         self.current_player_index = self.game.players.index(winner)
         if self.game.hearts_broken and self.hearts_label:
             self.hearts_label.setText("Hearts have been broken")
-        self.update_display()
+        self.request_update_display({"status", "trick"})
         if all(not player.hand for player in self.game.players):
             self._complete_round()
         else:
@@ -620,7 +623,7 @@ class HeartsGUI(QMainWindow, BaseGUI):
         else:
             if self.status_label:
                 self.status_label.setText("Round finished. Press the button or Ctrl+N to continue.")
-        self.update_display()
+        self.request_update_display({"scoreboard", "status"})
 
     def _handle_next_round(self) -> None:
         """Start the next round when requested."""

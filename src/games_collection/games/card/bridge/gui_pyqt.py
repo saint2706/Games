@@ -177,7 +177,7 @@ class BridgeGUI(BaseGUI):
 
         self.build_layout()
         self.apply_theme()
-        self.update_display()
+        self.request_update_display(immediate=True)
         QTimer.singleShot(250, self.start_new_hand)
 
     def build_layout(self) -> None:
@@ -319,7 +319,7 @@ class BridgeGUI(BaseGUI):
             self._render_bidding_history()
             self._set_status("All players passed. Deal over.")
             self._append_log("Board passed out - no play.")
-            self.update_display()
+            self.request_update_display()
             self._refresh_card_buttons()
             return
 
@@ -332,7 +332,7 @@ class BridgeGUI(BaseGUI):
         self._append_log(f"Contract: {contract_text} by {declarer.position}")
         self._append_log(f"Dummy: {dummy.position} ({dummy.name})")
         self._set_status("Opening lead in progress...")
-        self.update_display()
+        self.request_update_display()
         QTimer.singleShot(500, self._advance_turn)
 
     def _create_seat_widget(self, player: BridgePlayer) -> QWidget:
@@ -429,7 +429,7 @@ class BridgeGUI(BaseGUI):
             valid = self.game.get_valid_plays(player)
             self.current_valid_cards = valid
             self._set_status("Your turn - select a card to play.")
-            self.update_display()
+            self.request_update_display()
 
     def _play_ai_turn(self, player: BridgePlayer) -> None:
         if self.hand_complete:
@@ -458,7 +458,7 @@ class BridgeGUI(BaseGUI):
                 self.dummy_revealed = True
                 dummy = self.players[self.dummy_index]
                 self._append_log(f"Dummy hand revealed: {dummy.position}")
-        self.update_display()
+        self.request_update_display()
         if len(self.game.current_trick) == 4:
             self._set_status("Evaluating trick winner...")
             QTimer.singleShot(700, self._complete_trick)
@@ -473,7 +473,7 @@ class BridgeGUI(BaseGUI):
         ew_tricks = sum(player.tricks_won for player in self.players if player.position in {"E", "W"})
         self._set_status(f"Trick won by {winner.position}. NS {ns_tricks} - EW {ew_tricks}")
         self.active_player_index = self.players.index(winner)
-        self.update_display()
+        self.request_update_display()
         if all(not player.hand for player in self.players):
             self._finalize_hand()
         else:
@@ -498,7 +498,7 @@ class BridgeGUI(BaseGUI):
         self._set_status(result_text)
         self._append_log(result_text)
         self._append_log("Scores - North/South: {north_south} | East/West: {east_west}".format(**scores))
-        self.update_display()
+        self.request_update_display()
 
     def _refresh_card_buttons(self) -> None:
         if self.card_button_layout is None:

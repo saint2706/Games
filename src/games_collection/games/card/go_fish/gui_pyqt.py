@@ -106,7 +106,7 @@ class GoFishGUI(QWidget, BaseGUI):
         self.resize(resolved_config.window_width, resolved_config.window_height)
 
         self.build_layout()
-        self.update_display()
+        self.request_update_display(immediate=True)
         self._log_message("Game initialized. Waiting for the first move...")
 
     def build_layout(self) -> None:
@@ -278,7 +278,7 @@ class GoFishGUI(QWidget, BaseGUI):
         self._log_message(result["message"])
         self.status_label.setText(result["message"])
 
-        self.update_display()
+        self.request_update_display()
 
         if result.get("new_books", 0) > 0:
             self._celebrate_books(actor.name, result["new_books"])
@@ -367,7 +367,7 @@ class GoFishGUI(QWidget, BaseGUI):
                 self._flash_timer.stop()
                 self._flash_timer = None
             # Restore normal display
-            self.update_display()
+            self.request_update_display()
             return
 
         row = self.player_rows[self._flash_target_name]

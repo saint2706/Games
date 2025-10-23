@@ -253,31 +253,37 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
         main_layout.addWidget(log_group, stretch=1)
 
     def update_display(self) -> None:
-        for idx, player in enumerate(self.players):
-            analysis = self.game.analyze_hand(player.hand)
-            self.score_labels[idx].setText(f"Score: {player.score}")
-            self.deadwood_labels[idx].setText(f"Deadwood: {analysis.deadwood_total}")
-            if idx == 0:
-                self._update_meld_display(analysis)
+        if self.should_update_region("scoreboard"):
+            for idx, player in enumerate(self.players):
+                analysis = self.game.analyze_hand(player.hand)
+                self.score_labels[idx].setText(f"Score: {player.score}")
+                self.deadwood_labels[idx].setText(f"Deadwood: {analysis.deadwood_total}")
+                if idx == 0:
+                    self._update_meld_display(analysis)
 
-        self._render_hand()
+        if self.should_update_region("hand"):
+            self._render_hand()
 
-        if self.game.discard_pile:
-            top_card = self.game.discard_pile[-1]
-            self.top_discard_label.setText(f"Discard pile: {top_card} (total {len(self.game.discard_pile)})")
-        else:
-            self.top_discard_label.setText("Discard pile: empty")
+        if self.should_update_region("discard"):
+            if self.game.discard_pile:
+                top_card = self.game.discard_pile[-1]
+                self.top_discard_label.setText(f"Discard pile: {top_card} (total {len(self.game.discard_pile)})")
+            else:
+                self.top_discard_label.setText("Discard pile: empty")
 
-        self.stock_count_label.setText(f"Stock remaining: {len(self.game.deck.cards)}")
+        if self.should_update_region("stock"):
+            self.stock_count_label.setText(f"Stock remaining: {len(self.game.deck.cards)}")
 
-        if self.selected_card and self.phase == "discard":
-            self.selection_label.setText(f"Selected discard: {self.selected_card}")
-        elif self.phase == "discard":
-            self.selection_label.setText("Select a card to discard or knock.")
-        else:
-            self.selection_label.setText("No card selected.")
+        if self.should_update_region("status"):
+            if self.selected_card and self.phase == "discard":
+                self.selection_label.setText(f"Selected discard: {self.selected_card}")
+            elif self.phase == "discard":
+                self.selection_label.setText("Select a card to discard or knock.")
+            else:
+                self.selection_label.setText("No card selected.")
 
-        self._update_player_badges()
+        if self.should_update_region("badges"):
+            self._update_player_badges()
 
     # ------------------------------------------------------------------
     # Shortcut registration
@@ -318,7 +324,7 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
             )
 
         self._prepare_next_action()
-        self.update_display()
+        self.request_update_display({"scoreboard", "hand", "discard", "stock", "status", "badges"}, immediate=True)
         self._update_controls()
         self._process_ai_turns()
 
@@ -333,7 +339,7 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
         self.players[0].hand.sort(key=lambda c: (c.suit.value, c.value))
         self.phase = "discard"
         self.status_label.setText(f"You take {card}. Select a different card to discard or knock.")
-        self.update_display()
+        self.request_update_display({"hand", "status", "discard", "badges"})
         self._update_controls()
 
     def on_pass_initial_upcard(self) -> None:
@@ -345,7 +351,7 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
         self.game.pass_initial_upcard(0)
         self._flush_turn_log()
         self._prepare_next_action(override_message="Waiting for opponent's decision...")
-        self.update_display()
+        self.request_update_display("status")
         self._update_controls()
         self._process_ai_turns()
 
@@ -358,7 +364,7 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
         self._flush_turn_log()
         self.phase = "discard"
         self.status_label.setText(f"You draw {card} from the stock.")
-        self.update_display()
+        self.request_update_display({"hand", "status", "stock", "badges"})
         self._update_controls()
 
     def on_draw_from_discard(self) -> None:
@@ -373,7 +379,7 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
         self._flush_turn_log()
         self.phase = "discard"
         self.status_label.setText(f"You take {card} from the discard pile. Choose a discard or knock.")
-        self.update_display()
+        self.request_update_display({"hand", "status", "discard", "badges"})
         self._update_controls()
 
     def on_select_card(self, card: Card) -> None:
@@ -383,7 +389,7 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
             self.selected_card = None
         else:
             self.selected_card = card
-        self.update_display()
+        self.request_update_display({"hand", "status"})
         self._update_controls()
 
     def on_discard(self) -> None:
@@ -402,7 +408,7 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
         self.selected_card = None
         self._flush_turn_log()
         self._prepare_next_action(override_message=f"You discard {discarded}. Waiting for opponent...")
-        self.update_display()
+        self.request_update_display({"hand", "status", "discard", "badges"})
         self._update_controls()
         self._process_ai_turns()
 
@@ -584,7 +590,7 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
                 break
 
         self._prepare_next_action()
-        self.update_display()
+        self.request_update_display({"scoreboard", "hand", "discard", "stock", "status", "badges"})
         self._update_controls()
 
     def _finish_round(self, knocker_idx: int) -> None:
@@ -642,7 +648,7 @@ class GinRummyPyQtGUI(QMainWindow, BaseGUI):
             )
 
         self._prepare_next_action()
-        self.update_display()
+        self.request_update_display({"scoreboard", "hand", "discard", "stock", "status", "badges"})
         self._update_controls()
 
     def _update_controls(self) -> None:

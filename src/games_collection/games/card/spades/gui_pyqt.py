@@ -316,7 +316,7 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
         if self.game.is_game_over():
             self.status_text = "The match is over. Restart the programme for a new game."
             self.phase = "Game complete"
-            self.update_display()
+            self.request_update_display(immediate=True)
             return
 
         self.game.start_new_round()
@@ -341,7 +341,7 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
         if self.log_widget is not None:
             self._log_message(f"\nRound {self.game.round_number} begins. Leader: {self.game.players[self.leader_index].name}.")
 
-        self.update_display()
+        self.request_update_display(immediate=True)
         self._prompt_next_bidder()
 
     def _shortcut_next_round(self) -> None:
@@ -368,13 +368,13 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
         if player.is_ai:
             self.awaiting_bid = False
             self.status_text = f"Waiting for {player.name} to bid..."
-            self.update_display()
+            self.request_update_display()
 
             QTimer.singleShot(400, lambda p=player: self._record_ai_bid(p))
         else:
             self.awaiting_bid = True
             self.status_text = "Enter your bid (0-13) and press Submit bid."
-            self.update_display()
+            self.request_update_display()
             if self.bid_spinbox is not None:
                 self.bid_spinbox.setFocus()
 
@@ -426,7 +426,7 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
         self.phase = "Playing"
         self.status_text = "Trick play: follow suit when you can."
         self.awaiting_bid = False
-        self.update_display()
+        self.request_update_display()
         QTimer.singleShot(300, self._advance_ai_turns)
 
     def _advance_ai_turns(self) -> None:
@@ -441,12 +441,12 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
         if not player.is_ai:
             self.awaiting_play = True
             self.status_text = "Your turn: select an available card to play."
-            self.update_display()
+            self.request_update_display()
             return
 
         self.awaiting_play = False
         self.status_text = f"{player.name} is selecting a card..."
-        self.update_display()
+        self.request_update_display()
 
         def complete_ai_turn() -> None:
             if self.phase != "Playing":
@@ -456,7 +456,7 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
             self.game.play_card(player, card)
             if self.log_widget is not None:
                 self._log_message(f"{player.name} plays {card}.")
-            self.update_display()
+            self.request_update_display()
 
             if len(self.game.current_trick) == 4:
                 winner = self.game.complete_trick()
@@ -464,7 +464,7 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
                     self._log_message(f"{winner.name} wins the trick.")
                 for value in self.trick_labels.values():
                     value.setText("Waiting")
-                self.update_display()
+                self.request_update_display()
 
                 if self.game.total_tricks_played >= 13:
                     self._finish_round()
@@ -484,13 +484,13 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
             self.game.play_card(self.human_player, card)
         except ValueError:
             self.status_text = "That card is not a legal play right now."
-            self.update_display()
+            self.request_update_display()
             return
 
         self.awaiting_play = False
         if self.log_widget is not None:
             self._log_message(f"{self.human_player.name} plays {card}.")
-        self.update_display()
+        self.request_update_display()
 
         if len(self.game.current_trick) == 4:
             winner = self.game.complete_trick()
@@ -498,7 +498,7 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
                 self._log_message(f"{winner.name} wins the trick.")
             for value in self.trick_labels.values():
                 value.setText("Waiting")
-            self.update_display()
+            self.request_update_display()
             if self.game.total_tricks_played >= 13:
                 self._finish_round()
                 return
@@ -586,7 +586,7 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
         self.status_text = "Round complete. Review the breakdown or press Ctrl+N for the next round."
         self.awaiting_play = False
         self._set_breakdown_text("\n".join(lines))
-        self.update_display()
+        self.request_update_display()
 
         if self.game.is_game_over():
             winner_index = self.game.get_winner()
@@ -596,7 +596,7 @@ class SpadesPyQtGUI(QMainWindow, BaseGUI):
                 self.status_text = f"Game complete: {self.team_names[winner_index]} win!"
             if self.next_round_button is not None:
                 self.next_round_button.setEnabled(False)
-            self.update_display()
+            self.request_update_display()
 
     def _log_message(self, message: str) -> None:
         """Append a message to the round log widget."""

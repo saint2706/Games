@@ -203,7 +203,7 @@ class WarGUI(QWidget, BaseGUI):
 
         self._build_layout()
         self._update_speed_display()
-        self.update_display()
+        self.request_update_display(immediate=True)
         self._log_message("Game initialized. Click Play Round to begin.")
 
     def _build_layout(self) -> None:
@@ -444,7 +444,7 @@ class WarGUI(QWidget, BaseGUI):
             self.battle_canvas.clear()
 
         self.status_label.setText(f"Player {result.get('winner', '—')} won the round.")
-        self.update_display()
+        self.request_update_display()
 
         if result.get("game_over"):
             self._handle_game_over(result)
@@ -592,7 +592,7 @@ class WarGUI(QWidget, BaseGUI):
             self.play_button.setEnabled(True)
             self.auto_button.setEnabled(True)
 
-            self.update_display()
+            self.request_update_display()
             self.status_label.setText(f"Game loaded from {Path(filepath_str).name}")
             self._log_message(f"Game loaded successfully from {filepath_str}")
             QMessageBox.information(self, "Load Successful", "Game loaded successfully!")

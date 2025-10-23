@@ -90,7 +90,7 @@ class CanastaPyQtGUI(QMainWindow, BaseGUI):
         self.log_widget: QTextEdit
 
         self.build_layout()
-        self.update_display()
+        self.request_update_display(immediate=True)
 
     def build_layout(self) -> None:
         """Construct the PyQt widgets."""
@@ -183,7 +183,7 @@ class CanastaPyQtGUI(QMainWindow, BaseGUI):
         card = self.game.draw(self.game.players[self.human_index], DrawSource.STOCK)
         self._log(f"You drew {card} from stock.")
         self.phase = "meld"
-        self.update_display()
+        self.request_update_display()
 
     def draw_from_discard(self) -> None:
         """Attempt to take the discard pile."""
@@ -198,7 +198,7 @@ class CanastaPyQtGUI(QMainWindow, BaseGUI):
         card = self.game.draw(player, DrawSource.DISCARD)
         self._log(f"You collected the discard pile; top card {card}.")
         self.phase = "meld"
-        self.update_display()
+        self.request_update_display()
 
     def lay_selected_meld(self) -> None:
         """Lay down a meld from the selected cards."""
@@ -219,7 +219,7 @@ class CanastaPyQtGUI(QMainWindow, BaseGUI):
         self._log(f"Meld laid for {sum(card_point_value(card) for card in meld.cards)} points.")
         self.phase = "discard"
         self._set_status(f"Meld laid: {', '.join(str(card) for card in meld.cards)}")
-        self.update_display()
+        self.request_update_display()
 
     def discard_selected_card(self) -> None:
         """Discard the chosen card and move to the next player."""
@@ -237,7 +237,7 @@ class CanastaPyQtGUI(QMainWindow, BaseGUI):
         self.phase = "draw"
         self._set_status(f"Discarded {card}.")
         self._complete_ai_cycle()
-        self.update_display()
+        self.request_update_display()
 
     def end_turn(self) -> None:
         """Skip to the next player if the turn is complete."""
@@ -246,7 +246,7 @@ class CanastaPyQtGUI(QMainWindow, BaseGUI):
             self._set_status("Discard before ending your turn.")
             return
         self._complete_ai_cycle()
-        self.update_display()
+        self.request_update_display()
 
     def go_out(self) -> None:
         """Attempt to finish the round."""
@@ -261,7 +261,7 @@ class CanastaPyQtGUI(QMainWindow, BaseGUI):
             team = self.game.teams[team_index]
             self._log(f"{team.name}: delta {delta}, total {team.score}")
         self._set_status("Round complete.")
-        self.update_display()
+        self.request_update_display()
 
     def _complete_ai_cycle(self) -> None:
         """Allow AI players to take simple turns."""
