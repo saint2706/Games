@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
+import threading
 from importlib import resources
+from pathlib import Path
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from games_collection.catalog.registry import GameMetadata, get_all_games
@@ -20,12 +23,20 @@ from games_collection.core.gui_frameworks import Framework, launch_preferred_gui
 from games_collection.core.profile_service import ProfileService, ProfileServiceError, RecentlyPlayedEntry
 from games_collection.core.leaderboard_service import CrossGameLeaderboardEntry
 from games_collection.core.recommendation_service import RecommendationResult
+from games_collection.core.update_service import (
+    UpdateCheckResult,
+    check_for_updates,
+    detect_bundle,
+    download_release_asset,
+    get_auto_update_preference,
+    set_auto_update_preference,
+)
 from games_collection.launcher import GENRE_ORDER, build_launcher_snapshot, format_recent_timestamp, get_game_entry
 
 from games_collection.core.gui_base_pyqt import BaseGUI, GUIConfig, PYQT5_AVAILABLE
 
 if PYQT5_AVAILABLE:  # pragma: no cover - exercised via smoke tests
-    from PyQt5.QtCore import Qt
+    from PyQt5.QtCore import Qt, QTimer
     from PyQt5.QtGui import QPixmap
     from PyQt5.QtWidgets import (
         QAbstractItemView,
@@ -298,6 +309,14 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._quick_alias_rows: List[str] = []
             self._settings_manager = get_settings_manager()
             self._selected_slug: Optional[str] = None
+            self._update_check_result: Optional[UpdateCheckResult] = None
+            self._bundle_hint = detect_bundle()
+            self._auto_check_enabled = get_auto_update_preference(self._settings_manager)
+            self._update_banner: Optional[QWidget] = None
+            self._update_label: Optional[QLabel] = None
+            self._update_download_button: Optional[QPushButton] = None
+            self._auto_check_checkbox: Optional[QCheckBox] = None
+            self._check_updates_button: Optional[QPushButton] = None
 
             QMainWindow.__init__(self)
             config = GUIConfig(
@@ -313,7 +332,11 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             BaseGUI.__init__(self, root=self, config=config)
 
             self._build_layout()
+            if self._update_banner is not None:
+                self._update_banner.hide()
             self.refresh_contents()
+            if self._auto_check_enabled:
+                self._queue_update_check()
 
         def _build_layout(self) -> None:
             """Construct the window widgets."""
@@ -335,7 +358,13 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
             self._refresh_button = QPushButton("Refresh data")
             self._refresh_button.clicked.connect(self.refresh_contents)  # type: ignore[arg-type]
             header_layout.addWidget(self._refresh_button)
+            self._check_updates_button = QPushButton("Check for updates")
+            self._check_updates_button.clicked.connect(self._on_manual_update_check)  # type: ignore[arg-type]
+            header_layout.addWidget(self._check_updates_button)
             container_layout.addLayout(header_layout)
+
+            self._update_banner = self._build_update_banner()
+            container_layout.addWidget(self._update_banner)
 
             self._profile_group = self._build_profile_group()
             container_layout.addWidget(self._profile_group)
@@ -360,6 +389,179 @@ if PYQT5_AVAILABLE:  # pragma: no cover - logic validated through smoke interfac
 
             self._catalogue_group = self._build_catalogue_group()
             container_layout.addWidget(self._catalogue_group, stretch=1)
+
+        def _build_update_banner(self) -> QWidget:
+            """Create the dismissible update notification banner."""
+
+            banner = QWidget()
+            banner.setObjectName("updateBanner")
+            layout = QHBoxLayout()
+            layout.setContentsMargins(12, 8, 12, 8)
+            layout.setSpacing(10)
+            banner.setLayout(layout)
+
+            self._update_label = QLabel("Checking for updates…")
+            self._update_label.setWordWrap(True)
+            layout.addWidget(self._update_label, stretch=1)
+
+            self._update_download_button = QPushButton("Download update")
+            self._update_download_button.setEnabled(False)
+            self._update_download_button.clicked.connect(self._on_download_update)  # type: ignore[arg-type]
+            layout.addWidget(self._update_download_button)
+
+            dismiss_button = QPushButton("Dismiss")
+            dismiss_button.clicked.connect(banner.hide)  # type: ignore[arg-type]
+            layout.addWidget(dismiss_button)
+
+            self._auto_check_checkbox = QCheckBox("Check automatically on startup")
+            self._auto_check_checkbox.setChecked(self._auto_check_enabled)
+            self._auto_check_checkbox.stateChanged.connect(self._on_auto_check_toggled)  # type: ignore[arg-type]
+            layout.addWidget(self._auto_check_checkbox)
+
+            return banner
+
+        def _on_manual_update_check(self) -> None:
+            """Trigger a manual update check."""
+
+            self._queue_update_check(manual=True)
+
+        def _queue_update_check(self, manual: bool = False) -> None:
+            """Schedule an update check on a background thread."""
+
+            if self._check_updates_button is not None:
+                self._check_updates_button.setEnabled(False)
+            if self._update_banner is not None and self._update_label is not None:
+                self._update_label.setText("Checking for updates…")
+                if self._update_download_button is not None:
+                    self._update_download_button.setEnabled(False)
+                self._update_banner.show()
+            thread = threading.Thread(target=self._run_update_check, args=(manual,), daemon=True)
+            thread.start()
+
+        def _run_update_check(self, manual: bool) -> None:
+            """Perform the network request for update metadata."""
+
+            result = check_for_updates(manager=self._settings_manager)
+            self._update_check_result = result
+
+            def _apply() -> None:
+                if self._check_updates_button is not None:
+                    self._check_updates_button.setEnabled(True)
+                self._apply_update_result(result, manual)
+
+            QTimer.singleShot(0, _apply)
+
+        def _apply_update_result(self, result: UpdateCheckResult, manual: bool) -> None:
+            """Update the banner contents after fetching update metadata."""
+
+            release = result.release
+            if release is None:
+                if self._update_label is not None:
+                    self._update_label.setText("Unable to contact the update service.")
+                if self._update_download_button is not None:
+                    self._update_download_button.setEnabled(False)
+                if manual:
+                    QMessageBox.warning(self, "Updates", "Unable to contact the update service.")
+                if self._update_banner is not None:
+                    self._update_banner.show()
+                return
+
+            latest_label = release.version or release.tag_name or "latest"
+            installed_label = result.installed_version or "unknown"
+
+            if result.update_available:
+                if self._update_label is not None:
+                    self._update_label.setText(
+                        f"Update available: {latest_label} (installed {installed_label})."
+                    )
+                if self._update_download_button is not None:
+                    self._update_download_button.setEnabled(True)
+                if self._update_banner is not None:
+                    self._update_banner.show()
+                if manual and release.html_url:
+                    QMessageBox.information(
+                        self,
+                        "Update available",
+                        f"Version {latest_label} is available. Release notes:\n{release.html_url}",
+                    )
+                return
+
+            if self._update_label is not None:
+                self._update_label.setText("You are already using the latest version.")
+            if self._update_download_button is not None:
+                self._update_download_button.setEnabled(False)
+            if manual:
+                QMessageBox.information(self, "Updates", "You are already using the latest version.")
+                if self._update_banner is not None:
+                    self._update_banner.hide()
+            else:
+                if self._update_banner is not None:
+                    self._update_banner.hide()
+
+        def _on_auto_check_toggled(self, state: int) -> None:
+            """Persist the user's preference for automatic update checks."""
+
+            enabled = state == Qt.Checked
+            set_auto_update_preference(enabled, self._settings_manager)
+            self._auto_check_enabled = enabled
+
+        def _on_download_update(self) -> None:
+            """Download the selected release asset in the background."""
+
+            release = self._update_check_result.release if self._update_check_result else None
+            if release is None:
+                QMessageBox.information(self, "Updates", "No update is currently available.")
+                return
+
+            if self._update_download_button is not None:
+                self._update_download_button.setEnabled(False)
+            QApplication.setOverrideCursor(Qt.WaitCursor)
+
+            def _download() -> None:
+                try:
+                    path = download_release_asset(release, bundle_hint=self._bundle_hint)
+                except RuntimeError as exc:
+                    QTimer.singleShot(0, lambda: self._handle_download_failure(str(exc)))
+                else:
+                    QTimer.singleShot(0, lambda p=path: self._handle_download_success(p))
+                finally:
+                    QTimer.singleShot(0, QApplication.restoreOverrideCursor)
+
+            threading.Thread(target=_download, daemon=True).start()
+
+        def _handle_download_failure(self, error: str) -> None:
+            """Display an error message when the update download fails."""
+
+            if self._update_download_button is not None:
+                self._update_download_button.setEnabled(True)
+            QMessageBox.critical(self, "Download failed", error)
+
+        def _handle_download_success(self, path: Path) -> None:
+            """Prompt the user to launch the downloaded build."""
+
+            if self._update_download_button is not None:
+                self._update_download_button.setEnabled(True)
+
+            prompt = QMessageBox.question(
+                self,
+                "Update downloaded",
+                f"Update downloaded to:\n{path}\nRelaunch now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes,
+            )
+
+            if prompt == QMessageBox.Yes:
+                self._profile_service.save_active_profile()
+                try:
+                    os.execv(str(path), [str(path)])
+                except OSError as exc:
+                    QMessageBox.critical(self, "Relaunch failed", f"Unable to relaunch the downloaded build: {exc}")
+            else:
+                QMessageBox.information(
+                    self,
+                    "Update downloaded",
+                    f"Launch the downloaded file at {path} to start the new version.",
+                )
 
         def _build_profile_group(self) -> QGroupBox:
             """Create the profile summary group."""

@@ -72,6 +72,8 @@ classifiers = [
 ]
 dependencies = [
     "colorama>=0.4.6",
+    "packaging>=23.0",
+    "requests>=2.31",
 ]
 
 [project.urls]
