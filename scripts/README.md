@@ -20,6 +20,7 @@ This directory contains utility scripts for development, testing, building, and 
 | `validate_mcp_config.py` | Validate MCP configuration files | `python validate_mcp_config.py` |
 | `validate_pyqt5.py` | Validate the PyQt5 GUI implementation | `python validate_pyqt5.py` |
 | `validate_workflows.py` | Validate GitHub Actions workflow files | `python validate_workflows.py` |
+| `workflow_failures.py` | List recent failed workflow runs | `python workflow_failures.py` |
 | `workflow_info.py` | Display workflow information | `python workflow_info.py` |
 
 ---
@@ -110,6 +111,21 @@ python scripts/workflow_info.py ci.yml
 
 # List all workflows
 python scripts/workflow_info.py --all
+```
+
+### `workflow_failures.py`
+
+Fetches the most recent failed workflow runs for a repository and highlights the jobs that need attention, together with
+debugging suggestions.
+
+**Usage:**
+
+```bash
+# List the latest 20 failed runs for the current repository
+python scripts/workflow_failures.py
+
+# Filter by a specific workflow file name and output JSON
+python scripts/workflow_failures.py --workflow ci.yml --json
 ```
 
 ### `debug_workflow.py`

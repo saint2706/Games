@@ -27,4 +27,9 @@ Use this quick reference when you need to validate GitHub Actions workflows with
    ./scripts/run_workflow.sh all
    ```
 
+6. **Inspect recent failed runs**
+   ```bash
+   python scripts/workflow_failures.py
+   ```
+
 Pair this sheet with `LOCAL_WORKFLOWS.md` for detailed explanations of each option and troubleshooting tips.
